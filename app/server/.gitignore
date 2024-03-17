@@ -1,0 +1,16 @@
+dist/**
+target/**
+.idea/**
+**/.idea
+**/target
+**/dist
+*.iml
+node_modules
+.settings/**
+**/.settings
+**/.classpath
+**/.project
+**/.factorypath
+container-volumes
+!.env
+dependency-reduced-pom.xml

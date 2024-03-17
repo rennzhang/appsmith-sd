@@ -1,0 +1,482 @@
+import type { ReactNode } from "react";
+import React from "react";
+
+import type { TextSize } from "constants/WidgetConstants";
+import { countOccurrences } from "workers/Evaluation/helpers";
+
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+
+import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { Color } from "constants/Colors";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { pick } from "lodash";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { ContainerStyle } from "widgets/ContainerWidget/component";
+import type { TextAlign } from "../component";
+import TextComponent from "../component";
+import { OverflowTypes } from "../constants";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
+
+const MAX_HTML_PARSING_LENGTH = 1000;
+class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
+  static getPropertyPaneContentConfig() {
+    return [
+      {
+        sectionName: "属性",
+        children: [
+          {
+            propertyName: "text",
+            helpText: "设置文本内容",
+            label: "文本",
+            controlType: "INPUT_TEXT",
+            placeholderText: "名称：",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: { limitLineBreaks: true },
+            },
+          },
+          {
+            propertyName: "overflow",
+            label: "内容超出",
+            helpText: "设置文本内容超出组件区域时如何展示",
+            controlType: "ICON_TABS",
+            fullWidth: true,
+            options: [
+              {
+                label: "文本滚动",
+                value: OverflowTypes.SCROLL,
+              },
+              {
+                label: "截断文本",
+                value: OverflowTypes.TRUNCATE,
+              },
+              {
+                label: "默认效果",
+                value: OverflowTypes.NONE,
+              },
+            ],
+            defaultValue: OverflowTypes.NONE,
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "isVisible",
+            helpText: "控制组件的显示/隐藏",
+            label: "是否显示",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "加载时显示动画",
+            controlType: "SWITCH",
+            helpText: "组件依赖的数据加载时显示加载动画",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "disableLink",
+            helpText: "不将文本解析成链接",
+            label: "不解析链接",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+    ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      truncateButtonColor: "{{appsmith.theme.colors.primaryColor}}",
+      fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    };
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "属性",
+        children: [
+          {
+            propertyName: "fontFamily",
+            label: "字体",
+            helpText: "Controls the font family being used",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "系统默认字体",
+                value: "System Default",
+              },
+              {
+                label: "Nunito Sans",
+                value: "Nunito Sans",
+              },
+              {
+                label: "Poppins",
+                value: "Poppins",
+              },
+              {
+                label: "Inter",
+                value: "Inter",
+              },
+              {
+                label: "Montserrat",
+                value: "Montserrat",
+              },
+              {
+                label: "Noto Sans",
+                value: "Noto Sans",
+              },
+              {
+                label: "Open Sans",
+                value: "Open Sans",
+              },
+              {
+                label: "Roboto",
+                value: "Roboto",
+              },
+              {
+                label: "Rubik",
+                value: "Rubik",
+              },
+              {
+                label: "Ubuntu",
+                value: "Ubuntu",
+              },
+            ],
+            defaultValue: "System Default",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+          },
+          {
+            propertyName: "fontSize",
+            label: "字体大小",
+            helpText: "Controls the size of the font used",
+            controlType: "DROP_DOWN",
+            defaultValue: "1rem",
+            options: [
+              {
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
+              },
+              {
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
+              },
+              {
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
+              },
+              {
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
+              },
+              {
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+          },
+        ],
+      },
+      {
+        sectionName: "颜色配置",
+        children: [
+          {
+            propertyName: "textColor",
+            label: "文本颜色",
+            helpText: "Controls the color of the text displayed",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
+          {
+            propertyName: "backgroundColor",
+            label: "背景颜色",
+            helpText: "Background color of the text added",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^((?![<|{{]).+){0,1}/,
+                expected: {
+                  type: "string (HTML 颜色名称，HEX 值)",
+                  example: `red | #9C0D38`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+          },
+          {
+            helpText: "使用 html 颜色名称，HEX，RGB 或者 RGBA 值",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "borderColor",
+            label: "边框颜色",
+            controlType: "COLOR_PICKER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "truncateButtonColor",
+            label: "截断按钮颜色",
+            helpText: "Controls the color of the truncate button",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^((?![<|{{]).+){0,1}/,
+              },
+            },
+            dependencies: ["overflow"],
+            hidden: (props: TextWidgetProps) => {
+              return props.overflow !== OverflowTypes.TRUNCATE;
+            },
+          },
+        ],
+      },
+      {
+        sectionName: "文本样式",
+        children: [
+          {
+            propertyName: "textAlign",
+            label: "对齐",
+            helpText: "Controls the horizontal alignment of the text",
+            controlType: "ICON_TABS",
+            fullWidth: true,
+            options: [
+              {
+                startIcon: "align-left",
+                value: "LEFT",
+              },
+              {
+                startIcon: "align-center",
+                value: "CENTER",
+              },
+              {
+                startIcon: "align-right",
+                value: "RIGHT",
+              },
+            ],
+            defaultValue: "LEFT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "fontStyle",
+            label: "强调",
+            helpText: "Controls the font emphasis of the text displayed",
+            controlType: "BUTTON_GROUP",
+            options: [
+              {
+                icon: "text-bold",
+                value: "BOLD",
+              },
+              {
+                icon: "text-italic",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "轮廓样式",
+        children: [
+          {
+            helpText: "设置边框宽度，也可以用作外间距",
+            propertyName: "borderWidth",
+            label: "边框宽度",
+            placeholderText: "以 px 为单位",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+          },
+        ],
+      },
+    ];
+  }
+
+  /**
+   * Disable html parsing for long continuous texts
+   * @returns boolean
+   */
+  shouldDisableLink = (): boolean => {
+    const text = this.props.text || "";
+    const count: number = countOccurrences(text, "\n", false, 0);
+    return (
+      (count === 0 && text.length > MAX_HTML_PARSING_LENGTH) ||
+      text.length > 50000
+    );
+  };
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+        setDisabled: {
+          path: "isDisabled",
+          type: "boolean",
+        },
+        setRequired: {
+          path: "isRequired",
+          type: "boolean",
+        },
+        setText: {
+          path: "text",
+          type: "string",
+        },
+        setTextColor: {
+          path: "textColor",
+          type: "string",
+        },
+      },
+    };
+  }
+
+  getPageView() {
+    const disableLink: boolean = this.props.disableLink
+      ? true
+      : this.shouldDisableLink();
+    return (
+      <WidgetStyleContainer
+        className="t--text-widget-container"
+        {...pick(this.props, [
+          "widgetId",
+          "containerStyle",
+          "borderColor",
+          "borderWidth",
+        ])}
+      >
+        <TextComponent
+          accentColor={this.props.accentColor}
+          backgroundColor={this.props.backgroundColor}
+          bottomRow={this.props.bottomRow}
+          disableLink={disableLink}
+          fontFamily={this.props.fontFamily}
+          fontSize={this.props.fontSize}
+          fontStyle={this.props.fontStyle}
+          isLoading={this.props.isLoading}
+          key={this.props.widgetId}
+          leftColumn={this.props.leftColumn}
+          minHeight={this.props.minHeight}
+          overflow={this.props.overflow}
+          rightColumn={this.props.rightColumn}
+          text={this.props.text}
+          textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
+          textColor={this.props.textColor}
+          topRow={this.props.topRow}
+          truncateButtonColor={
+            this.props.truncateButtonColor || this.props.accentColor
+          }
+          widgetId={this.props.widgetId}
+        />
+      </WidgetStyleContainer>
+    );
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {
+      value: `{{ this.text }}`,
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "‌Text widget is used to display textual information. Whether you want to display a paragraph or information or add a heading to a container, a text widget makes it easy to style and display text",
+      "!url": "https://docs.appsmith.com/widget-reference/text",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      text: "string",
+    };
+  }
+
+  static getWidgetType() {
+    return "TEXT_WIDGET";
+  }
+}
+
+export interface TextStyles {
+  backgroundColor?: string;
+  textColor?: string;
+  fontStyle?: string;
+  fontSize?: TextSize;
+  textAlign?: TextAlign;
+  truncateButtonColor?: string;
+  fontFamily: string;
+}
+
+export interface TextWidgetProps extends WidgetProps, TextStyles {
+  accentColor: string;
+  text?: string;
+  isLoading: boolean;
+  disableLink: boolean;
+  widgetId: string;
+  containerStyle?: ContainerStyle;
+  children?: ReactNode;
+  borderColor?: Color;
+  borderWidth?: number;
+  overflow: OverflowTypes;
+}
+
+export default TextWidget;
