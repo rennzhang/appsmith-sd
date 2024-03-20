@@ -8,6 +8,7 @@ import {
 describe("Entity explorer tests related to widgets and validation", function () {
   // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
   const WIDGET_TAGS: Record<string, string> = {
+    ANTD: "Antd 组件",
     GERNERAL: "通用",
     SELECT: "选择",
     INPUTS: "输入",

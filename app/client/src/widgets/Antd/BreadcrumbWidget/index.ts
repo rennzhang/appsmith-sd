@@ -1,0 +1,115 @@
+import {
+  ButtonPlacementTypes,
+  ButtonVariantTypes,
+  RecaptchaTypes,
+} from "components/constants";
+import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
+import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+
+export const CONFIG = {
+  type: Widget.getWidgetType(),
+  name: "antd 面包屑",
+  iconSVG: IconSVG,
+  tags: [WIDGET_TAGS.ANTD],
+  needsMeta: true,
+  searchTags: ["click", "submit", "button"],
+  defaults: {
+    animateLoading: false,
+    text: "提交",
+    buttonVariant: ButtonVariantTypes.PRIMARY,
+    placement: ButtonPlacementTypes.CENTER,
+    rows: 4,
+    columns: 16,
+    widgetName: "Button",
+    isDisabled: false,
+    isVisible: true,
+    isDefaultClickDisabled: true,
+    disabledWhenInvalid: false,
+    resetFormOnClick: false,
+    recaptchaType: RecaptchaTypes.V3,
+    version: 1,
+    responsiveBehavior: ResponsiveBehavior.Hug,
+    minWidth: BUTTON_MIN_WIDTH,
+    items: {
+      item1: {
+        label: "第一项",
+        id: "menuItem1",
+        widgetId: "",
+        isVisible: true,
+        isDisabled: false,
+        index: 0,
+      },
+      item2: {
+        label: "第二项",
+        id: "item2",
+        widgetId: "",
+        isVisible: true,
+        isDisabled: false,
+        index: 1,
+      },
+      item3: {
+        label: "第三项",
+        id: "item3",
+        widgetId: "",
+        isVisible: true,
+        isDisabled: false,
+        index: 2,
+      },
+    },
+  },
+  properties: {
+    derived: Widget.getDerivedPropertiesMap(),
+    default: Widget.getDefaultPropertiesMap(),
+    meta: Widget.getMetaPropertiesMap(),
+    config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "onClick",
+          propertyValue: propValueMap.run,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
+  },
+  autoLayout: {
+    defaults: {
+      rows: 4,
+      columns: 6.453,
+    },
+    autoDimension: {
+      width: true,
+    },
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "120px",
+            maxWidth: "360px",
+            minHeight: "40px",
+          };
+        },
+      },
+    ],
+    disableResizeHandles: {
+      horizontal: true,
+      vertical: true,
+    },
+  },
+};
+
+export default Widget;

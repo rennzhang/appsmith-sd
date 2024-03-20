@@ -11,6 +11,9 @@ import ButtonGroupWidget, {
 import ButtonWidget, {
   CONFIG as BUTTON_WIDGET_CONFIG,
 } from "widgets/ButtonWidget";
+import AntdBreadcrumbWidget, {
+  CONFIG as ANTD_BREADCRUM_CONFIG,
+} from "widgets/Antd/BreadcrumbWidget";
 import SelectWidget, {
   CONFIG as SELECT_WIDGET_CONFIG,
 } from "widgets/SelectWidget";
@@ -240,6 +243,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [CheckboxWidget, CHECKBOX_WIDGET_CONFIG],
   [RadioGroupWidget, RADIO_GROUP_WIDGET_CONFIG],
   [ButtonWidget, BUTTON_WIDGET_CONFIG],
+  [AntdBreadcrumbWidget, ANTD_BREADCRUM_CONFIG],
   [ImageWidget, IMAGE_WIDGET_CONFIG],
   [VideoWidget, VIDEO_WIDGET_CONFIG],
   [TabsWidget, TABS_WIDGET_CONFIG],
