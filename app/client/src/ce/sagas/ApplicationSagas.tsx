@@ -522,13 +522,14 @@ export function* createApplicationSaga(
     applicationName: string;
     icon: IconNames;
     color: AppColorCode;
+    isAntd?: boolean;
     isMobile: boolean;
     workspaceId: string;
     resolve: any;
     reject: any;
   }>,
 ) {
-  const { applicationName, color, icon, workspaceId, reject, isMobile } =
+  const { applicationName, color, icon, isAntd, isMobile, reject,workspaceId } =
     action.payload;
   try {
     const userWorkspaces: Workspaces[] = yield select(
@@ -565,6 +566,7 @@ export function* createApplicationSaga(
         icon: icon,
         color: color,
         workspaceId,
+        isAntd: isAntd,
         unpublishedAppLayout: layout,
         publishedAppLayout: layout,
       };

@@ -209,3 +209,15 @@ db/diagnostic.data/metrics.interim
 db/journal/WiredTigerLog.0000000001
 db/journal/WiredTigerPreplog.0000000001
 db/journal/WiredTigerPreplog.0000000002
+db/index-0-4892224388399820363.wt
+db/index-2-4892224388399820363.wt
+db/diagnostic.data/metrics.2024-03-25T15-51-09Z-00000
+db/journal/WiredTigerLog.0000000002
+db/collection-185--2059519121819106713.wt
+db/index-8-4892224388399820363.wt
+db/index-10-4892224388399820363.wt
+db/index-186--2059519121819106713.wt
+db/collection-185--2059519121819106713.wt
+db/index-186--2059519121819106713.wt
+db/diagnostic.data/metrics.2024-03-20T15-43-29Z-00000
+db/diagnostic.data/metrics.2024-03-23T12-20-39Z-00000

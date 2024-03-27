@@ -17,6 +17,7 @@ import { PageView, PageViewContainer } from "./AppPage.styled";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { APP_MODE } from "entities/App";
 import { useLocation } from "react-router";
+import ReactDOM from "react-dom";
 
 type AppPageProps = {
   appName?: string;
@@ -39,6 +40,7 @@ export function AppPage(props: AppPageProps) {
   const isEmbed = queryParams.get("embed");
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
   const isEmbeddedAppWithNavVisible = isEmbed && isNavbarVisibleInEmbeddedApp;
+  const isAntd = currentApplicationDetails?.isAntd;
 
   useDynamicAppLayout();
 
@@ -51,6 +53,15 @@ export function AppPage(props: AppPageProps) {
     });
   }, [props.pageId, props.pageName]);
 
+  const AppViewer = (
+    <PageView className="t--app-viewer-page" width={props.canvasWidth}>
+      {props.widgetsStructure.widgetId &&
+        WidgetFactory.createWidget(
+          props.widgetsStructure,
+          RenderModes.PAGE,
+        )}
+    </PageView>
+  )
   return (
     <PageViewContainer
       hasPinnedSidebar={
@@ -63,10 +74,13 @@ export function AppPage(props: AppPageProps) {
         isMobile || (isEmbed && !isEmbeddedAppWithNavVisible) ? 0 : sidebarWidth
       }
     >
-      <PageView className="t--app-viewer-page" width={props.canvasWidth}>
-        {props.widgetsStructure.widgetId &&
-          WidgetFactory.createWidget(props.widgetsStructure, RenderModes.PAGE)}
-      </PageView>
+      {isAntd ? (
+        ReactDOM.createPortal(AppViewer,
+          document.getElementById("ant-prolayout-container") as HTMLElement,
+        )
+      ) : (
+        AppViewer
+      )}
     </PageViewContainer>
   );
 }

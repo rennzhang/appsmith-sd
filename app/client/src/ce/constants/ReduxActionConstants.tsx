@@ -1192,6 +1192,7 @@ export interface ApplicationPayload {
   collapseInvisibleWidgets?: boolean;
   chartTheme?: string;
   evaluationVersion?: EvaluationVersion;
+  isAntd?: boolean;
 }
 
 export type WorkspaceDetails = {

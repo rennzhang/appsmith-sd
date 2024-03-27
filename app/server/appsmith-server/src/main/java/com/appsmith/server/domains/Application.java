@@ -83,6 +83,9 @@ public class Application extends BaseDomain {
     ApplicationDetail publishedApplicationDetail;
 
     @JsonView(Views.Public.class)
+    Boolean isAntd;
+
+    @JsonView(Views.Public.class)
     String color;
 
     @JsonView(Views.Public.class)
@@ -223,6 +226,7 @@ public class Application extends BaseDomain {
         this.publishedPages = new ArrayList<>();
         this.clonedFromApplicationId = application.getId();
         this.color = application.getColor();
+        this.isAntd = application.getIsAntd();
         this.icon = application.getIcon();
         this.chartTheme = application.getChartTheme();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null

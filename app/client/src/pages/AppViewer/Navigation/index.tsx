@@ -21,6 +21,7 @@ import { useHref } from "pages/Editor/utils";
 import { builderURL } from "RouteBuilder";
 import TopHeader from "./components/TopHeader";
 import Sidebar from "./Sidebar";
+import AppAntdLayout from "../AppAntdLayout";
 import {
   getCurrentApplication,
   isMobileLayout,
@@ -47,6 +48,7 @@ export function Navigation() {
   );
   const pages = useSelector(getViewModePageList);
   const isMobile = useIsMobileDevice();
+  const isAntd = currentApplicationDetails?.isAntd;
   const dispatch = useDispatch();
   const isMobileApp = useSelector(isMobileLayout);
   useEffect(() => {
@@ -74,7 +76,15 @@ export function Navigation() {
            * We need to add top header since we want the current mobile
            * navigation experience until we create the new sidebar for mobile.
            */}
-          {isMobile || isMobileApp ? null : (
+          {isMobile || isMobileApp ? null : isAntd ? (
+            <AppAntdLayout
+              currentApplicationDetails={currentApplicationDetails}
+              currentUser={currentUser}
+              currentWorkspaceId={currentWorkspaceId}
+              pages={pages}
+              showUserSettings={!isEmbed}
+            />
+          ) : (
             <Sidebar
               currentApplicationDetails={currentApplicationDetails}
               currentUser={currentUser}
