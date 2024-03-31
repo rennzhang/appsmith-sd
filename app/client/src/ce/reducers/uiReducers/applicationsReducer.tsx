@@ -25,7 +25,10 @@ import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ConnectToGitResponse } from "actions/gitSyncActions";
 import type { IconNames } from "design-system";
 import type { NavigationSetting } from "constants/AppConstants";
-import { defaultNavigationSetting } from "constants/AppConstants";
+import {
+  NAVIGATION_SETTINGS,
+  defaultNavigationSetting,
+} from "constants/AppConstants";
 import produce from "immer";
 
 export const initialState: ApplicationsReduxState = {
@@ -143,6 +146,10 @@ export const handlers = {
     state: ApplicationsReduxState,
     action: ReduxAction<{ applicationList: ApplicationPayload[] }>,
   ) => {
+    if ((action.payload as any)?.isAntd) {
+      defaultNavigationSetting.orientation =
+        NAVIGATION_SETTINGS.ORIENTATION.SIDE;
+    }
     const newState = {
       ...state,
       currentApplication: {
@@ -613,6 +620,8 @@ export const handlers = {
     state: ApplicationsReduxState,
     action: ReduxAction<NavigationSetting>,
   ) => {
+    console.log("test1");
+
     return {
       ...state,
       currentApplication: {

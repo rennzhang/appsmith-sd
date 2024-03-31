@@ -220,24 +220,26 @@ function NavigationSettings() {
 
       {navigationSetting?.showNavbar && (
         <>
-          <ButtonGroupSetting
-            heading={createMessage(APP_NAVIGATION_SETTING.orientationLabel)}
-            keyName="orientation"
-            navigationSetting={navigationSetting}
-            options={[
-              {
-                label: "顶部",
-                value: NAVIGATION_SETTINGS.ORIENTATION.TOP,
-                // startIcon:<NavOrientationTopIcon />,
-              },
-              {
-                label: "侧边",
-                value: NAVIGATION_SETTINGS.ORIENTATION.SIDE,
-                // startIcon:<NavOrientationSideIcon />,
-              },
-            ]}
-            updateSetting={updateSetting}
-          />
+          {!application?.isAntd && (
+            <ButtonGroupSetting
+              heading={createMessage(APP_NAVIGATION_SETTING.orientationLabel)}
+              keyName="orientation"
+              navigationSetting={navigationSetting}
+              options={[
+                {
+                  label: "顶部",
+                  value: NAVIGATION_SETTINGS.ORIENTATION.TOP,
+                  // startIcon:<NavOrientationTopIcon />,
+                },
+                {
+                  label: "侧边",
+                  value: NAVIGATION_SETTINGS.ORIENTATION.SIDE,
+                  // startIcon:<NavOrientationSideIcon />,
+                },
+              ]}
+              updateSetting={updateSetting}
+            />
+          )}
 
           {/**
            * TODO - @Dhruvik - ImprovedAppNav

@@ -31,7 +31,7 @@ export const mapClearTree = (tree: Tree, callback: (tree: Tree) => Tree) => {
     const children: any = tree.children
       .map((branch) => mapClearTree(branch, callback))
       .filter(Boolean);
-    return { ...mapped, children };
+    return { ...mapped, routes: children };
   }
   return { ...mapped };
 };

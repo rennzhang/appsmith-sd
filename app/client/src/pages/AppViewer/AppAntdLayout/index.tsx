@@ -11,7 +11,7 @@ import {
 } from "@ant-design/icons";
 import ReactDOM from "react-dom";
 import { Icon } from "@blueprintjs/core";
-import { viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "RouteBuilder";
 
 import type { ProSettings } from "@ant-design/pro-components";
 import {
@@ -31,7 +31,7 @@ import {
   Popover,
   theme,
 } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import defaultProps from "./_defaultProps";
 import { useSelector } from "react-redux";
 import {
@@ -45,6 +45,12 @@ import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
+import { View } from "@tarojs/components";
+import { APP_MODE } from "entities/App";
+import { size } from "lodash";
+import { mapClearTree } from "utils/treeUtils";
+import { makeRouteNode } from "../utils";
+import { getAppMode } from "selectors/entitiesSelector";
 
 const Item: React.FC<{ children: React.ReactNode }> = (props) => {
   const { token } = theme.useToken();
@@ -130,47 +136,32 @@ const MenuCard = (viewerLayout: any) => {
   );
 };
 
-const SearchInput = () => {
-  const { token } = theme.useToken();
-  return (
-    <div
-      aria-hidden
-      key="SearchOutlined"
-      onMouseDown={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        marginInlineEnd: 24,
-      }}
-    >
-      <Input
-        placeholder="搜索方案"
-        prefix={
-          <SearchOutlined
-            style={{
-              color: token.colorTextLightSolid,
-            }}
-          />
-        }
-        style={{
-          borderRadius: 4,
-          marginInlineEnd: 12,
-          backgroundColor: token.colorBgTextHover,
-        }}
-        variant="borderless"
-      />
-      <PlusCircleFilled
-        style={{
-          color: token.colorPrimary,
-          fontSize: 24,
-        }}
-      />
-    </div>
-  );
-};
+// const SearchInput = () => {
+//   const { token } = theme.useToken();
+//   return (
+//     <div
+//       aria-hidden
+//       key="SearchOutlined"
+//       onMouseDown={(e) => {
+//         e.stopPropagation();
+//         e.preventDefault();
+//       }}
+//       style={{
+//         display: "flex",
+//         alignItems: "center",
+//         marginInlineEnd: 24,
+//       }}
+//     >
+
+//       <PlusCircleFilled
+//         style={{
+//           color: token.colorPrimary,
+//           fontSize: 24,
+//         }}
+//       />
+//     </div>
+//   );
+// };
 
 type SidebarProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -181,6 +172,9 @@ type SidebarProps = {
 };
 
 export default (props: SidebarProps) => {
+  const { currentApplicationDetails } = props;
+  const appMode = useSelector(getAppMode);
+  const [query, setQuery] = useState("");
   const [settings, setSetting] = useState<Partial<ProSettings> | undefined>({
     fixSiderbar: true,
     layout: "mix",
@@ -199,44 +193,158 @@ export default (props: SidebarProps) => {
   const pages = useSelector(getViewModePageList);
 
   const currentApp = useSelector(getCurrentApplication);
-
   const viewerLayout = currentApp
     ? JSON.parse(currentApp?.viewerLayout || "{}")
     : {};
 
-  // 将treeData1递归转换成routes结构
-  function processChildren(children: any) {
-    if (!children?.length) return [];
-    return children.map((child: any) => {
-      const res = {
-        ...child,
-        path: child.pageId
-          ? viewerURL({
-              pageId: child.pageId,
-            })
-          : child.title,
-        name: child.title,
-        icon: <Icon icon={child.icon} />,
-        isHidden: false,
-        component: child.isPage ? "./Welcome" : null,
-        routes: processChildren(child.children || []),
-      };
-      delete res.children;
-      return res;
-    });
-  }
+  const getPath = (it: any, pagesMap: any, title: string) => {
+    if (!it.pageId) return "";
+    const pageURL =
+      appMode === APP_MODE.PUBLISHED
+        ? viewerURL({
+            pageId: pagesMap[title].pageId,
+          })
+        : builderURL({
+            pageId: pagesMap[title].pageId,
+          });
+    return pageURL;
+  };
 
-  defaultProps.route.routes = processChildren(viewerLayout.treeData);
-  console.log(defaultProps.route.routes, "defaultProps.route.routes");
+  const handleMenuRootClick = (item: any) => {
+    if (!query.includes("splitMenus=true")) return;
 
-  // {
-  //   path: "/welcome",
-  //   name: "欢迎",
-  //   icon: <SmileFilled />,
-  //   component: "./Welcome",
-  // },
-  console.log(viewerLayout, "viewerLayout");
-  console.log("预览 viewerLayout");
+    if (item?.routes?.length) {
+      handleMenuRootClick(item.routes[0]);
+    } else {
+      goToPath(item.path);
+    }
+  };
+  const initState = useMemo(() => {
+    let menudata: any = [];
+    if (viewerLayout && pages.length) {
+      try {
+        const current = viewerLayout;
+        const pagesMap = pages.reduce((a: any, c: any) => {
+          a[c.pageName] = { ...c };
+          return a;
+        }, {});
+        const newMenuTree: any = [];
+
+        current.treeData.forEach(
+          makeRouteNode(pagesMap, newMenuTree, current.outsiderTree),
+        );
+
+        menudata = current?.treeData.map((itdata: any, itIdx: number) => {
+          return mapClearTree(itdata, (item: any) => {
+            const path = getPath(item, pagesMap, item.title);
+            if (
+              current.outsiderTree.find((n: any) => n.pageId === item.pageId)
+            ) {
+              return false;
+            }
+            const res = {
+              ...item,
+              // name: item.title,
+              name: (
+                <a
+                  key={item.pageId}
+                  onClick={() => handleMenuRootClick(menudata[itIdx])}
+                >
+                  {item.title}
+                </a>
+              ),
+              path: path || item.title,
+              routes: size(item.children) ? item.children : null,
+              icon: (
+                <View
+                  className={`van-icon van-icon-${
+                    item.icon ? item.icon : "orders-o"
+                  } taroify-icon taroify-icon--inherit hydrated`}
+                />
+              ),
+            };
+            delete res.children;
+            return res;
+          });
+        });
+        const newPages = Object.values(pagesMap)
+          .filter(
+            (p: any) =>
+              !p.visited &&
+              !current.outsiderTree.find((n: any) => n.pageId === p.pageId),
+          )
+          .map((p: any) => {
+            const path = getPath(p, pagesMap, p.pageName);
+            return {
+              name: p.pageName,
+              title: p.pageName,
+              pageId: p.pageId,
+              isPage: true,
+              key: p.pageId,
+              path: path || p.pageName,
+
+              routes: null,
+            };
+          });
+
+        // console.log(newPages, "newPages");
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      const pagesMap = pages.reduce((a: any, c: any) => {
+        a[c.pageName] = { ...c };
+        return a;
+      }, {});
+      menudata = pages.map((p) => {
+        const path = getPath(p, pagesMap, p.pageName);
+        return {
+          name: p.pageName,
+          title: p.pageName,
+          pageId: p.pageId,
+          isPage: true,
+          key: p.pageId,
+          path: path || p.pageName,
+
+          routes: null,
+        };
+      });
+    }
+    return {
+      menudata,
+    };
+  }, [viewerLayout, pages, currentApplicationDetails]);
+
+  useEffect(() => {
+    defaultProps.route.routes = initState.menudata;
+    console.log(" initState.menudata", initState.menudata);
+  }, [initState]);
+
+  useEffect(() => {
+    setQuery(window.location.search);
+  }, [location]);
+
+  // // 将treeData1递归转换成routes结构
+  // function processChildren(children: any) {
+  //   if (!children?.length) return [];
+  //   return children.map((child: any) => {
+  //     const res = {
+  //       ...child,
+  //       path: child.pageId
+  //         ? viewerURL({
+  //             pageId: child.pageId,
+  //           })
+  //         : child.title,
+  //       name: child.title,
+  //       icon: <Icon icon={child.icon} />,
+  //       routes: processChildren(child.children || []),
+  //     };
+  //     delete res.children;
+  //     return res;
+  //   });
+  // }
+
+  // defaultProps.route.routes = processChildren(viewerLayout.treeData);
 
   return (
     <div
@@ -275,22 +383,22 @@ export default (props: SidebarProps) => {
             ]}
             prefixCls="my-prefix"
             {...defaultProps}
-            actionsRender={(props) => {
-              if (props.isMobile) return [];
-              if (typeof window === "undefined") return [];
-              return [
-                props.layout !== "side" && document.body.clientWidth > 1400 ? (
-                  <SearchInput />
-                ) : undefined,
-                <InfoCircleFilled key="InfoCircleFilled" />,
-                <QuestionCircleFilled key="QuestionCircleFilled" />,
-                <GithubFilled key="GithubFilled" />,
-              ];
-            }}
+            // actionsRender={(props) => {
+            //   if (props.isMobile) return [];
+            //   if (typeof window === "undefined") return [];
+            //   return [
+            //     props.layout !== "side" && document.body.clientWidth > 1400 ? (
+            //       <SearchInput />
+            //     ) : undefined,
+            //     <InfoCircleFilled key="InfoCircleFilled" />,
+            //     <QuestionCircleFilled key="QuestionCircleFilled" />,
+            //     <GithubFilled key="GithubFilled" />,
+            //   ];
+            // }}
             avatarProps={{
               src: "https://gw.alipayobjects.com/zos/antfincdn/efFD%24IOql2/weixintupian_20170331104822.jpg",
               size: "small",
-              title: "七妮妮",
+              title: props.currentUser?.username,
               render: (props, dom) => {
                 return (
                   <Dropdown
