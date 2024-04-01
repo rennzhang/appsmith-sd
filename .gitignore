@@ -41,3 +41,5 @@ utils/observability/tempo-data/*
 app/shared/ast/build
 db/*
 
+app/client/build.zip
+app/server/dist.zip

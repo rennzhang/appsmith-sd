@@ -8,6 +8,7 @@ const {
 const {
   merge
 } = require("webpack-merge");
+const { removeModuleScopePlugin } = require("customize-cra");
 const CracoBabelLoader = require("craco-babel-loader");
 const path = require("path");
 const webpack = require("webpack");
@@ -99,6 +100,7 @@ module.exports = {
         constructor && constructor.name === "ModuleScopePlugin",
       );
       webpackConfig.resolve.plugins.splice(scopePluginIndex, 1);
+      removeModuleScopePlugin()(webpackConfig)
       return merge(webpackConfig, config);
     },
     plugins: [
