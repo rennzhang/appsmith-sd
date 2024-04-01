@@ -235,37 +235,41 @@ export default (props: SidebarProps) => {
         );
 
         menudata = current?.treeData.map((itdata: any, itIdx: number) => {
-          return mapClearTree(itdata, (item: any) => {
-            const path = getPath(item, pagesMap, item.title);
-            if (
-              current.outsiderTree.find((n: any) => n.pageId === item.pageId)
-            ) {
-              return false;
-            }
-            const res = {
-              ...item,
-              // name: item.title,
-              name: (
-                <a
-                  key={item.pageId}
-                  onClick={() => handleMenuRootClick(menudata[itIdx])}
-                >
-                  {item.title}
-                </a>
-              ),
-              path: path || item.title,
-              routes: size(item.children) ? item.children : null,
-              icon: (
-                <View
-                  className={`van-icon van-icon-${
-                    item.icon ? item.icon : "orders-o"
-                  } taroify-icon taroify-icon--inherit hydrated`}
-                />
-              ),
-            };
-            delete res.children;
-            return res;
-          });
+          return mapClearTree(
+            itdata,
+            (item: any) => {
+              const path = getPath(item, pagesMap, item.title);
+              if (
+                current.outsiderTree.find((n: any) => n.pageId === item.pageId)
+              ) {
+                return false;
+              }
+              const res = {
+                ...item,
+                // name: item.title,
+                name: (
+                  <a
+                    key={item.pageId}
+                    onClick={() => handleMenuRootClick(menudata[itIdx])}
+                  >
+                    {item.title}
+                  </a>
+                ),
+                path: path || item.title,
+                routes: size(item.children) ? item.children : null,
+                icon: (
+                  <View
+                    className={`van-icon van-icon-${
+                      item.icon ? item.icon : "orders-o"
+                    } taroify-icon taroify-icon--inherit hydrated`}
+                  />
+                ),
+              };
+              delete res.children;
+              return res;
+            },
+            "routes",
+          );
         });
         const newPages = Object.values(pagesMap)
           .filter(

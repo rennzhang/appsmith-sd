@@ -76,7 +76,7 @@ export function Navigation() {
            * We need to add top header since we want the current mobile
            * navigation experience until we create the new sidebar for mobile.
            */}
-          {isMobile || isMobileApp ? null : isAntd ? (
+          {isAntd && (
             <AppAntdLayout
               currentApplicationDetails={currentApplicationDetails}
               currentUser={currentUser}
@@ -84,15 +84,18 @@ export function Navigation() {
               pages={pages}
               showUserSettings={!isEmbed}
             />
-          ) : (
-            <Sidebar
-              currentApplicationDetails={currentApplicationDetails}
-              currentUser={currentUser}
-              currentWorkspaceId={currentWorkspaceId}
-              pages={pages}
-              showUserSettings={!isEmbed}
-            />
           )}
+
+          {!isAntd &&
+            (isMobile || isMobileApp ? null : (
+              <Sidebar
+                currentApplicationDetails={currentApplicationDetails}
+                currentUser={currentUser}
+                currentWorkspaceId={currentWorkspaceId}
+                pages={pages}
+                showUserSettings={!isEmbed}
+              />
+            ))}
         </>
       );
     }

@@ -225,7 +225,9 @@ export function Sidebar(props: SidebarProps) {
       menudata,
     };
   }, [viewerLayout, pages, currentApplicationDetails]);
-
+  useEffect(() => {
+    console.log(" initState", initState);
+  }, [initState]);
   useEffect(() => {
     setQuery(window.location.search);
   }, [location]);
@@ -350,16 +352,16 @@ export function Sidebar(props: SidebarProps) {
         primaryColor={primaryColor}
       >
         <Menu
+          className="rootSideMenu pp-menu"
           defaultSelectedKeys={get(_head(initState.menudata), "key")}
-          mode="inline"
-          theme={current_theme}
           inlineCollapsed={!isOpen}
           items={filterHiddenTreeData(initState.menudata)}
-          className="rootSideMenu pp-menu"
+          mode="inline"
           style={{
             border: "none",
             backgroundColor: "transparent",
           }}
+          theme={current_theme}
         />
         {/* {appPages.map((page) => {
           return (

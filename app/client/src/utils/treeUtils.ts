@@ -21,7 +21,11 @@ export const mapTree = (tree: Tree, callback: (tree: Tree) => Tree) => {
   return { ...mapped };
 };
 
-export const mapClearTree = (tree: Tree, callback: (tree: Tree) => Tree) => {
+export const mapClearTree = (
+  tree: Tree,
+  callback: (tree: Tree) => Tree,
+  childrenFieldName = "children",
+) => {
   if (!callback(tree)) {
     // 不符合条件的节点，直接返回 null，表示删除该节点
     return null;
@@ -31,7 +35,7 @@ export const mapClearTree = (tree: Tree, callback: (tree: Tree) => Tree) => {
     const children: any = tree.children
       .map((branch) => mapClearTree(branch, callback))
       .filter(Boolean);
-    return { ...mapped, routes: children };
+    return { ...mapped, [childrenFieldName]: children };
   }
   return { ...mapped };
 };
