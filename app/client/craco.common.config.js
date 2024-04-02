@@ -100,7 +100,6 @@ module.exports = {
         constructor && constructor.name === "ModuleScopePlugin",
       );
       webpackConfig.resolve.plugins.splice(scopePluginIndex, 1);
-      removeModuleScopePlugin()(webpackConfig)
       return merge(webpackConfig, config);
     },
     plugins: [
@@ -184,6 +183,7 @@ module.exports = {
             path.resolve(__dirname, "src"),
             ...webpackConfig.resolve.modules,
           ];
+          removeModuleScopePlugin()(webpackConfig)
           return webpackConfig;
         },
       },
