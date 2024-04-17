@@ -14,6 +14,9 @@ import ButtonWidget, {
 import AntdBreadcrumbWidget, {
   CONFIG as ANTD_BREADCRUM_CONFIG,
 } from "widgets/Antd/BreadcrumbWidget";
+import AntdTableWidget, {
+  CONFIG as ANTD_Table_CONFIG,
+} from "widgets/Antd/TableWidget";
 import SelectWidget, {
   CONFIG as SELECT_WIDGET_CONFIG,
 } from "widgets/SelectWidget";
@@ -235,6 +238,8 @@ import MTextWidget, {
 } from "widgets/taro/TextWidget";
 
 export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
+  [AntdBreadcrumbWidget, ANTD_BREADCRUM_CONFIG],
+  [AntdTableWidget, ANTD_Table_CONFIG],
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
   [SkeletonWidget, SKELETON_WIDGET_CONFIG],
   [ContainerWidget, CONTAINER_WIDGET_CONFIG],
@@ -243,7 +248,6 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [CheckboxWidget, CHECKBOX_WIDGET_CONFIG],
   [RadioGroupWidget, RADIO_GROUP_WIDGET_CONFIG],
   [ButtonWidget, BUTTON_WIDGET_CONFIG],
-  [AntdBreadcrumbWidget, ANTD_BREADCRUM_CONFIG],
   [ImageWidget, IMAGE_WIDGET_CONFIG],
   [VideoWidget, VIDEO_WIDGET_CONFIG],
   [TabsWidget, TABS_WIDGET_CONFIG],
