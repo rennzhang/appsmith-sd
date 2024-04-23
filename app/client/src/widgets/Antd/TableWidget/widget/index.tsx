@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 import log from "loglevel";
 import memoizeOne from "memoize-one";
 
@@ -8,13 +8,11 @@ import _, {
   isNil,
   xor,
   without,
-  isArray,
   xorWith,
   isEmpty,
   union,
   isObject,
   pickBy,
-  orderBy,
   filter,
   merge,
 } from "lodash";
@@ -37,15 +35,9 @@ import type {
   TransientDataPayload,
 } from "../constants";
 import {
-  ActionColumnTypes,
   ColumnTypes,
   defaultEditableCell,
-  DEFAULT_BUTTON_LABEL,
-  DEFAULT_COLUMN_WIDTH,
-  DEFAULT_MENU_BUTTON_LABEL,
-  DEFAULT_MENU_VARIANT,
   EditableCellActions,
-  InlineEditingSaveOptions,
   ORIGINAL_INDEX_KEY,
   TABLE_COLUMN_ORDER_KEY,
   PaginationDirection,
@@ -58,10 +50,7 @@ import {
   getTableStyles,
   getSelectRowIndex,
   getSelectRowIndices,
-  getCellProperties,
-  isColumnTypeEditable,
   getColumnType,
-  getBooleanPropertyValue,
   deleteLocalTableColumnOrderByWidgetId,
   getColumnOrderByWidgetIdFromLS,
   generateLocalNewColumnOrderFromStickyValue,
@@ -77,22 +66,15 @@ import { CompactModeTypes, SortOrderTypes } from "../component/Constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import type { IconName } from "@blueprintjs/icons";
-import { IconNames } from "@blueprintjs/icons";
-import { Colors } from "constants/Colors";
 import equal from "fast-deep-equal/es6";
 import {
   sanitizeKey,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
 import { klona as clone } from "klona";
-import { CellWrapper } from "../component/TableStyledWrappers";
 import localStorage from "utils/localStorage";
 import { generateNewColumnOrderFromStickyValue } from "./utilities";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { MenuItem } from "widgets/MenuButtonWidget/constants";
-import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
-import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import type { getColumns } from "./reactTableUtils/getColumnsPureFn";
 import { getMemoiseGetColumnsWithLocalStorageFn } from "./reactTableUtils/getColumnsPureFn";
 import type {
@@ -763,7 +745,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       serverSidePaginationEnabled,
       totalRecordsCount,
     } = this.props;
-
 
     // Bail out if tableData is a string. This signifies an error in evaluations
     if (isString(this.props.tableData)) {
@@ -1562,22 +1543,25 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     pushBatchMetaUpdates("nextPageVisited", nextButtonFlag);
   };
 
-  handleQueryDataChange = (params: any) => {
+  handleQueryDataChange = (params: any, isInit?: boolean) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
-    console.log(" queryData", params);
-    pushBatchMetaUpdates("queryData", params, {
-      triggerPropertyName: "onPageChange",
-      dynamicString: this.props.onPageChange,
-      event: {
-        type: EventType.ON_QUERY_CHANGE,
-      },
-    });
+    if (isInit) {
+      pushBatchMetaUpdates("queryData", params);
+    } else {
+      pushBatchMetaUpdates("queryData", params, {
+        triggerPropertyName: "onPageChange",
+        dynamicString: this.props.onPageChange,
+        event: {
+          type: EventType.ON_QUERY_CHANGE,
+        },
+      });
 
-    if (this.props.onPageChange) {
-      this.pushResetSelectedRowIndexUpdates();
+      if (this.props.onPageChange) {
+        this.pushResetSelectedRowIndexUpdates();
+      }
+      commitBatchMetaUpdates();
     }
-    commitBatchMetaUpdates();
   };
 
   handleNextPageClick = () => {
@@ -1742,7 +1726,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       },
     );
   };
-
 
   onCellTextChange = (
     value: EditableCell["value"],

@@ -119,7 +119,10 @@ export interface TableProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
-  onQueryDataChange: (queryData: Record<string, unknown>) => void;
+  onQueryDataChange: (
+    queryData: Record<string, unknown>,
+    isInit?: boolean,
+  ) => void;
 }
 
 const defaultColumn = {
@@ -371,7 +374,9 @@ export function Table(props: TableProps) {
             isLoading={props.isLoading}
             isResizingColumn={isResizingColumn}
             isSortable={props.isSortable}
+            isVisibleFilters={props.isVisibleFilters}
             isVisiblePagination={props.isVisiblePagination}
+            isVisibleSearch={props.isVisibleSearch}
             multiRowSelection={props?.multiRowSelection}
             nextPageClick={props.nextPageClick}
             onAddNewRow={props.onAddNewRow}
@@ -400,7 +405,6 @@ export function Table(props: TableProps) {
             totalColumnsWidth={totalColumnsWidth}
             totalRecordsCount={props.totalRecordsCount}
             updatePageNo={props.updatePageNo}
-            updatePageNumber={props.updatePageNumber}
             useVirtual={shouldUseVirtual}
             widgetId={props.widgetId}
             widgetName={props.widgetName}

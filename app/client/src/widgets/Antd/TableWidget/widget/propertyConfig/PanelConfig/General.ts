@@ -36,6 +36,23 @@ export default {
       },
     },
     {
+      propertyName: "isVisibleCellSearch",
+      label: "支持搜索",
+      helpText: "支持表格上方使用该字段服务端搜索",
+      defaultValue: true,
+      controlType: "SWITCH",
+      customJSControl: "TABLE_COMPUTE_VALUE",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+    },
+    {
       propertyName: "isDisabled",
       label: "禁用",
       helpText: "Controls the disabled state of the button",

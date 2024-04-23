@@ -70,7 +70,7 @@ export interface TableWidgetProps
   selectedRowIndices: number[];
   serverSidePaginationEnabled?: boolean;
   multiRowSelection?: boolean;
-  enableClientSideSearch?: boolean;
+  // enableClientSideSearch?: boolean;
   hiddenColumns?: string[];
   columnOrder?: string[];
   frozenColumnIndices: Record<string, number>;

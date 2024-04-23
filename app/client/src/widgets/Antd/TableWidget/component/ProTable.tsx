@@ -88,7 +88,11 @@ export interface TableProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
-  onQueryDataChange: (queryData: Record<string, unknown>) => void;
+  onQueryDataChange: (
+    queryData: Record<string, unknown>,
+    isInit?: boolean,
+  ) => void;
+  disableAddNewRow: boolean;
 }
 type GithubIssueItem = {
   url: string;
@@ -238,30 +242,61 @@ export default (props: TableProps) => {
     setDataSource(props.tableData);
   }, [props.tableData]);
 
+  const initialQueryData: Record<string, any> = {};
   const tableColumns = useMemo(() => {
-    const transColumns = props.columns.map((column, i) => {
-      const columnType = column.columnProperties.columnType;
-      const proColumn: ProColumns<GithubIssueItem> = {
-        ...column,
-        ...column.columnProperties,
-        fixed: column.sticky,
-        hideInTable: column.isHidden,
-        hideInSearch: column.isHidden,
-        title: column.Header,
-        ellipsis: !column.columnProperties.allowCellWrapping,
-        dataIndex: column.id,
-        valueType: columnType,
-        filters: column.columnProperties.enableFilter,
-        onFilter: column.columnProperties.enableFilter,
-      };
-      if (columnType.includes("select")) {
-        proColumn.valueEnum = column.columnProperties.computedValue;
-      }
-      delete proColumn.sticky;
-      return proColumn;
-    });
+    const transColumns =
+      props.columns?.map((column, i) => {
+        initialQueryData[column.id] = "";
+        const columnType = column.columnProperties.columnType;
+        const proColumn: ProColumns<GithubIssueItem> = {
+          ...column,
+          fixed: column.sticky,
+          hideInTable: column.isHidden,
+          title: column.Header,
+          ellipsis: !column.columnProperties.allowCellWrapping,
+          dataIndex: column.id,
+          valueType: columnType,
+          // copyable: column.columnProperties.isCopyable,
+          filters:
+            props.isVisibleFilters && column.columnProperties.isFilterable,
+          hideInSearch: !(
+            props.isVisibleSearch && column.columnProperties.isVisibleCellSearch
+          ),
+          // 筛选时使用本地搜索
+          onFilter: true,
+        };
+        if (columnType.includes("select")) {
+          proColumn.valueEnum = {} as Record<string, { text: string }>;
+          console.log(" column?", column);
+          console.log(" column?.columnProperties", column?.columnProperties);
+          let selectOptions = column?.columnProperties?.selectOptions || [];
+          if (
+            typeof selectOptions == "string" &&
+            (selectOptions as any)?.includes("[{")
+          ) {
+            try {
+              selectOptions = JSON.parse(selectOptions);
+            } catch (error) {
+              selectOptions = [];
+            }
+          }
+          selectOptions?.map &&
+            selectOptions?.map((option: any) => {
+              (proColumn.valueEnum as any)[option.value] = {
+                text: option.label,
+                ...option,
+              };
+            });
+        }
+        delete proColumn.sticky;
+        return proColumn;
+      }) || [];
+    props?.onQueryDataChange(initialQueryData, true);
+
+    console.log(" props.columns transColumns", props, transColumns);
     return [...transColumns, columns[columns.length - 1]];
   }, [props.columns]);
+
   return (
     <div className="overflow-auto">
       <ProTable<any>
@@ -296,6 +331,10 @@ export default (props: TableProps) => {
           },
         }}
         loading={props.isLoading}
+        onReset={() => {
+          setQueryData(initialQueryData);
+          props?.onQueryDataChange(initialQueryData);
+        }}
         options={{
           setting: {
             listsHeight: 400,
@@ -331,23 +370,18 @@ export default (props: TableProps) => {
               }
             : false
         }
-        request={async (params) => {
+        request={async (params, sort, filter) => {
           // 初始 queryData
-          const _queryData: any = {};
-          if (Object.keys(_queryData).length !== tableColumns.length) {
-            tableColumns.forEach((column: any) => {
-              _queryData[column.id] = "";
+
+          return new Promise((resolve) => {
+            props?.onQueryDataChange(params);
+
+            return resolve({
+              data: dataSource,
+              success: true,
+              total: props.totalRecordsCount || 0,
             });
-          }
-          Object.assign(_queryData, params);
-          setQueryData(_queryData);
-          console.log("request queryData", _queryData);
-          props?.onQueryDataChange(_queryData);
-          return {
-            data: props.tableData,
-            success: true,
-            total: props.totalRecordsCount || 0,
-          };
+          });
         }}
         rowKey={(record: any) => record.rowKey}
         rowSelection={
@@ -361,9 +395,13 @@ export default (props: TableProps) => {
             : false
         }
         scroll={{ x: "100%" }}
-        search={{
-          labelWidth: "auto",
-        }}
+        search={
+          props?.isVisibleSearch
+            ? {
+                labelWidth: "auto",
+              }
+            : false
+        }
         style={{ width: "100%" }}
         tableAlertOptionRender={() => {
           return (
