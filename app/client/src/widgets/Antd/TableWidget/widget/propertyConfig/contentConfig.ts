@@ -321,6 +321,7 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
+        defaultValue: false,
       },
       {
         helpText: "选中行时触发",
@@ -502,6 +503,56 @@ export default [
       //   hidden: (props: TableWidgetProps) => !props.isVisibleDownload,
       //   dependencies: ["isVisibleDownload"],
       // },
+    ],
+  },
+  {
+    sectionName: "工具栏配置",
+    children: [
+      {
+        helpText: "控制工具栏列设置的显示/隐藏",
+        propertyName: "isVisibleCellSetting",
+        label: "是否显示列设置按钮",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
+        helpText: "控制工具栏刷新按钮的显示/隐藏",
+        propertyName: "isVisibleRefresh",
+        label: "是否显示刷新按钮",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
+        helpText: "控制工具栏全屏按钮的显示/隐藏",
+        propertyName: "isVisibleFullScreen",
+        label: "是否显示全屏按钮",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
+        helpText: "控制工具栏行密度按钮的显示/隐藏",
+        propertyName: "isVisibleDensity",
+        label: "是否显示密度按钮",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+
     ],
   },
 ] as PropertyPaneConfig[];

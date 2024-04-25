@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Table from "./Table";
 import type {
   AddNewRowActions,
@@ -81,6 +81,10 @@ interface ReactTableComponentProps {
   isVisibleSearch?: boolean;
   isVisibleFilters?: boolean;
   isVisibleDownload?: boolean;
+  isVisibleDensity?: boolean;
+  isVisibleFullScreen?: boolean;
+  isVisibleRefresh?: boolean;
+  isVisibleCellSetting?: boolean;
   isVisiblePagination?: boolean;
   delimiter: string;
   isSortable?: boolean;
@@ -134,9 +138,13 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     isAddRowInProgress,
     isLoading,
     isSortable,
+    isVisibleCellSetting,
+    isVisibleDensity,
     isVisibleDownload,
     isVisibleFilters,
+    isVisibleFullScreen,
     isVisiblePagination,
+    isVisibleRefresh,
     isVisibleSearch,
     multiRowSelection,
     nextPageClick,
@@ -250,9 +258,13 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       isAddRowInProgress={isAddRowInProgress}
       isLoading={isLoading}
       isSortable={isSortable}
+      isVisibleCellSetting={isVisibleCellSetting}
+      isVisibleDensity={isVisibleDensity}
       isVisibleDownload={isVisibleDownload}
       isVisibleFilters={isVisibleFilters}
+      isVisibleFullScreen={isVisibleFullScreen}
       isVisiblePagination={isVisiblePagination}
+      isVisibleRefresh={isVisibleRefresh}
       isVisibleSearch={isVisibleSearch}
       multiRowSelection={multiRowSelection}
       nextPageClick={nextPageClick}
@@ -304,6 +316,10 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.isVisibleFilters === next.isVisibleFilters &&
     prev.isVisiblePagination === next.isVisiblePagination &&
     prev.isVisibleSearch === next.isVisibleSearch &&
+    prev.isVisibleRefresh === next.isVisibleRefresh &&
+    prev.isVisibleFullScreen === next.isVisibleFullScreen &&
+    prev.isVisibleDensity === next.isVisibleDensity &&
+    prev.isVisibleCellSetting === next.isVisibleCellSetting &&
     prev.nextPageClick === next.nextPageClick &&
     prev.onRowClick === next.onRowClick &&
     prev.pageNo === next.pageNo &&

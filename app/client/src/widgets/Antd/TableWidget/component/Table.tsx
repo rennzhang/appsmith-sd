@@ -32,7 +32,6 @@ import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
 import fastdom from "fastdom";
 import { ConnectDataOverlay } from "./ConnectDataOverlay";
 import Protable from "./ProTable";
-const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 
 const PopoverStyles = createGlobalStyle<{
@@ -94,6 +93,10 @@ export interface TableProps {
   applyFilter: (filters: ReactTableFilter[]) => void;
   compactMode?: CompactMode;
   isVisibleDownload?: boolean;
+  isVisibleDensity?: boolean;
+  isVisibleFullScreen?: boolean;
+  isVisibleRefresh?: boolean;
+  isVisibleCellSetting?: boolean;
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
@@ -201,7 +204,6 @@ export function Table(props: TableProps) {
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
     getTableBodyProps,
-    getTableProps,
     headerGroups,
     page,
     pageOptions,
@@ -252,10 +254,7 @@ export function Table(props: TableProps) {
     [page, startIndex, endIndex],
   );
   const selectedRowIndices = props.selectedRowIndices || emptyArr;
-  const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
-  const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const scrollBarRef = useRef<SimpleBar | null>(null);
-  const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
     if (!multiRowSelection) return null;
@@ -286,26 +285,6 @@ export function Table(props: TableProps) {
     props.isVisibleDownload ||
     props.allowAddNewRow;
 
-  const scrollContainerStyles = useMemo(() => {
-    return {
-      height: isHeaderVisible
-        ? props.height -
-          tableSizes.TABLE_HEADER_HEIGHT -
-          (props.isVisiblePagination ? tableSizes.TABLE_FOOTER_HEIGHT : 0) -
-          TABLE_SCROLLBAR_HEIGHT -
-          SCROLL_BAR_OFFSET
-        : props.height -
-          TABLE_SCROLLBAR_HEIGHT -
-          SCROLL_BAR_OFFSET -
-          (props.isVisiblePagination ? tableSizes.TABLE_FOOTER_HEIGHT : 0),
-    };
-  }, [
-    isHeaderVisible,
-    props.height,
-    tableSizes.TABLE_HEADER_HEIGHT,
-    props.isVisiblePagination,
-  ]);
-
   const shouldUseVirtual =
     props.serverSidePaginationEnabled &&
     !props.columns.some(
@@ -321,6 +300,7 @@ export function Table(props: TableProps) {
       });
     }
   }, [props.isAddRowInProgress]);
+
 
   return (
     <>
@@ -341,7 +321,6 @@ export function Table(props: TableProps) {
         isHeaderVisible={isHeaderVisible}
         isResizingColumn={isResizingColumn.current}
         multiRowSelection={props.multiRowSelection}
-        tableSizes={tableSizes}
         triggerRowSelection={props.triggerRowSelection}
         variant={props.variant}
         width={props.width}
@@ -358,24 +337,24 @@ export function Table(props: TableProps) {
             boxShadow={props.boxShadow}
             canFreezeColumn={props.canFreezeColumn}
             columns={tableHeadercolumns}
+            compactMode={props.compactMode}
             delimiter={props.delimiter}
             disableAddNewRow={!!props.editableCell.column}
             disableDrag={props.disableDrag}
             disabledAddNewRowSave={props.disabledAddNewRowSave}
             editMode={props.editMode}
             enableDrag={props.enableDrag}
-            getTableBodyProps={getTableBodyProps}
-            handleAllRowSelectClick={handleAllRowSelectClick}
-            handleColumnFreeze={props.handleColumnFreeze}
             handleReorderColumn={props.handleReorderColumn}
-            headerGroups={headerGroups}
             height={props.height}
             isAddRowInProgress={props.isAddRowInProgress}
             isLoading={props.isLoading}
-            isResizingColumn={isResizingColumn}
             isSortable={props.isSortable}
+            isVisibleCellSetting={props.isVisibleCellSetting}
+            isVisibleDensity={props.isVisibleDensity}
             isVisibleFilters={props.isVisibleFilters}
+            isVisibleFullScreen={props.isVisibleFullScreen}
             isVisiblePagination={props.isVisiblePagination}
+            isVisibleRefresh={props.isVisibleRefresh}
             isVisibleSearch={props.isVisibleSearch}
             multiRowSelection={props?.multiRowSelection}
             nextPageClick={props.nextPageClick}
@@ -392,7 +371,6 @@ export function Table(props: TableProps) {
             queryData={props.queryData}
             ref={scrollBarRef}
             rowSelectionState={rowSelectionState}
-            scrollContainerStyles={scrollContainerStyles}
             selectTableRow={props.selectTableRow}
             selectedRowIndex={props.selectedRowIndex}
             selectedRowIndices={props.selectedRowIndices}
@@ -401,7 +379,6 @@ export function Table(props: TableProps) {
             subPage={subPage}
             tableColumns={columns}
             tableData={data}
-            tableSizes={tableSizes}
             totalColumnsWidth={totalColumnsWidth}
             totalRecordsCount={props.totalRecordsCount}
             updatePageNo={props.updatePageNo}

@@ -274,6 +274,7 @@ export interface ColumnBaseProperties {
   isDerived: boolean;
   computedValue: string;
   isCellVisible?: boolean;
+  isVisibleCellSearch?: boolean;
   isAscOrder?: boolean;
   alias: string;
   allowCellWrapping: boolean;

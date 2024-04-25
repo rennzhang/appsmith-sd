@@ -174,6 +174,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
           label: column.label || "",
           id: column.id,
           isVisible: column.isVisible,
+          isVisibleCellSearch: column.isVisibleCellSearch,
           isDerived:
             column.isDerived && column.columnType !== ColumnTypes.EDIT_ACTIONS,
           index: column.index,
@@ -239,6 +240,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               }
               toggleCheckbox={this.toggleCheckbox}
               toggleVisibility={this.toggleVisibility}
+              toggleVisibleCellSearch={this.toggleVisibleCellSearch}
               updateFocus={this.updateFocus}
               updateItems={this.updateItems}
               updateOption={this.updateOption}
@@ -298,6 +300,22 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       this.updateProperty(
         `${this.props.propertyName}.${originalColumn.id}.isVisible`,
         !originalColumn.isVisible,
+      );
+    }
+  };
+
+  toggleVisibleCellSearch = (index: number) => {
+    const columns: ColumnsType = this.props.propertyValue || {};
+    const originalColumn = getOriginalColumn(
+      columns,
+      index,
+      this.props.widgetProperties.columnOrder,
+    );
+
+    if (originalColumn) {
+      this.updateProperty(
+        `${this.props.propertyName}.${originalColumn.id}.isVisibleCellSearch`,
+        !originalColumn.isVisibleCellSearch,
       );
     }
   };

@@ -976,12 +976,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       } else if (_.isNumber(selectedRowIndices)) {
         indices = [selectedRowIndices];
       } else {
-        indices = [];
+        indices = [0];
       }
     } else {
       indices = undefined;
     }
-
     return indices;
   };
 
@@ -1027,6 +1026,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const tableColumns = this.getTableColumns() || emptyArr;
     const transformedData = this.transformData(filteredTableData, tableColumns);
+
     const isVisibleHeaderOptions =
       isVisibleDownload ||
       isVisibleFilters ||
@@ -1039,13 +1039,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       transformedData,
       this.props.isAddRowInProgress,
       this.props.newRowContent,
-    ).map((row: Record<string, unknown>, idx) => {
-      return {
-        ...row,
-        rowKey: idx + (+new Date()).toString(),
-      };
-    });
-    console.log(" finalTableData", finalTableData);
+    );
+
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
@@ -1076,9 +1071,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           isEditableCellsValid={this.props.isEditableCellsValid}
           isLoading={this.props.isLoading}
           isSortable={this.props.isSortable ?? true}
+          isVisibleCellSetting={this.props.isVisibleCellSetting}
+          isVisibleDensity={this.props.isVisibleDensity}
           isVisibleDownload={isVisibleDownload}
           isVisibleFilters={isVisibleFilters}
+          isVisibleFullScreen={this.props.isVisibleFullScreen}
           isVisiblePagination={isVisiblePagination}
+          isVisibleRefresh={this.props.isVisibleRefresh}
           isVisibleSearch={isVisibleSearch}
           multiRowSelection={
             this.props.multiRowSelection && !this.props.isAddRowInProgress
