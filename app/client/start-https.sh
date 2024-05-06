@@ -307,6 +307,10 @@ $(if [[ $use_https == 1 ]]; then echo "
             proxy_pass $backend;
         }
 
+        location /nodeApi {
+            proxy_pass $backend/nodeApi;
+        }
+
         location /oauth2 {
             proxy_pass $backend;
         }
