@@ -28,6 +28,7 @@ type RenderComponentProps = {
     isChecked?: boolean;
     isCheckboxDisabled?: boolean;
     isDragDisabled?: boolean;
+    isVisibleCellSearch?: boolean;
   };
   isDelete?: boolean;
   isDragging: boolean;
@@ -38,6 +39,7 @@ type RenderComponentProps = {
   onEdit?: (index: number) => void;
   deleteOption: (index: number) => void;
   toggleVisibility?: (index: number) => void;
+  toggleVisibleCellSearch?: (index: number) => void;
   toggleCheckbox?: (index: number, checked: boolean) => void;
   isAllColumnEditable?: boolean;
 };
@@ -76,16 +78,24 @@ export function DraggableListCard(props: RenderComponentProps) {
     showCheckbox,
     toggleCheckbox,
     toggleVisibility,
+    toggleVisibleCellSearch,
     updateFocus,
     updateOption,
   } = props;
   const [visibility, setVisibility] = useState(item.isVisible);
+  const [visibleCellSearch, setVisibleCellSearch] = useState(
+    item.isVisibleCellSearch,
+  );
   const ref = useRef<HTMLInputElement | null>(null);
   const debouncedUpdate = _.debounce(updateOption, 1000);
 
   useEffect(() => {
     setVisibility(item.isVisible);
   }, [item.isVisible]);
+
+  useEffect(() => {
+    setVisibleCellSearch(item.isVisibleCellSearch);
+  }, [item.isVisibleCellSearch]);
 
   useEffect(() => {
     if (!isEditing && item && item.label) setValue(item.label);
@@ -154,6 +164,33 @@ export function DraggableListCard(props: RenderComponentProps) {
       />
     );
   };
+  const renderVisibleCellSearchIcon = () => {
+    return visibleCellSearch ? (
+      <Button
+        className="t--show-column-btn"
+        isIconButton
+        kind="tertiary"
+        onClick={() => {
+          setVisibleCellSearch(!visibleCellSearch);
+          toggleVisibleCellSearch && toggleVisibleCellSearch(index);
+        }}
+        size="sm"
+        startIcon="search-line"
+      />
+    ) : (
+      <Button
+        className="t--show-column-btn"
+        isIconButton
+        kind="tertiary"
+        onClick={() => {
+          setVisibleCellSearch(!visibleCellSearch);
+          toggleVisibleCellSearch && toggleVisibleCellSearch(index);
+        }}
+        size="sm"
+        startIcon="search-eye-line"
+      />
+    );
+  };
 
   const showDelete = !!item.isDerived || isDelete;
   return (
@@ -208,6 +245,9 @@ export function DraggableListCard(props: RenderComponentProps) {
           />
         )}
         {!showDelete && toggleVisibility && renderVisibilityIcon()}
+        {!showDelete &&
+          toggleVisibleCellSearch &&
+          renderVisibleCellSearchIcon()}
         {/*
          * Used in Table_Widget_V2's primary columns to enable/disable cell editability.
          * Using a common name `showCheckbox` instead of showEditable or isEditable,

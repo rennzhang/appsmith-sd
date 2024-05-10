@@ -16,6 +16,7 @@ export type RenderComponentProps<TItem extends BaseItemProps> = {
   updateOption: (index: number, value: string) => void;
   toggleCheckbox?: (index: number, checked: boolean) => void;
   toggleVisibility?: (index: number) => void;
+  toggleVisibleCellSearch?: (index: number) => void;
   onEdit?: (index: number) => void;
   updateFocus?: (index: number, isFocused: boolean) => void;
   isDragging: boolean;
@@ -33,6 +34,7 @@ export type DroppableComponentProps<TItem extends BaseItemProps> = {
   updateOption: (index: number, value: string) => void;
   toggleCheckbox?: (index: number, checked: boolean) => void;
   toggleVisibility?: (index: number) => void;
+  toggleVisibleCellSearch?: (index: number) => void;
   updateItems: (items: TItem[]) => void;
   onEdit?: (index: number) => void;
   updateFocus?: (index: number, isFocused: boolean) => void;
@@ -100,6 +102,7 @@ export class DroppableComponent<
       renderComponent,
       toggleCheckbox,
       toggleVisibility,
+      toggleVisibleCellSearch,
       updateFocus,
       updateOption,
     } = this.props;
@@ -110,6 +113,7 @@ export class DroppableComponent<
       updateOption,
       toggleCheckbox,
       toggleVisibility,
+      toggleVisibleCellSearch,
       onEdit,
       focusedIndex,
       item,

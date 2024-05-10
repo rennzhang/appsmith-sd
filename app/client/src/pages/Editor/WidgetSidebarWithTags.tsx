@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
-import { getWidgetCards } from "selectors/editorSelectors";
+import {
+  getCurrentApplication,
+  getWidgetCards,
+} from "selectors/editorSelectors";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import { debounce, sortBy } from "lodash";
 import Fuse from "fuse.js";
@@ -52,7 +55,8 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
 
     return new Fuse(cards, options);
   }, [cards]);
-
+  const currentApplicationDetails = useSelector(getCurrentApplication);
+  const isAntd = currentApplicationDetails?.isAntd;
   const sendWidgetSearchAnalytics = debounce((value: string) => {
     if (value !== "") {
       AnalyticsUtil.logEvent("WIDGET_SEARCH", { value });
@@ -107,6 +111,10 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
               filteredCards[tag as WidgetTags];
 
             if (!cardsForThisTag?.length) {
+              return null;
+            }
+
+            if (tag === WIDGET_TAGS.ANTD && !isAntd) {
               return null;
             }
 

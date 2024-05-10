@@ -13,6 +13,7 @@ const baseNoRestrictedImports =
 const eslintConfig = {
   extends: [".eslintrc.base.json"],
   rules: {
+    "react/react-in-jsx-scope": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "react/display-name": "off",
     "react/prop-types": "off",

@@ -37,8 +37,9 @@ import type { AppState } from "@appsmith/reducers";
 import { CanvasResizer } from "widgets/CanvasResizer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
-
+import ReactDOM from "react-dom";
 type CanvasContainerProps = {
+  isAntd?: boolean;
   isPreviewMode: boolean;
   shouldShowSnapShotBanner: boolean;
   navigationHeight?: number;
@@ -85,7 +86,7 @@ function CanvasContainer(props: CanvasContainerProps) {
   } = props;
   const navigationHeight = 0;
   const dispatch = useDispatch();
-  const { isPreviewMode, shouldShowSnapShotBanner } = props;
+  const { isAntd, isPreviewMode, shouldShowSnapShotBanner } = props;
 
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
@@ -130,14 +131,27 @@ function CanvasContainer(props: CanvasContainerProps) {
   }
 
   if (!isPageInitializing && widgetsStructure) {
-    node = (
-      <Canvas
-        canvasWidth={canvasWidth}
-        isAutoLayout={isAutoLayout}
-        pageId={params.pageId}
-        widgetsStructure={widgetsStructure}
-      />
-    );
+    node =
+      isPreviewMode &&
+      isAntd &&
+      document.getElementById("ant-prolayout-container") ? (
+        ReactDOM.createPortal(
+          <Canvas
+            canvasWidth={canvasWidth}
+            isAutoLayout={isAutoLayout}
+            pageId={params.pageId}
+            widgetsStructure={widgetsStructure}
+          />,
+          document.getElementById("ant-prolayout-container") as HTMLElement,
+        )
+      ) : (
+        <Canvas
+          canvasWidth={canvasWidth}
+          isAutoLayout={isAutoLayout}
+          pageId={params.pageId}
+          widgetsStructure={widgetsStructure}
+        />
+      );
   }
 
   const isPreviewingNavigation =

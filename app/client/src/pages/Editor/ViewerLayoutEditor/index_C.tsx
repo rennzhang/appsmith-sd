@@ -12,8 +12,8 @@ import {
 } from "selectors/editorSelectors";
 import { getSelectedAppThemeProperties } from "selectors/appThemingSelectors";
 import { builderURL } from "RouteBuilder";
-import {
-  SortableTreeWithoutDndContext as SortableTree,
+import "react-sortable-tree-patch-react-17/style.css";
+import SortableTree, {
   addNodeUnderParent,
   removeNodeAtPath,
   changeNodeAtPath,
@@ -403,7 +403,7 @@ function PagesEditor() {
       <ConfigContainer>
         <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 12 }}>
           <Form.Item label="应用名称">
-            <Input value={name} onChange={(e) => setName(e.target.value)} />
+          <Input value={name} onChange={(e) => setName(e.target.value)} />
           </Form.Item>
           <Form.Item label="Logo地址">
             <Input

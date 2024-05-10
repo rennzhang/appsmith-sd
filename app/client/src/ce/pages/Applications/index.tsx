@@ -614,6 +614,7 @@ export function ApplicationsSection(props: any) {
     applicationName: string,
     workspaceId: string,
     isMobile: boolean,
+    isAntd: boolean,
   ) => {
     const color = getRandomPaletteColor(theme.colors.appCardColors);
     const icon =
@@ -627,15 +628,15 @@ export function ApplicationsSection(props: any) {
         icon,
         color,
         isMobile,
+        isAntd,
       },
     });
   };
 
-  const CreateApp = ({ applications, isMobile, orgId }: any) => {
+  const CreateApp = ({ applications, isAntd, isMobile, orgId }: any) => {
     return (
       <Button
         className="t--new-button createnew"
-        startIcon={"plus"}
         isLoading={creatingApplicationMap && creatingApplicationMap[orgId]}
         onClick={() => {
           if (
@@ -649,12 +650,14 @@ export function ApplicationsSection(props: any) {
               ),
               orgId,
               isMobile,
+              isAntd,
             );
           }
         }}
         size="md"
+        startIcon={"plus"}
       >
-        {`创建${isMobile ? "移动" : "桌面"}应用`}
+        {`创建${isMobile ? "移动" : isAntd ? "Ant Design" : "桌面"}应用`}
       </Button>
     );
   };
@@ -772,6 +775,12 @@ export function ApplicationsSection(props: any) {
                         applications={applications}
                         isMobile
                         key="mobile"
+                        orgId={workspace.id}
+                      />,
+                      <CreateApp
+                        applications={applications}
+                        isAntd
+                        key="pc"
                         orgId={workspace.id}
                       />,
                     ]}
@@ -961,6 +970,13 @@ export function ApplicationsSection(props: any) {
                         key="mobile"
                         orgId={workspace.id}
                       />
+                      <CreateApp
+                        applications={applications}
+                        isAntd
+                        key="pc"
+                        orgId={workspace.id}
+                      />
+                      ,
                     </div>
                   )}
                 </NoAppsFound>

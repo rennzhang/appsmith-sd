@@ -83,6 +83,7 @@ export enum CheckboxGroupAlignmentTypes {
   END = "flex-end",
   CENTER = "center",
   SPACE_BETWEEN = "space-between",
+  BETWEEN = "space-between",
   SPACE_AROUND = "space-around",
   NONE = "unset",
 }

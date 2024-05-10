@@ -8,7 +8,7 @@ import JSEditor from "./JSEditor";
 import GeneratePage from "./GeneratePage";
 import CurlImportForm from "./APIEditor/CurlImportForm";
 import ProviderTemplates from "./APIEditor/ProviderTemplates";
-import ViewerLayoutEditor from "./ViewerLayoutEditor";
+import ViewerLayoutEditor from "./ViewerLayoutEditor/index_C";
 import {
   API_EDITOR_ID_PATH,
   BUILDER_CHECKLIST_PATH,

@@ -149,7 +149,7 @@ function WidgetsEditor() {
   );
 
   const showNavigation = () => {
-    if (isPreviewingNavigation) {
+    if (isPreviewingNavigation || currentApplicationDetails?.isAntd) {
       return (
         <NavigationPreview
           isAppSettingsPaneWithNavigationTabOpen={
@@ -212,6 +212,7 @@ function WidgetsEditor() {
                 </div>
               )}
               <CanvasContainer
+                isAntd={currentApplicationDetails?.isAntd}
                 isAppSettingsPaneWithNavigationTabOpen={
                   AppSettingsTabs.Navigation === appSettingsPaneContext?.type
                 }

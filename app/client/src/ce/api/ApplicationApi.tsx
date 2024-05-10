@@ -89,6 +89,7 @@ export interface CreateApplicationRequest {
   workspaceId: string;
   color?: AppColorCode;
   icon?: IconNames;
+  isAntd?: boolean;
   unpublishedAppLayout?: AppLayoutConfig;
   publishedAppLayout?: AppLayoutConfig;
 }
@@ -303,6 +304,7 @@ export class ApplicationApi extends Api {
         name: request.name,
         color: request.color,
         icon: request.icon,
+        isAntd: request.isAntd,
         unpublishedAppLayout: request.unpublishedAppLayout,
         publishedAppLayout: request.publishedAppLayout,
       },
