@@ -343,3 +343,6 @@ export const PropertyPaneConfigTemplates: Record<
     },
   ],
 };
+
+export const HeightControlPaneConfig =
+  PropertyPaneConfigTemplates[RegisteredWidgetFeatures.DYNAMIC_HEIGHT][0];

@@ -14,6 +14,10 @@ import ButtonWidget, {
 import AntdBreadcrumbWidget, {
   CONFIG as ANTD_BREADCRUM_CONFIG,
 } from "widgets/Antd/BreadcrumbWidget";
+
+import AntdDropdownWidget, {
+  CONFIG as ANTD_DROPDOWN_CONFIG,
+} from "widgets/Antd/DropdownWidget";
 import AntdTableWidget, {
   CONFIG as ANTD_Table_CONFIG,
 } from "widgets/Antd/TableWidget";
@@ -238,6 +242,7 @@ import MTextWidget, {
 } from "widgets/taro/TextWidget";
 
 export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
+  [AntdDropdownWidget, ANTD_DROPDOWN_CONFIG],
   [AntdBreadcrumbWidget, ANTD_BREADCRUM_CONFIG],
   [AntdTableWidget, ANTD_Table_CONFIG],
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
