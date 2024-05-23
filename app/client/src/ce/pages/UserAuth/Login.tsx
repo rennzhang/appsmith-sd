@@ -163,7 +163,7 @@ export function Login(props: LoginFormProps) {
     errorMessage = queryParams.get("message") || queryParams.get("error") || "";
     showError = true;
   }
-  let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;
+  let loginURL = "/server/api/v1/" + LOGIN_SUBMIT_PATH;
   let signupURL = SIGN_UP_URL;
   const redirectUrl = queryParams.get("redirectUrl");
   if (redirectUrl != null && getIsSafeRedirectURL(redirectUrl)) {

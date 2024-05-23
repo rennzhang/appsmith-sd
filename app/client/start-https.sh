@@ -303,12 +303,11 @@ $(if [[ $use_https == 1 ]]; then echo "
             sub_filter __APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__ '${APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX-}';
         }
 
-        location /api {
+        location /server {
             proxy_pass $backend;
         }
-
-        location /nodeApi {
-            proxy_pass $backend/nodeApi;
+        location /api {
+            proxy_pass $backend;
         }
 
         location /oauth2 {

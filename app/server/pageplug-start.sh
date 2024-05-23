@@ -1,0 +1,2 @@
+#!/bin/bash
+nohup java -DPORT=28899 -Dfile.encoding=UTF-8 -DAPPSMITH_ENCRYPTION_PASSWORD=abc -DAPPSMITH_ENCRYPTION_SALT=abc -DAPPSMITH_MONGODB_URI=mongodb://n6prk935Z:22711/appsmith -Dappsmith.redis.url=redis://n6prk935Z:22700 -DAPPSMITH_REDIS_URL=redis://n6prk935Z:22700 -DAPPSMITH_APP_KEY=KhEG9vstLoKI -DAPPSMITH_APP_SECRET=PgkWXow4ClGwYPB7iN5vvbAo41T1l1XA -jar server-*.jar >logs/nohup.out &
