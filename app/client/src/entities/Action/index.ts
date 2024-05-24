@@ -26,6 +26,7 @@ export enum PluginPackageName {
   MY_SQL = "mysql-plugin",
   MS_SQL = "mssql-plugin",
   SNOWFLAKE = "snowflake-plugin",
+  PHAL_API = "phalApi-plugin",
 }
 
 // more can be added subsequently.
@@ -48,6 +49,7 @@ export enum PluginName {
   HUBSPOT = "HubSpot",
   ELASTIC_SEARCH = "Elasticsearch",
   GRAPHQL = "Authenticated GraphQL API",
+  PHAL_API = "接口大师鉴权 API",
 }
 
 export enum PaginationType {

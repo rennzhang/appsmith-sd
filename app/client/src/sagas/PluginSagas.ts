@@ -58,7 +58,31 @@ function* fetchPluginsSaga(
     if (isValid) {
       yield put({
         type: ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
-        payload: pluginsResponse.data,
+        payload: pluginsResponse.data.map((plugin) => {
+          // if (plugin.name == "接口大师鉴权 API") {
+          //   return {
+          //     id: "664b2bf09ac93f34a8aaaaaa",
+          //     userPermissions: [],
+          //     name: "接口大师鉴权 API",
+          //     type: "API",
+          //     packageName: "restapi-plugin",
+          //     pluginName: "PhalApi",
+          //     iconLocation: "/logo/jkds_jpg.jpg",
+          //     documentationLink:
+          //       "https://docs.appsmith.com/reference/datasources/twilio#create-queries",
+          //     responseType: "JSON",
+          //     version: "1.0",
+          //     uiComponent: "ApiEditorForm",
+          //     datasourceComponent: "PhalAPIDatasourceForm",
+          //     allowUserDatasources: true,
+          //     isRemotePlugin: false,
+          //     templates: {},
+          //     remotePlugin: false,
+          //     new: false,
+          //   };
+          // }
+          return plugin;
+        }),
       });
     }
   } catch (error) {
@@ -98,7 +122,10 @@ function* fetchPluginFormConfigsSaga() {
     const pluginFormData: PluginFormPayload[] = [];
     const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
       [...pluginIdFormsToFetch].map((id) =>
-        call(PluginsApi.fetchFormConfig, id),
+        call(
+          PluginsApi.fetchFormConfig,
+          id == "664b2bf09ac93f34a8aaaaaa" ? "664b2bec9ac93f34a80b2bbe" : id,
+        ),
       ),
     );
     for (const response of pluginFormResponses) {
@@ -180,7 +207,11 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
     );
     if (!formConfig) {
       const formConfigResponse: ApiResponse<PluginFormPayload> =
-        yield PluginApi.fetchFormConfig(pluginId);
+        yield PluginApi.fetchFormConfig(
+          pluginId == "664b2bf09ac93f34a8aaaaaa"
+            ? "664b2bec9ac93f34a80b2bbe"
+            : pluginId,
+        );
       yield validateResponse(formConfigResponse);
       if (!formConfigResponse.data.setting) {
         formConfigResponse.data.setting = defaultActionSettings[plugin.type];
