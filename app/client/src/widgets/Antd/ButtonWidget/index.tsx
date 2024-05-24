@@ -1,30 +1,26 @@
-import { ButtonWidget } from "./widget";
-import IconSVG from "./icon.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
+import {
+  ButtonPlacementTypes,
+  ButtonVariantTypes,
+  RecaptchaTypes,
+} from "components/constants";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
-import { BUTTON_COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
+import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const CONFIG = {
-  type: ButtonWidget.getWidgetType(),
-  name: "Button",
+  type: Widget.getWidgetType(),
+  name: "Antd 按钮",
   iconSVG: IconSVG,
-  needsMeta: false,
-  isCanvas: false,
-  tags: [WIDGET_TAGS.BUTTONS],
-  searchTags: ["click", "submit"],
-  features: {
-    dynamicHeight: {
-      sectionIndex: 0,
-      active: false,
-    },
-  },
+  tags: [WIDGET_TAGS.ANTD],
+  needsMeta: true,
+  searchTags: ["click", "submit", "button"],
   defaults: {
     animateLoading: false,
-    text: "Submit",
-    buttonVariant: BUTTON_VARIANTS.FILLED,
-    buttonColor: BUTTON_COLORS.ACCENT,
+    text: "提交",
+    buttonVariant: ButtonVariantTypes.PRIMARY,
     placement: ButtonPlacementTypes.CENTER,
     rows: 4,
     columns: 16,
@@ -40,11 +36,28 @@ export const CONFIG = {
     minWidth: BUTTON_MIN_WIDTH,
   },
   properties: {
-    derived: ButtonWidget.getDerivedPropertiesMap(),
-    default: ButtonWidget.getDefaultPropertiesMap(),
-    meta: ButtonWidget.getMetaPropertiesMap(),
-    contentConfig: ButtonWidget.getPropertyPaneContentConfig(),
-    styleConfig: ButtonWidget.getPropertyPaneStyleConfig(),
+    derived: Widget.getDerivedPropertiesMap(),
+    default: Widget.getDefaultPropertiesMap(),
+    meta: Widget.getMetaPropertiesMap(),
+    config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+    setterConfig: Widget.getSetterConfig(),
+  },
+  methods: {
+    getSnipingModeUpdates: (
+      propValueMap: SnipingModeProperty,
+    ): PropertyUpdates[] => {
+      return [
+        {
+          propertyPath: "onClick",
+          propertyValue: propValueMap.run,
+          isDynamicPropertyPath: true,
+        },
+      ];
+    },
   },
   autoLayout: {
     defaults: {
@@ -73,4 +86,4 @@ export const CONFIG = {
   },
 };
 
-export default ButtonWidget;
+export default Widget;
