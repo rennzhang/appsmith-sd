@@ -17,6 +17,7 @@ export enum UIComponentTypes {
 
 export enum DatasourceComponentTypes {
   RestAPIDatasourceForm = "RestAPIDatasourceForm",
+  PhalAPIDatasourceForm = "PhalAPIDatasourceForm",
   AutoForm = "AutoForm",
 }
 export interface Plugin {
