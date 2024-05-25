@@ -106,20 +106,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   componentDidUpdate(prevProps: Props) {
     if (!this.props.formData) return;
 
-    // const { authType } = this.props.formData;
-
-    // if (authType === AuthType.OAuth2) {
-    //   this.ensureOAuthDefaultsAreCorrect();
-    // } else if (authType === AuthType.apiKey) {
-    //   this.ensureAPIKeyDefaultsAreCorrect();
-    // }
-
-    // if trigger save changed, save datasource
     if (
       prevProps.triggerSave !== this.props.triggerSave &&
       this.props.triggerSave
     ) {
-      console.log(" savesavesavesavesave");
       this.save();
     }
   }
@@ -128,70 +118,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const { formMeta } = this.props;
     return _.get(formMeta, prop + ".visited", false);
   }
-
-  ensureAPIKeyDefaultsAreCorrect = () => {
-    if (!this.props.formData) return;
-    const { authentication } = this.props.formData;
-    if (!authentication || !_.get(authentication, "addTo")) {
-      this.props.change("authentication.addTo", ApiKeyAuthType.Header);
-    }
-    if (!authentication || !_.get(authentication, "headerPrefix")) {
-      this.props.change("authentication.headerPefix", "ApiKeyAuthType.Header");
-    }
-  };
-
-  ensureOAuthDefaultsAreCorrect = () => {
-    if (!this.props.formData) return;
-    const { authentication } = this.props.formData;
-
-    if (!authentication || !_.get(authentication, "grantType")) {
-      this.props.change(
-        "authentication.grantType",
-        GrantType.ClientCredentials,
-      );
-    }
-
-    if (
-      !this.isDirty("authentication.headerPrefix") &&
-      _.get(authentication, "headerPrefix") === undefined
-    ) {
-      this.props.change("authentication.headerPrefix", "Bearer");
-    }
-
-    if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
-      if (_.get(authentication, "isAuthorizationHeader") === undefined) {
-        this.props.change("authentication.isAuthorizationHeader", true);
-      }
-    }
-
-    if (_.get(authentication, "grantType") === GrantType.ClientCredentials) {
-      if (_.get(authentication, "isAuthorizationHeader") === undefined) {
-        this.props.change("authentication.isAuthorizationHeader", false);
-      }
-    }
-
-    if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
-      if (
-        _.get(authentication, "sendScopeWithRefreshToken") === undefined ||
-        _.get(authentication, "sendScopeWithRefreshToken") === ""
-      ) {
-        this.props.change("authentication.sendScopeWithRefreshToken", false);
-      }
-    }
-
-    if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
-      if (
-        _.get(authentication, "refreshTokenClientCredentialsLocation") ===
-          undefined ||
-        _.get(authentication, "refreshTokenClientCredentialsLocation") === ""
-      ) {
-        this.props.change(
-          "authentication.refreshTokenClientCredentialsLocation",
-          "BODY",
-        );
-      }
-    }
-  };
 
   validate = (): boolean => {
     const { datasource, datasourceId, formData } = this.props;
@@ -226,6 +152,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         onSuccess,
       );
     }
+
+    console.log("保存接口大师数据源");
 
     this.props.createDatasource(
       {
@@ -314,6 +242,31 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       </>
     );
   };
+  renderKeyValueControlViaFormControl(
+    configProperty: string,
+    label: string,
+    placeholderText: string,
+    isRequired: boolean,
+  ) {
+    const config = {
+      id: "",
+      configProperty: configProperty,
+      isValid: false,
+      controlType: "KEYVALUE_ARRAY",
+      placeholderText: placeholderText,
+      label: label,
+      conditionals: {},
+      formName: this.props.formName,
+      isRequired: isRequired,
+    };
+    return (
+      <FormControl
+        config={config}
+        formName={this.props.formName}
+        multipleConfig={[]}
+      />
+    );
+  }
 
   renderGeneralSettings = () => {
     const { formData } = this.props;
@@ -334,31 +287,51 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             fieldValidator: this.urlValidator,
           })}
         </FormInputContainer>
-        <FormInputContainer
-          data-location-id={btoa("authentication.appSmithAppKey")}
-        >
-          {this.renderInputTextControlViaFormControl({
-            configProperty: "authentication.appSmithAppKey",
-            label: "AppKey",
-            placeholderText: "App Key",
-            dataType: "TEXT",
-            encrypted: false,
-            isRequired: true,
-          })}
-        </FormInputContainer>
-        <FormInputContainer
-          data-location-id={btoa("authentication.appSmithAppKey")}
-        >
-          {this.renderInputTextControlViaFormControl({
-            configProperty: "authentication.appSmithAppSecret",
-
-            label: "AppSecret",
-            placeholderText: "App Secret",
-            dataType: "PASSWORD",
-            encrypted: false,
-            isRequired: true,
-          })}
-        </FormInputContainer>
+        <Collapsible title="鉴权配置">
+          <FormInputContainer
+            data-location-id={btoa("authentication.username")}
+          >
+            {this.renderInputTextControlViaFormControl({
+              configProperty: "authentication.username",
+              label: "AppKey",
+              placeholderText: "AppKey",
+              dataType: "TEXT",
+              encrypted: false,
+              isRequired: true,
+            })}
+          </FormInputContainer>
+          <FormInputContainer
+            data-location-id={btoa("authentication.password")}
+          >
+            {this.renderInputTextControlViaFormControl({
+              configProperty: "authentication.password",
+              label: "AppSecret",
+              placeholderText: "AppSecret",
+              dataType: "PASSWORD",
+              encrypted: true,
+              isRequired: true,
+              isSecretExistsPath: "authentication.secretExists.password",
+            })}
+          </FormInputContainer>
+        </Collapsible>
+        <Collapsible title="请求头">
+          <FormInputContainer
+            className="t--headers-array"
+            data-location-id={btoa("headers")}
+          >
+            {this.renderKeyValueControlViaFormControl("headers", "", "", false)}
+          </FormInputContainer>
+        </Collapsible>
+        <Collapsible title="查询参数">
+          <FormInputContainer data-location-id={btoa("queryParameters")}>
+            {this.renderKeyValueControlViaFormControl(
+              "queryParameters",
+              "",
+              "",
+              false,
+            )}
+          </FormInputContainer>
+        </Collapsible>
       </section>
     );
   };

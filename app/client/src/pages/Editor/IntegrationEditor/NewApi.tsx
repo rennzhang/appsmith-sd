@@ -14,7 +14,7 @@ import { createNewApiAction } from "actions/apiPaneActions";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginName, PluginPackageName, PluginType } from "entities/Action";
 import { getQueryParams } from "utils/URLUtils";
 import { replacePluginIcon } from "utils/AppsmithUtils";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
@@ -169,7 +169,7 @@ function NewApiScreen(props: Props) {
 
   useEffect(() => {
     const plugin = plugins.find((p) => p.name === "REST API");
-    const phalApiPlugin = plugins.find((p) => p.name === "接口大师鉴权 API");
+    const phalApiPlugin = plugins.find((p) => p.name === PluginName.PHAL_API);
     setAuthAPiPlugin(plugin);
     setPhalApiPlugin(phalApiPlugin);
   }, [plugins]);

@@ -241,7 +241,10 @@ export function getGraphQLPlugin(plugins: Plugin[]): Plugin | undefined {
 export function isGraphqlPlugin(plugin: Plugin | undefined) {
   return plugin?.packageName === PluginPackageName.GRAPHQL;
 }
-export function isPhalApiPlugin(plugin: Plugin | undefined) {
+export function isPhalApiPlugin(plugin: Plugin | undefined | string) {
+  if (typeof plugin === "string") {
+    return plugin === PluginName.PHAL_API;
+  }
   return plugin?.name === PluginName.PHAL_API;
 }
 

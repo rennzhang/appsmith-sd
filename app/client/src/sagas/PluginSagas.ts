@@ -56,33 +56,38 @@ function* fetchPluginsSaga(
     );
     const isValid: boolean = yield validateResponse(pluginsResponse);
     if (isValid) {
+      let hasPhalApi = false;
+      const plugins = pluginsResponse.data.map((plugin) => {
+        if (plugin.name == "接口大师鉴权 API") {
+          hasPhalApi = true;
+        }
+        return plugin;
+      });
+      // if (!hasPhalApi) {
+      //   plugins.push({
+      //     id: "664b2bf09ac93f34a8aaaaaa",
+      //     userPermissions: [] as any,
+      //     name: "接口大师鉴权 API",
+      //     type: "API" as any,
+      //     packageName: "restapi-plugin" as any,
+      //     pluginName: "PhalApi",
+      //     iconLocation: "/logo/jkds_jpg.jpg",
+      //     documentationLink:
+      //       "https://docs.appsmith.com/reference/datasources/twilio#create-queries",
+      //     responseType: "JSON",
+      //     version: "1.0",
+      //     uiComponent: "ApiEditorForm" as any,
+      //     datasourceComponent: "PhalAPIDatasourceForm" as any,
+      //     allowUserDatasources: true,
+      //     isRemotePlugin: false,
+      //     templates: {},
+      //     remotePlugin: false,
+      //     new: false,
+      //   });
+      // }
       yield put({
         type: ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
-        payload: pluginsResponse.data.map((plugin) => {
-          // if (plugin.name == "接口大师鉴权 API") {
-          //   return {
-          //     id: "664b2bf09ac93f34a8aaaaaa",
-          //     userPermissions: [],
-          //     name: "接口大师鉴权 API",
-          //     type: "API",
-          //     packageName: "restapi-plugin",
-          //     pluginName: "PhalApi",
-          //     iconLocation: "/logo/jkds_jpg.jpg",
-          //     documentationLink:
-          //       "https://docs.appsmith.com/reference/datasources/twilio#create-queries",
-          //     responseType: "JSON",
-          //     version: "1.0",
-          //     uiComponent: "ApiEditorForm",
-          //     datasourceComponent: "PhalAPIDatasourceForm",
-          //     allowUserDatasources: true,
-          //     isRemotePlugin: false,
-          //     templates: {},
-          //     remotePlugin: false,
-          //     new: false,
-          //   };
-          // }
-          return plugin;
-        }),
+        payload: plugins,
       });
     }
   } catch (error) {
