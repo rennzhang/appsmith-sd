@@ -241,5 +241,8 @@ export function getGraphQLPlugin(plugins: Plugin[]): Plugin | undefined {
 export function isGraphqlPlugin(plugin: Plugin | undefined) {
   return plugin?.packageName === PluginPackageName.GRAPHQL;
 }
+export function isPhalApiPlugin(plugin: Plugin | undefined) {
+  return plugin?.name === PluginName.PHAL_API;
+}
 
 export const SCHEMA_SECTION_ID = "t--api-right-pane-schema";
