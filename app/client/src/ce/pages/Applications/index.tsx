@@ -633,10 +633,16 @@ export function ApplicationsSection(props: any) {
     });
   };
 
-  const CreateApp = ({ applications, isAntd, isMobile, orgId }: any) => {
+  const CreateApp = ({
+    applications,
+    className,
+    isAntd,
+    isMobile,
+    orgId,
+  }: any) => {
     return (
       <Button
-        className="t--new-button createnew"
+        className={"t--new-button createnew " + className}
         isLoading={creatingApplicationMap && creatingApplicationMap[orgId]}
         onClick={() => {
           if (
@@ -955,10 +961,7 @@ export function ApplicationsSection(props: any) {
                   <span>应用组是空的</span>
                   {/* below component is duplicate. This is because of cypress test were failing */}
                   {hasCreateNewApplicationPermission && (
-                    <div
-                      className="flex justify-between"
-                      style={{ width: 272 }}
-                    >
+                    <div className="flex justify-around">
                       <CreateApp
                         applications={applications}
                         key="pc"
@@ -966,6 +969,7 @@ export function ApplicationsSection(props: any) {
                       />
                       <CreateApp
                         applications={applications}
+                        className="mx-2"
                         isMobile
                         key="mobile"
                         orgId={workspace.id}
@@ -976,7 +980,6 @@ export function ApplicationsSection(props: any) {
                         key="pc"
                         orgId={workspace.id}
                       />
-                      ,
                     </div>
                   )}
                 </NoAppsFound>
