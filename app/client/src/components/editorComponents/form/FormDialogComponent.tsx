@@ -67,6 +67,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
               applicationId={props.applicationId}
               placeholder={props.placeholder}
               workspaceId={props.workspace.id}
+              workspaceSlug={props.workspace.slug}
             />
           </ModalBody>
         </ModalContent>

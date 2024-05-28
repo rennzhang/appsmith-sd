@@ -16,9 +16,11 @@ import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
 import { useMediaQuery } from "react-responsive";
 
 type PageHeaderProps = {
+  createButtonText?: string;
   buttonText?: string;
   searchPlaceholder: string;
   onButtonClick?: () => void;
+  onCreateButtonClick?: () => void;
   onSearch?: DebouncedFunc<(search: string) => void>;
   pageMenuItems: any[];
   title?: string;
@@ -55,6 +57,7 @@ export function SettingsPageHeader(props: PageHeaderProps) {
 
   const {
     buttonText,
+    createButtonText,
     onSearch,
     pageMenuItems,
     searchPlaceholder,
@@ -125,6 +128,17 @@ export function SettingsPageHeader(props: PageHeaderProps) {
               {buttonText}
             </Button>
           )}
+          {createButtonText && showSearchNButton && (
+            <Button
+              className="ml-2"
+              data-testid={"t--page-header-input"}
+              onClick={props.onCreateButtonClick}
+              size="md"
+            >
+              {createButtonText}
+            </Button>
+          )}
+
           {showMoreOptions && (
             <Menu
               onOpenChange={(open: boolean) => {

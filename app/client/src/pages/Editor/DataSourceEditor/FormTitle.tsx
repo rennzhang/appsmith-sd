@@ -66,9 +66,11 @@ function FormTitle(props: FormTitleProps) {
             datasource.id !== currentDatasource?.id &&
             !(
               datasource.name === currentDatasource?.name &&
-              ["REST API", "Authenticated GraphQL API"].includes(
-                (datasource as any).pluginName,
-              ) &&
+              [
+                "REST API",
+                "Authenticated GraphQL API",
+                "接口大师鉴权 API",
+              ].includes((datasource as any).pluginName) &&
               datasource.pluginId === currentDatasource?.pluginId
             ),
         )

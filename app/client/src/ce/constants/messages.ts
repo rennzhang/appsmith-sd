@@ -137,6 +137,8 @@ export const INVITE_USERS_PLACEHOLDER = () => `请输入邮箱地址`;
 export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `邀请小伙伴`;
 export const INVITE_USERS_SUBMIT_SUCCESS = () => `邀请成功`;
 export const INVITE_USER_SUBMIT_SUCCESS = () => `邀请成功`;
+export const CREATE_USERS_SUBMIT_SUCCESS = () => `邀请成功`;
+export const CREATE_USER_SUBMIT_SUCCESS = () => `邀请成功`;
 export const INVITE_USERS_VALIDATION_EMAILS_EMPTY = () =>
   `请输入小伙伴们的邮箱`;
 export const INVITE_USER_RAMP_TEXT = () =>

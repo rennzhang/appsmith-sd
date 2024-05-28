@@ -26,6 +26,7 @@ export enum PluginPackageName {
   MY_SQL = "mysql-plugin",
   MS_SQL = "mssql-plugin",
   SNOWFLAKE = "snowflake-plugin",
+  PHAL_API = "phalApi-plugin",
 }
 
 // more can be added subsequently.
@@ -48,6 +49,7 @@ export enum PluginName {
   HUBSPOT = "HubSpot",
   ELASTIC_SEARCH = "Elasticsearch",
   GRAPHQL = "Authenticated GraphQL API",
+  PHAL_API = "接口大师鉴权 API",
 }
 
 export enum PaginationType {
@@ -238,6 +240,12 @@ export function getGraphQLPlugin(plugins: Plugin[]): Plugin | undefined {
 
 export function isGraphqlPlugin(plugin: Plugin | undefined) {
   return plugin?.packageName === PluginPackageName.GRAPHQL;
+}
+export function isPhalApiPlugin(plugin: Plugin | undefined | string) {
+  if (typeof plugin === "string") {
+    return plugin === PluginName.PHAL_API;
+  }
+  return plugin?.name === PluginName.PHAL_API;
 }
 
 export const SCHEMA_SECTION_ID = "t--api-right-pane-schema";
