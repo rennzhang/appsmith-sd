@@ -56,9 +56,38 @@ function* fetchPluginsSaga(
     );
     const isValid: boolean = yield validateResponse(pluginsResponse);
     if (isValid) {
+      let hasPhalApi = false;
+      const plugins = pluginsResponse.data.map((plugin) => {
+        if (plugin.name == "接口大师鉴权 API") {
+          hasPhalApi = true;
+        }
+        return plugin;
+      });
+      // if (!hasPhalApi) {
+      //   plugins.push({
+      //     id: "664b2bf09ac93f34a8aaaaaa",
+      //     userPermissions: [] as any,
+      //     name: "接口大师鉴权 API",
+      //     type: "API" as any,
+      //     packageName: "restapi-plugin" as any,
+      //     pluginName: "PhalApi",
+      //     iconLocation: "/logo/jkds_jpg.jpg",
+      //     documentationLink:
+      //       "https://docs.appsmith.com/reference/datasources/twilio#create-queries",
+      //     responseType: "JSON",
+      //     version: "1.0",
+      //     uiComponent: "ApiEditorForm" as any,
+      //     datasourceComponent: "PhalAPIDatasourceForm" as any,
+      //     allowUserDatasources: true,
+      //     isRemotePlugin: false,
+      //     templates: {},
+      //     remotePlugin: false,
+      //     new: false,
+      //   });
+      // }
       yield put({
         type: ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
-        payload: pluginsResponse.data,
+        payload: plugins,
       });
     }
   } catch (error) {
@@ -98,7 +127,10 @@ function* fetchPluginFormConfigsSaga() {
     const pluginFormData: PluginFormPayload[] = [];
     const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
       [...pluginIdFormsToFetch].map((id) =>
-        call(PluginsApi.fetchFormConfig, id),
+        call(
+          PluginsApi.fetchFormConfig,
+          id == "664b2bf09ac93f34a8aaaaaa" ? "664b2bec9ac93f34a80b2bbe" : id,
+        ),
       ),
     );
     for (const response of pluginFormResponses) {
@@ -180,7 +212,11 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
     );
     if (!formConfig) {
       const formConfigResponse: ApiResponse<PluginFormPayload> =
-        yield PluginApi.fetchFormConfig(pluginId);
+        yield PluginApi.fetchFormConfig(
+          pluginId == "664b2bf09ac93f34a8aaaaaa"
+            ? "664b2bec9ac93f34a80b2bbe"
+            : pluginId,
+        );
       yield validateResponse(formConfigResponse);
       if (!formConfigResponse.data.setting) {
         formConfigResponse.data.setting = defaultActionSettings[plugin.type];

@@ -6,7 +6,7 @@ import {
   EntityIcon,
   ENTITY_ICON_SIZE,
 } from "../ExplorerIcons";
-import { isGraphqlPlugin, PluginType } from "entities/Action";
+import { isGraphqlPlugin, isPhalApiPlugin, PluginType } from "entities/Action";
 import { generateReactKey } from "utils/generators";
 
 import type { Plugin } from "api/PluginApi";
@@ -73,11 +73,13 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     },
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
       const isGraphql = isGraphqlPlugin(plugin);
+      const isPhalApi = isPhalApiPlugin(plugin);
       if (
         plugin &&
         plugin.type === PluginType.API &&
         !remoteIcon &&
-        !isGraphql
+        !isGraphql &&
+        !isPhalApi
       ) {
         const method = action?.actionConfiguration?.httpMethod;
         if (method) return ApiMethodIcon(method);

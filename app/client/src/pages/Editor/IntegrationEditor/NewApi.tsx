@@ -8,12 +8,13 @@ import {
 import type { AppState } from "@appsmith/reducers";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import PlusLogo from "assets/images/Plus-logo.svg";
+import PhalApiLogo from "assets/images/PhalApi.png";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginName, PluginPackageName, PluginType } from "entities/Action";
 import { getQueryParams } from "utils/URLUtils";
 import { replacePluginIcon } from "utils/AppsmithUtils";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
@@ -147,6 +148,7 @@ const API_ACTION = {
   CREATE_NEW_GRAPHQL_API: "CREATE_NEW_GRAPHQL_API",
   CREATE_DATASOURCE_FORM: "CREATE_DATASOURCE_FORM",
   AUTH_API: "AUTH_API",
+  CREATE_NEW_PHAL_API: "CREATE_NEW_PHAL_API",
 };
 
 function NewApiScreen(props: Props) {
@@ -163,10 +165,13 @@ function NewApiScreen(props: Props) {
     getGenerateCRUDEnabledPluginMap,
   );
   const [authApiPlugin, setAuthAPiPlugin] = useState<Plugin | undefined>();
+  const [phalApiPlugin, setPhalApiPlugin] = useState<Plugin | undefined>();
 
   useEffect(() => {
     const plugin = plugins.find((p) => p.name === "REST API");
+    const phalApiPlugin = plugins.find((p) => p.name === PluginName.PHAL_API);
     setAuthAPiPlugin(plugin);
+    setPhalApiPlugin(phalApiPlugin);
   }, [plugins]);
 
   const handleCreateAuthApiDatasource = useCallback(() => {
@@ -183,6 +188,21 @@ function NewApiScreen(props: Props) {
       });
     }
   }, [authApiPlugin, props.createTempDatasourceFromForm]);
+
+  const handleCreatePhalApiDatasource = useCallback(() => {
+    if (phalApiPlugin) {
+      AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_AUTH_API_CLICK", {
+        pluginId: phalApiPlugin.id,
+      });
+      AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+        pluginName: phalApiPlugin.name,
+        pluginPackageName: phalApiPlugin.packageName,
+      });
+      props.createTempDatasourceFromForm({
+        pluginId: phalApiPlugin.id,
+      });
+    }
+  }, [phalApiPlugin, props.createTempDatasourceFromForm]);
 
   const handleCreateNew = (source: string) => {
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
@@ -249,6 +269,10 @@ function NewApiScreen(props: Props) {
         });
         break;
       }
+      case API_ACTION.CREATE_NEW_PHAL_API: {
+        handleCreatePhalApiDatasource();
+        break;
+      }
       case API_ACTION.AUTH_API: {
         handleCreateAuthApiDatasource();
         break;
@@ -260,7 +284,8 @@ function NewApiScreen(props: Props) {
   // Api plugins with Graphql
   const API_PLUGINS = plugins.filter((p) =>
     !showSaasAPIs
-      ? p.packageName === PluginPackageName.GRAPHQL
+      ? p.packageName === PluginPackageName.GRAPHQL ||
+        p.packageName === PluginPackageName.PHAL_API
       : p.type === PluginType.SAAS || p.type === PluginType.REMOTE,
   );
 
@@ -311,6 +336,19 @@ function NewApiScreen(props: Props) {
                 </CardContentWrapper>
               </ApiCard>
             )}
+            <ApiCard
+              className="t--createBlankApiPhalCard"
+              onClick={() => handleOnClick(API_ACTION.CREATE_NEW_PHAL_API)}
+            >
+              <CardContentWrapper>
+                <img
+                  alt="New"
+                  className="curlImage t--plusImage content-icon"
+                  src={PhalApiLogo}
+                />
+                <p className="textBtn">接口大师鉴权 API</p>
+              </CardContentWrapper>
+            </ApiCard>
           </>
         )}
         {API_PLUGINS.map((p) => (

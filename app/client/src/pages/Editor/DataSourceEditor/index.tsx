@@ -33,6 +33,7 @@ import {
   DATASOURCE_REST_API_FORM,
 } from "@appsmith/constants/forms";
 import DataSourceEditorForm from "./DBForm";
+import PhalApiEditorForm from "./PhalApiEditorForm";
 import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import type { Datasource, DatasourceStorage } from "entities/Datasource";
 import { ToastMessageType } from "entities/Datasource";
@@ -87,7 +88,7 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName, isPhalApiPlugin } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import {
@@ -96,7 +97,7 @@ import {
 } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
+import { AuthType } from "entities/Datasource/RestAPIForm";
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
   canDeleteDatasource: boolean;
@@ -242,10 +243,22 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
+    if (
+      (this.props.formData as any)?.authType === AuthType.NONE &&
+      isPhalApiPlugin(this.props.pluginName)
+    ) {
+      this.props.reinitializeForm(this.props.formName, {
+        ...this.props.formData,
+        authType: AuthType.basic,
+        applicationSlug: this.props.applicationSlug,
+      });
+    }
     //Fix to prevent restapi datasource from being set in DatasourceDBForm in view mode
     if (
       this.props.pluginDatasourceForm !==
         DatasourceComponentTypes.RestAPIDatasourceForm &&
+      this.props.pluginDatasourceForm !==
+        DatasourceComponentTypes.PhalAPIDatasourceForm &&
       this.props.datasourceId &&
       this.props.datasourceId !== prevProps.datasourceId
     ) {
@@ -318,7 +331,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     // In case of Rest API forms, we need to set view mode from query params
     if (
       this.props.pluginDatasourceForm ===
-      DatasourceComponentTypes.RestAPIDatasourceForm
+        DatasourceComponentTypes.RestAPIDatasourceForm ||
+      this.props.pluginDatasourceForm ===
+        DatasourceComponentTypes.PhalAPIDatasourceForm
     ) {
       this.setViewModeFromQueryParams();
     }
@@ -328,14 +343,18 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     if (
       this.props.datasourceId &&
       this.props.pluginDatasourceForm !==
-        DatasourceComponentTypes.RestAPIDatasourceForm
+        DatasourceComponentTypes.RestAPIDatasourceForm &&
+      this.props.pluginDatasourceForm !==
+        DatasourceComponentTypes.PhalAPIDatasourceForm
     ) {
       this.props.switchDatasource(this.props.datasourceId);
     }
 
     if (
-      this.props.pluginDatasourceForm ===
-        DatasourceComponentTypes.RestAPIDatasourceForm &&
+      (this.props.pluginDatasourceForm ===
+        DatasourceComponentTypes.RestAPIDatasourceForm ||
+        this.props.pluginDatasourceForm ===
+          DatasourceComponentTypes.PhalAPIDatasourceForm) &&
       this.props.location
     ) {
       const search = new URLSearchParams(this.props.location.search);
@@ -746,6 +765,34 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       );
     }
 
+    if (
+      pluginDatasourceForm === DatasourceComponentTypes.PhalAPIDatasourceForm &&
+      !shouldViewMode
+    ) {
+      return (
+        <>
+          <PhalApiEditorForm
+            applicationId={this.props.applicationId}
+            currentEnvironment={this.state.filterParams.id}
+            datasource={datasource}
+            datasourceId={datasourceId}
+            formData={formData || {}}
+            formName={formName}
+            // formName={DATASOURCE_DB_FORM}
+            hiddenHeader={isInsideReconnectModal}
+            isFormDirty={isFormDirty}
+            isSaving={isSaving}
+            location={location}
+            pageId={pageId}
+            pluginName={pluginName}
+            pluginPackageName={pluginPackageName}
+            showFilterComponent={this.state.filterParams.showFilterPane}
+          />
+          {this.renderSaveDisacardModal()}
+        </>
+      );
+    }
+
     // Default to DB Editor Form
     return (
       <>
@@ -771,22 +818,23 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   // returns normalized and trimmed datasource form data
   getSanitizedData = () => {
+    let data: any = {};
     if (
       this.props.pluginDatasourceForm ===
-      DatasourceComponentTypes.RestAPIDatasourceForm
+        DatasourceComponentTypes.RestAPIDatasourceForm ||
+      this.props.pluginDatasourceForm ===
+        DatasourceComponentTypes.PhalAPIDatasourceForm
     )
-      return formValuesToDatasource(
+      data = formValuesToDatasource(
         this.props.datasource as Datasource,
         this.props.formData as ApiDatasourceForm,
       );
     else
-      return getTrimmedData({
-        ...normalizeValues(
-          { ...this.props.formData },
-          this.state.configDetails,
-        ),
+      data = getTrimmedData({
+        ...normalizeValues(this.props.formData, this.state.configDetails),
         name: this.props.datasource?.name || "",
       });
+    return { ...data, applicationSlug: this.props.applicationSlug };
   };
 
   render() {
@@ -816,7 +864,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       triggerSave,
       viewMode,
     } = this.props;
-
+    console.log(" formData", formData);
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
     }
@@ -927,7 +975,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       pluginDatasourceForm,
     } = this.props;
     if (
-      pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm
+      pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm ||
+      pluginDatasourceForm === DatasourceComponentTypes.PhalAPIDatasourceForm
     ) {
       const createMode = datasourceId === TEMP_DATASOURCE_ID;
       if (!formData) return true;
@@ -968,7 +1017,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isDirty(formName)(state),
     formData,
     isNewDatasource,
-    pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm,
+    pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm ||
+      pluginDatasourceForm === DatasourceComponentTypes.PhalAPIDatasourceForm,
   );
   const initialValue = getFormInitialValues(formName)(state) as
     | Datasource

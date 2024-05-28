@@ -13,6 +13,13 @@ export interface CreateUserRequest {
   email: string;
   password: string;
 }
+export interface SyncUserRequest {
+  groupId: string;
+  workspaceId: string;
+  userId: string;
+  userName: string;
+  userPassword: string;
+}
 
 export type CreateUserResponse = ApiResponse & {
   email: string;
@@ -82,6 +89,8 @@ export interface CreateSuperUserRequest {
 
 export class UserApi extends Api {
   static usersURL = "v1/users";
+  static saveUsersURL = `${UserApi.usersURL}/save`;
+  static saveUsersSyncURL = `/v1/sync/user/addSyncUser`;
   static productAlertURL = "v1/product-alert/alert";
   static forgotPasswordURL = `${UserApi.usersURL}/forgotPassword`;
   static verifyResetPasswordTokenURL = `${UserApi.usersURL}/verifyPasswordResetToken`;
@@ -100,6 +109,17 @@ export class UserApi extends Api {
   static restartServerURL = "v1/admin/restart";
   static downloadConfigURL = "v1/admin/env/download";
   static sendTestEmailURL = "/v1/admin/send-test-email";
+
+  static syncSaveUserForPhal(
+    request: SyncUserRequest,
+  ): AxiosPromise<CreateUserResponse> {
+    return Api.post(UserApi.saveUsersSyncURL, request);
+  }
+  static saveUser(
+    request: CreateUserRequest,
+  ): AxiosPromise<CreateUserResponse> {
+    return Api.post(UserApi.saveUsersURL, request);
+  }
 
   static createUser(
     request: CreateUserRequest,

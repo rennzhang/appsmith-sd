@@ -160,6 +160,7 @@ import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
 import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 import { klona } from "klona/lite";
+import PhalApi from "api/PhalApi";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -428,7 +429,11 @@ export function* deleteDatasourceSaga(
 
 function* updateDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<
-    Datasource & { isInsideReconnectModal: boolean; currEditingEnvId?: string },
+    Datasource & {
+      isInsideReconnectModal: boolean;
+      currEditingEnvId?: string;
+      applicationSlug: string;
+    },
     unknown,
     unknown
   >,
@@ -470,6 +475,7 @@ function* updateDatasourceSaga(
 
     const isNewStorage = !datasourceStoragePayload.hasOwnProperty("id");
     let response: ApiResponse<Datasource>;
+    console.log("保存数据源 payload", datasourcePayload);
 
     // if storage is new, we have to use create datasource call
     if (isNewStorage) {
@@ -480,9 +486,22 @@ function* updateDatasourceSaga(
         datasourceStoragePayload,
       );
     }
+    const syncPhalApiConfigPayload = {
+      datasourceId: response.data.id,
+      groupId: datasourcePayload.applicationSlug,
+      workSpaceId: response.data.workspaceId,
+      appSmithAppKey:
+        datasourcePayload.datasourceStorages[currentEnvironment]
+          ?.datasourceConfiguration?.authentication?.username,
+      appSmithAppSecret:
+        datasourcePayload.datasourceStorages[currentEnvironment]
+          ?.datasourceConfiguration?.authentication?.password,
+      isCreate: isNewStorage,
+    };
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      yield PhalApi.syncPhalApiConfig(syncPhalApiConfigPayload);
       //Update call only returns the updated storage of current environment.
       //So we need to update the other storages with the old values.
       // TODO server should send ony the updated storage or whole datasource.
@@ -949,7 +968,11 @@ function* createTempDatasourceFromFormSaga(
 }
 
 function* createDatasourceFromFormSaga(
-  actionPayload: ReduxActionWithCallbacks<Datasource, unknown, unknown>,
+  actionPayload: ReduxActionWithCallbacks<
+    Datasource & { applicationSlug: string },
+    unknown,
+    unknown
+  >,
 ) {
   try {
     const workspaceId: string = yield select(getCurrentWorkspaceId);
@@ -999,13 +1022,27 @@ function* createDatasourceFromFormSaga(
     if (datasourceStoragePayload.datasourceId === TEMP_DATASOURCE_ID)
       datasourceStoragePayload.datasourceId = "";
 
+    console.log("保存数据源 payload", payload);
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.createDatasource({
         ...payload,
         workspaceId,
       });
+    const syncPhalApiConfigPayload = {
+      datasourceId: response.data.id,
+      groupId: payload.applicationSlug as string,
+      workSpaceId: response.data.workspaceId,
+      appSmithAppKey:
+        payload.datasourceStorages?.[currentEnvironment]
+          ?.datasourceConfiguration?.authentication?.username,
+      appSmithAppSecret:
+        payload.datasourceStorages?.[currentEnvironment]
+          ?.datasourceConfiguration?.authentication?.password,
+      isCreate: true,
+    };
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      PhalApi.syncPhalApiConfig(syncPhalApiConfigPayload);
       const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
       const formName: string = getFormName(plugin);
       const state: AppState = yield select();

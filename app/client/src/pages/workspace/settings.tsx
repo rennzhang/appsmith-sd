@@ -22,6 +22,7 @@ import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersAndCreateForm from "@appsmith/pages/workspace/WorkspaceInviteUsersAndCreateForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
 import { navigateToTab } from "@appsmith/pages/workspace/helpers";
 import {
@@ -109,6 +110,7 @@ export default function Settings() {
   const dispatch = useDispatch();
 
   const [showModal, setShowModal] = useState(false);
+  const [showCreateUserModal, setShowCreateUserModal] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
   const [pageTitle, setPageTitle] = useState<string>("");
@@ -141,6 +143,10 @@ export default function Settings() {
 
   const onButtonClick = () => {
     setShowModal(true);
+  };
+
+  const onCreateButtonClick = () => {
+    setShowCreateUserModal(true);
   };
 
   useEffect(() => {
@@ -226,7 +232,9 @@ export default function Settings() {
           <BackButton goTo="/applications" />
           <SettingsPageHeader
             buttonText="添加用户"
+            createButtonText="新建用户"
             onButtonClick={onButtonClick}
+            onCreateButtonClick={onCreateButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
             searchPlaceholder="搜索"
@@ -278,6 +286,18 @@ export default function Settings() {
           onOpenOrClose={handleFormOpenOrClose}
           placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
           title={`邀请小伙伴到 ${currentWorkspace?.name}`}
+          workspace={currentWorkspace}
+        />
+      )}
+      {currentWorkspace && (
+        <FormDialogComponent
+          Form={WorkspaceInviteUsersAndCreateForm}
+          hideDefaultTrigger
+          isOpen={showCreateUserModal}
+          onClose={() => setShowCreateUserModal(false)}
+          onOpenOrClose={handleFormOpenOrClose}
+          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
+          title={`新建用户到 ${currentWorkspace?.name}`}
           workspace={currentWorkspace}
         />
       )}

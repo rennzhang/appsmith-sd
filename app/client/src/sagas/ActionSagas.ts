@@ -238,6 +238,10 @@ export function* createActionSaga(
 
     const response: ApiResponse<ActionCreateUpdateResponse> =
       yield ActionAPI.createAction(payload);
+    // if (response.data.pluginName == "接口大师鉴权 API") {
+    //   response.data.pluginType = "API";
+    // }
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const pageName: string = yield select(
@@ -838,6 +842,11 @@ export function* setActionPropertySaga(
   if (!actionObj) {
     return;
   }
+
+  if (actionObj.pluginId === "664b2bf09ac93f34a8aaaaaa") {
+    actionObj.pluginType = PluginType.API;
+  }
+  console.log(" actionObj", actionObj);
 
   // we use the formData to crosscheck, just in case value is not updated yet.
   const formData: Action = yield select(
