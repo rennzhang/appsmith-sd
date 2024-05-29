@@ -190,8 +190,36 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
               },
             },
           },
+          {
+            propertyName: "buttonSize",
+            label: "按钮大小",
+            controlType: "ICON_TABS",
+            helpText: "设置按钮的尺寸大小",
+            defaultValue: "middle",
+            options: [
+              {
+                label: "小",
+                value: "small",
+              },
+              {
+                label: "中等",
+                value: "middle",
+              },
+              {
+                label: "大",
+                value: "large",
+              },
+            ],
+            // isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+          },
         ],
       },
+
       {
         sectionName: "图标配置",
         children: [
@@ -433,6 +461,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         buttonColor={this.props.buttonColor}
+        buttonSize={this.props.buttonSize}
         buttonVariant={this.props.buttonVariant}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
         googleRecaptchaKey={this.props.googleRecaptchaKey}

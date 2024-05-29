@@ -9,8 +9,10 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export const CONFIG = {
+  dynamicHeight: DynamicHeight.AUTO_HEIGHT,
   type: Widget.getWidgetType(),
   name: "Antd 按钮",
   iconSVG: IconSVG,
@@ -18,6 +20,7 @@ export const CONFIG = {
   needsMeta: true,
   searchTags: ["click", "submit", "button"],
   defaults: {
+    dynamicHeight: DynamicHeight.AUTO_HEIGHT,
     animateLoading: false,
     text: "提交",
     buttonVariant: ButtonVariantTypes.PRIMARY,

@@ -1,10 +1,8 @@
 import React, { useRef, useState } from "react";
-import styled, { createGlobalStyle, css } from "styled-components";
-import Interweave from "interweave";
-import type { IButtonProps, MaybeElement } from "@blueprintjs/core";
-import { Alignment, Position, Classes } from "@blueprintjs/core";
-import { Button, Tooltip } from "antd";
-import { Popover2 } from "@blueprintjs/popover2";
+import styled from "styled-components";
+import type { MaybeElement } from "@blueprintjs/core";
+import { Alignment } from "@blueprintjs/core";
+import { Button, ConfigProvider, Tooltip } from "antd";
 import type { IconName } from "@blueprintjs/icons";
 
 import type { ComponentProps } from "widgets/BaseComponent";
@@ -17,25 +15,21 @@ import {
 } from "@appsmith/constants/messages";
 
 import ReCAPTCHA from "react-google-recaptcha";
-import { Colors } from "constants/Colors";
 import _ from "lodash";
 import type {
   ButtonPlacement,
   ButtonVariant,
   RecaptchaType,
 } from "components/constants";
-import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import {
-  getCustomBackgroundColor,
-  getCustomBorderColor,
-  getCustomJustifyContent,
-  getAlignText,
-  getComplementaryGrayscaleColor,
-} from "widgets/WidgetUtils";
-import { DragContainer } from "./DragContainer";
-import { buttonHoverActiveStyles } from "./utils";
-import type { ThemeProp } from "widgets/constants";
+  ButtonPlacementTypes,
+  ButtonVariantTypes,
+  CheckboxGroupAlignmentTypes,
+  RecaptchaTypes,
+} from "components/constants";
+import type { ButtonProps } from "design-system";
 import { toast } from "design-system";
+import { Icon } from "@blueprintjs/core";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -43,206 +37,6 @@ const RecaptchaWrapper = styled.div`
     visibility: hidden;
   }
 `;
-
-const ToolTipWrapper = styled.div`
-  height: 100%;
-  && .bp3-popover2-target {
-    height: 100%;
-    width: 100%;
-    & > div {
-      height: 100%;
-    }
-  }
-`;
-
-const TooltipStyles = createGlobalStyle`
-  .btnTooltipContainer {
-    .bp3-popover2-content {
-      max-width: 350px;
-      overflow-wrap: anywhere;
-      padding: 10px 12px;
-      border-radius: 0px;
-    }
-  }
-`;
-
-const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
-  height: 100%;
-  background-image: none !important;
-  font-weight: ${(props) => props.theme.fontWeights[2]};
-  outline: none;
-  padding: 0px 10px;
-  gap: 8px;
-
-  &:hover,
-  &:active,
-  &:focus {
-    ${buttonHoverActiveStyles}
-  }
-
-  ${({ buttonColor, buttonVariant, theme }) => `
-    background: ${
-      getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
-        ? getCustomBackgroundColor(buttonVariant, buttonColor)
-        : buttonVariant === ButtonVariantTypes.PRIMARY
-        ? theme.colors.button.primary.primary.bgColor
-        : "none"
-    } !important;
-
-
-    &:disabled, &.${Classes.DISABLED} {
-    cursor: not-allowed;
-    background-color: ${
-      buttonVariant !== ButtonVariantTypes.TERTIARY &&
-      "var(--wds-color-bg-disabled)"
-    } !important;
-    color: var(--wds-color-text-disabled) !important;
-    box-shadow: none !important;
-    pointer-events: none;
-    border-color: var(--wds-color-border-disabled) !important;
-
-    > span {
-      color: var(--wds-color-text-disabled) !important;
-    }
-  }
-
-  border: ${
-    getCustomBorderColor(buttonVariant, buttonColor) !== "none"
-      ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
-      : buttonVariant === ButtonVariantTypes.SECONDARY
-      ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
-      : "none"
-  } !important;
-
-  & > * {
-    margin-right: 0;
-  }
-
-  & > span {
-    display: inline-block;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    line-height: normal;
-
-    color: ${
-      buttonVariant === ButtonVariantTypes.PRIMARY
-        ? getComplementaryGrayscaleColor(buttonColor)
-        : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
-    } !important;
-  }
-`}
-
-  border-radius: ${({ borderRadius }) => borderRadius};
-  box-shadow: ${({ boxShadow }) => `${boxShadow ?? "none"}`} !important;
-
-  ${({ placement }) =>
-    placement
-      ? `
-    justify-content: ${getCustomJustifyContent(placement)};
-    & > span.bp3-button-text {
-      flex: unset !important;
-    }
-  `
-      : ""}
-`;
-
-export const StyledButton = styled((props) => (
-  <Button
-    {..._.omit(props, [
-      "borderRadius",
-      "boxShadow",
-      "boxShadowColor",
-      "buttonColor",
-      "buttonVariant",
-    ])}
-  />
-))<ThemeProp & ButtonStyleProps>`
-  ${buttonBaseStyle}
-`;
-
-export type ButtonStyleProps = {
-  buttonColor?: string;
-  buttonVariant?: ButtonVariant;
-  boxShadow?: string;
-  boxShadowColor?: string;
-  borderRadius?: string;
-  iconName?: IconName;
-  iconAlign?: Alignment;
-  shouldFitContent?: boolean;
-  placement?: ButtonPlacement;
-  maxWidth?: number;
-  minWidth?: number;
-  minHeight?: number;
-};
-
-// To be used in any other part of the app
-export function BaseButton(props: IButtonProps & ButtonStyleProps) {
-  const {
-    borderRadius,
-    boxShadow,
-    boxShadowColor,
-    buttonColor,
-    buttonVariant,
-    className,
-    disabled,
-    icon,
-    iconAlign,
-    iconName,
-    loading,
-    maxWidth,
-    minHeight,
-    minWidth,
-    onClick,
-    placement,
-    rightIcon,
-    text,
-  } = props;
-
-  const isRightAlign = iconAlign === Alignment.RIGHT;
-
-  return (
-    <DragContainer
-      buttonColor={buttonColor}
-      buttonVariant={buttonVariant}
-      disabled={disabled}
-      loading={loading}
-      maxWidth={maxWidth}
-      minHeight={minHeight}
-      minWidth={minWidth}
-      onClick={onClick}
-      shouldFitContent={props.shouldFitContent}
-      showInAllModes
-    >
-      <StyledButton
-        alignText={getAlignText(isRightAlign, iconName)}
-        borderRadius={borderRadius}
-        boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
-        buttonColor={buttonColor}
-        buttonVariant={buttonVariant}
-        className={className}
-        data-test-variant={buttonVariant}
-        disabled={disabled}
-        fill
-        icon={isRightAlign ? icon : iconName || icon}
-        loading={loading}
-        onClick={onClick}
-        placement={placement}
-        rightIcon={isRightAlign ? iconName || rightIcon : rightIcon}
-        text={text}
-      />
-    </DragContainer>
-  );
-}
-
-BaseButton.defaultProps = {
-  buttonColor: Colors.GREEN,
-  buttonVariant: ButtonVariantTypes.PRIMARY,
-  disabled: false,
-  text: "Button Text",
-  minimal: true,
-};
 
 export enum ButtonType {
   SUBMIT = "submit",
@@ -279,6 +73,7 @@ interface ButtonComponentProps extends ComponentProps {
   minWidth?: number;
   minHeight?: number;
   maxWidth?: number;
+  buttonSize?: ButtonProps["size"];
 }
 
 type RecaptchaV2ComponentPropType = {
@@ -442,12 +237,42 @@ function BtnWrapper(
   }
 }
 
+const StyledDButtonBox = styled.div<{
+  boxShadow?: string;
+  borderRadius?: string;
+}>`
+  padding: 0;
+  min-width: 0px;
+  overflow: hidden;
+  box-shadow: ${({ boxShadow }) => boxShadow};
+  border-radius: ${({ borderRadius }) => borderRadius};
+`;
+const StyledDropdownBtnContent = styled.div<{
+  placement?: ButtonPlacement;
+  borderRadius?: string;
+}>`
+  justify-content: ${({ placement }) =>
+    CheckboxGroupAlignmentTypes[placement || ButtonPlacementTypes.CENTER]};
+  .bp3-icon {
+    color: inherit !important;
+  }
+`;
 // To be used with the canvas
 function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
   console.log("ButtonComponent props", props);
   const hasOnClick = Boolean(
     props.onClick && !props.isLoading && !props.isDisabled,
   );
+  const {
+    borderRadius,
+    boxShadow,
+    buttonColor,
+    buttonSize,
+    buttonVariant,
+    iconAlign,
+    iconName,
+    placement,
+  } = props;
   const btnWrapper = (
     <BtnWrapper
       className={props.className}
@@ -457,7 +282,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       isDisabled={props.isDisabled}
       recaptchaType={props.recaptchaType}
     >
-      <Button
+      {/* <Button
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
         boxShadowColor={props.boxShadowColor}
@@ -479,34 +304,89 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
         type="primary"
       >
         {props.text}
-      </Button>
+      </Button> */}
+      <ConfigProvider
+        theme={{
+          components: {
+            Button: {
+              algorithm: true,
+              colorPrimary: buttonColor,
+              colorLink: buttonColor,
+              borderRadius: (borderRadius as unknown as number) || 0,
+            },
+          },
+        }}
+      >
+        {/* large | middle | small */}
+        <Button
+          block
+          className="w-full"
+          disabled={props.isDisabled}
+          ghost={buttonVariant === ButtonVariantTypes.SECONDARY}
+          onClick={(e) => e.preventDefault()}
+          size={buttonSize}
+          type={
+            buttonVariant === ButtonVariantTypes.TERTIARY ? "link" : "primary"
+          }
+        >
+          <StyledDropdownBtnContent
+            className="w-full h-full flex items-center"
+            placement={placement}
+          >
+            {iconAlign !== Alignment.RIGHT && iconName ? (
+              <Icon className="mr-1" icon={iconName} />
+            ) : null}
+            {props.text}
+            {iconAlign == Alignment.RIGHT && iconName ? (
+              <Icon className="ml-1" icon={iconName} />
+            ) : null}
+          </StyledDropdownBtnContent>
+        </Button>
+      </ConfigProvider>
     </BtnWrapper>
   );
   return (
     <Tooltip placement="top" title={props.tooltip}>
-      <Button
-        borderRadius={props.borderRadius}
-        boxShadow={props.boxShadow}
-        boxShadowColor={props.boxShadowColor}
-        buttonColor={props.buttonColor}
-        buttonVariant={props.buttonVariant}
-        disabled={props.isDisabled}
-        icon={props.icon}
-        iconAlign={props.iconAlign}
-        iconName={props.iconName}
-        loading={props.isLoading}
-        maxWidth={props.maxWidth}
-        minHeight={props.minHeight}
-        minWidth={props.minWidth}
-        onClick={hasOnClick ? props.onClick : undefined}
-        placement={props.placement}
-        rightIcon={props.rightIcon}
-        shouldFitContent={props.shouldFitContent}
-        // type={props.type}
-        type="primary"
-      >
-        {props.text}
-      </Button>
+      <StyledDButtonBox borderRadius={borderRadius} boxShadow={boxShadow}>
+        <ConfigProvider
+          theme={{
+            components: {
+              Button: {
+                algorithm: true,
+                colorPrimary: buttonColor,
+                colorLink: buttonColor,
+                borderRadius: (borderRadius as unknown as number) || 0,
+              },
+            },
+          }}
+        >
+          {/* large | middle | small */}
+          <Button
+            block
+            className="w-full"
+            disabled={props.isDisabled}
+            ghost={buttonVariant === ButtonVariantTypes.SECONDARY}
+            onClick={props.onClick}
+            size={buttonSize}
+            type={
+              buttonVariant === ButtonVariantTypes.TERTIARY ? "link" : "primary"
+            }
+          >
+            <StyledDropdownBtnContent
+              className="w-full h-full flex items-center"
+              placement={placement}
+            >
+              {iconAlign !== Alignment.RIGHT && iconName ? (
+                <Icon className="mr-1" icon={iconName} />
+              ) : null}
+              {props.text}
+              {iconAlign == Alignment.RIGHT && iconName ? (
+                <Icon className="ml-1" icon={iconName} />
+              ) : null}
+            </StyledDropdownBtnContent>
+          </Button>
+        </ConfigProvider>
+      </StyledDButtonBox>
     </Tooltip>
   );
 }
