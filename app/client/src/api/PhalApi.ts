@@ -25,11 +25,11 @@ class PhalApi extends Api {
       ? `${PhalApi.url}/addInterfaceConfig`
       : `${PhalApi.url}/updateInterfaceConfig`;
     return Api.post(url, {
-      datasourceId: datasourceId,
-      workSpaceId: workSpaceId,
+      dataSourceId: datasourceId,
+      workspaceId: workSpaceId,
       groupId,
       appSmithAppKey,
-      appSmithAppSecret,
+      appSmithSecret: appSmithAppSecret,
     });
   }
   // Api endpoint to get "Appsmith token" from server
