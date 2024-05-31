@@ -1,6 +1,6 @@
 // This file must be executed as early as possible to ensure the preloads are triggered ASAP
 import "./preload-route-chunks";
-
+import { ClickToComponent } from "click-to-react-component";
 import React from "react";
 import "./wdyr";
 import ReactDOM from "react-dom";
@@ -120,7 +120,13 @@ const mapStateToProps = (state: AppState) => ({
 
 const ThemedAppWithProps = connect(mapStateToProps)(ThemedApp);
 
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(
+  <>
+    <ClickToComponent />
+    <App />
+  </>,
+  document.getElementById("root"),
+);
 
 // expose store when run in Cypress
 if ((window as any).Cypress) {

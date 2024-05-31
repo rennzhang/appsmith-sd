@@ -3264,12 +3264,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@floating-ui/core@npm:^0.6.2":
+  version: 0.6.2
+  resolution: "@floating-ui/core@npm:0.6.2"
+  checksum: b3e1844da852fe141cfa4163026a7c5ffb4399a96105340dffdd5b76dcafea72c6221a06b4674c2b500bc776adc9d9e4ed39dba55e7d844d9507d994c0af743a
+  languageName: node
+  linkType: hard
+
 "@floating-ui/core@npm:^1.4.2":
   version: 1.5.0
   resolution: "@floating-ui/core@npm:1.5.0"
   dependencies:
     "@floating-ui/utils": ^0.1.3
   checksum: 54b4fe26b3c228746ac5589f97303abf158b80aa5f8b99027259decd68d1c2030c4c637648ebd33dfe78a4212699453bc2bd7537fd5a594d3bd3e63d362f666f
+  languageName: node
+  linkType: hard
+
+"@floating-ui/dom@npm:^0.4.5":
+  version: 0.4.5
+  resolution: "@floating-ui/dom@npm:0.4.5"
+  dependencies:
+    "@floating-ui/core": ^0.6.2
+  checksum: 3024aba55fe7ee78b429a6a5d61f5719a6bb2acc79c8a33304b9d30c443efba3a5288acaf9003402e31ee97a533eda97c30a0f2c97e9e54c697df9b80a23dad8
   languageName: node
   linkType: hard
 
@@ -3280,6 +3296,31 @@ __metadata:
     "@floating-ui/core": ^1.4.2
     "@floating-ui/utils": ^0.1.3
   checksum: 00053742064aac70957f0bd5c1542caafb3bfe9716588bfe1d409fef72a67ed5e60450d08eb492a77f78c22ed1ce4f7955873cc72bf9f9caf2b0f43ae3561c21
+  languageName: node
+  linkType: hard
+
+"@floating-ui/react-dom-interactions@npm:^0.3.1":
+  version: 0.3.1
+  resolution: "@floating-ui/react-dom-interactions@npm:0.3.1"
+  dependencies:
+    "@floating-ui/react-dom": ^0.6.3
+    aria-hidden: ^1.1.3
+    point-in-polygon: ^1.1.0
+    use-isomorphic-layout-effect: ^1.1.1
+  checksum: 398108a415b0d4e3647c58912b967f673e56053e33c8059f9251374a00c0d1d507c0ea45ec3a9cc772f6bc02837e61920062df504aa762ed7f001634e0838d41
+  languageName: node
+  linkType: hard
+
+"@floating-ui/react-dom@npm:^0.6.3":
+  version: 0.6.3
+  resolution: "@floating-ui/react-dom@npm:0.6.3"
+  dependencies:
+    "@floating-ui/dom": ^0.4.5
+    use-isomorphic-layout-effect: ^1.1.1
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 1af930aac4e13ed9a25ea2cf70e629d36363034a70ea407a6f8d8d4bd62979c59d3748b58e1ef31c427fdf21a754f285aabba9f14b9e916ab69eb5212144ef6c
   languageName: node
   linkType: hard
 
@@ -10485,6 +10526,7 @@ __metadata:
     babel-plugin-module-resolver: ^4.1.0
     chalk: ^4.1.1
     classnames: ^2.3.1
+    click-to-react-component: ^1.1.0
     clsx: ^1.2.1
     codemirror: ^5.65.13
     codemirror-graphql: ^1.2.14
@@ -11330,12 +11372,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aria-hidden@npm:^1.1.1, aria-hidden@npm:^1.2.3":
-  version: 1.2.3
-  resolution: "aria-hidden@npm:1.2.3"
+"aria-hidden@npm:^1.1.1, aria-hidden@npm:^1.1.3, aria-hidden@npm:^1.2.3":
+  version: 1.2.4
+  resolution: "aria-hidden@npm:1.2.4"
   dependencies:
     tslib: ^2.0.0
-  checksum: 7d7d211629eef315e94ed3b064c6823d13617e609d3f9afab1c2ed86399bb8e90405f9bdd358a85506802766f3ecb468af985c67c846045a34b973bcc0289db9
+  checksum: 2ac90b70d29c6349d86d90e022cf01f4885f9be193932d943a14127cf28560dd0baf068a6625f084163437a4be0578f513cf7892f4cc63bfe91aa41dce27c6b2
   languageName: node
   linkType: hard
 
@@ -13346,6 +13388,19 @@ __metadata:
     exit: 0.1.2
     glob: ^7.1.1
   checksum: c47cdbb3b87696e45cc07340e415b5863b20833ae8184ca8a0b1d732fbd908f6e6e13376e4a509685af1bc916afbb3e2a0adf1eec8797575eefe63c7bb516962
+  languageName: node
+  linkType: hard
+
+"click-to-react-component@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "click-to-react-component@npm:1.1.0"
+  dependencies:
+    "@floating-ui/react-dom-interactions": ^0.3.1
+    htm: ^3.1.0
+    react-merge-refs: ^1.1.0
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: e8659f1a3286046455b26c3f3faecd1398eb8da92f9d3f18f94eb8d9cd64e456916e09066ac2cabe69e77b4418d90c5292933302dbb737295379bcdd1e4dbfbd
   languageName: node
   linkType: hard
 
@@ -19101,6 +19156,13 @@ __metadata:
     readable-stream: ^2.0.1
     wbuf: ^1.1.0
   checksum: 2de144115197967ad6eeee33faf41096c6ba87078703c5cb011632dcfbffeb45784569e0cf02c317bd79c48375597c8ec88c30fff5bb0b023e8f654fb6e9c06e
+  languageName: node
+  linkType: hard
+
+"htm@npm:^3.1.0":
+  version: 3.1.1
+  resolution: "htm@npm:3.1.1"
+  checksum: 1827a0cafffcff69690b048a4df59944086d7503fe5eb7c10b40834439205bdf992941e7aa25e92b3c2c086170565b4ed7c365bc072d31067c6e7a4e478776bd
   languageName: node
   linkType: hard
 
@@ -25030,6 +25092,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"point-in-polygon@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "point-in-polygon@npm:1.1.0"
+  checksum: 67a6374f0b79bc872bde8e375d7d5ea011a1419c5f4320dfb7705801cd3a8fcaee8bff385465e075b2ce863bbc86ccd74c63345d9f326981cd0807642bc5199c
+  languageName: node
+  linkType: hard
+
 "polished@npm:^4.2.2":
   version: 4.2.2
   resolution: "polished@npm:4.2.2"
@@ -27855,6 +27924,13 @@ __metadata:
     extendable-media-recorder: ^6.6.5
     extendable-media-recorder-wav-encoder: ^7.0.68
   checksum: 9dcb7f8b84a749dc51a6cdcf873a2f6150efd6c67b7e9fb6beff072ef335759e90ad4f9c3a993619ec0adc9bfa711b5812dbcbf8da52d0ce72e508ba018081de
+  languageName: node
+  linkType: hard
+
+"react-merge-refs@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "react-merge-refs@npm:1.1.0"
+  checksum: 90884352999002d868ab9f1bcfe3222fb0f2178ed629f1da7e98e5a9b02a2c96b4aa72800db92aabd69d2483211b4be57a2088e89a11a0b660e7ada744d4ddf7
   languageName: node
   linkType: hard
 

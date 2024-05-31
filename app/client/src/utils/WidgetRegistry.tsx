@@ -14,6 +14,9 @@ import ButtonWidget, {
 import AntdBreadcrumbWidget, {
   CONFIG as ANTD_BREADCRUM_CONFIG,
 } from "widgets/Antd/BreadcrumbWidget";
+import RadioWidgetWidget, {
+  CONFIG as ANTD_RADIO_CONFIG,
+} from "widgets/Antd/RadioWidget";
 
 import AntdButtonWidget, {
   CONFIG as ANTD_BUTTON_CONFIG,
@@ -248,6 +251,7 @@ import MTextWidget, {
 export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdButtonWidget, ANTD_BUTTON_CONFIG],
   [AntdDropdownWidget, ANTD_DROPDOWN_CONFIG],
+  [RadioWidgetWidget, ANTD_RADIO_CONFIG],
   [AntdBreadcrumbWidget, ANTD_BREADCRUM_CONFIG],
   [AntdTableWidget, ANTD_Table_CONFIG],
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
