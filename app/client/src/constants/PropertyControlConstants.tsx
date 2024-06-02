@@ -100,6 +100,8 @@ export type PropertyPaneControlConfig = {
     isToggleDisabled: boolean,
     triggerFlag?: boolean,
   ) => boolean;
+  hideSetting?: boolean;
+  createButtonText?: string;
 };
 
 type ValidationConfigParams = {

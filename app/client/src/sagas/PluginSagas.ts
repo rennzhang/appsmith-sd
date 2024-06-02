@@ -127,10 +127,7 @@ function* fetchPluginFormConfigsSaga() {
     const pluginFormData: PluginFormPayload[] = [];
     const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
       [...pluginIdFormsToFetch].map((id) =>
-        call(
-          PluginsApi.fetchFormConfig,
-          id == "664b2bf09ac93f34a8aaaaaa" ? "664b2bec9ac93f34a80b2bbe" : id,
-        ),
+        call(PluginsApi.fetchFormConfig, id),
       ),
     );
     for (const response of pluginFormResponses) {
@@ -212,11 +209,7 @@ export function* checkAndGetPluginFormConfigsSaga(pluginId: string) {
     );
     if (!formConfig) {
       const formConfigResponse: ApiResponse<PluginFormPayload> =
-        yield PluginApi.fetchFormConfig(
-          pluginId == "664b2bf09ac93f34a8aaaaaa"
-            ? "664b2bec9ac93f34a80b2bbe"
-            : pluginId,
-        );
+        yield PluginApi.fetchFormConfig(pluginId);
       yield validateResponse(formConfigResponse);
       if (!formConfigResponse.data.setting) {
         formConfigResponse.data.setting = defaultActionSettings[plugin.type];

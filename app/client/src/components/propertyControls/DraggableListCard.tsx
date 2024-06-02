@@ -42,6 +42,8 @@ type RenderComponentProps = {
   toggleVisibleCellSearch?: (index: number) => void;
   toggleCheckbox?: (index: number, checked: boolean) => void;
   isAllColumnEditable?: boolean;
+  hideSetting?: boolean;
+  createButtonText?: string;
 };
 
 const PADDING_WITHOUT_CHECKBOX = 60;
@@ -192,6 +194,7 @@ export function DraggableListCard(props: RenderComponentProps) {
     );
   };
 
+  const hideSetting = props.hideSetting;
   const showDelete = !!item.isDerived || isDelete;
   return (
     <ItemWrapper className={item.isDuplicateLabel ? "has-duplicate-label" : ""}>
@@ -221,17 +224,19 @@ export function DraggableListCard(props: RenderComponentProps) {
         width="100%"
       />
       <StyledActionContainer>
-        <Button
-          className="t--edit-column-btn"
-          isIconButton
-          kind="tertiary"
-          onClick={() => {
-            onEdit && onEdit(index);
-          }}
-          onFocus={(e) => e.stopPropagation()}
-          size="sm"
-          startIcon="settings-2-line"
-        />
+        {!hideSetting && (
+          <Button
+            className="t--edit-column-btn"
+            isIconButton
+            kind="tertiary"
+            onClick={() => {
+              onEdit && onEdit(index);
+            }}
+            onFocus={(e) => e.stopPropagation()}
+            size="sm"
+            startIcon="settings-2-line"
+          />
+        )}
         {showDelete && (
           <Button
             className="t--delete-column-btn"

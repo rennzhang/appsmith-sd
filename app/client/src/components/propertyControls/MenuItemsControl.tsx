@@ -72,6 +72,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
   };
 
   render() {
+    console.log(" this123", this);
     return (
       <div className="flex flex-col gap-1">
         <DraggableListControl
@@ -85,6 +86,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           renderComponent={(props: any) =>
             DraggableListCard({
               ...props,
+              hideSetting: this.props.hideSetting,
               isDelete: true,
               placeholder: "Menu item label",
             })
@@ -101,7 +103,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           onClick={this.addOption}
           startIcon="plus"
         >
-          新建菜单项
+          {this.props.createButtonText || "新建菜单项"}
         </Button>
       </div>
     );

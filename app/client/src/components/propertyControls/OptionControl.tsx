@@ -8,6 +8,7 @@ import type { SegmentedControlOption } from "design-system";
 
 class OptionControl extends BaseControl<ControlProps> {
   render() {
+    console.log("KeyValueComponent this.props", this.props);
     return (
       <KeyValueComponent
         pairs={this.props.propertyValue}
