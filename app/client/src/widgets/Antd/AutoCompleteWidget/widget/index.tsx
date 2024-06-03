@@ -331,12 +331,12 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               hidden: (props: any) => props.inputType !== "EMAIL",
             },
             {
-              createButtonText: "添加邮箱后缀",
+              createButtonText: "添加选项",
               hideSetting: true,
-              helpText: "自动完成邮件后缀",
+              helpText: "自动完成选项",
               propertyName: "options",
-              label: "邮箱后缀",
-              controlType: "OPTION_INPUT",
+              label: "下拉选项配置",
+              controlType: "INPUT_TEXT",
               isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
@@ -732,6 +732,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       isInputTypeEmailOrPassword(this.props.inputType)
         ? { autoComplete: "off" }
         : {};
+    console.log(" this.props.options", this.props.options);
     return (
       <InputComponent
         borderRadius={this.props.borderRadius}
@@ -764,6 +765,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
+        options={this.props.options}
         placeholder={this.props.placeholderText}
         required={this.props.isRequired}
         showError={!!this.props.isFocused}

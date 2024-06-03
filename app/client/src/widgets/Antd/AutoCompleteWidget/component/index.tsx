@@ -16,6 +16,7 @@ export interface InputComponentProps extends BaseInputComponentProps {
   accentColor?: string;
   required?: boolean;
   emailOptions?: string[];
+  options?: string;
 }
 
 // export default InputComponent;
@@ -56,28 +57,29 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     labelTextColor,
     labelTextSize,
     maxChars,
+    onFocusChange,
     onValueChange,
+    options: propsOptions,
     placeholder,
     required,
     tooltip,
   } = props;
 
-  console.log(" inputType", inputType);
   const [value, setValue] = useState<InputDataType>();
   const [options, setOptions] = useState<{ value: string }[]>([]);
 
   useEffect(() => {
     setValue(String(defaultValue));
-    setOptions(getPanelValue(String(defaultValue)));
+    // setOptions(getPanelValue(String(defaultValue)));
   }, [defaultValue]);
 
   useEffect(() => {
     if (inputType === "EMAIL") {
       setOptions(setEmailOptions);
     } else {
-      setOptions(getPanelValue(value));
+      setOptions(getPanelValue());
     }
-  }, [inputType, emailOptions, value]);
+  }, [inputType, propsOptions, emailOptions, value]);
 
   const setEmailOptions = () => {
     if (!value) {
@@ -89,10 +91,13 @@ const AntdAutoComplete = (props: InputComponentProps) => {
       label: mainText + v.label,
     }));
   };
-  const getPanelValue = (searchText: InputDataType) =>
-    !searchText
-      ? []
-      : [mockVal(searchText), mockVal(searchText, 2), mockVal(searchText, 3)];
+  const getPanelValue = () => {
+    if (!propsOptions?.length) return [];
+    return (JSON.parse(propsOptions) || [])?.map((v: string) => ({
+      label: v,
+      value: v,
+    }));
+  };
 
   const onSelect = (data: InputDataType) => {
     console.log("onSelect", data);
@@ -105,10 +110,9 @@ const AntdAutoComplete = (props: InputComponentProps) => {
   const handleSearch = (data: string) => {
     if (inputType === "EMAIL") {
       setOptions(setEmailOptions);
-    } else setOptions(getPanelValue(data));
+    } else setOptions(getPanelValue());
   };
 
-  console.log(" boxShadow", boxShadow);
   return (
     <AutoCompleteContainer
       boxShadow={boxShadow}
@@ -138,7 +142,9 @@ const AntdAutoComplete = (props: InputComponentProps) => {
             autoFocus={autoFocus}
             disabled={disabled}
             maxLength={maxChars}
+            onBlur={() => onFocusChange(false)}
             onChange={onChange}
+            onFocus={() => onFocusChange(true)}
             onSearch={handleSearch}
             onSelect={onSelect}
             options={options}

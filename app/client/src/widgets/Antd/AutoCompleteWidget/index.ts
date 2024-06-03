@@ -27,26 +27,7 @@ export const CONFIG = {
   defaults: {
     ...BaseConfig.defaults,
     labelTextSize: 14,
-    options: [
-      {
-        label: "option1",
-        value: "Option 1",
-      },
-      {
-        label: "option2",
-        value: "Option 2",
-      },
-      {
-        label: "option3",
-        value: "Option 3",
-      },
-    ],
-
-    // emailOptions: [
-    //   { label: "@gmail.com", value: "@gmail.com" },
-    //   { label: "@163.com", value: "@163.com" },
-    //   { label: "@qq.com", value: "@qq.com" },
-    // ],
+    options: ["option1", "option2", "option3"],
     emailOptions: {
       item1: {
         label: "@gmail.com",

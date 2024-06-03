@@ -72,7 +72,6 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
   };
 
   render() {
-    console.log(" this123", this);
     return (
       <div className="flex flex-col gap-1">
         <DraggableListControl
