@@ -7,7 +7,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "antd 下拉多选",
+  name: "Antd 下拉菜单",
   iconSVG: IconSVG,
   // tags: [WIDGET_TAGS.SELECT],
   tags: [WIDGET_TAGS.ANTD],
