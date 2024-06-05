@@ -1,0 +1,225 @@
+import type { ReactNode } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import "rc-tree-select/assets/index.less";
+import type { DefaultValueType } from "rc-tree-select/lib/interface";
+import type { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
+import styled from "styled-components";
+import type { RenderMode, TextSize } from "constants/WidgetConstants";
+import type { Alignment } from "@blueprintjs/core";
+import type { LabelPosition } from "components/constants";
+import { ProFormItem } from "@ant-design/pro-components";
+import type { CascaderProps } from "antd";
+import { ConfigProvider, Cascader } from "antd";
+import type { InputStatus } from "antd/es/_util/statusUtils";
+
+export const AntdFormItemContainer = styled.div<{
+  labelStyle?: string;
+  alignment?: string;
+  boxShadow?: string;
+}>`
+  width: 100%;
+  .ant-form-item-label {
+    font-weight: ${({ labelStyle }) => labelStyle?.includes("BOLD") && "bold"};
+    font-style: ${({ labelStyle }) =>
+      labelStyle?.includes("ITALIC") && "italic"};
+  }
+  .ant-form-item-control .ant-form-item-control-input .ant-select-selector {
+    box-shadow: ${({ boxShadow }) => boxShadow};
+  }
+`;
+export interface CascaderComponentProps {
+  defaultOptionValue?: string;
+  allowClear?: boolean;
+  disabled?: boolean;
+  placeholder?: string;
+  loading?: boolean;
+  dropdownStyle?: React.CSSProperties;
+  value?: CascaderProps["value"];
+  onChange: (value?: DefaultValueType, labelList?: ReactNode[]) => void;
+  // expandAll: boolean;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  onDropdownOpen?: () => void;
+  onDropdownClose?: () => void;
+  labelStyle?: string;
+  labelTooltip?: string;
+  compactMode: boolean;
+  width: number;
+  isValid: boolean;
+  isDynamicHeightEnabled: boolean;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
+  widgetId: string;
+  filterText?: string;
+  isFilterable: boolean;
+  renderMode?: RenderMode;
+  options?: DefaultOptionType[];
+  required?: boolean;
+  isHoverExpand?: boolean;
+  isSearchable?: boolean;
+  status?: InputStatus;
+  fieldNames?: CascaderProps["fieldNames"];
+  selectedOption?: string | CascaderProps["value"];
+  isMultiple?: boolean;
+}
+
+function CascaderComponent(props: CascaderComponentProps): JSX.Element {
+  console.log("级联选择 props", props);
+
+  const {
+    accentColor,
+    allowClear,
+    borderRadius,
+    boxShadow,
+    compactMode,
+    defaultOptionValue,
+    disabled,
+    fieldNames,
+    // expandAll,
+    filterText,
+    isDynamicHeightEnabled,
+    isFilterable,
+    isHoverExpand,
+    isSearchable,
+    isValid,
+    labelAlignment,
+    labelPosition,
+    labelStyle,
+    labelText,
+    labelTextColor,
+    labelTextSize,
+    labelTooltip,
+    labelWidth,
+    loading,
+    onChange,
+    onDropdownClose,
+    onDropdownOpen,
+    options,
+    placeholder,
+    renderMode,
+    required,
+    selectedOption,
+    status,
+    value,
+    widgetId,
+  } = props;
+
+  const [selectedValue, setSelectedValue] = useState<typeof value>([]);
+
+  useEffect(() => {
+    if (
+      defaultOptionValue &&
+      typeof defaultOptionValue === "string" &&
+      !selectedOption
+    ) {
+      try {
+        setSelectedValue(JSON.parse(defaultOptionValue));
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      if (selectedOption && typeof selectedOption === "string") {
+        try {
+          setSelectedValue(JSON.parse(selectedOption));
+        } catch (error) {
+          setSelectedValue([selectedOption]);
+        }
+      } else {
+        setSelectedValue((selectedOption as any) || []);
+      }
+    }
+  }, [value, defaultOptionValue, selectedOption]);
+  const onSelectionChange = useCallback((value?: any[], labelList?: any[]) => {
+    console.log("级联选择 onSelectionChange value", value);
+    if (value !== undefined) {
+      onChange?.(value, labelList || []);
+    }
+  }, []);
+
+  const fieldNamesValue = useMemo(() => {
+    const defaultFieldNames = {
+      label: "label",
+      value: "value",
+      children: "children",
+    };
+    if (fieldNames?.children && fieldNames?.label && fieldNames?.value) {
+      return fieldNames;
+    }
+    return defaultFieldNames;
+  }, [fieldNames]);
+  const handleFilter = (inputValue: string, path: DefaultOptionType[]) =>
+    path.some(
+      (option) =>
+        (option.label as string)
+          .toLowerCase()
+          .indexOf(inputValue.toLowerCase()) > -1,
+    );
+  return (
+    <AntdFormItemContainer
+      boxShadow={boxShadow}
+      className="antd-radio-container"
+      labelStyle={labelStyle}
+    >
+      <ConfigProvider
+        theme={{
+          components: {
+            Form: {
+              labelColor: labelTextColor,
+              // labelFontSize: parseInt(labelTextSize || "0"),
+              labelFontSize: (labelTextSize as unknown as number) || 0,
+            },
+            Input: {
+              borderRadius: (borderRadius as unknown as number) || 0,
+              boxShadow: boxShadow,
+            },
+            Select: {
+              borderRadius: (borderRadius as unknown as number) || 0,
+              boxShadow: boxShadow,
+            },
+          },
+        }}
+      >
+        <ProFormItem
+          label={labelText}
+          required={required}
+          tooltip={labelTooltip}
+        >
+          <Cascader
+            allowClear={allowClear}
+            changeOnSelect
+            disabled={disabled}
+            expandTrigger={isHoverExpand ? "hover" : "click"}
+            fieldNames={fieldNamesValue}
+            multiple={props.isMultiple}
+            onChange={onSelectionChange}
+            onDropdownVisibleChange={(open) =>
+              open ? onDropdownOpen?.() : onDropdownClose?.()
+            }
+            onSearch={(value) => console.log(value)}
+            options={options}
+            placeholder={(placeholder as any) || "请选择"}
+            showSearch={isSearchable ? { filter: handleFilter } : false}
+            status={status}
+            style={{
+              marginBottom: 0,
+            }}
+            value={selectedValue}
+          />
+        </ProFormItem>
+      </ConfigProvider>
+    </AntdFormItemContainer>
+  );
+}
+
+export default CascaderComponent;

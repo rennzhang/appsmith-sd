@@ -14,6 +14,9 @@ import ButtonWidget, {
 import AntdBreadcrumbWidget, {
   CONFIG as ANTD_BREADCRUM_CONFIG,
 } from "widgets/Antd/BreadcrumbWidget";
+import AntdCascaderWidget, {
+  CONFIG as ANTD_CASCADER_CONFIG,
+} from "widgets/Antd/CascaderWidget";
 import AntdAutoCompleteWidget, {
   CONFIG as ANTD_AUTO_COMPLETE_CONFIG,
 } from "widgets/Antd/AutoCompleteWidget";
@@ -256,6 +259,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdDropdownWidget, ANTD_DROPDOWN_CONFIG],
   [RadioWidgetWidget, ANTD_RADIO_CONFIG],
   [AntdAutoCompleteWidget, ANTD_AUTO_COMPLETE_CONFIG],
+  [AntdCascaderWidget, ANTD_CASCADER_CONFIG],
   [AntdBreadcrumbWidget, ANTD_BREADCRUM_CONFIG],
   [AntdTableWidget, ANTD_Table_CONFIG],
   [CanvasWidget, CANVAS_WIDGET_CONFIG],

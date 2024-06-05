@@ -16,7 +16,7 @@ export interface InputComponentProps extends BaseInputComponentProps {
   accentColor?: string;
   required?: boolean;
   emailOptions?: string[];
-  options?: string;
+  options?: string | string[];
 }
 
 // export default InputComponent;
@@ -93,7 +93,16 @@ const AntdAutoComplete = (props: InputComponentProps) => {
   };
   const getPanelValue = () => {
     if (!propsOptions?.length) return [];
-    return (JSON.parse(propsOptions) || [])?.map((v: string) => ({
+    let opt = [];
+    if (typeof propsOptions === "string") {
+      try {
+        opt = JSON.parse(propsOptions) || [];
+      } catch (error) {
+        console.log(" error", error, propsOptions);
+        return [];
+      }
+    }
+    return opt.map((v: string) => ({
       label: v,
       value: v,
     }));
