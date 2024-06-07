@@ -14,6 +14,9 @@ import ButtonWidget, {
 import AntdBreadcrumbWidget, {
   CONFIG as ANTD_BREADCRUM_CONFIG,
 } from "widgets/Antd/BreadcrumbWidget";
+import AntdTransferWidget, {
+  CONFIG as ANTD_TRANSFER_CONFIG,
+} from "widgets/Antd/TransferWidget";
 import AntdCascaderWidget, {
   CONFIG as ANTD_CASCADER_CONFIG,
 } from "widgets/Antd/CascaderWidget";
@@ -261,6 +264,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdAutoCompleteWidget, ANTD_AUTO_COMPLETE_CONFIG],
   [AntdCascaderWidget, ANTD_CASCADER_CONFIG],
   [AntdBreadcrumbWidget, ANTD_BREADCRUM_CONFIG],
+  [AntdTransferWidget, ANTD_TRANSFER_CONFIG],
   [AntdTableWidget, ANTD_Table_CONFIG],
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
   [SkeletonWidget, SKELETON_WIDGET_CONFIG],

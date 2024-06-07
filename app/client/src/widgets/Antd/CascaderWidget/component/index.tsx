@@ -12,27 +12,13 @@ import type { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
 import styled from "styled-components";
 import type { RenderMode, TextSize } from "constants/WidgetConstants";
 import type { Alignment } from "@blueprintjs/core";
-import type { LabelPosition } from "components/constants";
+import { LabelPosition } from "components/constants";
 import { ProFormItem } from "@ant-design/pro-components";
 import type { CascaderProps } from "antd";
 import { ConfigProvider, Cascader } from "antd";
 import type { InputStatus } from "antd/es/_util/statusUtils";
+import { AntdFormItemContainer } from "widgets/Antd/Style";
 
-export const AntdFormItemContainer = styled.div<{
-  labelStyle?: string;
-  alignment?: string;
-  boxShadow?: string;
-}>`
-  width: 100%;
-  .ant-form-item-label {
-    font-weight: ${({ labelStyle }) => labelStyle?.includes("BOLD") && "bold"};
-    font-style: ${({ labelStyle }) =>
-      labelStyle?.includes("ITALIC") && "italic"};
-  }
-  .ant-form-item-control .ant-form-item-control-input .ant-select-selector {
-    box-shadow: ${({ boxShadow }) => boxShadow};
-  }
-`;
 export interface CascaderComponentProps {
   defaultOptionValue?: string;
   allowClear?: boolean;
@@ -45,7 +31,7 @@ export interface CascaderComponentProps {
   // expandAll: boolean;
   labelText: string;
   labelPosition?: LabelPosition;
-  labelAlignment?: Alignment;
+  labelAlignment?: "left" | "right";
   labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
@@ -169,6 +155,7 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     <AntdFormItemContainer
       boxShadow={boxShadow}
       className="antd-radio-container"
+      labelPosition={labelPosition}
       labelStyle={labelStyle}
     >
       <ConfigProvider
@@ -192,6 +179,12 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
       >
         <ProFormItem
           label={labelText}
+          labelAlign={labelAlignment}
+          labelCol={
+            labelPosition == LabelPosition.Left
+              ? { span: labelWidth }
+              : undefined
+          }
           required={required}
           tooltip={labelTooltip}
         >

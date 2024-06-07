@@ -24,96 +24,8 @@ import CustomComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import type { CascaderProps } from "antd";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
 
-function defaultOptionValueValidation(value: unknown): ValidationResponse {
-  if (typeof value === "string") return { isValid: true, parsed: value.trim() };
-  if (value === undefined || value === null)
-    return {
-      isValid: false,
-      parsed: "",
-      messages: [
-        {
-          name: "TypeError",
-          message: "This value does not evaluate to type: string",
-        },
-      ],
-    };
-  return { isValid: true, parsed: value };
-}
-
-function optionValidation(
-  value: unknown,
-  props: any,
-  _: any,
-): ValidationResponse {
-  const labelField = props.fieldNames?.label || "label";
-  const valueField = props.fieldNames?.value || "value";
-  const childrenField = props.fieldNames?.children || "children";
-  const validateTreeStr = `
-  return function validateTree(tree) {
-    if (!Array.isArray(tree)) return false;
-
-    for (let node of tree) {
-      if (typeof node !== 'object' || node === null ||
-          !('${valueField}' in node) || !('${labelField}' in node)) {
-        return false;
-      }
-
-      if (node.${childrenField} && !validateTree(node.${childrenField})) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-`;
-
-  // 使用 new Function 重新生成 validateTree 函数
-  const validateTree = new Function(validateTreeStr)();
-  let options = value;
-  const invalidResponse = {
-    isValid: false,
-    parsed: [],
-    messages: [
-      {
-        name: "TypeError",
-        message: "This value does not evaluate to type Array",
-      },
-    ],
-  };
-
-  try {
-    if (_.isString(options)) {
-      options = JSON.parse(options as string);
-    }
-
-    if (Array.isArray(options)) {
-      const isValid = validateTree(options);
-      let message = { name: "", message: "" };
-
-      if (!isValid) {
-        message = {
-          name: "TypeError",
-          message:
-            `Each option must be an object with '${labelField}' and '${valueField}' fields. ` +
-            `The '${childrenField}' field must be an array of objects with '${labelField}' and '${valueField}' fields.`,
-        };
-      }
-
-      return {
-        isValid,
-        parsed: isValid ? options : [],
-        messages: [message],
-      };
-    } else {
-      return invalidResponse;
-    }
-  } catch (e) {
-    return invalidResponse;
-  }
-}
-class SingleSelectTreeWidget extends BaseWidget<
+class AntdTransferWidget extends BaseWidget<
   SingleSelectTreeWidgetProps,
   WidgetState
 > {
@@ -123,93 +35,155 @@ class SingleSelectTreeWidget extends BaseWidget<
         sectionName: "数据",
         children: [
           {
-            helpText: "允许用户多选，每个选项的值必须唯一",
-            propertyName: "options",
-            label: "选项",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入选项数据",
+            helpText:
+              "接受一个对象数组以显示选项。使用 {{}} 绑定来自 API 的数据。",
+            propertyName: "sourceData",
+            label: "源数据",
+            controlType: "ONE_CLICK_BINDING_CONTROL",
+            controlConfig: {
+              aliases: [
+                {
+                  name: "label",
+                  isSearcheable: true,
+                  isRequired: true,
+                },
+                {
+                  name: "value",
+                  isRequired: true,
+                },
+              ],
+              sampleData: JSON.stringify(
+                [
+                  {
+                    value: 54,
+                    label: "Label_3",
+                    description: "Description_86",
+                  },
+                  {
+                    value: 8,
+                    label: "Label_92",
+                    description: "Description_18",
+                  },
+                  {
+                    value: 28,
+                    label: "Label_85",
+                    description: "Description_18",
+                  },
+                ],
+                null,
+                2,
+              ),
+            },
+            isJSConvertible: true,
+            placeholderText:
+              '[{ "label": "label1", "value": "value1", "key": "key1", "description": "description1"}]',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.FUNCTION,
+              type: ValidationTypes.ARRAY,
               params: {
-                fn: optionValidation,
-                expected: {
-                  type: "value",
-                  example: `[{ "label": "label1", "value": "value1", "children": [{ "label": "label2", "value": "value2" }] }]`,
-                  autocompleteDataType: AutocompleteDataType.ARRAY,
+                default: [],
+                unique: ["value"],
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                    allowedKeys: [
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          required: true,
+                        },
+                      },
+                      {
+                        name: "value",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                        },
+                      },
+                      {
+                        name: "description",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "这是一段描述",
+                        },
+                      },
+                      {
+                        name: "children",
+                        type: ValidationTypes.ARRAY,
+                        required: false,
+                        params: {
+                          children: {
+                            type: ValidationTypes.OBJECT,
+                            params: {
+                              allowedKeys: [
+                                {
+                                  name: "label",
+                                  type: ValidationTypes.TEXT,
+                                  params: {
+                                    default: "",
+                                    required: true,
+                                  },
+                                },
+                                {
+                                  name: "value",
+                                  type: ValidationTypes.TEXT,
+                                  params: {
+                                    default: "",
+                                  },
+                                },
+                                {
+                                  name: "description",
+                                  type: ValidationTypes.TEXT,
+                                  params: {
+                                    default: "这是一段描述",
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        },
+                      },
+                    ],
+                  },
                 },
               },
+              // params: {
+              //   children: {
+              //     type: ValidationTypes.OBJECT,
+              //     params: {
+              //       required: true,
+              //     },
+              //   },
+              // },
             },
-            dependencies: ["fieldNames"],
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "默认选中这个值",
-            propertyName: "defaultOptionValue",
-            label: "默认选中值",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入选项数据",
+            helpText:
+              "穿梭框默认显示在右侧框数据的 value 集合，可以使用 {{}} 绑定来自 API 的数据。",
+            propertyName: "defaultTargetKeys",
+            label: "右侧默认数据",
+            controlType: "ONE_CLICK_BINDING_CONTROL",
+            controlConfig: {},
+            isJSConvertible: true,
+            placeholderText: '[{ "key1" , "key2" }]',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.FUNCTION,
+              type: ValidationTypes.ARRAY,
               params: {
-                fn: defaultOptionValueValidation,
-                expected: {
-                  type: "value",
-                  example: `value1`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
+                children: {
+                  type: ValidationTypes.TEXT,
                 },
               },
             },
-          },
-          {
-            helpText: "自定义字段名",
-            propertyName: "fieldNames",
-            label: "自定义字段名",
-            controlType: "INPUT_TEXT",
-            defaultValue: {
-              label: "label",
-              value: "value",
-              children: "children",
-            },
-            isJSConvertible: false,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.OBJECT,
-              params: {
-                required: true,
-                allowedKeys: [
-                  {
-                    name: "label",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "label",
-                      required: true,
-                    },
-                  },
-                  {
-                    name: "value",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "value",
-                      required: true,
-                    },
-                  },
-                  {
-                    name: "children",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "children",
-                      required: true,
-                    },
-                  },
-                ],
-              },
-            },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
         ],
       },
@@ -284,6 +258,28 @@ class SingleSelectTreeWidget extends BaseWidget<
             hidden: (props: SingleSelectTreeWidgetProps) =>
               props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
+          },
+          {
+            helpText: "设置左侧标题",
+            propertyName: "leftTile",
+            label: "左侧标题",
+            defaultValue: "source",
+            controlType: "INPUT_TEXT",
+            placeholderText: "请输入文本内容",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "设置右侧标题",
+            propertyName: "rightTitle",
+            defaultValue: "target",
+            label: "右侧标题",
+            controlType: "INPUT_TEXT",
+            placeholderText: "请输入文本内容",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -373,27 +369,6 @@ class SingleSelectTreeWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "allowClear",
-            label: "允许清空",
-            helpText: "显示清空按钮用来清空选择",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isHoverExpand",
-            label: "移入展开",
-            helpText: "通过移入展开下级菜单，点击完成选择。",
-            controlType: "SWITCH",
-            defaultValue: false,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
             propertyName: "isSearchable",
             label: "开启搜索",
             helpText: "输入内容搜索相关选项",
@@ -405,9 +380,9 @@ class SingleSelectTreeWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "isMultiple",
-            label: "开启多选",
-            helpText: "允许用户多选，每个选项的值必须唯一",
+            helpText: "控制穿梭框的模式为开启单向样式",
+            propertyName: "oneWay",
+            label: "开启单向样式",
             controlType: "SWITCH",
             defaultValue: false,
             isJSConvertible: true,
@@ -415,43 +390,24 @@ class SingleSelectTreeWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          // {
-          //   propertyName: "expandAll",
-          //   label: "默认展开",
-          //   helpText: "默认展开所有层级的选项",
-          //   controlType: "SWITCH",
-          //   isJSConvertible: true,
-          //   isBindProperty: true,
-          //   isTriggerProperty: false,
-          //   validation: { type: ValidationTypes.BOOLEAN },
-          // },
         ],
       },
       {
         sectionName: "事件",
         children: [
           {
+            helpText: "穿梭框值改变时触发",
+            propertyName: "onValueChange",
+            label: "onValueChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
             helpText: "用户选中一个选项时触发",
-            propertyName: "onOptionChange",
-            label: "onOptionChange",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText: "when the dropdown opens",
-            propertyName: "onDropdownOpen",
-            label: "onDropdownOpen",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText: "when the dropdown closes",
-            propertyName: "onDropdownClose",
-            label: "onDropdownClose",
+            propertyName: "onSelectChange",
+            label: "onSelectChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -487,6 +443,22 @@ class SingleSelectTreeWidget extends BaseWidget<
 
   static getPropertyPaneStyleConfig() {
     return [
+      {
+        sectionName: "组件样式",
+        children: [
+          {
+            propertyName: "listHeight",
+            label: "组件高度",
+            helpText: "组件高度调整，单位为 px",
+            controlType: "INPUT_TEXT",
+            defaultValue: 260,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+          },
+        ],
+      },
       {
         sectionName: "标签样式",
         children: [
@@ -611,13 +583,13 @@ class SingleSelectTreeWidget extends BaseWidget<
         "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
       "!url": "https://docs.appsmith.com/widget-reference/treeselect",
       isVisible: DefaultAutocompleteDefinitions.isVisible,
-      selectedOptionValue: {
-        "!type": "string",
+      selectedOption: {
+        "!type": "array",
         "!doc": "The value selected in a treeselect dropdown",
         "!url": "https://docs.appsmith.com/widget-reference/treeselect",
       },
-      selectedOptionLabel: {
-        "!type": "string",
+      targetValues: {
+        "!type": "array",
         "!doc": "The selected option label in a treeselect dropdown",
         "!url": "https://docs.appsmith.com/widget-reference/treeselect",
       },
@@ -630,17 +602,9 @@ class SingleSelectTreeWidget extends BaseWidget<
   static getDerivedPropertiesMap() {
     return {
       value: `{{this.selectedOptionValue}}`,
-      flattenedOptions: `{{(()=>{${derivedProperties.getFlattenedOptions}})()}}`,
       isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
-      selectedOptionValue: `{{(()=>{${derivedProperties.getSelectedOptionValue}})()}}`,
-      selectedOptionLabel: `{{(()=>{${derivedProperties.getSelectedOptionLabel}})()}}`,
-    };
-  }
-
-  static getDefaultPropertiesMap(): Record<string, string> {
-    return {
-      selectedOption: "defaultOptionValue",
-      selectedLabel: "defaultOptionValue",
+      selectedOption: `{{(()=>{${derivedProperties.getSelectedOption}})()}}`,
+      targetValues: `{{(()=>{${derivedProperties.getTargetValues}})()}}`,
     };
   }
 
@@ -653,23 +617,20 @@ class SingleSelectTreeWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: SingleSelectTreeWidgetProps): void {
-    if (
-      this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
-      this.props.isDirty
-    ) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
+    if (this.props.sourceData !== prevProps.sourceData) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
     }
   }
 
   getPageView() {
-    const options = isArray(this.props.options) ? this.props.options : [];
+    console.log("穿梭框 getPageView this.props", this.props);
+
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const { componentWidth } = this.getComponentDimensions();
     return (
       <CustomComponent
         accentColor={this.props.accentColor}
-        allowClear={this.props.allowClear}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         compactMode={
@@ -679,20 +640,17 @@ class SingleSelectTreeWidget extends BaseWidget<
             1
           )
         }
-        defaultOptionValue={this.props.defaultOptionValue}
+        defaultTargetKeys={this.props.defaultTargetKeys}
         disabled={this.props.isDisabled ?? false}
-        fieldNames={this.props.fieldNames}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
-        isFilterable
-        dropdownStyle={{
-          zIndex: Layers.dropdownModalWidget,
-        }}
-        // expandAll={this.props.expandAll}
-        isHoverExpand={this.props.isHoverExpand}
         isMultiple={this.props.isMultiple}
         isSearchable={this.props.isSearchable}
         isValid={!isInvalid}
         labelAlignment={this.props.labelAlignment}
+        dropdownStyle={{
+          zIndex: Layers.dropdownModalWidget,
+        }}
+        // expandAll={this.props.expandAll}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
@@ -700,70 +658,61 @@ class SingleSelectTreeWidget extends BaseWidget<
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
         labelWidth={this.props.labelWidth}
+        leftTile={this.props.leftTile}
+        listHeight={this.props.listHeight}
         loading={this.props.isLoading}
-        onChange={this.onOptionChange}
-        onDropdownClose={this.onDropdownClose}
-        onDropdownOpen={this.onDropdownOpen}
-        options={options}
+        onChange={this.onValueChange}
+        onSelectChange={this.onSelectChange}
+        oneWay={this.props.oneWay}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
         required={this.props.isRequired}
+        rightTitle={this.props.rightTitle}
         selectedOption={this.props.selectedOption}
+        sourceData={this.props.sourceData}
         status={this.props.status}
-        value={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
     );
   }
-
-  onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
-    console.log("级联选择 onOptionChange this.props", value, this.props);
-    if (this.props.selectedOptionValue !== value) {
+  onValueChange = (value?: DefaultValueType) => {
+    console.log("级联选择 onValueChange this.props", value, this.props);
+    if (this.props.targetValues !== value) {
       if (!this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", true);
       }
-      this.props.updateWidgetMetaProperty("selectedOption", value);
-      this.props.updateWidgetMetaProperty(
-        "selectedLabel",
-        labelList?.[0] ?? "",
-        {
-          triggerPropertyName: "onOptionChange",
-          dynamicString: this.props.onOptionChange,
-          event: {
-            type: EventType.ON_OPTION_CHANGE,
-          },
-        },
-      );
-    }
-  };
-
-  onDropdownOpen = () => {
-    if (this.props.onDropdownOpen) {
-      super.executeAction({
-        triggerPropertyName: "onDropdownOpen",
-        dynamicString: this.props.onDropdownOpen,
+      this.props.updateWidgetMetaProperty("targetValues", value, {
+        triggerPropertyName: "onValueChange",
+        dynamicString: this.props.onValueChange,
         event: {
-          type: EventType.ON_DROPDOWN_OPEN,
+          type: EventType.ON_OPTION_CHANGE,
         },
       });
     }
   };
 
-  onDropdownClose = () => {
-    if (this.props.onDropdownClose) {
-      super.executeAction({
-        triggerPropertyName: "onDropdownClose",
-        dynamicString: this.props.onDropdownClose,
+  onSelectChange = (value?: {
+    targetSelectedKeys: string[];
+    sourceSelectedKeys: string[];
+  }) => {
+    console.log("穿梭框 onSelectChange this.props", value, this.props);
+    if (this.props.selectedOption !== value) {
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
+      this.props.updateWidgetMetaProperty("selectedOption", value, {
+        triggerPropertyName: "onSelectChange",
+        dynamicString: this.props.onSelectChange,
         event: {
-          type: EventType.ON_DROPDOWN_CLOSE,
+          type: EventType.ON_SELECT,
         },
       });
     }
   };
 
   static getWidgetType(): WidgetType {
-    return "ANTD_CASCADER_WIDGET";
+    return "ANTD_TRANSFER_WIDGET";
   }
 }
 
@@ -778,14 +727,10 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   placeholderText?: string;
   selectedIndex?: number;
   options?: DropdownOption[];
-  flattenedOptions?: DropdownOption[];
   onOptionChange: string;
-  onDropdownOpen?: string;
   onDropdownClose?: string;
-  defaultOptionValue: string;
   isRequired: boolean;
   isLoading: boolean;
-  allowClear: boolean;
   selectedLabel: string[];
   selectedOption: string | CascaderProps["value"];
   selectedOptionValue: CascaderProps["value"];
@@ -804,4 +749,4 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   isDirty?: boolean;
 }
 
-export default SingleSelectTreeWidget;
+export default AntdTransferWidget;

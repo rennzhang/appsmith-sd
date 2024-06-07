@@ -3,31 +3,16 @@ import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { type Alignment } from "@blueprintjs/core";
 // import { RadioGroup, Radio, Classes } from "@blueprintjs/core";
-import type { LabelPosition } from "components/constants";
+import { LabelPosition } from "components/constants";
 import type { RadioOption } from "../constants";
 import type { ButtonProps, RadioChangeEvent } from "antd";
 import { ConfigProvider } from "antd";
 import { ProFormRadio } from "@ant-design/pro-components";
+import { AntdFormItemContainer } from "widgets/Antd/Style";
 export interface RadioGroupContainerProps {
   compactMode: boolean;
   labelPosition?: LabelPosition;
 }
-
-export const RadioGroupContainer = styled.div<{
-  labelStyle?: string;
-  alignment?: string;
-}>`
-  width: 100%;
-  .ant-form-item-label {
-    font-weight: ${({ labelStyle }) => labelStyle?.includes("BOLD") && "bold"};
-    font-style: ${({ labelStyle }) =>
-      labelStyle?.includes("ITALIC") && "italic"};
-  }
-  .ant-form-item-control .ant-radio-wrapper {
-    flex-direction: ${({ alignment }) =>
-      alignment == "left" ? "row" : "row-reverse"};
-  }
-`;
 
 export interface StyledRadioGroupProps {
   alignment: Alignment;
@@ -79,9 +64,10 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
   );
 
   return (
-    <RadioGroupContainer
+    <AntdFormItemContainer
       alignment={alignment}
       className="antd-radio-container"
+      labelPosition={labelPosition}
       labelStyle={labelStyle}
     >
       <ConfigProvider
@@ -106,6 +92,12 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
             size: buttonSize,
           }}
           label={labelText}
+          labelAlign={labelAlignment}
+          labelCol={
+            labelPosition == LabelPosition.Left
+              ? { span: labelWidth }
+              : undefined
+          }
           layout={inline ? "horizontal" : "vertical"}
           options={options}
           radioType={radioType}
@@ -117,7 +109,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
           tooltip={labelTooltip}
         />
       </ConfigProvider>
-    </RadioGroupContainer>
+    </AntdFormItemContainer>
   );
 }
 
@@ -134,7 +126,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   compactMode: boolean;
   labelText: string;
   labelPosition?: LabelPosition;
-  labelAlignment?: Alignment;
+  labelAlignment?: "left" | "right";
   labelTextColor?: string;
   labelTextSize?: number;
   labelStyle?: string;

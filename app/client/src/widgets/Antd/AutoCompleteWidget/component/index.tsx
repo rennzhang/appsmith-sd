@@ -4,6 +4,7 @@ import type { BaseInputComponentProps } from "widgets/BaseInputWidget/component"
 import type { InputTypes } from "widgets/BaseInputWidget/constants";
 import { ProFormItem } from "@ant-design/pro-components";
 import { Input } from "antd";
+import { AntdFormItemContainer } from "widgets/Antd/Style";
 
 export interface InputComponentProps extends BaseInputComponentProps {
   inputType: InputTypes;
@@ -23,21 +24,7 @@ export interface InputComponentProps extends BaseInputComponentProps {
 import React, { useEffect, useState } from "react";
 import { AutoComplete, ConfigProvider } from "antd";
 import styled from "styled-components";
-export const AutoCompleteContainer = styled.div<{
-  labelStyle?: string;
-  alignment?: string;
-  boxShadow?: string;
-}>`
-  width: 100%;
-  .ant-form-item-label {
-    font-weight: ${({ labelStyle }) => labelStyle?.includes("BOLD") && "bold"};
-    font-style: ${({ labelStyle }) =>
-      labelStyle?.includes("ITALIC") && "italic"};
-  }
-  .ant-form-item-control .ant-form-item-control-input .ant-select-selector {
-    box-shadow: ${({ boxShadow }) => boxShadow};
-  }
-`;
+import { LabelPosition } from "design-system-old";
 const mockVal = (str: InputDataType, repeat = 1) => ({
   value: String(str).repeat(repeat),
 });
@@ -53,9 +40,12 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     emailOptions,
     inputType,
     label,
+    labelAlignment,
+    labelPosition,
     labelStyle,
     labelTextColor,
     labelTextSize,
+    labelWidth,
     maxChars,
     onFocusChange,
     onValueChange,
@@ -123,9 +113,10 @@ const AntdAutoComplete = (props: InputComponentProps) => {
   };
 
   return (
-    <AutoCompleteContainer
+    <AntdFormItemContainer
       boxShadow={boxShadow}
       className="antd-radio-container"
+      labelPosition={labelPosition}
       labelStyle={labelStyle}
     >
       <ConfigProvider
@@ -146,7 +137,17 @@ const AntdAutoComplete = (props: InputComponentProps) => {
           },
         }}
       >
-        <ProFormItem label={label} required={required} tooltip={tooltip}>
+        <ProFormItem
+          label={label}
+          labelAlign={labelAlignment}
+          labelCol={
+            labelPosition == LabelPosition.Left
+              ? { span: labelWidth }
+              : undefined
+          }
+          required={required}
+          tooltip={tooltip}
+        >
           <AutoComplete
             autoFocus={autoFocus}
             disabled={disabled}
@@ -178,7 +179,7 @@ const AntdAutoComplete = (props: InputComponentProps) => {
           </AutoComplete>
         </ProFormItem>
       </ConfigProvider>
-    </AutoCompleteContainer>
+    </AntdFormItemContainer>
   );
 };
 

@@ -1,6 +1,6 @@
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { Alignment, ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
@@ -26,6 +26,7 @@ export const CONFIG = {
   searchTags: ["form", "text input", "number", "textarea"],
   defaults: {
     ...BaseConfig.defaults,
+
     labelTextSize: 14,
     options: ["option1", "option2", "option3"],
     emailOptions: {
@@ -55,7 +56,7 @@ export const CONFIG = {
       },
     },
     rows: 7,
-    labelPosition: LabelPosition.Top,
+    labelPosition: LabelPosition.Left,
     inputType: "TEXT",
     widgetName: "AntdAutoComplete",
     version: 2,

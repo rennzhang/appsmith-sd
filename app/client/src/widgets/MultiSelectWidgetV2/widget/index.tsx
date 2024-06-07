@@ -154,6 +154,7 @@ class MultiSelectWidget extends BaseWidget<
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
+
           {
             helpText: "选择或设置源数据中的字段作为显示标签",
             propertyName: "optionLabel",
