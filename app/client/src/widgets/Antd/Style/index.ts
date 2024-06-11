@@ -31,3 +31,81 @@ export const AntdFormItemContainer = styled.div<{
     overflow: hidden;
   }
 `;
+
+export const AntdImageContainer = styled.div<{
+  borderRadius: string;
+  boxShadow?: string;
+  defaultImageUrl: string;
+  imageUrl: string;
+  objectFit?: string;
+  horizontalPositionMemo: string;
+  verticalPositionMemo: string;
+}>`
+  height: 100%;
+  .ant-image {
+    // max-width: 100%;
+    // max-height: 100%;
+  }
+
+  img,
+  .ant-image-mask {
+    object-fit: ${({ objectFit }) => objectFit || "contain"} !important;
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => boxShadow || "none"};
+    overflow: hidden;
+    object-position: ${({ horizontalPositionMemo, verticalPositionMemo }) =>
+      `${horizontalPositionMemo} ${verticalPositionMemo}`};
+  }
+`;
+
+export const ImagePreviewContainer = styled.div`
+  .toolbar-wrapper {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    padding: 0px 24px;
+    color: #fff;
+    font-size: 20px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 100px;
+    transform: translateX(-50%);
+  }
+
+  .toolbar-wrapper .anticon {
+    padding: 12px;
+    cursor: pointer;
+  }
+
+  .toolbar-wrapper .anticon[disabled] {
+    cursor: not-allowed;
+    opacity: 0.3;
+  }
+
+  .toolbar-wrapper .anticon:hover {
+    opacity: 0.3;
+  }
+`;
+
+export const AntdImageBackground = styled.div<{
+  borderRadius: string;
+  boxShadow?: string;
+  imageUrl: string;
+  defaultImageUrl: string;
+  objectFit?: string;
+}>`
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => boxShadow || "none"};
+  background-image: url(${({ defaultImageUrl, imageUrl }) =>
+    imageUrl || defaultImageUrl});
+
+  overflow: hidden;
+  height: 100%;
+  position: relative;
+  display: flex;
+  background-size: ${({ objectFit }) => objectFit || "contain"};
+
+  width: 100%;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+`;
