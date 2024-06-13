@@ -26,6 +26,7 @@ export default [
             value: ButtonVariantTypes.TERTIARY,
           },
         ],
+        defaultValue: ButtonVariantTypes.SECONDARY,
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
@@ -43,7 +44,7 @@ export default [
       },
       {
         propertyName: "buttonSize",
-        label: "按钮类型",
+        label: "按钮大小",
         controlType: "ICON_TABS",
         helpText: "设置菜单按钮的尺寸大小",
         defaultValue: "middle",
@@ -99,6 +100,23 @@ export default [
         validation: {
           type: ValidationTypes.TEXT,
         },
+      },
+
+      {
+        propertyName: "iconSize",
+        helpText: "设置图标大小",
+        label: "图标大小",
+        controlType: "INPUT_TEXT",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.NUMBER },
+        defaultValue: "16",
+        // 当 isDragger == true 时，显示该配置
+        hidden: (props: MenuButtonWidgetProps) => {
+          return !props.isDragger;
+        },
+        dependencies: ["isDragger"],
       },
       {
         propertyName: "iconAlign",
@@ -168,13 +186,28 @@ export default [
     children: [
       {
         propertyName: "buttonColor",
-        helpText: "设置菜单按钮颜色",
+        helpText: "设置按钮颜色",
         label: "按钮颜色",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "iconColor",
+        helpText: "设置图标颜色",
+        label: "图标颜色",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        // 当 isDragger == true 时，显示该配置
+        hidden: (props: MenuButtonWidgetProps) => {
+          return !props.isDragger;
+        },
+        dependencies: ["isDragger"],
       },
     ],
   },

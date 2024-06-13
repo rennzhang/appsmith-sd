@@ -1,3 +1,8 @@
+import type { ButtonPlacement } from "components/constants";
+import {
+  CheckboxGroupAlignmentTypes,
+  ButtonPlacementTypes,
+} from "components/constants";
 import { LabelPosition } from "design-system-old";
 import styled from "styled-components";
 
@@ -5,9 +10,13 @@ export const AntdFormItemContainer = styled.div<{
   labelStyle?: string;
   alignment?: string;
   boxShadow?: string;
+  borderRadius?: string;
   labelPosition?: LabelPosition;
 }>`
   width: 100%;
+  .ant-form-item {
+    margin-bottom: 0;
+  }
   .ant-form-item-row {
     flex-flow: ${({ labelPosition }) =>
       labelPosition == LabelPosition.Left ? "row nowrap" : "row wrap"};
@@ -29,6 +38,19 @@ export const AntdFormItemContainer = styled.div<{
   .ant-transfer-list {
     box-shadow: ${({ boxShadow }) => boxShadow};
     overflow: hidden;
+  }
+
+  .ant-upload {
+    width: 100%;
+  }
+
+  div.ant-upload.ant-upload-drag {
+    box-shadow: ${({ boxShadow }) => boxShadow};
+    border-radius: ${({ borderRadius }) => borderRadius};
+  }
+
+  div.ant-upload.ant-upload-select {
+    box-shadow: ${({ boxShadow }) => boxShadow};
   }
 `;
 
@@ -108,4 +130,15 @@ export const AntdImageBackground = styled.div<{
   background-position: center center;
   background-repeat: no-repeat;
 }
+`;
+
+export const BtnContent = styled.div<{
+  placement?: ButtonPlacement;
+  borderRadius?: string;
+}>`
+  justify-content: ${({ placement }) =>
+    CheckboxGroupAlignmentTypes[placement || ButtonPlacementTypes.CENTER]};
+  .bp3-icon {
+    color: inherit !important;
+  }
 `;
