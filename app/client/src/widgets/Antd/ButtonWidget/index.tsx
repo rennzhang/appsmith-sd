@@ -27,7 +27,7 @@ export const CONFIG = {
     placement: ButtonPlacementTypes.CENTER,
     rows: 4,
     columns: 16,
-    widgetName: "Button",
+    widgetName: "AntdButton",
     isDisabled: false,
     isVisible: true,
     isDefaultClickDisabled: true,

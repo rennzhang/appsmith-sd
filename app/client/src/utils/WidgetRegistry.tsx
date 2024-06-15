@@ -14,6 +14,11 @@ import ButtonWidget, {
 import AntdBreadcrumbWidget, {
   CONFIG as ANTD_BREADCRUM_CONFIG,
 } from "widgets/Antd/BreadcrumbWidget";
+// widgets/Antd/ModalWidget
+import AntdModalWidget, {
+  CONFIG as ANTD_MODAL_WIDGET_CONFIG,
+} from "widgets/Antd/ModalWidget";
+
 // widgets/Antd/UploadWidget
 import AntdUploadWidget, {
   CONFIG as ANTD_UPLOAD_WIDGET_CONFIG,
@@ -271,6 +276,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdAutoCompleteWidget, ANTD_AUTO_COMPLETE_CONFIG],
   [AntdCascaderWidget, ANTD_CASCADER_CONFIG],
   [AntdBreadcrumbWidget, ANTD_BREADCRUM_CONFIG],
+  [AntdModalWidget, ANTD_MODAL_WIDGET_CONFIG],
   [AntdUploadWidget, ANTD_UPLOAD_WIDGET_CONFIG],
   [AntdImageWidget, ANTD_IMAGE_CONFIG],
   [AntdTransferWidget, ANTD_TRANSFER_CONFIG],
