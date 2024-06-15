@@ -57,7 +57,8 @@ export const useFilteredFileOperations = (query = "") => {
    */
   const plugins = useSelector(getPlugins);
   const restApiPlugin = plugins.find(
-    (plugin) => plugin.type === PluginType.API,
+    (plugin) =>
+      plugin.type === PluginType.API && plugin.pluginName !== "PhalApi",
   );
   const newApiActionIdx = actionOperations.findIndex(
     (op) => op.title === "新建 API",

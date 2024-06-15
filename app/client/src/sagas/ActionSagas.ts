@@ -843,9 +843,6 @@ export function* setActionPropertySaga(
     return;
   }
 
-  if (actionObj.pluginId === "664b2bf09ac93f34a8aaaaaa") {
-    actionObj.pluginType = PluginType.API;
-  }
   console.log(" actionObj", actionObj);
 
   // we use the formData to crosscheck, just in case value is not updated yet.

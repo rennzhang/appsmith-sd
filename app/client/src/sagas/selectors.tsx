@@ -187,7 +187,9 @@ export const getPluginIdOfPackageName = (
   name: string,
 ): string | undefined => {
   const plugins = state.entities.plugins.list;
-  const plugin = plugins.find((plugin) => plugin.packageName === name);
+  const plugin = plugins.find(
+    (plugin) => plugin.packageName === name && plugin.pluginName !== "PhalApi",
+  );
   if (plugin) return plugin.id;
   return undefined;
 };

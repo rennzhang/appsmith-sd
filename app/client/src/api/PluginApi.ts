@@ -33,6 +33,7 @@ export interface Plugin {
   responseType?: "TABLE" | "JSON";
   documentationLink?: string;
   generateCRUDPageComponent?: string;
+  pluginName: string;
 }
 
 export interface PluginFormPayload {
