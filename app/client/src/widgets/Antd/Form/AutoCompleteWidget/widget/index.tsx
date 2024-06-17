@@ -732,7 +732,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       isInputTypeEmailOrPassword(this.props.inputType)
         ? { autoComplete: "off" }
         : {};
-    console.log(" this.props.options", this.props.options);
+    console.group("Antd 自动完成组件");
+    console.log(" props", this.props);
+    console.log(" this", this);
+    console.groupEnd();
     return (
       <InputComponent
         borderRadius={this.props.borderRadius}
@@ -740,7 +743,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /
-            GRID_DENSITY_MIGRATION_V1 >
+              GRID_DENSITY_MIGRATION_V1 >
             1
           )
         }
@@ -767,13 +770,16 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         onValueChange={this.onValueChange}
         options={this.props.options}
         placeholder={this.props.placeholderText}
+        regex={this.props.regex}
         required={this.props.isRequired}
         showError={!!this.props.isFocused}
         spellCheck={!!this.props.isSpellCheck}
         stepSize={1}
         tooltip={this.props.tooltip}
+        validation={this.props.validation}
         value={value}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
         accentColor={this.props.accentColor}
         // show label and Input side by side if true
         autoFocus={this.props.autoFocus}

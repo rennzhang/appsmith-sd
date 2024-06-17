@@ -20,7 +20,7 @@ export const CONFIG = {
   name: "Antd 穿梭框",
   searchTags: ["dropdown", "tree select", "穿梭框"],
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.ANTD],
+  tags: [WIDGET_TAGS.ANTD, WIDGET_TAGS.ANTD_FORM],
   needsMeta: true,
   defaults: {
     // 默认高度
@@ -57,7 +57,7 @@ export const CONFIG = {
     expandAll: false,
     placeholderText: "请选择",
     labelText: "标签",
-    labelPosition: LabelPosition.Top,
+    labelPosition: LabelPosition.Auto,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     labelTextSize: "0.875rem",

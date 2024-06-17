@@ -588,7 +588,7 @@ export interface BaseInputWidgetProps extends WidgetProps {
   placeholderText?: string;
   label: string;
   labelPosition?: LabelPosition;
-  labelAlignment?: Alignment;
+  labelAlignment?: "left" | "right";
   labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: string;

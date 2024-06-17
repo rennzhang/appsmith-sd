@@ -43,6 +43,7 @@ export const excludeList: WidgetType[] = [
   "CONTAINER_WIDGET",
   "TABS_WIDGET",
   "FORM_WIDGET",
+  "ANTD_FORM_WIDGET",
   "MODAL_WIDGET",
   "DIVIDER_WIDGET",
   "FILE_PICKER_WIDGET",

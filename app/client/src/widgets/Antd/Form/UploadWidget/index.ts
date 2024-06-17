@@ -5,13 +5,13 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { ButtonVariantTypes } from "components/constants";
+import { ButtonVariantTypes, LabelPosition } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Antd 文件上传",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.ANTD],
+  tags: [WIDGET_TAGS.ANTD, WIDGET_TAGS.ANTD_FORM],
   needsMeta: true,
   searchTags: ["upload", "file picker"],
   defaults: {
@@ -41,6 +41,7 @@ export const CONFIG = {
     minWidth: BUTTON_MIN_WIDTH,
     fileList: [],
     uploadedFileData: [],
+    labelPosition: LabelPosition.Auto,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

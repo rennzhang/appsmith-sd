@@ -738,7 +738,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   isDynamicHeightEnabled?: boolean;
   defaultValue?: string | number;
   label: string;
-  labelAlignment?: Alignment;
+  labelAlignment?: "left" | "right";
   labelPosition?: LabelPosition;
   labelWidth?: number;
   labelTextColor?: string;

@@ -20,6 +20,7 @@ import type { InputStatus } from "antd/es/_util/statusUtils";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 
 export interface CascaderComponentProps {
+  widgetName: string;
   defaultOptionValue?: string;
   allowClear?: boolean;
   disabled?: boolean;
@@ -99,6 +100,7 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     status,
     value,
     widgetId,
+    widgetName,
   } = props;
 
   const [selectedValue, setSelectedValue] = useState<typeof value>([]);
@@ -185,6 +187,7 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
               ? { span: labelWidth }
               : undefined
           }
+          name={widgetName}
           required={required}
           tooltip={labelTooltip}
         >

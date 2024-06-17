@@ -11,7 +11,7 @@ export const CONFIG = {
   features: {
     dynamicHeight: {
       sectionIndex: 3,
-      defaultValue: DynamicHeight.FIXED,
+      defaultValue: DynamicHeight.AUTO_HEIGHT,
       active: true,
     },
   },
@@ -19,12 +19,13 @@ export const CONFIG = {
   name: "Antd 级联选择",
   searchTags: ["dropdown", "tree select", "级联选择"],
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.ANTD],
+  tags: [WIDGET_TAGS.ANTD, WIDGET_TAGS.ANTD_FORM],
   needsMeta: true,
   defaults: {
-    rows: 7,
+    rows: 8,
     columns: 20,
     animateLoading: false,
+    labelPosition: LabelPosition.Auto,
     options: [
       {
         label: "蓝",
@@ -54,7 +55,6 @@ export const CONFIG = {
     isHoverExpand: false,
     placeholderText: "请选择",
     labelText: "标签",
-    labelPosition: LabelPosition.Top,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     labelTextSize: "0.875rem",
@@ -79,7 +79,7 @@ export const CONFIG = {
   },
   autoLayout: {
     disabledPropsDefaults: {
-      labelPosition: LabelPosition.Top,
+      labelPosition: LabelPosition.Auto,
       labelTextSize: "0.875rem",
     },
     defaults: {

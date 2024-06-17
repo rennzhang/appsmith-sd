@@ -500,7 +500,6 @@ class FilePickerWidget extends BaseWidget<
       files: `{{this.selectedFiles}}`,
       targetFile: `{{this.selectedFiles[0]}}`,
       uploadedFileData: `{{this.uploadedFileData}}`,
-
     };
   }
 

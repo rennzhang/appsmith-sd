@@ -2,6 +2,7 @@
 // import React from "react";
 import type { BaseInputComponentProps } from "widgets/BaseInputWidget/component";
 import type { InputTypes } from "widgets/BaseInputWidget/constants";
+import type { ProFormItemProps } from "@ant-design/pro-components";
 import { ProFormItem } from "@ant-design/pro-components";
 import { Input } from "antd";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
@@ -18,10 +19,12 @@ export interface InputComponentProps extends BaseInputComponentProps {
   required?: boolean;
   emailOptions?: string[];
   options?: string | string[];
+  regex?: string;
+  validation: boolean;
 }
 
 // export default InputComponent;
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AutoComplete, ConfigProvider } from "antd";
 import styled from "styled-components";
 import { LabelPosition } from "design-system-old";
@@ -38,6 +41,7 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     defaultValue,
     disabled,
     emailOptions,
+    errorMessage,
     inputType,
     label,
     labelAlignment,
@@ -51,9 +55,20 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     onValueChange,
     options: propsOptions,
     placeholder,
+    regex,
     required,
     tooltip,
+    validation,
+    widgetId,
+    widgetName,
   } = props;
+
+  const ruleRegexMemo = useMemo(() => {
+    if (regex) {
+      return new RegExp(regex);
+    }
+    return undefined;
+  }, [regex]);
 
   const [value, setValue] = useState<InputDataType>();
   const [options, setOptions] = useState<{ value: string }[]>([]);
@@ -71,6 +86,28 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     }
   }, [inputType, propsOptions, emailOptions, value]);
 
+  const validateProps = useMemo<ProFormItemProps>(() => {
+    const props: ProFormItemProps = {
+      required,
+      rules: [
+        {
+          required: required,
+          message: errorMessage,
+          max: maxChars,
+          pattern: ruleRegexMemo,
+          validateTrigger: ["onChange", "onBlur"],
+        },
+      ],
+    };
+    if (required && !validation) {
+      console.log("自动完成组件 required but no validation", props);
+
+      props.validateStatus = "error";
+      props.help = errorMessage;
+    }
+
+    return props;
+  }, [required, validation, errorMessage, maxChars, ruleRegexMemo]);
   const setEmailOptions = () => {
     if (!value) {
       return [];
@@ -145,8 +182,9 @@ const AntdAutoComplete = (props: InputComponentProps) => {
               ? { span: labelWidth }
               : undefined
           }
-          required={required}
+          name={widgetName}
           tooltip={tooltip}
+          {...validateProps}
         >
           <AutoComplete
             autoFocus={autoFocus}

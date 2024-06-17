@@ -671,6 +671,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         required={this.props.isRequired}
         selectedOptionValue={selectedOptionValue}
         widgetId={widgetId}
+        widgetName={this.props.widgetName}
       />
     );
   }
@@ -713,7 +714,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   alignment: Alignment;
   label: string;
   labelPosition?: LabelPosition;
-  labelAlignment?: Alignment;
+  labelAlignment?: "left" | "right";
   labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: number;

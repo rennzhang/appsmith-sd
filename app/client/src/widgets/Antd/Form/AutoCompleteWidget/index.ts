@@ -14,19 +14,20 @@ export const CONFIG = {
   features: {
     dynamicHeight: {
       sectionIndex: 3,
-      defaultValue: DynamicHeight.FIXED,
+      defaultValue: DynamicHeight.AUTO_HEIGHT,
       active: true,
     },
   },
   type: Widget.getWidgetType(),
   name: "Antd 自动完成输入框",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.ANTD],
+  tags: [WIDGET_TAGS.ANTD, WIDGET_TAGS.ANTD_FORM],
   needsMeta: true,
   searchTags: ["form", "text input", "number", "textarea"],
   defaults: {
     ...BaseConfig.defaults,
-
+    labelPosition: LabelPosition.Auto,
+    dynamicHeight: DynamicHeight.AUTO_HEIGHT,
     labelTextSize: 14,
     options: ["option1", "option2", "option3"],
     emailOptions: {
@@ -55,8 +56,10 @@ export const CONFIG = {
         index: 2,
       },
     },
-    rows: 7,
-    labelPosition: LabelPosition.Left,
+    // 组件拖拽后的默认高度
+    rows: 8,
+    // 组件拖拽后的默认宽度
+    columns: 24,
     inputType: "TEXT",
     widgetName: "AntdAutoComplete",
     version: 2,
@@ -90,14 +93,14 @@ export const CONFIG = {
   },
   autoLayout: {
     disabledPropsDefaults: {
-      labelPosition: LabelPosition.Top,
+      labelPosition: LabelPosition.Auto,
       labelTextSize: 14,
     },
     autoDimension: (props: BaseInputWidgetProps) => ({
       height: props.inputType !== "MULTI_LINE_TEXT",
     }),
     defaults: {
-      rows: 6.6,
+      rows: 8,
     },
     widgetSize: [
       {

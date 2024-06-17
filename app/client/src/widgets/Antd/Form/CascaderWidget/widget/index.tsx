@@ -712,6 +712,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         status={this.props.status}
         value={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
         width={componentWidth}
       />
     );

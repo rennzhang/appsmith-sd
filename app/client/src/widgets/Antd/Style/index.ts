@@ -6,6 +6,7 @@ import {
 import { LabelPosition } from "design-system-old";
 import styled from "styled-components";
 
+export const AntdProformContainer = styled.div``;
 export const AntdFormItemContainer = styled.div<{
   labelStyle?: string;
   alignment?: string;

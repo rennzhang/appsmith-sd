@@ -11,33 +11,44 @@ import ButtonGroupWidget, {
 import ButtonWidget, {
   CONFIG as BUTTON_WIDGET_CONFIG,
 } from "widgets/ButtonWidget";
+
 import AntdBreadcrumbWidget, {
   CONFIG as ANTD_BREADCRUM_CONFIG,
 } from "widgets/Antd/BreadcrumbWidget";
+
+/* Antd form 组件注册 start */
+import AntdFormWidget, {
+  CONFIG as ANTD_FORM_WIDGET_CONFIG,
+} from "widgets/Antd/Form/FormWidget";
+
+import AntdUploadWidget, {
+  CONFIG as ANTD_UPLOAD_WIDGET_CONFIG,
+} from "widgets/Antd/Form/UploadWidget";
+
+import AntdAutoCompleteWidget, {
+  CONFIG as ANTD_AUTO_COMPLETE_CONFIG,
+} from "widgets/Antd/Form/AutoCompleteWidget";
+
+import RadioWidgetWidget, {
+  CONFIG as ANTD_RADIO_CONFIG,
+} from "widgets/Antd/Form/RadioWidget";
+import AntdCascaderWidget, {
+  CONFIG as ANTD_CASCADER_CONFIG,
+} from "widgets/Antd/Form/CascaderWidget";
+
+import AntdTransferWidget, {
+  CONFIG as ANTD_TRANSFER_CONFIG,
+} from "widgets/Antd/Form/TransferWidget";
+/* Antd form 组件注册 end */
+
 // widgets/Antd/ModalWidget
 import AntdModalWidget, {
   CONFIG as ANTD_MODAL_WIDGET_CONFIG,
 } from "widgets/Antd/ModalWidget";
 
-// widgets/Antd/UploadWidget
-import AntdUploadWidget, {
-  CONFIG as ANTD_UPLOAD_WIDGET_CONFIG,
-} from "widgets/Antd/UploadWidget";
 import AntdImageWidget, {
   CONFIG as ANTD_IMAGE_CONFIG,
 } from "widgets/Antd/ImageWidget";
-import AntdTransferWidget, {
-  CONFIG as ANTD_TRANSFER_CONFIG,
-} from "widgets/Antd/TransferWidget";
-import AntdCascaderWidget, {
-  CONFIG as ANTD_CASCADER_CONFIG,
-} from "widgets/Antd/CascaderWidget";
-import AntdAutoCompleteWidget, {
-  CONFIG as ANTD_AUTO_COMPLETE_CONFIG,
-} from "widgets/Antd/AutoCompleteWidget";
-import RadioWidgetWidget, {
-  CONFIG as ANTD_RADIO_CONFIG,
-} from "widgets/Antd/RadioWidget";
 
 import AntdButtonWidget, {
   CONFIG as ANTD_BUTTON_CONFIG,
@@ -276,6 +287,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdAutoCompleteWidget, ANTD_AUTO_COMPLETE_CONFIG],
   [AntdCascaderWidget, ANTD_CASCADER_CONFIG],
   [AntdBreadcrumbWidget, ANTD_BREADCRUM_CONFIG],
+  [AntdFormWidget, ANTD_FORM_WIDGET_CONFIG],
   [AntdModalWidget, ANTD_MODAL_WIDGET_CONFIG],
   [AntdUploadWidget, ANTD_UPLOAD_WIDGET_CONFIG],
   [AntdImageWidget, ANTD_IMAGE_CONFIG],

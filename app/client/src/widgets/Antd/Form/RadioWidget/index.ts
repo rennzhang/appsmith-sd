@@ -9,7 +9,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Antd 单选框",
   iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.ANTD],
+  tags: [WIDGET_TAGS.ANTD, WIDGET_TAGS.ANTD_FORM],
   needsMeta: true,
   features: {
     dynamicHeight: {
@@ -23,7 +23,7 @@ export const CONFIG = {
     columns: 20,
     animateLoading: false,
     label: "标签",
-    labelPosition: LabelPosition.Top,
+    labelPosition: LabelPosition.Auto,
     labelAlignment: Alignment.LEFT,
     labelTextSize: 14,
     labelWidth: 5,
@@ -69,7 +69,7 @@ export const CONFIG = {
       rows: 7,
     },
     disabledPropsDefaults: {
-      labelPosition: LabelPosition.Top,
+      labelPosition: LabelPosition.Auto,
     },
     autoDimension: {
       height: true,

@@ -52,6 +52,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     radioType,
     required,
     selectedOptionValue,
+    widgetName,
   } = props;
   console.log(" labelStyle", labelStyle);
   const optionCount = (options || []).length;
@@ -99,6 +100,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
               : undefined
           }
           layout={inline ? "horizontal" : "vertical"}
+          name={widgetName}
           options={options}
           radioType={radioType}
           required={required}

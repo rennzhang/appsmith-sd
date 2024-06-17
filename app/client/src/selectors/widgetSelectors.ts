@@ -37,7 +37,9 @@ export const getModalDropdownList = createSelector(
   (widgets) => {
     const modalWidgets = Object.values(widgets).filter(
       (widget: FlattenedWidgetProps) =>
-        widget.type === "MODAL_WIDGET" || widget.type === "TARO_POPUP_WIDGET",
+        widget.type === "ANTD_MODAL_WIDGET" ||
+        widget.type === "MODAL_WIDGET" ||
+        widget.type === "TARO_POPUP_WIDGET",
     );
     if (modalWidgets.length === 0) return undefined;
 
