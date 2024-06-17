@@ -6,26 +6,12 @@ export default {
       : true;
   },
   //
-  getSelectedOptionValue: (props, moment, _) => {
-    const options = props.flattenedOptions ?? [];
-    let value = props.selectedOption;
-
-    const valueIndex = _.findIndex(options, (option) => option.value === value);
-    if (valueIndex === -1) {
-      value = "";
-    }
-
-    // console.log("级联选择 getSelectedOptionValue", props, value, valueIndex);
-    return value;
-  },
-  //
   getSelectedOptionLabel: (props, moment, _) => {
     const options = props.flattenedOptions ?? [];
-    const label =
-      _.find(options, (option) => option.value === props.selectedOptionValue)
-        ?.label ?? "";
-
-    return label;
+    const selectedOptionLabels = props.selectedOption.map((value) => {
+      return options.find((option) => option.value === value).label;
+    });
+    return selectedOptionLabels;
   },
   //
   getFlattenedOptions: (props, moment, _) => {
@@ -39,7 +25,6 @@ export default {
       });
       return result;
     };
-
     return flat(props.options);
   },
   //

@@ -110,6 +110,18 @@ class FormWidget extends ContainerWidget {
     return formData;
   }
 
+  getFormDefaultData = (formWidget: ContainerWidgetProps<WidgetProps>) => {
+    const formData: any = {};
+    if (formWidget.children) {
+      formWidget.children.forEach((widgetData) => {
+        if (!_.isNil(widgetData.defaultValue)) {
+          formData[widgetData.widgetName] = widgetData.defaultValue;
+        }
+      });
+    }
+    return formData;
+  };
+
   renderChildWidget(): React.ReactNode {
     const childContainer = this.getChildContainer();
 
@@ -125,10 +137,14 @@ class FormWidget extends ContainerWidget {
         },
       );
     }
+    console.log("表单组件 默认值", this.getFormDefaultData(childContainer));
 
+    const initialValues = this.getFormDefaultData(childContainer);
     return (
       <ProForm
         getChildContainer={this.getChildContainer}
+        getFormData={this.getFormData}
+        initialValues={initialValues}
         widgetId={this.props.widgetId}
       >
         {super.renderChildWidget(childContainer)}

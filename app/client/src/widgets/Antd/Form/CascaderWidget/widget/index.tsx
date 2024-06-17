@@ -26,7 +26,7 @@ import type { AutocompletionDefinitions } from "widgets/constants";
 import type { CascaderProps } from "antd";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
 
-function defaultOptionValueValidation(value: unknown): ValidationResponse {
+function defaultValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
   if (value === undefined || value === null)
     return {
@@ -147,7 +147,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           },
           {
             helpText: "默认选中这个值",
-            propertyName: "defaultOptionValue",
+            propertyName: "defaultValue",
             label: "默认选中值",
             controlType: "INPUT_TEXT",
             placeholderText: "请输入选项数据",
@@ -156,7 +156,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
-                fn: defaultOptionValueValidation,
+                fn: defaultValueValidation,
                 expected: {
                   type: "value",
                   example: `value1`,
@@ -611,7 +611,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
       "!url": "https://docs.appsmith.com/widget-reference/treeselect",
       isVisible: DefaultAutocompleteDefinitions.isVisible,
-      selectedOptionValue: {
+      value: {
         "!type": "string",
         "!doc": "The value selected in a treeselect dropdown",
         "!url": "https://docs.appsmith.com/widget-reference/treeselect",
@@ -629,23 +629,25 @@ class SingleSelectTreeWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      value: `{{this.selectedOptionValue}}`,
+      value: `{{this.selectedOption}}`,
       flattenedOptions: `{{(()=>{${derivedProperties.getFlattenedOptions}})()}}`,
       isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
-      selectedOptionValue: `{{(()=>{${derivedProperties.getSelectedOptionValue}})()}}`,
       selectedOptionLabel: `{{(()=>{${derivedProperties.getSelectedOptionLabel}})()}}`,
+      selectedOptionValue: `{{this.selectedOption}}`,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      selectedOption: "defaultOptionValue",
-      selectedLabel: "defaultOptionValue",
+      value: "selectedOption",
+      selectedOption: "defaultValue",
+      selectedLabel: "defaultValue",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
+      value: undefined,
       selectedOption: undefined,
       selectedLabel: undefined,
       isDirty: false,
@@ -654,7 +656,7 @@ class SingleSelectTreeWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: SingleSelectTreeWidgetProps): void {
     if (
-      this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
+      this.props.defaultValue !== prevProps.defaultValue &&
       this.props.isDirty
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
@@ -662,6 +664,10 @@ class SingleSelectTreeWidget extends BaseWidget<
   }
 
   getPageView() {
+    console.group("级联选择 getPageView");
+    console.log("级联选择 this.props", this.props);
+    console.log("级联选择 this", this);
+    console.groupEnd();
     const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
@@ -679,7 +685,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             1
           )
         }
-        defaultOptionValue={this.props.defaultOptionValue}
+        defaultValue={this.props.defaultValue}
         disabled={this.props.isDisabled ?? false}
         fieldNames={this.props.fieldNames}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
@@ -710,7 +716,6 @@ class SingleSelectTreeWidget extends BaseWidget<
         required={this.props.isRequired}
         selectedOption={this.props.selectedOption}
         status={this.props.status}
-        value={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
         width={componentWidth}
@@ -719,15 +724,14 @@ class SingleSelectTreeWidget extends BaseWidget<
   }
 
   onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
-    console.log("级联选择 onOptionChange this.props", value, this.props);
-    if (this.props.selectedOptionValue !== value) {
+    if (this.props.selectedOption !== value) {
       if (!this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", true);
       }
       this.props.updateWidgetMetaProperty("selectedOption", value);
       this.props.updateWidgetMetaProperty(
         "selectedLabel",
-        labelList?.[0] ?? "",
+        this.props.selectedOptionLabel,
         {
           triggerPropertyName: "onOptionChange",
           dynamicString: this.props.onOptionChange,
@@ -783,13 +787,12 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   onOptionChange: string;
   onDropdownOpen?: string;
   onDropdownClose?: string;
-  defaultOptionValue: string;
+  defaultValue: string;
   isRequired: boolean;
   isLoading: boolean;
   allowClear: boolean;
   selectedLabel: string[];
-  selectedOption: string | CascaderProps["value"];
-  selectedOptionValue: CascaderProps["value"];
+  selectedOption: CascaderProps["value"];
   selectedOptionLabel: string;
   // expandAll: boolean;
   labelText: string;

@@ -23,6 +23,7 @@ export interface WidgetStyleContainerProps {
   backgroundColor?: Color;
   borderWidth?: number;
   borderRadius?: number;
+  initialValues?: Record<string, any>;
   boxShadow?: BoxShadow;
   className?: string;
   selected?: boolean;

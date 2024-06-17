@@ -63,13 +63,6 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     widgetName,
   } = props;
 
-  const ruleRegexMemo = useMemo(() => {
-    if (regex) {
-      return new RegExp(regex);
-    }
-    return undefined;
-  }, [regex]);
-
   const [value, setValue] = useState<InputDataType>();
   const [options, setOptions] = useState<{ value: string }[]>([]);
 
@@ -86,6 +79,12 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     }
   }, [inputType, propsOptions, emailOptions, value]);
 
+  const ruleRegexMemo = useMemo(() => {
+    if (regex) {
+      return new RegExp(regex);
+    }
+    return undefined;
+  }, [regex]);
   const validateProps = useMemo<ProFormItemProps>(() => {
     const props: ProFormItemProps = {
       required,

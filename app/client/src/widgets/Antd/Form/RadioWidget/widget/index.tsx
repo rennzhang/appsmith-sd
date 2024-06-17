@@ -188,6 +188,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       "!url": "https://docs.appsmith.com/widget-reference/radio",
       isVisible: DefaultAutocompleteDefinitions.isVisible,
       options: "[$__dropdownOption__$]",
+      defaultValue: "string",
       selectedOptionValue: "string",
       isRequired: "bool",
     };
@@ -222,7 +223,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           },
           {
             helpText: "设置默认选中的选项",
-            propertyName: "defaultOptionValue",
+            propertyName: "defaultValue",
             label: "默认选中值",
             placeholderText: "Y",
             controlType: "INPUT_TEXT",
@@ -571,7 +572,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      selectedOptionValue: "defaultOptionValue",
+      selectedOptionValue: "defaultValue",
     };
   }
 
@@ -591,7 +592,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: RadioGroupWidgetProps): void {
     if (
-      this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
+      this.props.defaultValue !== prevProps.defaultValue &&
       this.props.isDirty
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
@@ -639,7 +640,10 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       topRow,
       widgetId,
     } = this.props;
-    console.log(" this.props", this.props);
+    console.group("Antd 单选组件");
+    console.log(" props", this.props);
+    console.log(" this", this);
+    console.groupEnd();
 
     const { componentHeight } = this.getComponentDimensions();
 
@@ -707,7 +711,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   options: RadioOption[];
   selectedOptionValue: string;
   onSelectionChange: string;
-  defaultOptionValue: string;
+  defaultValue: string;
   isRequired?: boolean;
   isDisabled: boolean;
   isInline?: boolean;

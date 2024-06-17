@@ -47,7 +47,7 @@ export const CONFIG = {
       { label: "红", value: "RED" },
     ],
     widgetName: "AntdTransfer",
-    defaultTargetKeys: [],
+    defaultValue: [],
     leftTile: "源数据",
     rightTitle: "目标数据",
     version: 1,

@@ -12,6 +12,7 @@ import {
 
 export interface ProformContainerComponentProps
   extends WidgetStyleContainerProps {
+  getFormData: (formWidget: ContainerWidgetProps<WidgetProps>) => any;
   getChildContainer: () => ContainerWidgetProps<WidgetProps>;
   children: ReactNode;
   backgroundImage?: string;
@@ -51,7 +52,14 @@ const mockVal = (str: InputDataType, repeat = 1) => ({
 
 type InputDataType = string | undefined;
 const AntdAutoComplete = (props: ProformContainerComponentProps) => {
-  const { borderRadius, boxShadow, children, getChildContainer } = props;
+  const {
+    borderRadius,
+    boxShadow,
+    children,
+    getChildContainer,
+    getFormData,
+    initialValues,
+  } = props;
 
   const [value, setValue] = useState<InputDataType>();
   const [options, setOptions] = useState<{ value: string }[]>([]);
@@ -60,8 +68,9 @@ const AntdAutoComplete = (props: ProformContainerComponentProps) => {
 
   const handleFinsh = async (values: any) => {
     console.group("表单组件 handleFinsh");
-    console.log("表单组件 handleFinsh");
-    console.log(values);
+    console.log("handleFinsh values", values);
+    console.log("getFormData", getFormData(getChildContainer?.()));
+
     console.log(" formRef.current", formRef.current);
     const val1 = await formRef.current?.validateFields();
     console.log("validateFields:", val1);
@@ -71,9 +80,15 @@ const AntdAutoComplete = (props: ProformContainerComponentProps) => {
   };
 
   const handleSubmit = async (values: any) => {
-    const childContainer = getChildContainer?.();
-
-    console.log("表单组件 handleSubmit", values, childContainer);
+    console.group("表单组件 handleSubmit");
+    console.log("handleSubmit values", values);
+    console.log("getFormData", getFormData(getChildContainer?.()));
+    console.log(" formRef.current", formRef.current);
+    const val1 = await formRef.current?.validateFields();
+    console.log("validateFields:", val1);
+    const val2 = await formRef.current?.validateFieldsReturnFormatValue?.();
+    console.log("validateFieldsReturnFormatValue:", val2);
+    console.groupEnd();
   };
   return (
     <AntdProformContainer>
@@ -89,6 +104,7 @@ const AntdAutoComplete = (props: ProformContainerComponentProps) => {
       >
         <ProForm
           formRef={formRef}
+          initialValues={initialValues}
           onFinish={handleFinsh}
           submitter={{
             onSubmit: handleSubmit,

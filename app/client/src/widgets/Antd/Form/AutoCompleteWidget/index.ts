@@ -56,6 +56,7 @@ export const CONFIG = {
         index: 2,
       },
     },
+    defaultValue: "",
     // 组件拖拽后的默认高度
     rows: 8,
     // 组件拖拽后的默认宽度
@@ -84,7 +85,7 @@ export const CONFIG = {
     ): PropertyUpdates[] => {
       return [
         {
-          propertyPath: "defaultText",
+          propertyPath: "defaultValue",
           propertyValue: propValueMap.data,
           isDynamicPropertyPath: true,
         },

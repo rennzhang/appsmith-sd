@@ -45,7 +45,7 @@ export const CONFIG = {
       { label: "红", value: "RED" },
     ],
     widgetName: "AntdCascader",
-    defaultOptionValue: "BLUE",
+    defaultValue: "BLUE",
     version: 1,
     isVisible: true,
     isRequired: false,

@@ -21,13 +21,12 @@ import { AntdFormItemContainer } from "widgets/Antd/Style";
 
 export interface CascaderComponentProps {
   widgetName: string;
-  defaultOptionValue?: string;
+  defaultValue?: string;
   allowClear?: boolean;
   disabled?: boolean;
   placeholder?: string;
   loading?: boolean;
   dropdownStyle?: React.CSSProperties;
-  value?: CascaderProps["value"];
   onChange: (value?: DefaultValueType, labelList?: ReactNode[]) => void;
   // expandAll: boolean;
   labelText: string;
@@ -57,7 +56,7 @@ export interface CascaderComponentProps {
   isSearchable?: boolean;
   status?: InputStatus;
   fieldNames?: CascaderProps["fieldNames"];
-  selectedOption?: string | CascaderProps["value"];
+  selectedOption?: CascaderProps["value"];
   isMultiple?: boolean;
 }
 
@@ -70,7 +69,7 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     borderRadius,
     boxShadow,
     compactMode,
-    defaultOptionValue,
+    defaultValue,
     disabled,
     fieldNames,
     // expandAll,
@@ -98,41 +97,19 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     required,
     selectedOption,
     status,
-    value,
     widgetId,
     widgetName,
   } = props;
 
-  const [selectedValue, setSelectedValue] = useState<typeof value>([]);
+  const [selectedValue, setSelectedValue] = useState<typeof selectedOption>([]);
 
   useEffect(() => {
-    if (
-      defaultOptionValue &&
-      typeof defaultOptionValue === "string" &&
-      !selectedOption
-    ) {
-      try {
-        setSelectedValue(JSON.parse(defaultOptionValue));
-      } catch (err) {
-        console.log(err);
-      }
-    } else {
-      if (selectedOption && typeof selectedOption === "string") {
-        try {
-          setSelectedValue(JSON.parse(selectedOption));
-        } catch (error) {
-          setSelectedValue([selectedOption]);
-        }
-      } else {
-        setSelectedValue((selectedOption as any) || []);
-      }
-    }
-  }, [value, defaultOptionValue, selectedOption]);
+    setSelectedValue(selectedOption || []);
+  }, [selectedOption]);
+
   const onSelectionChange = useCallback((value?: any[], labelList?: any[]) => {
     console.log("级联选择 onSelectionChange value", value);
-    if (value !== undefined) {
-      onChange?.(value, labelList || []);
-    }
+    onChange?.(value, labelList || []);
   }, []);
 
   const fieldNamesValue = useMemo(() => {

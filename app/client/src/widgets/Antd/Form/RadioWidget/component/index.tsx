@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { type Alignment } from "@blueprintjs/core";
@@ -6,8 +6,12 @@ import { type Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import type { RadioOption } from "../constants";
 import type { ButtonProps, RadioChangeEvent } from "antd";
-import { ConfigProvider } from "antd";
-import { ProFormRadio } from "@ant-design/pro-components";
+import { ConfigProvider, Radio, Space } from "antd";
+import {
+  ProFormItem,
+  ProFormItemProps,
+  ProFormRadio,
+} from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 export interface RadioGroupContainerProps {
   compactMode: boolean;
@@ -54,8 +58,6 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     selectedOptionValue,
     widgetName,
   } = props;
-  console.log(" labelStyle", labelStyle);
-  const optionCount = (options || []).length;
 
   const handleChange = useCallback(
     (e: RadioChangeEvent) => {
@@ -84,14 +86,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
           },
         }}
       >
-        <ProFormRadio.Group
-          disabled={disabled}
-          fieldProps={{
-            value: selectedOptionValue,
-            onChange: handleChange,
-            buttonStyle: radioButtonStyle ? "solid" : "outline",
-            size: buttonSize,
-          }}
+        <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
           labelCol={
@@ -99,17 +94,41 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
               ? { span: labelWidth }
               : undefined
           }
-          layout={inline ? "horizontal" : "vertical"}
           name={widgetName}
-          options={options}
-          radioType={radioType}
-          required={required}
-          style={{
-            marginBottom: 0,
-            // margin: 16,
-          }}
+          rules={
+            required
+              ? [
+                  {
+                    required: true,
+                    message: `此项为必填项`,
+                  },
+                ]
+              : []
+          }
           tooltip={labelTooltip}
-        />
+        >
+          <Radio.Group
+            buttonStyle={radioButtonStyle ? "solid" : "outline"}
+            disabled={disabled}
+            name={widgetName}
+            onChange={handleChange}
+            optionType={radioType === "button" ? "button" : "default"}
+            size={buttonSize}
+            style={{
+              marginBottom: 0,
+              // margin: 16,
+            }}
+            value={selectedOptionValue}
+          >
+            <Space direction={inline ? "horizontal" : "vertical"}>
+              {options.map((option) => (
+                <Radio key={option.value} value={option.value}>
+                  {option.label}
+                </Radio>
+              ))}
+            </Space>
+          </Radio.Group>
+        </ProFormItem>
       </ConfigProvider>
     </AntdFormItemContainer>
   );

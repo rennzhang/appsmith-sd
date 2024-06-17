@@ -26,7 +26,7 @@ interface RecordType {
 }
 export interface TransferComponentProps {
   oneWay?: boolean;
-  defaultTargetKeys?: string[];
+  defaultValue?: string[];
   disabled?: boolean;
   placeholder?: string;
   loading?: boolean;
@@ -65,6 +65,7 @@ export interface TransferComponentProps {
     sourceSelectedKeys: string[];
   }) => void;
   listHeight?: number;
+  widgetName: string;
 }
 
 function TransferComponent(props: TransferComponentProps): JSX.Element {
@@ -75,7 +76,7 @@ function TransferComponent(props: TransferComponentProps): JSX.Element {
     borderRadius,
     boxShadow,
     compactMode,
-    defaultTargetKeys,
+    defaultValue,
     disabled,
     // expandAll,
     filterText,
@@ -102,6 +103,7 @@ function TransferComponent(props: TransferComponentProps): JSX.Element {
     sourceData,
     status,
     widgetId,
+    widgetName,
   } = props;
   console.log(" 穿梭框 props", props);
   const sourceDataMemo = useMemo(() => {
@@ -118,11 +120,11 @@ function TransferComponent(props: TransferComponentProps): JSX.Element {
     );
   }, [sourceData]);
   const [targetKeys, setTargetKeys] =
-    useState<TransferProps<any>["targetKeys"]>(defaultTargetKeys);
+    useState<TransferProps<any>["targetKeys"]>(defaultValue);
 
   useEffect(() => {
-    setTargetKeys(defaultTargetKeys);
-  }, [defaultTargetKeys]);
+    setTargetKeys(defaultValue);
+  }, [defaultValue]);
   const [selectedKeys, setSelectedKeys] = useState<
     TransferProps<any>["targetKeys"]
   >([]);
@@ -196,6 +198,7 @@ function TransferComponent(props: TransferComponentProps): JSX.Element {
               ? { span: labelWidth }
               : undefined
           }
+          name={widgetName}
           required={required}
           tooltip={labelTooltip}
         >

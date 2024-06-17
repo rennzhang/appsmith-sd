@@ -166,7 +166,7 @@ class AntdTransferWidget extends BaseWidget<
           {
             helpText:
               "穿梭框默认显示在右侧框数据的 value 集合，可以使用 {{}} 绑定来自 API 的数据。",
-            propertyName: "defaultTargetKeys",
+            propertyName: "defaultValue",
             label: "右侧默认数据",
             controlType: "ONE_CLICK_BINDING_CONTROL",
             controlConfig: {},
@@ -593,6 +593,12 @@ class AntdTransferWidget extends BaseWidget<
         "!doc": "The selected option label in a treeselect dropdown",
         "!url": "https://docs.appsmith.com/widget-reference/treeselect",
       },
+      value: {
+        "!type": "array",
+        "!doc": "The selected option label in a treeselect dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+      },
+
       isDisabled: "bool",
       isValid: "bool",
       options: "[$__dropdrowOptionWithChildren__$]",
@@ -601,10 +607,11 @@ class AntdTransferWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      value: `{{this.selectedOptionValue}}`,
+      // value: `{{this.selectedOptionValue}}`,
       isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
       selectedOption: `{{(()=>{${derivedProperties.getSelectedOption}})()}}`,
       targetValues: `{{(()=>{${derivedProperties.getTargetValues}})()}}`,
+      value: `{{(()=>{${derivedProperties.getTargetValues}})()}}`,
     };
   }
 
@@ -640,7 +647,7 @@ class AntdTransferWidget extends BaseWidget<
             1
           )
         }
-        defaultTargetKeys={this.props.defaultTargetKeys}
+        defaultValue={this.props.defaultValue}
         disabled={this.props.isDisabled ?? false}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isMultiple={this.props.isMultiple}
@@ -672,6 +679,7 @@ class AntdTransferWidget extends BaseWidget<
         sourceData={this.props.sourceData}
         status={this.props.status}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
         width={componentWidth}
       />
     );

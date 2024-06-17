@@ -263,7 +263,7 @@ function InputTypeUpdateHook(
   // the user needs to explicity set autofill to fault disable autofill
   updates.push({
     propertyPath: "shouldAllowAutofill",
-    propertyValue: isInputTypeEmailOrPassword(propertyValue),
+    propertyValue: isInputTypeEmailOrPassword(propertyValue as any),
   });
 
   return updates;
@@ -345,10 +345,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             },
             {
               helpText: "设置组件默认值，当默认值改变后，组件当前值会自动更新",
-              propertyName: "defaultText",
+              propertyName: "defaultValue",
               label: "默认值",
               controlType: "INPUT_TEXT",
-              placeholderText: "John Wick",
+              placeholderText: "请输入默认值",
               isBindProperty: true,
               isTriggerProperty: false,
               validation: {
@@ -525,8 +525,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      inputText: "defaultText",
-      text: "defaultText",
+      inputText: "defaultValue",
+      text: "defaultValue",
     };
   }
 
@@ -585,9 +585,9 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         getParsedText(this.props.inputText, this.props.inputType),
       );
     }
-    // If defaultText property has changed, reset isDirty to false
+    // If defaultValue property has changed, reset isDirty to false
     if (
-      this.props.defaultText !== prevProps.defaultText &&
+      this.props.defaultValue !== prevProps.defaultValue &&
       this.props.isDirty
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
@@ -634,7 +634,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
           type: "boolean",
         },
         setValue: {
-          path: "defaultText",
+          path: "defaultValue",
           type: "string",
           accessor: "text",
         },
@@ -677,8 +677,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       // pass maxChars only for Text type inputs, undefined for other types
       conditionalProps.maxChars = this.props.maxChars;
       if (
-        this.props.defaultText &&
-        this.props.defaultText.toString().length > this.props.maxChars
+        this.props.defaultValue &&
+        this.props.defaultValue.toString().length > this.props.maxChars
       ) {
         isInvalid = true;
         conditionalProps.errorMessage = createMessage(
@@ -696,12 +696,12 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
     if (
       this.props.inputType === InputTypes.NUMBER &&
-      isNumber(this.props.defaultText)
+      isNumber(this.props.defaultValue)
     ) {
       // check the default text is neither greater than max nor less than min value.
       if (
         !isNil(this.props.minNum) &&
-        this.props.minNum > Number(this.props.defaultText)
+        this.props.minNum > Number(this.props.defaultValue)
       ) {
         isInvalid = true;
         conditionalProps.errorMessage = createMessage(
@@ -709,7 +709,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         );
       } else if (
         !isNil(this.props.maxNum) &&
-        this.props.maxNum < Number(this.props.defaultText)
+        this.props.maxNum < Number(this.props.defaultValue)
       ) {
         isInvalid = true;
         conditionalProps.errorMessage = createMessage(
@@ -747,7 +747,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             1
           )
         }
-        defaultValue={this.props.defaultText}
+        defaultValue={this.props.defaultValue}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
         emailOptions={this.props.emailOptions}
@@ -794,7 +794,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 }
 
 export interface InputWidgetProps extends BaseInputWidgetProps {
-  defaultText?: string | number;
+  defaultValue?: string | number;
   maxChars?: number;
   isSpellCheck?: boolean;
   maxNum?: number;
