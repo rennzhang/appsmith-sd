@@ -29,6 +29,10 @@ import AntdAutoCompleteWidget, {
   CONFIG as ANTD_AUTO_COMPLETE_CONFIG,
 } from "widgets/Antd/Form/AutoCompleteWidget";
 
+import AntdInputWidget, {
+  CONFIG as ANTD_INPUT_CONFIG,
+} from "widgets/Antd/Form/InputWidget";
+
 import RadioWidgetWidget, {
   CONFIG as ANTD_RADIO_CONFIG,
 } from "widgets/Antd/Form/RadioWidget";
@@ -284,6 +288,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdButtonWidget, ANTD_BUTTON_CONFIG],
   [AntdDropdownWidget, ANTD_DROPDOWN_CONFIG],
   [RadioWidgetWidget, ANTD_RADIO_CONFIG],
+  [AntdInputWidget, ANTD_INPUT_CONFIG],
   [AntdAutoCompleteWidget, ANTD_AUTO_COMPLETE_CONFIG],
   [AntdCascaderWidget, ANTD_CASCADER_CONFIG],
   [AntdBreadcrumbWidget, ANTD_BREADCRUM_CONFIG],

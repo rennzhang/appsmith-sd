@@ -102,6 +102,7 @@ export type PropertyPaneControlConfig = {
   ) => boolean;
   hideSetting?: boolean;
   createButtonText?: string;
+  defaultValue?: any;
 };
 
 type ValidationConfigParams = {

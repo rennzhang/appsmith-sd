@@ -28,7 +28,7 @@ import PrimaryColumnColorPickerControl from "components/propertyControls/Primary
 import type { ComputeTablePropertyControlProps } from "components/propertyControls/ComputeTablePropertyControl";
 import ComputeTablePropertyControl from "components/propertyControls/ComputeTablePropertyControl";
 import type { IconTabControlProps } from "components/propertyControls/IconTabControl";
-import IconTabControl from "components/propertyControls/IconTabControl";
+import IconTabsControl from "components/propertyControls/IconTabControl";
 import type { ButtonTabControlProps } from "components/propertyControls/ButtonTabControl";
 import ButtonTabControl from "components/propertyControls/ButtonTabControl";
 import type { MultiSwitchControlProps } from "components/propertyControls/MultiSwitchControl";
@@ -93,7 +93,7 @@ export const PropertyControls = {
   PrimaryColumnsControl,
   PrimaryColumnsControlV2,
   PrimaryColumnDropdownControl,
-  IconTabControl,
+  IconTabsControl,
   ButtonTabControl,
   ComputeTablePropertyControl,
   ComputeTablePropertyControlV2,
@@ -126,6 +126,21 @@ export const PropertyControls = {
   WrappedCodeEditorControl,
 };
 
+type KebabCase<S extends string> = S extends `${infer L}${infer R}`
+  ? `${Uppercase<L>}${R extends Uncapitalize<R> ? "" : "_"}${KebabCase<R>}`
+  : S;
+
+// 去除 _CONTROL
+type RemoveControl<S extends string> = S extends `${infer L}_CONTROL` ? L : S;
+
+// 重写一个类型，合并KebabCase RemoveControl功能
+export type KebabCaseRemoveControl<S extends string> = RemoveControl<
+  KebabCase<S>
+>;
+export type PropertyControlType = KebabCaseRemoveControl<
+  keyof typeof PropertyControls
+>;
+
 export type PropertyControlPropsType =
   | JsDataControllProps
   | ControlProps
@@ -152,7 +167,9 @@ export type PropertyControlPropsType =
   | OneClickBindingControlProps
   | WrappedCodeEditorControlProps;
 
-export const getPropertyControlTypes = (): { [key: string]: string } => {
+export const getPropertyControlTypes = (): {
+  [key: string]: string;
+} => {
   const _types: { [key: string]: string } = {};
   Object.values(PropertyControls).forEach(
     (Control: typeof BaseControl & { getControlType: () => string }) => {
