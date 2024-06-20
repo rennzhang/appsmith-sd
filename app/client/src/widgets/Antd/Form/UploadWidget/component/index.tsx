@@ -162,7 +162,15 @@ function FilePickerComponent(props: FilePickerComponentProps) {
     //     setUploading(false);
     //   });
   };
-
+  const colLayoutMemo = useMemo(() => {
+    if (labelPosition === LabelPosition.Left) {
+      return {
+        labelCol: { sm: { span: labelWidth } },
+        wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
+      };
+    }
+    return {};
+  }, [labelPosition, labelWidth]);
   const uploadProps: UploadProps = {
     name: "file",
     action: "http://api.jinzeplastics.com/api/app.php?service=App.File.Upload",
@@ -238,13 +246,9 @@ function FilePickerComponent(props: FilePickerComponentProps) {
         <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
-          labelCol={
-            labelPosition == LabelPosition.Left
-              ? { span: labelWidth }
-              : undefined
-          }
           required={required}
           tooltip={labelTooltip}
+          {...colLayoutMemo}
         >
           <Button
             disabled={fileList.length === 0}

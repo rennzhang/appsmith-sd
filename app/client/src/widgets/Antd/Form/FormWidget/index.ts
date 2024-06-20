@@ -44,6 +44,20 @@ export const CONFIG = {
   },
   searchTags: ["group", "form"],
   defaults: {
+    labelCol: {
+      xs: { span: 24 },
+      sm: { span: 6 },
+    },
+    wrapperCol: {
+      xs: { span: 24 },
+      sm: { span: 18 },
+    },
+    labelWrap: false,
+    labelFlex: 120,
+    labelAlign: "left",
+    size: "default",
+    formLayout: "vertical",
+    isKeyPressSubmit: false,
     rows: 40,
     columns: 24,
     borderColor: Colors.GREY_5,

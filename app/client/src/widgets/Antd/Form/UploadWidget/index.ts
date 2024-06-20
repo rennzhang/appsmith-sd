@@ -15,6 +15,7 @@ export const CONFIG = {
   needsMeta: true,
   searchTags: ["upload", "file picker"],
   defaults: {
+    labelWidth: 6,
     iconColor: "#553DE9",
     iconName: "cloud-upload",
     dragText: "支持单次或批量上传，严禁上传涉密数据或其他被禁止的文件",

@@ -26,6 +26,7 @@ export const CONFIG = {
   searchTags: ["form", "text input", "number", "textarea"],
   defaults: {
     ...BaseConfig.defaults,
+    labelWidth: 6,
     labelPosition: LabelPosition.Auto,
     dynamicHeight: DynamicHeight.AUTO_HEIGHT,
     labelTextSize: 14,

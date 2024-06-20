@@ -13,6 +13,7 @@ import styled from "styled-components";
 import type { RenderMode, TextSize } from "constants/WidgetConstants";
 import type { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
+import type { ProFormItemProps } from "@ant-design/pro-components";
 import { ProFormItem } from "@ant-design/pro-components";
 import type { CascaderProps, TransferProps } from "antd";
 import { ConfigProvider, Transfer } from "antd";
@@ -25,6 +26,7 @@ interface RecordType {
   description: string;
 }
 export interface TransferComponentProps {
+  errorMessage?: string;
   oneWay?: boolean;
   defaultValue?: string[];
   disabled?: boolean;
@@ -66,6 +68,7 @@ export interface TransferComponentProps {
   }) => void;
   listHeight?: number;
   widgetName: string;
+  validation: boolean;
 }
 
 function TransferComponent(props: TransferComponentProps): JSX.Element {
@@ -79,6 +82,7 @@ function TransferComponent(props: TransferComponentProps): JSX.Element {
     defaultValue,
     disabled,
     // expandAll,
+    errorMessage,
     filterText,
     isDynamicHeightEnabled,
     isSearchable,
@@ -102,6 +106,7 @@ function TransferComponent(props: TransferComponentProps): JSX.Element {
     selectedOption,
     sourceData,
     status,
+    validation,
     widgetId,
     widgetName,
   } = props;
@@ -133,6 +138,52 @@ function TransferComponent(props: TransferComponentProps): JSX.Element {
     return [leftTile, rightTitle];
   }, [leftTile, rightTitle]);
 
+  const validateProps = useMemo<ProFormItemProps>(() => {
+    const data: ProFormItemProps = {
+      required,
+      rules: [
+        {
+          required: required,
+          message: errorMessage,
+          validateTrigger: ["onChange", "onBlur"],
+          validator: async (_rule, value) => {
+            console.log(
+              "穿梭框 [validator] value",
+              value,
+              props,
+              required,
+              validation,
+              required && !validation,
+            );
+
+            // if (required && !validation) {
+            if (required && !value?.length) {
+              return Promise.reject(errorMessage);
+            }
+            return Promise.resolve();
+          },
+        },
+      ],
+    };
+    if (required && !validation) {
+      console.log("自动完成组件 required but no validation", data);
+
+      data.validateStatus = "error";
+      data.help = errorMessage;
+    }
+
+    return data;
+  }, [required, validation, errorMessage]);
+
+  const colLayoutMemo = useMemo(() => {
+    if (labelPosition === LabelPosition.Left) {
+      return {
+        labelCol: { sm: { span: labelWidth } },
+        wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
+      };
+    }
+    return {};
+  }, [labelPosition, labelWidth]);
   const onValueChange: TransferProps<any>["onChange"] = (
     nextTargetKeys,
     direction,
@@ -169,6 +220,11 @@ function TransferComponent(props: TransferComponentProps): JSX.Element {
   const filterOption = (inputValue: string, option: RecordType) =>
     option.description?.indexOf?.(inputValue) > -1 ||
     option.label?.indexOf?.(inputValue) > -1;
+
+  console.group("穿梭框 TransferComponent");
+  console.log("穿梭框 TransferComponent props", props);
+  console.log(" validateProps", validateProps);
+  console.groupEnd();
   return (
     <AntdFormItemContainer
       boxShadow={boxShadow}
@@ -193,14 +249,10 @@ function TransferComponent(props: TransferComponentProps): JSX.Element {
         <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
-          labelCol={
-            labelPosition == LabelPosition.Left
-              ? { span: labelWidth }
-              : undefined
-          }
           name={widgetName}
-          required={required}
           tooltip={labelTooltip}
+          {...colLayoutMemo}
+          {...validateProps}
         >
           <Transfer
             dataSource={sourceDataMemo}

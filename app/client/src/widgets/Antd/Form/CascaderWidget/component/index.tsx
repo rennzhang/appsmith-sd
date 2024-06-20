@@ -107,6 +107,15 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     setSelectedValue(selectedOption || []);
   }, [selectedOption]);
 
+  const colLayoutMemo = useMemo(() => {
+    if (labelPosition === LabelPosition.Left) {
+      return {
+        labelCol: { sm: { span: labelWidth } },
+        wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
+      };
+    }
+    return {};
+  }, [labelPosition, labelWidth]);
   const onSelectionChange = useCallback((value?: any[], labelList?: any[]) => {
     console.log("级联选择 onSelectionChange value", value);
     onChange?.(value, labelList || []);
@@ -159,14 +168,10 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
         <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
-          labelCol={
-            labelPosition == LabelPosition.Left
-              ? { span: labelWidth }
-              : undefined
-          }
           name={widgetName}
           required={required}
           tooltip={labelTooltip}
+          {...colLayoutMemo}
         >
           <Cascader
             allowClear={allowClear}

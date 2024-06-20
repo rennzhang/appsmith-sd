@@ -22,7 +22,7 @@ export default {
     return props.selectedOption;
   },
   getTargetValues: (props, moment, _) => {
-    return props.targetValues;
+    return props.targetValues || [];
   },
   //
 };

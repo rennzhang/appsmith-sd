@@ -6,7 +6,31 @@ import {
 import { LabelPosition } from "design-system-old";
 import styled from "styled-components";
 
-export const AntdProformContainer = styled.div``;
+export const AntdProformContainer = styled.div<{
+  labelAlign?: string;
+}>`
+  .antd-pro-form-container-styled
+    form.ant-form-vertical.ant-form.ant-pro-form
+    div.ant-form-item
+    div.ant-form-item-label
+    > label {
+    white-space: initial;
+    height: auto;
+  }
+  .antd-pro-form-container-styled
+    .ant-form.ant-form-horizontal.ant-form-default
+    div.ant-form-item
+    div.ant-form-item-row {
+    flex-flow: row nowrap;
+  }
+
+  .antd-pro-form-container-styled
+    .ant-pro-form
+    .ant-form-label-right
+    .ant-col.ant-col-24.ant-form-item-label {
+    text-align: end;
+  }
+`;
 export const AntdFormItemContainer = styled.div<{
   labelStyle?: string;
   alignment?: string;
@@ -32,6 +56,9 @@ export const AntdFormItemContainer = styled.div<{
       labelStyle?.includes("ITALIC") && "italic"};
     overflow: ${({ labelPosition }) =>
       labelPosition == LabelPosition.Left ? "unset" : "hidden"};
+  }
+  div.ant-form-item div.ant-form-item-label-wrap label {
+    height: auto;
   }
   .ant-form-item-control .ant-form-item-control-input .ant-select-selector {
     box-shadow: ${({ boxShadow }) => boxShadow};

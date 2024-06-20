@@ -59,6 +59,15 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     widgetName,
   } = props;
 
+  const colLayoutMemo = useMemo(() => {
+    if (labelPosition === LabelPosition.Left) {
+      return {
+        labelCol: { sm: { span: labelWidth } },
+        wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
+      };
+    }
+    return {};
+  }, [labelPosition, labelWidth]);
   const handleChange = useCallback(
     (e: RadioChangeEvent) => {
       onRadioSelectionChange(e.target.value);
@@ -89,23 +98,10 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
         <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
-          labelCol={
-            labelPosition == LabelPosition.Left
-              ? { span: labelWidth }
-              : undefined
-          }
           name={widgetName}
-          rules={
-            required
-              ? [
-                  {
-                    required: true,
-                    message: `此项为必填项`,
-                  },
-                ]
-              : []
-          }
+          rules={[{ required: required, message: `此项为必填项` }]}
           tooltip={labelTooltip}
+          {...colLayoutMemo}
         >
           <Radio.Group
             buttonStyle={radioButtonStyle ? "solid" : "outline"}

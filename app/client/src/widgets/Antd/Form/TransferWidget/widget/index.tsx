@@ -297,6 +297,31 @@ class AntdTransferWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            helpText: "使用 JS 表达式来校验输入的是否合法",
+            propertyName: "validation",
+            label: "普通校验",
+            controlType: "INPUT_TEXT",
+            placeholderText: "{{ AntdTransfer.value.length > 0 }}",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+              params: {
+                default: true,
+              },
+            },
+          },
+          {
+            helpText: "普通校验或正则校验失败后显示的错误信息",
+            propertyName: "errorMessage",
+            label: "错误信息",
+            controlType: "INPUT_TEXT",
+            placeholderText: "输入不符合规范",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "设置组件状态",
             propertyName: "status",
             label: "状态",
@@ -607,11 +632,11 @@ class AntdTransferWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      // value: `{{this.selectedOptionValue}}`,
+      value: `{{this.targetValues}}`,
       isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
       selectedOption: `{{(()=>{${derivedProperties.getSelectedOption}})()}}`,
       targetValues: `{{(()=>{${derivedProperties.getTargetValues}})()}}`,
-      value: `{{(()=>{${derivedProperties.getTargetValues}})()}}`,
+      // value: `{{(()=>{${derivedProperties.getTargetValues}})()}}`,
     };
   }
 
@@ -649,15 +674,16 @@ class AntdTransferWidget extends BaseWidget<
         }
         defaultValue={this.props.defaultValue}
         disabled={this.props.isDisabled ?? false}
+        errorMessage={this.props.errorMessage}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isMultiple={this.props.isMultiple}
         isSearchable={this.props.isSearchable}
         isValid={!isInvalid}
-        labelAlignment={this.props.labelAlignment}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
         // expandAll={this.props.expandAll}
+        labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
@@ -678,6 +704,7 @@ class AntdTransferWidget extends BaseWidget<
         selectedOption={this.props.selectedOption}
         sourceData={this.props.sourceData}
         status={this.props.status}
+        validation={this.props.validation}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
         width={componentWidth}
@@ -685,7 +712,10 @@ class AntdTransferWidget extends BaseWidget<
     );
   }
   onValueChange = (value?: DefaultValueType) => {
-    console.log("级联选择 onValueChange this.props", value, this.props);
+    console.group("穿梭框 onValueChange");
+    console.log("穿梭框 onValueChange value", value, this.props);
+
+    console.groupEnd();
     if (this.props.targetValues !== value) {
       if (!this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", true);
@@ -704,7 +734,10 @@ class AntdTransferWidget extends BaseWidget<
     targetSelectedKeys: string[];
     sourceSelectedKeys: string[];
   }) => {
-    console.log("穿梭框 onSelectChange this.props", value, this.props);
+    console.group("穿梭框 onSelectChange");
+    console.log("穿梭框 onSelectChange value", value, this.props);
+
+    console.groupEnd();
     if (this.props.selectedOption !== value) {
       if (!this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", true);

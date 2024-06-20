@@ -56,7 +56,7 @@ export const CONFIG = {
     placeholderText: "请选择",
     labelText: "标签",
     labelAlignment: Alignment.LEFT,
-    labelWidth: 5,
+    labelWidth: 6,
     labelTextSize: "0.875rem",
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,

@@ -191,6 +191,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       defaultValue: "string",
       selectedOptionValue: "string",
       isRequired: "bool",
+      isDisabled: "bool",
     };
   }
 
@@ -371,6 +372,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+
           {
             propertyName: "isInline",
             helpText: "单向框是否水平排列",

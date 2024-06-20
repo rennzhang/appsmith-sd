@@ -23,6 +23,8 @@ export const CONFIG = {
   tags: [WIDGET_TAGS.ANTD, WIDGET_TAGS.ANTD_FORM],
   needsMeta: true,
   defaults: {
+
+
     // 默认高度
     rows: 24,
     // 默认宽度
@@ -59,7 +61,7 @@ export const CONFIG = {
     labelText: "标签",
     labelPosition: LabelPosition.Auto,
     labelAlignment: Alignment.LEFT,
-    labelWidth: 5,
+    labelWidth: 6,
     labelTextSize: "0.875rem",
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,

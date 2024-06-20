@@ -107,6 +107,17 @@ const AntdAutoComplete = (props: InputComponentProps) => {
 
     return props;
   }, [required, validation, errorMessage, maxChars, ruleRegexMemo]);
+
+  const colLayoutMemo = useMemo(() => {
+    if (labelPosition === LabelPosition.Left) {
+      return {
+        labelCol: { sm: { span: labelWidth } },
+        wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
+      };
+    }
+    return {};
+  }, [labelPosition, labelWidth]);
+
   const setEmailOptions = () => {
     if (!value) {
       return [];
@@ -176,13 +187,9 @@ const AntdAutoComplete = (props: InputComponentProps) => {
         <ProFormItem
           label={label}
           labelAlign={labelAlignment}
-          labelCol={
-            labelPosition == LabelPosition.Left
-              ? { span: labelWidth }
-              : undefined
-          }
           name={widgetName}
           tooltip={tooltip}
+          {...colLayoutMemo}
           {...validateProps}
         >
           <AutoComplete

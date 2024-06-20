@@ -26,7 +26,7 @@ export const CONFIG = {
     labelPosition: LabelPosition.Auto,
     labelAlignment: Alignment.LEFT,
     labelTextSize: 14,
-    labelWidth: 5,
+    labelWidth: 6,
     options: [
       { label: "是", value: "Y" },
       { label: "否", value: "N" },
