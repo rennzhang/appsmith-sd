@@ -6,6 +6,7 @@ import Widget from "./widget";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { ButtonVariantTypes, LabelPosition } from "components/constants";
+import { DEFAULT_CONFIG } from "../CONST/DEFAULT_CONFIG";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -15,6 +16,8 @@ export const CONFIG = {
   needsMeta: true,
   searchTags: ["upload", "file picker"],
   defaults: {
+    ...DEFAULT_CONFIG.defaults,
+
     labelWidth: 6,
     iconColor: "#553DE9",
     iconName: "cloud-upload",

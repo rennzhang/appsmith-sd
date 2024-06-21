@@ -13,6 +13,7 @@ import styled from "styled-components";
 import type { RenderMode, TextSize } from "constants/WidgetConstants";
 import type { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
+import type { ProFormItemProps } from "@ant-design/pro-components";
 import { ProFormItem } from "@ant-design/pro-components";
 import type { CascaderProps } from "antd";
 import { ConfigProvider, Cascader } from "antd";
@@ -58,6 +59,7 @@ export interface CascaderComponentProps {
   fieldNames?: CascaderProps["fieldNames"];
   selectedOption?: CascaderProps["value"];
   isMultiple?: boolean;
+  errorMessage: string;
 }
 
 function CascaderComponent(props: CascaderComponentProps): JSX.Element {
@@ -71,8 +73,9 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     compactMode,
     defaultValue,
     disabled,
-    fieldNames,
+    errorMessage,
     // expandAll,
+    fieldNames,
     filterText,
     isDynamicHeightEnabled,
     isFilterable,
@@ -116,6 +119,22 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     }
     return {};
   }, [labelPosition, labelWidth]);
+
+  const validateProps = useMemo<ProFormItemProps>(() => {
+    const props: ProFormItemProps = {
+      required,
+      rules: [
+        {
+          type: "array",
+          required: required,
+          message: errorMessage,
+          validateTrigger: ["onChange", "onBlur"],
+        },
+      ],
+    };
+
+    return props;
+  }, [required, errorMessage]);
   const onSelectionChange = useCallback((value?: any[], labelList?: any[]) => {
     console.log("级联选择 onSelectionChange value", value);
     onChange?.(value, labelList || []);
@@ -169,8 +188,8 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
           label={labelText}
           labelAlign={labelAlignment}
           name={widgetName}
-          required={required}
           tooltip={labelTooltip}
+          {...validateProps}
           {...colLayoutMemo}
         >
           <Cascader

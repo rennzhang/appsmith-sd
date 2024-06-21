@@ -6,6 +6,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { DEFAULT_CONFIG } from "../CONST/DEFAULT_CONFIG";
 
 export const CONFIG = {
   features: {
@@ -23,7 +24,7 @@ export const CONFIG = {
   tags: [WIDGET_TAGS.ANTD, WIDGET_TAGS.ANTD_FORM],
   needsMeta: true,
   defaults: {
-
+    ...DEFAULT_CONFIG.defaults,
 
     // 默认高度
     rows: 24,

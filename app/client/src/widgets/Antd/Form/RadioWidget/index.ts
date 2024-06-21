@@ -4,6 +4,7 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { DEFAULT_CONFIG } from "../CONST/DEFAULT_CONFIG";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -19,6 +20,8 @@ export const CONFIG = {
   },
   searchTags: ["choice", "radio group"],
   defaults: {
+    ...DEFAULT_CONFIG.defaults,
+
     rows: 6,
     columns: 20,
     animateLoading: false,

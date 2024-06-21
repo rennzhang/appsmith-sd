@@ -301,6 +301,16 @@ class SingleSelectTreeWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            helpText: "普通校验或正则校验失败后显示的错误信息",
+            propertyName: "errorMessage",
+            label: "错误信息",
+            controlType: "INPUT_TEXT",
+            placeholderText: "输入不符合规范",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "设置组件状态",
             propertyName: "status",
             label: "状态",
@@ -687,6 +697,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         }
         defaultValue={this.props.defaultValue}
         disabled={this.props.isDisabled ?? false}
+        errorMessage={this.props.errorMessage}
         fieldNames={this.props.fieldNames}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isFilterable

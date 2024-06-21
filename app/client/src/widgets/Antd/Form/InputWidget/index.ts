@@ -9,6 +9,7 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { DEFAULT_CONFIG } from "../CONST/DEFAULT_CONFIG";
 
 export const CONFIG = {
   features: {
@@ -25,6 +26,8 @@ export const CONFIG = {
   needsMeta: true,
   searchTags: ["form", "text input", "number", "textarea"],
   defaults: {
+    ...DEFAULT_CONFIG.defaults,
+
     ...BaseConfig.defaults,
     labelWidth: 6,
     labelPosition: LabelPosition.Auto,
