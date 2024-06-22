@@ -24,6 +24,8 @@ import type {
   ProFormInstance,
   ProFormProps,
 } from "@ant-design/pro-components";
+import { AntdFormInstanceProps } from "./childPanels/FormInstance";
+import { INSTANCE_INVALID_VALUE } from "../../CONST/DEFAULT_CONFIG";
 // import FormItemLayoutConfig from "./childPanels/FormItemLayoutConfig";
 class FormWidget extends ContainerWidget {
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
@@ -97,6 +99,8 @@ class FormWidget extends ContainerWidget {
     }
   }
 
+  // componentWillUnmount(): void {}
+
   checkFormValueChanges(
     containerWidget: ContainerWidgetProps<WidgetProps>,
   ): boolean {
@@ -129,22 +133,12 @@ class FormWidget extends ContainerWidget {
       }
     }
   }
-  // formRef = React.createRef<FormInstance>();
-  // setFormRef = (
-  //   formRef: MutableRefObject<ProFormInstance<any> | undefined>,
-  // ) => {
-  //   this.formRef = formRef;
-  //   console.log(" setFormRef", formRef);
-  //   this.props.updateWidgetMetaProperty("formRef", cloneDeep(formRef));
-  // };
+  updateWidgetProps = async (path: string, value: any) => {
+    this.props.updateWidgetMetaProperty(path, value);
+  };
 
   getFormData(formWidget: ContainerWidgetProps<WidgetProps>) {
     const formData: any = {};
-    console.log(
-      "表单组件 getFormData formWidget.children",
-      this,
-      formWidget.children,
-    );
 
     if (formWidget.children)
       formWidget.children.forEach((widgetData) => {
@@ -176,7 +170,8 @@ class FormWidget extends ContainerWidget {
         (child: WidgetProps) => {
           const grandChild = {
             ...child,
-          };
+            formParentWidgetId: this.props.widgetId,
+          } as any;
           grandChild.isDisabled = this.props.isDisabled;
           if (isInvalid) grandChild.isFormValid = false;
 
@@ -205,12 +200,12 @@ class FormWidget extends ContainerWidget {
         labelAlign={this.props.labelAlign}
         labelCol={this.props.labelCol}
         labelFlex={this.props.labelFlex}
+        updateWidgetProps={this.updateWidgetProps}
+        wrapperCol={this.props.wrapperCol}
         labelWrap={this.props.labelWrap}
         // setFormRef={this.setFormRef}
         size={this.props.size}
-        widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
-        wrapperCol={this.props.wrapperCol}
+        {...this.props}
       >
         {super.renderChildWidget(childContainer)}
       </ProForm>
@@ -231,7 +226,7 @@ class FormWidget extends ContainerWidget {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       hasChanges: false,
-      formRef: undefined,
+      fieldsError: [],
     };
   }
   static getPropertyPaneContentConfig() {
@@ -417,19 +412,22 @@ class FormWidget extends ContainerWidget {
           },
         ],
       },
+      AntdFormInstanceProps,
     ];
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (widget: FormWidgetProps, extraDefsToDefine?: ExtraDef) => ({
-      "!doc":
-        "Form is used to capture a set of data inputs from a user. Forms are used specifically because they reset the data inputs when a form is submitted and disable submission for invalid data inputs",
-      "!url": "https://docs.appsmith.com/widget-reference/form",
-      isVisible: DefaultAutocompleteDefinitions.isVisible,
-      data: generateTypeDef(widget.data, extraDefsToDefine),
-      hasChanges: "bool",
-      formRef: "any",
-    });
+    return (widget: FormWidgetProps, extraDefsToDefine?: ExtraDef) => {
+      return {
+        "!doc":
+          "Form is used to capture a set of data inputs from a user. Forms are used specifically because they reset the data inputs when a form is submitted and disable submission for invalid data inputs",
+        "!url": "https://docs.appsmith.com/widget-reference/form",
+        isVisible: DefaultAutocompleteDefinitions.isVisible,
+        data: generateTypeDef(widget.data, extraDefsToDefine),
+        fieldsError: generateTypeDef(widget.fieldsError, extraDefsToDefine),
+        hasChanges: "bool",
+      };
+    };
   }
 
   static getSetterConfig(): SetterConfig {
@@ -439,9 +437,9 @@ class FormWidget extends ContainerWidget {
           path: "isVisible",
           type: "string",
         },
-        validate: {
-          path: "startVisible",
-          type: "bool",
+        validateFields: {
+          path: "validateFieldsParams",
+          type: "array",
         },
       },
     };
@@ -455,6 +453,7 @@ type FormWidgetPropsExtends = ContainerComponentProps & ProFormProps;
 export interface FormWidgetProps extends FormWidgetPropsExtends {
   name: string;
   data: Record<string, unknown>;
+  fieldsError: ReturnType<FormInstance["getFieldsError"]>;
   hasChanges: boolean;
   labelWrap?: boolean;
   formLayout?: "horizontal" | "vertical";

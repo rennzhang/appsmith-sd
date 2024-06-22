@@ -377,12 +377,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return {};
   }
 
-  onButtonClick() {
+  async onButtonClick() {
     if (this.props.onClick) {
       this.setState({
         isLoading: true,
       });
-      super.executeAction({
+      await super.executeAction({
         triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {
@@ -425,6 +425,14 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       if (this.props.resetFormOnClick && this.props.onReset)
         this.props.onReset();
     }
+
+    if (this.props.formParentWidgetId) {
+      this.context?.syncUpdateWidgetMetaProperty?.(
+        this.props.formParentWidgetId,
+        "validateFieldsParamsChange",
+        +new Date(),
+      );
+    }
   };
 
   static getSetterConfig(): SetterConfig {
@@ -451,6 +459,9 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   }
 
   getPageView() {
+    console.group("Antd 按钮组件");
+    console.log("Antd 按钮组件 props", this.props);
+    console.groupEnd();
     const disabled =
       this.props.disabledWhenInvalid &&
       "isFormValid" in this.props &&

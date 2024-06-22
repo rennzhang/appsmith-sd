@@ -33,6 +33,7 @@ class Setters {
     path: string,
     value: unknown,
     setterMethodName: string,
+    argsValue: any[],
   ) {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
 
@@ -48,9 +49,17 @@ class Setters {
     const overriddenProperties: string[] = [];
     const evalMetaUpdates: EvalMetaUpdates = [];
 
-    let parsedValue = value;
+    let _value = value;
+    let parsedValue = _value;
 
-    if (value === undefined) {
+    // setter 参数处理
+    if (
+      ["ANTD_FORM_WIDGET"].includes((entity as any).type) &&
+      _value === undefined
+    ) {
+      _value = "UNDEFINED_" + +new Date();
+    }
+    if (_value === undefined) {
       const error = new Error(
         `The value passed to ${entityName}.${setterMethodName}() evaluates to undefined.`,
       );
@@ -71,10 +80,11 @@ class Setters {
 
       const { isValid, messages, parsed } = validate(
         config,
-        value,
+        _value,
         entity as Record<string, unknown>,
         propertyPath,
       );
+
       parsedValue = parsed;
 
       if (!isValid) {
@@ -85,6 +95,10 @@ class Setters {
         error.name = entityName + "." + setterMethodName + " failed";
         throw error;
       }
+    }
+
+    if (argsValue && argsValue.length) {
+      parsedValue = [parsedValue, ...argsValue];
     }
 
     if (isWidget(entity)) {
@@ -130,9 +144,9 @@ class Setters {
     /** register the setter method in the lookup */
     set(this.setterMethodLookup, [entityName, setterMethodName], true);
 
-    const fn = async (value: unknown) => {
+    const fn = async (value: unknown, ...args: unknown[]) => {
       if (!dataTreeEvaluator) return;
-      return this.applySetterMethod(path, value, setterMethodName);
+      return this.applySetterMethod(path, value, setterMethodName, args);
     };
 
     return getFnWithGuards(fn, setterMethodName, [isAsyncGuard]);

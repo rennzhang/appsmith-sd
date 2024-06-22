@@ -11,9 +11,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { INSTANCE_INVALID_VALUE } from "../../CONST/DEFAULT_CONFIG";
+import { isNumber } from "lodash";
 
 export interface ProformContainerComponentProps
   extends WidgetStyleContainerProps {
+  validateFieldsParams?: any;
   getFormData: (formWidget: ContainerWidgetProps<WidgetProps>) => any;
   getChildContainer: () => ContainerWidgetProps<WidgetProps>;
   children: ReactNode;
@@ -48,10 +51,12 @@ export interface ProformContainerComponentProps
   labelCol?: string;
   labelAlign?: "left" | "right";
   setFormRef?: (formRef: ProFormInstance<any>) => void;
+  updateWidgetProps: (path: string, value: any) => void;
+  validateFieldsParamsChange?: number;
 }
 
 type InputDataType = string | undefined;
-const AntdAutoComplete = (props: ProformContainerComponentProps) => {
+const AntdProForm = (props: ProformContainerComponentProps) => {
   const {
     borderRadius,
     boxShadow,
@@ -68,6 +73,9 @@ const AntdAutoComplete = (props: ProformContainerComponentProps) => {
     labelWidth,
     labelWrap,
     size,
+    updateWidgetProps,
+    validateFieldsParams: __vfp,
+
     widgetName,
     wrapperCol,
   } = props;
@@ -77,10 +85,35 @@ const AntdAutoComplete = (props: ProformContainerComponentProps) => {
 
   const formRef = useRef<ProFormInstance<any>>();
 
+  const handleValidateFields = async (params?: any) => {
+    const _params = typeof params?.[1] == "string" ? [params] : params;
+    const values = await formRef.current
+      ?.validateFields(...(_params || []))
+      .finally(() => {
+        console.log(
+          "表单组件 validateFields finally",
+          formRef.current?.getFieldsError(),
+        );
+        const fieldsError = formRef.current?.getFieldsError();
+
+        updateWidgetProps("fieldsError", fieldsError);
+      });
+    console.log("表单组件 handleValidateFields values", values);
+    return values;
+  };
+  // 当validateFieldsParams有值时，调用validateFields方法
+  useEffect(() => {
+    console.log("表单组件 validateFieldsParams", __vfp);
+    if (!__vfp || isNumber(__vfp)) return;
+    const _data = __vfp?.includes?.("UNDEFINED") ? undefined : __vfp;
+
+    handleValidateFields(_data);
+  }, [props.validateFieldsParamsChange]);
+
   // setFormRef
   // useEffect(() => {
-  //   formRef.current && props.setFormRef?.(formRef);
-  // }, [formRef, props.setFormRef]);
+  //   formRef.current && updateWidgetProps?.("formRef",formRef);
+  // }, [formRef, updateWidgetProps]);
 
   const formItemLayoutMemo = useMemo(() => {
     if (formLayout == "vertical") {
@@ -112,7 +145,7 @@ const AntdAutoComplete = (props: ProformContainerComponentProps) => {
       " formRef.current getFieldsError",
       formRef.current?.getFieldsError(),
     );
-    const val1 = await formRef.current?.validateFields();
+    const val1 = await handleValidateFields();
     console.log("validateFields:", val1);
     const val2 = await formRef.current?.validateFieldsReturnFormatValue?.();
     console.log("validateFieldsReturnFormatValue:", val2);
@@ -128,7 +161,7 @@ const AntdAutoComplete = (props: ProformContainerComponentProps) => {
       " formRef.current getFieldsError",
       formRef.current?.getFieldsError(),
     );
-    const val1 = await formRef.current?.validateFields();
+    const val1 = await handleValidateFields();
     console.log("validateFields:", val1);
     const val2 = await formRef.current?.validateFieldsReturnFormatValue?.();
     console.log("validateFieldsReturnFormatValue:", val2);
@@ -197,4 +230,4 @@ const AntdAutoComplete = (props: ProformContainerComponentProps) => {
   );
 };
 
-export default AntdAutoComplete;
+export default AntdProForm;

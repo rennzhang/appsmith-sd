@@ -17,6 +17,7 @@ import { BlueprintOperationTypes } from "widgets/constants";
 import type { FlattenedWidgetProps } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { INSTANCE_INVALID_VALUE } from "../CONST/DEFAULT_CONFIG";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -44,6 +45,7 @@ export const CONFIG = {
   },
   searchTags: ["group", "form"],
   defaults: {
+    validateFieldsParams: INSTANCE_INVALID_VALUE,
     labelCol: {
       xs: { span: 24 },
       sm: { span: 6 },
