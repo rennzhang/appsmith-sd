@@ -70,7 +70,7 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     return undefined;
   }, [regex]);
   const validateProps = useMemo<ProFormItemProps>(() => {
-    const props: ProFormItemProps = {
+    const validateData: ProFormItemProps = {
       required,
       rules: [
         {
@@ -82,14 +82,14 @@ const AntdAutoComplete = (props: InputComponentProps) => {
         },
       ],
     };
-    if (required && !validation) {
+    if (required && validation === false) {
       console.log("输入框 required but no validation", props);
 
-      props.validateStatus = "error";
-      props.help = errorMessage;
+      validateData.validateStatus = "error";
+      validateData.help = errorMessage;
     }
 
-    return props;
+    return validateData;
   }, [required, validation, errorMessage, maxChars, ruleRegexMemo]);
 
   const colLayoutMemo = useMemo(() => {
