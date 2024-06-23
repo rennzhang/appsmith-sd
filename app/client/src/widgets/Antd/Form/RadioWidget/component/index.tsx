@@ -55,7 +55,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     radioButtonStyle,
     radioType,
     required,
-    selectedOptionValue,
+    value,
     widgetName,
   } = props;
 
@@ -114,7 +114,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
               marginBottom: 0,
               // margin: 16,
             }}
-            value={selectedOptionValue}
+            value={value}
           >
             <Space direction={inline ? "horizontal" : "vertical"}>
               {options.map((option) => (
@@ -134,7 +134,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   radioButtonStyle?: boolean;
   options: RadioOption[];
   onRadioSelectionChange: (updatedOptionValue: string) => void;
-  selectedOptionValue: string;
+  value: string;
   disabled: boolean;
   loading: boolean;
   isDynamicHeightEnabled?: boolean;

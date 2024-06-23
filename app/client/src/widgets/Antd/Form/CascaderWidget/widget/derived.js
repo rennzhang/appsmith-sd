@@ -6,13 +6,7 @@ export default {
       : true;
   },
   //
-  getSelectedOptionLabel: (props, moment, _) => {
-    const options = props.flattenedOptions ?? [];
-    const selectedOptionLabels = props.selectedOption.map((value) => {
-      return options.find((option) => option.value === value).label;
-    });
-    return selectedOptionLabels;
-  },
+
   //
   getFlattenedOptions: (props, moment, _) => {
     const flat = (array) => {

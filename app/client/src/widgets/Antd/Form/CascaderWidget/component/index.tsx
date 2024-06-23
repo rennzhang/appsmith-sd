@@ -60,6 +60,7 @@ export interface CascaderComponentProps {
   selectedOption?: CascaderProps["value"];
   isMultiple?: boolean;
   errorMessage: string;
+  
 }
 
 function CascaderComponent(props: CascaderComponentProps): JSX.Element {
@@ -102,6 +103,7 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     status,
     widgetId,
     widgetName,
+    startValidateFields
   } = props;
 
   const [selectedValue, setSelectedValue] = useState<typeof selectedOption>([]);
@@ -136,7 +138,7 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     return props;
   }, [required, errorMessage]);
   const onSelectionChange = useCallback((value?: any[], labelList?: any[]) => {
-    console.log("级联选择 onSelectionChange value", value);
+    console.log("级联选择 onSelectionChange value", value, labelList);
     onChange?.(value, labelList || []);
   }, []);
 

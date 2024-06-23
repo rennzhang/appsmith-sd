@@ -45,7 +45,8 @@ export const CONFIG = {
   },
   searchTags: ["group", "form"],
   defaults: {
-    validateFieldsParams: INSTANCE_INVALID_VALUE,
+    validateOnSubmit: true,
+    fieldsError: [],
     labelCol: {
       xs: { span: 24 },
       sm: { span: 6 },
@@ -108,8 +109,8 @@ export const CONFIG = {
                   props: {
                     text: "提交",
                     buttonVariant: ButtonVariantTypes.PRIMARY,
-                    disabledWhenInvalid: true,
-                    resetFormOnClick: true,
+                    disabledWhenInvalid: false,
+                    resetFormOnClick: false,
                     recaptchaType: RecaptchaTypes.V3,
                     version: 1,
                   },

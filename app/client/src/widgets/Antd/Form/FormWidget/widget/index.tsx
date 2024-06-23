@@ -171,6 +171,7 @@ class FormWidget extends ContainerWidget {
           const grandChild = {
             ...child,
             formParentWidgetId: this.props.widgetId,
+            validateOnSubmit: this.props.validateOnSubmit,
           } as any;
           grandChild.isDisabled = this.props.isDisabled;
           if (isInvalid) grandChild.isFormValid = false;
@@ -234,6 +235,17 @@ class FormWidget extends ContainerWidget {
       {
         sectionName: "功能",
         children: [
+          {
+            helpText: "是否在提交时校验表单",
+            propertyName: "validateOnSubmit",
+            label: "提交时校验",
+            defaultValue: true,
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
           {
             helpText: "是否使用回车提交",
             propertyName: "isKeyPressSubmit",

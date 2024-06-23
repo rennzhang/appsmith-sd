@@ -513,6 +513,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return merge(super.getDerivedPropertiesMap(), {
       isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
+      value: "{{this.props.inputText}}",
     });
   }
 
@@ -520,6 +521,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     return merge(super.getMetaPropertiesMap(), {
       inputText: "",
       text: "",
+      value: "",
     });
   }
 
@@ -527,6 +529,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     return {
       inputText: "defaultValue",
       text: "defaultValue",
+      value: "text",
     };
   }
 

@@ -25,6 +25,8 @@ import derivedProperties from "./parseDerivedProperties";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import type { CascaderProps } from "antd";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 
 function defaultValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -113,10 +115,7 @@ function optionValidation(
     return invalidResponse;
   }
 }
-class SingleSelectTreeWidget extends BaseWidget<
-  SingleSelectTreeWidgetProps,
-  WidgetState
-> {
+class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -262,7 +261,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-            hidden: (props: SingleSelectTreeWidgetProps) =>
+            hidden: (props: CascaderWidgetProps) =>
               props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
@@ -281,7 +280,7 @@ class SingleSelectTreeWidget extends BaseWidget<
                 natural: true,
               },
             },
-            hidden: (props: SingleSelectTreeWidgetProps) =>
+            hidden: (props: CascaderWidgetProps) =>
               props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
@@ -616,24 +615,28 @@ class SingleSelectTreeWidget extends BaseWidget<
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return {
-      "!doc":
-        "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
-      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
-      isVisible: DefaultAutocompleteDefinitions.isVisible,
-      value: {
-        "!type": "string",
-        "!doc": "The value selected in a treeselect dropdown",
+    return (widget: CascaderWidgetProps, extraDefsToDefine?: ExtraDef) => {
+      console.log(
+        "级联选择 getAutocompleteDefinitions",
+        widget,
+        generateTypeDef(widget.selectedLabel, extraDefsToDefine),
+      );
+
+      return {
+        selectedOption: generateTypeDef(
+          widget.selectedOption,
+          extraDefsToDefine,
+        ),
+        "!doc":
+          "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
         "!url": "https://docs.appsmith.com/widget-reference/treeselect",
-      },
-      selectedOptionLabel: {
-        "!type": "string",
-        "!doc": "The selected option label in a treeselect dropdown",
-        "!url": "https://docs.appsmith.com/widget-reference/treeselect",
-      },
-      isDisabled: "bool",
-      isValid: "bool",
-      options: "[$__dropdrowOptionWithChildren__$]",
+        isVisible: DefaultAutocompleteDefinitions.isVisible,
+        value: generateTypeDef(widget.value, extraDefsToDefine),
+        selectedLabel: generateTypeDef(widget.selectedLabel, extraDefsToDefine),
+        isDisabled: "bool",
+        isValid: generateTypeDef(widget.isValid, extraDefsToDefine),
+        options: generateTypeDef(widget.options, extraDefsToDefine),
+      };
     };
   }
 
@@ -642,8 +645,6 @@ class SingleSelectTreeWidget extends BaseWidget<
       value: `{{this.selectedOption}}`,
       flattenedOptions: `{{(()=>{${derivedProperties.getFlattenedOptions}})()}}`,
       isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
-      selectedOptionLabel: `{{(()=>{${derivedProperties.getSelectedOptionLabel}})()}}`,
-      selectedOptionValue: `{{this.selectedOption}}`,
     };
   }
 
@@ -651,7 +652,7 @@ class SingleSelectTreeWidget extends BaseWidget<
     return {
       value: "selectedOption",
       selectedOption: "defaultValue",
-      selectedLabel: "defaultValue",
+      selectedLabel: "defaultLabel",
     };
   }
 
@@ -664,7 +665,7 @@ class SingleSelectTreeWidget extends BaseWidget<
     };
   }
 
-  componentDidUpdate(prevProps: SingleSelectTreeWidgetProps): void {
+  componentDidUpdate(prevProps: CascaderWidgetProps): void {
     if (
       this.props.defaultValue !== prevProps.defaultValue &&
       this.props.isDirty
@@ -734,23 +735,35 @@ class SingleSelectTreeWidget extends BaseWidget<
     );
   }
 
+  getSelectedOptionLabel = (selectValue?: DefaultValueType) => {
+    const options = this.props.flattenedOptions ?? [];
+    if (Array.isArray(selectValue) && selectValue.length) {
+      const selectedOptionLabels = selectValue?.map((value) => {
+        return options?.find((option) => option.value === value)?.label;
+      });
+      return selectedOptionLabels;
+    }
+    return [];
+  };
+
   onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
     if (this.props.selectedOption !== value) {
       if (!this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", true);
       }
       this.props.updateWidgetMetaProperty("selectedOption", value);
-      this.props.updateWidgetMetaProperty(
-        "selectedLabel",
-        this.props.selectedOptionLabel,
-        {
-          triggerPropertyName: "onOptionChange",
-          dynamicString: this.props.onOptionChange,
-          event: {
-            type: EventType.ON_OPTION_CHANGE,
-          },
+
+      // const selectedLabel = labelList?.map((label) => label.toString());
+      const _selectedLabel = this.getSelectedOptionLabel(value);
+      console.log("级联选择 onOptionChange", _selectedLabel);
+
+      this.props.updateWidgetMetaProperty("selectedLabel", _selectedLabel, {
+        triggerPropertyName: "onOptionChange",
+        dynamicString: this.props.onOptionChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
         },
-      );
+      });
     }
   };
 
@@ -790,7 +803,7 @@ export interface DropdownOption {
   children?: DropdownOption[];
 }
 
-export interface SingleSelectTreeWidgetProps extends WidgetProps {
+export interface CascaderWidgetProps extends WidgetProps {
   placeholderText?: string;
   selectedIndex?: number;
   options?: DropdownOption[];
@@ -804,7 +817,6 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   allowClear: boolean;
   selectedLabel: string[];
   selectedOption: CascaderProps["value"];
-  selectedOptionLabel: string;
   // expandAll: boolean;
   labelText: string;
   labelPosition?: LabelPosition;
@@ -819,4 +831,4 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   isDirty?: boolean;
 }
 
-export default SingleSelectTreeWidget;
+export default CascaderWidget;

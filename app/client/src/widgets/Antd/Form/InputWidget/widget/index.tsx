@@ -275,7 +275,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       "!doc":
         "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
       "!url": "https://docs.appsmith.com/widget-reference/input",
-      text: {
+      value: {
         "!type": "string",
         "!doc": "The text value of the input",
         "!url": "https://docs.appsmith.com/widget-reference/input",
@@ -462,20 +462,21 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return merge(super.getDerivedPropertiesMap(), {
       isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
+      value: "{{this.value}}",
     });
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
       inputText: "",
-      text: "",
+      value: "",
     });
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       inputText: "defaultValue",
-      text: "defaultValue",
+      value: "defaultValue",
     };
   }
 
@@ -523,14 +524,14 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       this.props.inputText !== toString(this.props.text)
     ) {
       this.props.updateWidgetMetaProperty(
-        "text",
+        "value",
         getParsedText(this.props.inputText, this.props.inputType),
       );
     }
 
     if (prevProps.inputType !== this.props.inputType) {
       this.props.updateWidgetMetaProperty(
-        "text",
+        "value",
         getParsedText(this.props.inputText, this.props.inputType),
       );
     }
@@ -552,7 +553,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
      * text to a derived property.
      */
     this.props.updateWidgetMetaProperty(
-      "text",
+      "value",
       getParsedText(value, this.props.inputType),
     );
     this.props.updateWidgetMetaProperty("inputText", value, {
@@ -585,7 +586,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         setValue: {
           path: "defaultValue",
           type: "string",
-          accessor: "text",
+          accessor: "value",
         },
       },
     };
@@ -594,7 +595,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   resetWidgetText = () => {
     this.props.updateWidgetMetaProperty("inputText", "");
     this.props.updateWidgetMetaProperty(
-      "text",
+      "value",
       getParsedText("", this.props.inputType),
     );
   };

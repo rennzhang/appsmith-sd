@@ -17,6 +17,7 @@ export const DEFAULT_CONFIG: DeepPartial<WidgetConfiguration> = {
     },
   },
   defaults: {
+    dynamicHeight: DynamicHeight.AUTO_HEIGHT,
     errorMessage: "必填字段",
     rows: 8,
     columns: 20,
@@ -30,3 +31,5 @@ export const DEFAULT_CONFIG: DeepPartial<WidgetConfiguration> = {
     labelWidth: 6,
   },
 };
+
+export const INSTANCE_INVALID_VALUE = () => +new Date();

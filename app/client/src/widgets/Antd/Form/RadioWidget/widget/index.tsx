@@ -21,6 +21,8 @@ import type { AutocompletionDefinitions } from "widgets/constants";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { WidgetState, WidgetProps } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 
 /**
  * Validation rules:
@@ -182,16 +184,22 @@ function defaultOptionValidation(
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return {
-      "!doc":
-        "Radio widget lets the user choose only one option from a predefined set of options. It is quite similar to a SingleSelect Dropdown in its functionality",
-      "!url": "https://docs.appsmith.com/widget-reference/radio",
-      isVisible: DefaultAutocompleteDefinitions.isVisible,
-      options: "[$__dropdownOption__$]",
-      defaultValue: "string",
-      selectedOptionValue: "string",
-      isRequired: "bool",
-      isDisabled: "bool",
+    return (widget: RadioGroupWidgetProps, extraDefsToDefine?: ExtraDef) => {
+      return {
+        "!doc":
+          "Radio widget lets the user choose only one option from a predefined set of options. It is quite similar to a SingleSelect Dropdown in its functionality",
+        "!url": "https://docs.appsmith.com/widget-reference/radio",
+        isVisible: DefaultAutocompleteDefinitions.isVisible,
+        options: "[$__dropdownOption__$]",
+        defaultValue: "string",
+        value: generateTypeDef(widget.value, extraDefsToDefine),
+        selectedOption: generateTypeDef(
+          widget.selectedOption,
+          extraDefsToDefine,
+        ),
+        isRequired: "bool",
+        isDisabled: "bool",
+      };
     };
   }
 
@@ -228,6 +236,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             label: "默认选中值",
             placeholderText: "Y",
             controlType: "INPUT_TEXT",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             /**
@@ -565,22 +574,21 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOption:
-        "{{_.find(this.options, { value: this.selectedOptionValue })}}",
-      isValid: `{{ this.isRequired ? !!this.selectedOptionValue : true }}`,
-      value: `{{this.selectedOptionValue}}`,
+      selectedOption: "{{_.find(this.options, { value: this.value })}}",
+      isValid: `{{ this.isRequired ? !!this.value : true }}`,
+      value: `{{this.props.value}}`,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      selectedOptionValue: "defaultValue",
+      value: "defaultValue",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      selectedOptionValue: undefined,
+      value: undefined,
       isDirty: false,
     };
   }
@@ -638,8 +646,8 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       options,
       radioButtonStyle,
       radioType,
-      selectedOptionValue,
       topRow,
+      value,
       widgetId,
     } = this.props;
     console.group("Antd 单选组件");
@@ -675,7 +683,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         radioButtonStyle={radioButtonStyle}
         radioType={radioType}
         required={this.props.isRequired}
-        selectedOptionValue={selectedOptionValue}
+        value={value}
         widgetId={widgetId}
         widgetName={this.props.widgetName}
       />
@@ -695,7 +703,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
 
-    this.props.updateWidgetMetaProperty("selectedOptionValue", newVal, {
+    this.props.updateWidgetMetaProperty("value", newVal, {
       triggerPropertyName: "onSelectionChange",
       dynamicString: this.props.onSelectionChange,
       event: {
@@ -711,7 +719,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
 export interface RadioGroupWidgetProps extends WidgetProps {
   options: RadioOption[];
-  selectedOptionValue: string;
   onSelectionChange: string;
   defaultValue: string;
   isRequired?: boolean;

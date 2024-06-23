@@ -377,21 +377,60 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return {};
   }
 
+  updateParentFormProperty = (propertyPath: string, propertyValue: any) => {
+    if (this.props.formParentWidgetId) {
+      if (
+        propertyPath === "startValidateFields" &&
+        !this.props.validateOnSubmit
+      )
+        return;
+      this.context?.syncUpdateWidgetMetaProperty?.(
+        this.props.formParentWidgetId,
+        propertyPath,
+        propertyValue,
+      );
+    }
+  };
+
+  batchUpdateParentFormProperty = (propertyList: [string, any][]) => {
+    if (this.props.formParentWidgetId) {
+      this.context?.syncBatchUpdateWidgetMetaProperties?.(
+        propertyList.map(([path, value]) => {
+          return {
+            widgetId: this.props.formParentWidgetId,
+            propertyName: path,
+            propertyValue: value,
+          };
+        }),
+      );
+    }
+  };
+
   async onButtonClick() {
+    console.log("表单触发 点击按钮时触发", this.props);
+    this.updateParentFormProperty("startValidateFields", true);
+
     if (this.props.onClick) {
       this.setState({
         isLoading: true,
       });
-      await super.executeAction({
-        triggerPropertyName: "onClick",
-        dynamicString: this.props.onClick,
-        event: {
-          type: EventType.ON_CLICK,
-          callback: this.handleActionComplete,
-        },
-      });
+
+      if (this.hasOnClickAction()) {
+        await super.executeAction({
+          triggerPropertyName: "onClick",
+          dynamicString: this.props.onClick,
+          event: {
+            type: EventType.ON_CLICK,
+            callback: this.handleActionComplete,
+          },
+        });
+      }
     } else if (this.props.resetFormOnClick && this.props.onReset) {
       this.props.onReset();
+    } else {
+      setTimeout(() => {
+        this.updateParentFormProperty("startValidateFields", false);
+      });
     }
   }
 
@@ -426,13 +465,11 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         this.props.onReset();
     }
 
-    if (this.props.formParentWidgetId) {
-      this.context?.syncUpdateWidgetMetaProperty?.(
-        this.props.formParentWidgetId,
-        "validateFieldsParamsChange",
-        +new Date(),
-      );
-    }
+    this.batchUpdateParentFormProperty([
+      ["startValidateFields", false],
+      ["validateFieldsParamsChange", +new Date()],
+      // ["validateFieldsParams", +new Date()],
+    ]);
   };
 
   static getSetterConfig(): SetterConfig {
@@ -485,7 +522,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         maxWidth={this.props.maxWidth}
         minHeight={this.props.minHeight}
         minWidth={this.props.minWidth}
-        onClick={this.hasOnClickAction() ? this.onButtonClickBound : undefined}
+        onClick={this.onButtonClickBound}
         placement={this.props.placement}
         recaptchaType={this.props.recaptchaType}
         shouldFitContent={this.isAutoLayoutMode}

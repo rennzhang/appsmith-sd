@@ -53,6 +53,8 @@ export interface ProformContainerComponentProps
   setFormRef?: (formRef: ProFormInstance<any>) => void;
   updateWidgetProps: (path: string, value: any) => void;
   validateFieldsParamsChange?: number;
+  validateOnSubmit?: boolean;
+  startValidateFields?: boolean;
 }
 
 type InputDataType = string | undefined;
@@ -76,6 +78,7 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
     updateWidgetProps,
     validateFieldsParams: __vfp,
 
+    validateOnSubmit,
     widgetName,
     wrapperCol,
   } = props;
@@ -83,13 +86,19 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
   const [value, setValue] = useState<InputDataType>();
   const [options, setOptions] = useState<{ value: string }[]>([]);
 
+  // 是否校验中
+  const [validating, setValidating] = useState<boolean>(false);
+
   const formRef = useRef<ProFormInstance<any>>();
 
   const handleValidateFields = async (params?: any) => {
-    const _params = typeof params?.[1] == "string" ? [params] : params;
+    if (validating) return;
+    await setValidating(true);
+    const _params = typeof params?.[1] == "object" ? params : [params];
+    console.log("表单组件 handleValidateFields params", _params);
     const values = await formRef.current
       ?.validateFields(...(_params || []))
-      .finally(() => {
+      .finally(async () => {
         console.log(
           "表单组件 validateFields finally",
           formRef.current?.getFieldsError(),
@@ -97,18 +106,26 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
         const fieldsError = formRef.current?.getFieldsError();
 
         updateWidgetProps("fieldsError", fieldsError);
+        await setValidating(false);
       });
     console.log("表单组件 handleValidateFields values", values);
     return values;
   };
   // 当validateFieldsParams有值时，调用validateFields方法
   useEffect(() => {
-    console.log("表单组件 validateFieldsParams", __vfp);
-    if (!__vfp || isNumber(__vfp)) return;
+    console.log("表单组件 validateFieldsParams", __vfp, props);
+    if (props.startValidateFields) {
+      if (__vfp && !isNumber(__vfp)) {
+        handleValidateFields(__vfp);
+        return;
+      }
+      validateOnSubmit && handleValidateFields({ validateOnly: true });
+      return;
+    } else if (!__vfp || isNumber(__vfp)) return;
     const _data = __vfp?.includes?.("UNDEFINED") ? undefined : __vfp;
 
     handleValidateFields(_data);
-  }, [props.validateFieldsParamsChange]);
+  }, [props.validateFieldsParamsChange, props.startValidateFields]);
 
   // setFormRef
   // useEffect(() => {
