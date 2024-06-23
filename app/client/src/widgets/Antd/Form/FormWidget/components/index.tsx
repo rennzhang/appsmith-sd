@@ -235,9 +235,7 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
           onFinishFailed={handleFinishFailed}
           size={size}
           style={{ maxWidth: "100%" }}
-          submitter={{
-            onSubmit: handleSubmit,
-          }}
+          submitter={false}
           {...formItemLayoutMemo}
         >
           {children}
