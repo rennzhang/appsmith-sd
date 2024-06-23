@@ -651,7 +651,7 @@ class FilePickerWidget extends BaseWidget<
           multiple={this.props.multiple}
           onFilesSelected={this.onFilesSelected}
           placement={this.props.placement}
-          required={this.props.isRequired}
+          required={this.props.isFormRequired || this.props.isRequired}
           shouldFitContent={this.isAutoLayoutMode}
           widgetId={this.props.widgetId}
         />

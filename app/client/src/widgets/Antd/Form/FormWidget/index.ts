@@ -45,6 +45,7 @@ export const CONFIG = {
   },
   searchTags: ["group", "form"],
   defaults: {
+    isFormRequired: false,
     validateOnSubmit: true,
     fieldsError: [],
     labelCol: {

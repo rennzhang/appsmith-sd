@@ -714,7 +714,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         regex={this.props.regex}
-        required={this.props.isRequired}
+        required={this.props.isFormRequired || this.props.isRequired}
         showError={!!this.props.isFocused}
         spellCheck={!!this.props.isSpellCheck}
         stepSize={1}

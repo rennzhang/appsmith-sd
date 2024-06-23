@@ -97,6 +97,13 @@ class FormWidget extends ContainerWidget {
         this.props.labelAlign,
       );
     }
+    if (this.props.isFormRequired !== prevProps.isFormRequired) {
+      this.batchUpdateChildrenProperty(
+        this.getChildContainer().children,
+        "isFormRequired",
+        this.props.isFormRequired,
+      );
+    }
   }
 
   // componentWillUnmount(): void {}
@@ -235,6 +242,17 @@ class FormWidget extends ContainerWidget {
       {
         sectionName: "功能",
         children: [
+          {
+            helpText: "控制所有表单项是否必填",
+            propertyName: "isFormRequired",
+            label: "必填",
+            defaultValue: false,
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
           {
             helpText: "是否在提交时校验表单",
             propertyName: "validateOnSubmit",

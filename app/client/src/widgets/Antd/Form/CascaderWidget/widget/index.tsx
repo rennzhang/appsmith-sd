@@ -725,7 +725,7 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
-        required={this.props.isRequired}
+        required={this.props.isFormRequired || this.props.isRequired}
         selectedOption={this.props.selectedOption}
         status={this.props.status}
         widgetId={this.props.widgetId}

@@ -699,7 +699,7 @@ class AntdTransferWidget extends BaseWidget<
         oneWay={this.props.oneWay}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
-        required={this.props.isRequired}
+        required={this.props.isFormRequired || this.props.isRequired}
         rightTitle={this.props.rightTitle}
         selectedOption={this.props.selectedOption}
         sourceData={this.props.sourceData}
