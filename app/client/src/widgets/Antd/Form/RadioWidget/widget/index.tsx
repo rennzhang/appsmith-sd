@@ -391,6 +391,8 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: RadioGroupWidgetProps) =>
+              props.radioType === "button",
           },
           {
             propertyName: "animateLoading",
@@ -682,7 +684,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         options={isArray(options) ? compact(options) : []}
         radioButtonStyle={radioButtonStyle}
         radioType={radioType}
-        required={this.props.isRequired}
+        required={this.props.isFormRequired || this.props.isRequired}
         value={value}
         widgetId={widgetId}
         widgetName={this.props.widgetName}

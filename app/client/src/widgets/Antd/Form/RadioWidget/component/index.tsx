@@ -109,6 +109,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
             name={widgetName}
             onChange={handleChange}
             optionType={radioType === "button" ? "button" : "default"}
+            options={radioType === "button" ? options : undefined}
             size={buttonSize}
             style={{
               marginBottom: 0,
@@ -116,13 +117,15 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
             }}
             value={value}
           >
-            <Space direction={inline ? "horizontal" : "vertical"}>
-              {options.map((option) => (
-                <Radio key={option.value} value={option.value}>
-                  {option.label}
-                </Radio>
-              ))}
-            </Space>
+            {radioType !== "button" && (
+              <Space direction={inline ? "horizontal" : "vertical"}>
+                {options.map((option) => (
+                  <Radio key={option.value} value={option.value}>
+                    {option.label}
+                  </Radio>
+                ))}
+              </Space>
+            )}
           </Radio.Group>
         </ProFormItem>
       </ConfigProvider>
