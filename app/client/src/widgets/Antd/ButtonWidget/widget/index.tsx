@@ -191,7 +191,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             },
           },
           {
-            propertyName: "buttonSize",
+            propertyName: "controlSize",
             label: "按钮大小",
             controlType: "ICON_TABS",
             helpText: "设置按钮的尺寸大小",
@@ -509,7 +509,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         buttonColor={this.props.buttonColor}
-        buttonSize={this.props.buttonSize}
+        buttonSize={this.props.controlSize}
         buttonVariant={this.props.buttonVariant}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
