@@ -3,6 +3,7 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { InputComponentProps } from "../component";
 import InputComponent from "../component";
+import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -37,10 +38,21 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/types";
 import { optionsCustomValidation } from "widgets/RadioGroupWidget/widget";
+import { InputControlProperty } from "./childPanels/CompConfig";
+import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
+import { AntdLabelPosition } from "components/constants";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import BaseWidget from "widgets/BaseWidget";
+import type { InputProps } from "antd";
+import type { FormItemInputProps } from "antd/lib/form/FormItemInput";
+import type { ProFormItemProps } from "@ant-design/pro-components";
+import { Alignment } from "@blueprintjs/core";
+import type { Intent, IconName, IRef } from "@blueprintjs/core";
+import type { AntdInputWidgetProps } from "../types";
 
 export function defaultValueValidation(
   value: any,
-  props: InputWidgetProps,
+  props: AntdInputWidgetProps,
   _?: any,
 ): ValidationResponse {
   const STRING_ERROR_MESSAGE = {
@@ -134,110 +146,6 @@ export function defaultValueValidation(
   }
 }
 
-export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
-  const max = props.maxNum;
-  const value = min;
-  min = Number(min);
-
-  if (_?.isNil(value) || value === "") {
-    return {
-      isValid: true,
-      parsed: undefined,
-      messages: [
-        {
-          name: "",
-          message: "",
-        },
-      ],
-    };
-  } else if (!Number.isFinite(min)) {
-    return {
-      isValid: false,
-      parsed: undefined,
-      messages: [
-        {
-          name: "TypeError",
-          message: "This value must be number",
-        },
-      ],
-    };
-  } else if (max !== undefined && min >= max) {
-    return {
-      isValid: false,
-      parsed: undefined,
-      messages: [
-        {
-          name: "RangeError",
-          message: "This value must be lesser than max value",
-        },
-      ],
-    };
-  } else {
-    return {
-      isValid: true,
-      parsed: Number(min),
-      messages: [
-        {
-          name: "",
-          message: "",
-        },
-      ],
-    };
-  }
-}
-
-export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
-  const min = props.minNum;
-  const value = max;
-  max = Number(max);
-
-  if (_?.isNil(value) || value === "") {
-    return {
-      isValid: true,
-      parsed: undefined,
-      messages: [
-        {
-          name: "",
-          message: "",
-        },
-      ],
-    };
-  } else if (!Number.isFinite(max)) {
-    return {
-      isValid: false,
-      parsed: undefined,
-      messages: [
-        {
-          name: "TypeError",
-          message: "This value must be number",
-        },
-      ],
-    };
-  } else if (min !== undefined && max <= min) {
-    return {
-      isValid: false,
-      parsed: undefined,
-      messages: [
-        {
-          name: "RangeError",
-          message: "This value must be greater than min value",
-        },
-      ],
-    };
-  } else {
-    return {
-      isValid: true,
-      parsed: Number(max),
-      messages: [
-        {
-          name: "",
-          message: "",
-        },
-      ],
-    };
-  }
-}
-
 function InputTypeUpdateHook(
   props: WidgetProps,
   propertyName: string,
@@ -268,8 +176,12 @@ function InputTypeUpdateHook(
 
   return updates;
 }
+// class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState>
 
-class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
+class AntdInputWidget<
+  T extends AntdInputWidgetProps,
+  K extends WidgetState,
+> extends BaseWidget<T, K> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     const definitions: AutocompletionDefinitions = {
       "!doc":
@@ -294,24 +206,32 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
           sectionName: "数据",
           children: [
             {
-              helpText: "设置组件默认值，当默认值改变后，组件当前值会自动更新",
-              propertyName: "defaultValue",
-              label: "默认值",
-              controlType: "INPUT_TEXT",
-              placeholderText: "请输入默认值",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.FUNCTION,
-                params: {
-                  fn: defaultValueValidation,
-                  expected: {
-                    type: "string or number",
-                    example: `John | 123`,
-                    autocompleteDataType: AutocompleteDataType.STRING,
-                  },
+              helpText: "输入的数据类型",
+              propertyName: "inputType",
+              label: "数据类型",
+              controlType: "DROP_DOWN",
+              options: [
+                {
+                  label: "单行文本",
+                  value: "TEXT",
                 },
-              },
+                {
+                  label: "多行文本",
+                  value: "MULTI_LINE_TEXT",
+                },
+                {
+                  label: "密码",
+                  value: "PASSWORD",
+                },
+                {
+                  label: "数字",
+                  value: "NUMBER",
+                },
+              ],
+              isBindProperty: false,
+              isTriggerProperty: false,
+              updateHook: InputTypeUpdateHook,
+              dependencies: ["dynamicHeight"],
             },
           ],
         },
@@ -321,156 +241,32 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         },
         {
           sectionName: "校验",
-          children: [
-            {
-              propertyName: "isRequired",
-              label: "必填",
-              helpText: "强制用户填写",
-              controlType: "SWITCH",
-              isJSConvertible: true,
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.BOOLEAN },
-            },
-            {
-              helpText: "设置最大输入字符长度",
-              propertyName: "maxChars",
-              label: "最大输入长度",
-              controlType: "INPUT_TEXT",
-              placeholderText: "255",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.NUMBER,
-                params: { min: 1, natural: true, passThroughOnZero: false },
-              },
-              hidden: (props: InputWidgetProps) => {
-                return !checkInputTypeTextByProps(props);
-              },
-              dependencies: ["inputType"],
-            },
-            {
-              helpText: "设置最小输入长度",
-              propertyName: "minNum",
-              label: "最小输入长度",
-              controlType: "INPUT_TEXT",
-              placeholderText: "1",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.FUNCTION,
-                params: {
-                  fn: minValueValidation,
-                  expected: {
-                    type: "number",
-                    example: `1`,
-                    autocompleteDataType: AutocompleteDataType.NUMBER,
-                  },
-                },
-              },
-              hidden: (props: InputWidgetProps) => {
-                return props.inputType !== InputTypes.NUMBER;
-              },
-              dependencies: ["inputType"],
-            },
-            {
-              helpText: "设置最大输入长度",
-              propertyName: "maxNum",
-              label: "最大输入长度",
-              controlType: "INPUT_TEXT",
-              placeholderText: "100",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.FUNCTION,
-                params: {
-                  fn: maxValueValidation,
-                  expected: {
-                    type: "number",
-                    example: `100`,
-                    autocompleteDataType: AutocompleteDataType.NUMBER,
-                  },
-                },
-              },
-              hidden: (props: InputWidgetProps) => {
-                return props.inputType !== InputTypes.NUMBER;
-              },
-              dependencies: ["inputType"],
-            },
-          ],
+          children: [],
         },
       ],
-
-      super.getPropertyPaneContentConfig(),
+      InputControlProperty,
     );
   }
 
   static getPropertyPaneStyleConfig() {
-    return mergeWidgetConfig(
-      [
-        {
-          sectionName: "标签样式",
-          children: [
-            {
-              propertyName: "labelTextColor",
-              label: "字体颜色",
-              helpText: "设置标签字体颜色",
-              controlType: "COLOR_PICKER",
-              isJSConvertible: true,
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
-            },
-            {
-              propertyName: "labelTextSize",
-              label: "字体大小",
-              helpText: "设置标签字体大小",
-              controlType: "INPUT_TEXT",
-              defaultValue: 14,
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.NUMBER },
-            },
-            {
-              propertyName: "labelStyle",
-              label: "强调",
-              helpText: "设置标签字体是否加粗或斜体",
-              controlType: "BUTTON_GROUP",
-              options: [
-                {
-                  icon: "text-bold",
-                  value: "BOLD",
-                },
-                {
-                  icon: "text-italic",
-                  value: "ITALIC",
-                },
-              ],
-              isJSConvertible: true,
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
-            },
-          ],
-        },
-      ],
-      [super.getPropertyPaneStyleConfig()[1]],
-      // {},
-    );
+    return mergeWidgetConfig(DEFAULT_STYLE_PANEL_CONFIG, []);
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return merge(super.getDerivedPropertiesMap(), {
+    return {
       isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
       value: "{{this.value}}",
-    });
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
-    return merge(super.getMetaPropertiesMap(), {
+    return {
       inputText: "",
       value: "",
-    });
+      text: undefined,
+      isFocused: false,
+      isDirty: false,
+    };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
@@ -507,18 +303,78 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         },
       });
     }
-    super.handleFocusChange(focusState);
+    /**
+     * Reason for disabling drag on focusState: true:
+     * 1. In Firefox, draggable="true" property on the parent element
+     *    or <input /> itself, interferes with some <input /> element's events
+     *    Bug Ref - https://bugzilla.mozilla.org/show_bug.cgi?id=800050
+     *              https://bugzilla.mozilla.org/show_bug.cgi?id=1189486
+     *
+     *  Eg - input with draggable="true", double clicking the text; won't highlight the text
+     *
+     * 2. Dragging across the text (for text selection) in input won't cause the widget to drag.
+     */
+    this.props.updateWidgetMetaProperty("dragDisabled", focusState);
   };
 
-  handleKeyDown = (
+  onSubmitSuccess = (result: ExecutionResult) => {
+    if (result.success && this.props.resetOnSubmit) {
+      //Resets isDirty
+      super.resetChildrenMetaProperty(this.props.widgetId);
+      this.resetWidgetText();
+    }
+  };
+  handleKeyDown(
     e:
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
-  ) => {
-    super.handleKeyDown(e);
-  };
+  ) {
+    const { isValid, onSubmit } = this.props;
+    const isEnterKey = e.key === "Enter" || e.keyCode === 13;
 
-  componentDidUpdate = (prevProps: InputWidgetProps) => {
+    if (this.props.inputType === InputTypes.MULTI_LINE_TEXT) {
+      if (
+        isEnterKey &&
+        (e.metaKey || e.ctrlKey) &&
+        typeof onSubmit === "string" &&
+        onSubmit
+      ) {
+        this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
+          triggerPropertyName: "onSubmit",
+          dynamicString: onSubmit,
+          event: {
+            type: EventType.ON_SUBMIT,
+            callback: this.onSubmitSuccess,
+          },
+        });
+      }
+    } else {
+      if (isEnterKey && typeof onSubmit === "string" && onSubmit && isValid) {
+        /**
+         * Originally super.executeAction was used to trigger the ON_SUBMIT action and
+         * updateMetaProperty to update the text.
+         * Since executeAction is not queued and updateMetaProperty is,
+         * the user would observe that the data tree only gets partially updated with text
+         * before the ON_SUBMIT would get triggered,
+         * if they type {enter} really fast after typing some input text.
+         * So we're using updateMetaProperty to trigger the ON_SUBMIT to let the data tree update
+         * before we actually execute the action.
+         * Since updateMetaProperty expects a meta property to be updated,
+         * we are redundantly updating the common meta property, isDirty which is common on its child widgets here. But the main part is the action execution payload.
+         */
+        this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
+          triggerPropertyName: "onSubmit",
+          dynamicString: onSubmit,
+          event: {
+            type: EventType.ON_SUBMIT,
+            callback: this.onSubmitSuccess,
+          },
+        });
+      }
+    }
+  }
+
+  componentDidUpdate = (prevProps: AntdInputWidgetProps) => {
     if (
       prevProps.inputText !== this.props.inputText &&
       this.props.inputText !== toString(this.props.text)
@@ -651,7 +507,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       // check the default text is neither greater than max nor less than min value.
       if (
         !isNil(this.props.minNum) &&
-        this.props.minNum > Number(this.props.defaultValue)
+        (this.props?.minNum || 0) > Number(this.props.defaultValue)
       ) {
         isInvalid = true;
         conditionalProps.errorMessage = createMessage(
@@ -659,7 +515,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         );
       } else if (
         !isNil(this.props.maxNum) &&
-        this.props.maxNum < Number(this.props.defaultValue)
+        (this.props?.maxNum || 0) < Number(this.props.defaultValue)
       ) {
         isInvalid = true;
         conditionalProps.errorMessage = createMessage(
@@ -697,13 +553,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         disabled={this.props.isDisabled}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
-        inputType={this.props.inputType}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInvalid={isInvalid}
-        isLoading={this.props.isLoading}
-        label={this.props.label}
         labelAlignment={this.props.labelAlignment}
-        labelPosition={this.props.labelPosition}
+        labelPosition={this.props.labelPosition as any}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
@@ -714,35 +567,24 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         regex={this.props.regex}
-        required={this.props.isFormRequired || this.props.isRequired}
+        required={this.props.isRequired}
         showError={!!this.props.isFocused}
         spellCheck={!!this.props.isSpellCheck}
         stepSize={1}
         tooltip={this.props.tooltip}
-        validation={this.props.validation}
         value={value}
-        widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
         accentColor={this.props.accentColor}
         // show label and Input side by side if true
         autoFocus={this.props.autoFocus}
+        {...this.props}
         {...conditionalProps}
       />
     );
   }
 
   static getWidgetType(): WidgetType {
-    return "AUTO_INPUT_WIDGET";
+    return "ANTD_INPUT_WIDGET";
   }
 }
 
-export interface InputWidgetProps extends BaseInputWidgetProps {
-  defaultValue?: string | number;
-  maxChars?: number;
-  isSpellCheck?: boolean;
-  maxNum?: number;
-  minNum?: number;
-  inputText: string;
-}
-
-export default InputWidget;
+export default AntdInputWidget;

@@ -12,13 +12,14 @@ import type { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
 import styled from "styled-components";
 import type { RenderMode, TextSize } from "constants/WidgetConstants";
 import type { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
+import { AntdLabelPosition } from "components/constants";
 import type { ProFormItemProps } from "@ant-design/pro-components";
 import { ProFormItem } from "@ant-design/pro-components";
 import type { CascaderProps } from "antd";
 import { ConfigProvider, Cascader } from "antd";
 import type { InputStatus } from "antd/es/_util/statusUtils";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
+import { SizeType } from "antd/es/config-provider/SizeContext";
 
 export interface CascaderComponentProps {
   widgetName: string;
@@ -31,7 +32,7 @@ export interface CascaderComponentProps {
   onChange: (value?: DefaultValueType, labelList?: ReactNode[]) => void;
   // expandAll: boolean;
   labelText: string;
-  labelPosition?: LabelPosition;
+  labelPosition?: AntdLabelPosition;
   labelAlignment?: "left" | "right";
   labelWidth?: number;
   labelTextColor?: string;
@@ -60,7 +61,7 @@ export interface CascaderComponentProps {
   selectedOption?: CascaderProps["value"];
   isMultiple?: boolean;
   errorMessage: string;
-  
+  controlSize?: SizeType;
 }
 
 function CascaderComponent(props: CascaderComponentProps): JSX.Element {
@@ -72,10 +73,11 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     borderRadius,
     boxShadow,
     compactMode,
+    controlSize,
     defaultValue,
     disabled,
-    errorMessage,
     // expandAll,
+    errorMessage,
     fieldNames,
     filterText,
     isDynamicHeightEnabled,
@@ -103,7 +105,6 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     status,
     widgetId,
     widgetName,
-    startValidateFields
   } = props;
 
   const [selectedValue, setSelectedValue] = useState<typeof selectedOption>([]);
@@ -113,7 +114,7 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
   }, [selectedOption]);
 
   const colLayoutMemo = useMemo(() => {
-    if (labelPosition === LabelPosition.Left) {
+    if (labelPosition === AntdLabelPosition.Left) {
       return {
         labelCol: { sm: { span: labelWidth } },
         wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
@@ -172,7 +173,6 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
           components: {
             Form: {
               labelColor: labelTextColor,
-              // labelFontSize: parseInt(labelTextSize || "0"),
               labelFontSize: (labelTextSize as unknown as number) || 0,
             },
             Input: {
@@ -209,6 +209,7 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
             options={options}
             placeholder={(placeholder as any) || "请选择"}
             showSearch={isSearchable ? { filter: handleFilter } : false}
+            size={controlSize}
             status={status}
             style={{
               marginBottom: 0,

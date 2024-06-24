@@ -23,9 +23,8 @@ import { FilePickerGlobalStyles } from "./index.styled";
 import ButtonStyleConfig from "widgets/Antd/DropdownWidget/widget/propertyConfig/styleConfig";
 import { HeightControlPaneConfig } from "utils/WidgetFeatures";
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "design-system-old";
-import type { SingleSelectTreeWidgetProps } from "widgets/SingleSelectTreeWidget/widget";
 import derivedProperties from "./parseDerivedProperties";
+import { AntdLabelPosition } from "components/constants";
 
 const ARRAY_CSV_HELPER_TEXT = `注意：非 csv 类型文件数据都是空值，组件中使用大文件可能会让应用变得卡顿`;
 
@@ -276,15 +275,15 @@ class FilePickerWidget extends BaseWidget<
             label: "位置",
             controlType: "ICON_TABS",
             fullWidth: false,
-            hidden: (props: SingleSelectTreeWidgetProps) =>
+            hidden: (props: FilePickerWidgetProps) =>
               !props.labelText && isAutoLayout(),
 
             options: [
-              { label: "自动", value: LabelPosition.Auto },
-              { label: "左", value: LabelPosition.Left },
-              { label: "上", value: LabelPosition.Top },
+              { label: "自动", value: AntdLabelPosition.Auto },
+              { label: "左", value: AntdLabelPosition.Left },
+              { label: "上", value: AntdLabelPosition.Top },
             ],
-            defaultValue: LabelPosition.Left,
+            defaultValue: AntdLabelPosition.Left,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -309,8 +308,9 @@ class FilePickerWidget extends BaseWidget<
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-            hidden: (props: SingleSelectTreeWidgetProps) =>
-              props.labelPosition !== LabelPosition.Left && !props.labelText,
+            hidden: (props: FilePickerWidgetProps) =>
+              props.labelPosition !== AntdLabelPosition.Left &&
+              !props.labelText,
             dependencies: ["labelPosition", "labelText"],
           },
           {
@@ -328,8 +328,9 @@ class FilePickerWidget extends BaseWidget<
                 natural: true,
               },
             },
-            hidden: (props: SingleSelectTreeWidgetProps) =>
-              props.labelPosition !== LabelPosition.Left && !props.labelText,
+            hidden: (props: FilePickerWidgetProps) =>
+              props.labelPosition !== AntdLabelPosition.Left &&
+              !props.labelText,
             dependencies: ["labelPosition", "labelText"],
           },
           {
@@ -341,7 +342,7 @@ class FilePickerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-            hidden: (props: SingleSelectTreeWidgetProps) => !props.labelText,
+            hidden: (props: FilePickerWidgetProps) => !props.labelText,
             dependencies: ["labelText"],
           },
         ],
@@ -484,7 +485,7 @@ class FilePickerWidget extends BaseWidget<
             validation: { type: ValidationTypes.TEXT },
           },
         ],
-        hidden: (props: SingleSelectTreeWidgetProps) => !props.labelText,
+        hidden: (props: FilePickerWidgetProps) => !props.labelText,
       },
       ...ButtonStyleConfig,
     ];
@@ -651,7 +652,7 @@ class FilePickerWidget extends BaseWidget<
           multiple={this.props.multiple}
           onFilesSelected={this.onFilesSelected}
           placement={this.props.placement}
-          required={this.props.isFormRequired || this.props.isRequired}
+          required={this.props.isRequired}
           shouldFitContent={this.isAutoLayoutMode}
           widgetId={this.props.widgetId}
         />

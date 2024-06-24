@@ -5,7 +5,7 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { ButtonVariantTypes, LabelPosition } from "components/constants";
+import { ButtonVariantTypes, AntdLabelPosition } from "components/constants";
 import { DEFAULT_CONFIG } from "../CONST/DEFAULT_CONFIG";
 
 export const CONFIG = {
@@ -45,7 +45,7 @@ export const CONFIG = {
     minWidth: BUTTON_MIN_WIDTH,
     fileList: [],
     uploadedFileData: [],
-    labelPosition: LabelPosition.Auto,
+    labelPosition: AntdLabelPosition.Auto,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

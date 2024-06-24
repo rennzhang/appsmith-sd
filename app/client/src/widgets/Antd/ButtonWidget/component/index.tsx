@@ -275,6 +275,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
   } = props;
   const btnWrapper = (
     <BtnWrapper
+      isLoading={props.isLoading}
       className={props.className}
       clickWithRecaptcha={props.clickWithRecaptcha}
       googleRecaptchaKey={props.googleRecaptchaKey}

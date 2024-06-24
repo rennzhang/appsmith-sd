@@ -694,7 +694,6 @@ abstract class BaseWidget<
       if (!shouldObserveHeight && !shouldObserveWidth) return content;
 
       const { componentHeight, componentWidth } = this.getComponentDimensions();
-
       const { minHeight, minWidth } = getWidgetMinMaxDimensionsInPixel(
         this.props,
         this.props.mainCanvasWidth || 0,

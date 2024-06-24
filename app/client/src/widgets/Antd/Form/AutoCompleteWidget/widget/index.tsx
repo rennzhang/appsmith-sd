@@ -37,10 +37,14 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/types";
 import { optionsCustomValidation } from "widgets/RadioGroupWidget/widget";
+import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
+import { InputControlProperty } from "../../InputWidget/widget/childPanels/CompConfig";
+import type { AntdInputWidgetProps } from "../../InputWidget/types";
+import AntdInputWidget from "../../InputWidget/widget";
 
 export function defaultValueValidation(
   value: any,
-  props: InputWidgetProps,
+  props: AntdInputWidgetProps,
   _?: any,
 ): ValidationResponse {
   const STRING_ERROR_MESSAGE = {
@@ -269,7 +273,10 @@ function InputTypeUpdateHook(
   return updates;
 }
 
-class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
+class AutoCompleteWidget extends AntdInputWidget<
+  AntdInputWidgetProps,
+  WidgetState
+> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     const definitions: AutocompletionDefinitions = {
       "!doc":
@@ -343,27 +350,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               dependencies: ["inputType"],
               hidden: (props: any) => props.inputType == "EMAIL",
             },
-            {
-              helpText: "设置组件默认值，当默认值改变后，组件当前值会自动更新",
-              propertyName: "defaultValue",
-              label: "默认值",
-              controlType: "INPUT_TEXT",
-              placeholderText: "请输入默认值",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.FUNCTION,
-                params: {
-                  fn: defaultValueValidation,
-                  expected: {
-                    type: "string or number",
-                    example: `John | 123`,
-                    autocompleteDataType: AutocompleteDataType.STRING,
-                  },
-                },
-              },
-              dependencies: ["inputType"],
-            },
           ],
         },
         {
@@ -372,142 +358,16 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         },
         {
           sectionName: "校验",
-          children: [
-            {
-              propertyName: "isRequired",
-              label: "必填",
-              helpText: "强制用户填写",
-              controlType: "SWITCH",
-              isJSConvertible: true,
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.BOOLEAN },
-            },
-            {
-              helpText: "设置最大输入字符长度",
-              propertyName: "maxChars",
-              label: "最大输入长度",
-              controlType: "INPUT_TEXT",
-              placeholderText: "255",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.NUMBER,
-                params: { min: 1, natural: true, passThroughOnZero: false },
-              },
-              hidden: (props: InputWidgetProps) => {
-                return !checkInputTypeTextByProps(props);
-              },
-              dependencies: ["inputType"],
-            },
-            {
-              helpText: "设置最小输入长度",
-              propertyName: "minNum",
-              label: "最小输入长度",
-              controlType: "INPUT_TEXT",
-              placeholderText: "1",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.FUNCTION,
-                params: {
-                  fn: minValueValidation,
-                  expected: {
-                    type: "number",
-                    example: `1`,
-                    autocompleteDataType: AutocompleteDataType.NUMBER,
-                  },
-                },
-              },
-              hidden: (props: InputWidgetProps) => {
-                return props.inputType !== InputTypes.NUMBER;
-              },
-              dependencies: ["inputType"],
-            },
-            {
-              helpText: "设置最大输入长度",
-              propertyName: "maxNum",
-              label: "最大输入长度",
-              controlType: "INPUT_TEXT",
-              placeholderText: "100",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.FUNCTION,
-                params: {
-                  fn: maxValueValidation,
-                  expected: {
-                    type: "number",
-                    example: `100`,
-                    autocompleteDataType: AutocompleteDataType.NUMBER,
-                  },
-                },
-              },
-              hidden: (props: InputWidgetProps) => {
-                return props.inputType !== InputTypes.NUMBER;
-              },
-              dependencies: ["inputType"],
-            },
-          ],
+          children: [],
         },
       ],
 
-      super.getPropertyPaneContentConfig(),
+      InputControlProperty,
     );
   }
 
   static getPropertyPaneStyleConfig() {
-    return mergeWidgetConfig(
-      [
-        {
-          sectionName: "标签样式",
-          children: [
-            {
-              propertyName: "labelTextColor",
-              label: "字体颜色",
-              helpText: "设置标签字体颜色",
-              controlType: "COLOR_PICKER",
-              isJSConvertible: true,
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
-            },
-            {
-              propertyName: "labelTextSize",
-              label: "字体大小",
-              helpText: "设置标签字体大小",
-              controlType: "INPUT_TEXT",
-              defaultValue: 14,
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.NUMBER },
-            },
-            {
-              propertyName: "labelStyle",
-              label: "强调",
-              helpText: "设置标签字体是否加粗或斜体",
-              controlType: "BUTTON_GROUP",
-              options: [
-                {
-                  icon: "text-bold",
-                  value: "BOLD",
-                },
-                {
-                  icon: "text-italic",
-                  value: "ITALIC",
-                },
-              ],
-              isJSConvertible: true,
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
-            },
-          ],
-        },
-      ],
-      [super.getPropertyPaneStyleConfig()[1]],
-      // {},
-    );
+    return mergeWidgetConfig(DEFAULT_STYLE_PANEL_CONFIG, []);
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -560,7 +420,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         },
       });
     }
-    super.handleFocusChange(focusState);
+    this.props.updateWidgetMetaProperty("dragDisabled", focusState);
   };
 
   handleKeyDown = (
@@ -571,7 +431,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     super.handleKeyDown(e);
   };
 
-  componentDidUpdate = (prevProps: InputWidgetProps) => {
+  componentDidUpdate = (prevProps: AntdInputWidgetProps) => {
     if (
       prevProps.inputText !== this.props.inputText &&
       this.props.inputText !== toString(this.props.text)
@@ -756,13 +616,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         emailOptions={this.props.emailOptions}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
-        inputType={this.props.inputType}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInvalid={isInvalid}
-        isLoading={this.props.isLoading}
-        label={this.props.label}
         labelAlignment={this.props.labelAlignment}
-        labelPosition={this.props.labelPosition}
+        labelPosition={this.props.labelPosition as any}
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
@@ -774,18 +631,16 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         options={this.props.options}
         placeholder={this.props.placeholderText}
         regex={this.props.regex}
-        required={this.props.isFormRequired || this.props.isRequired}
+        required={this.props.isRequired}
         showError={!!this.props.isFocused}
         spellCheck={!!this.props.isSpellCheck}
         stepSize={1}
         tooltip={this.props.tooltip}
-        validation={this.props.validation}
         value={value}
-        widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
         accentColor={this.props.accentColor}
         // show label and Input side by side if true
         autoFocus={this.props.autoFocus}
+        {...this.props}
         {...conditionalProps}
       />
     );
@@ -796,7 +651,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   }
 }
 
-export interface InputWidgetProps extends BaseInputWidgetProps {
+export interface InputWidgetProps extends AntdInputWidgetProps {
   defaultValue?: string | number;
   maxChars?: number;
   isSpellCheck?: boolean;
@@ -805,4 +660,4 @@ export interface InputWidgetProps extends BaseInputWidgetProps {
   inputText: string;
 }
 
-export default InputWidget;
+export default AutoCompleteWidget;

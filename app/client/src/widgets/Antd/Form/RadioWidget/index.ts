@@ -1,5 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
+import { AntdLabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import type { SnipingModeProperty, PropertyUpdates } from "widgets/constants";
@@ -26,8 +26,7 @@ export const CONFIG = {
     columns: 20,
     animateLoading: false,
     label: "标签",
-    labelPosition: LabelPosition.Auto,
-    labelAlignment: Alignment.LEFT,
+    labelPosition: AntdLabelPosition.Auto,
     labelTextSize: 14,
     labelWidth: 6,
     options: [
@@ -72,7 +71,7 @@ export const CONFIG = {
       rows: 7,
     },
     disabledPropsDefaults: {
-      labelPosition: LabelPosition.Auto,
+      labelPosition: AntdLabelPosition.Auto,
     },
     autoDimension: {
       height: true,

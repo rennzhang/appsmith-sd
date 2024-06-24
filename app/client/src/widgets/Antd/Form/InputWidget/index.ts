@@ -1,4 +1,4 @@
-import { LabelPosition } from "components/constants";
+import { AntdLabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { Alignment, ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
@@ -28,11 +28,14 @@ export const CONFIG = {
   defaults: {
     ...DEFAULT_CONFIG.defaults,
 
-    ...BaseConfig.defaults,
+    textareaRowsControlType: "固定值",
+    textareaRows: 4,
+    textareaMinRows: 2,
+    textareaMaxRows: 6,
     labelWidth: 6,
-    labelPosition: LabelPosition.Auto,
+    labelPosition: AntdLabelPosition.Auto,
     dynamicHeight: DynamicHeight.AUTO_HEIGHT,
-    labelTextSize: 14,
+    labelTextSize: "0.875rem",
     defaultValue: "",
     // 组件拖拽后的默认高度
     rows: 8,
@@ -71,8 +74,8 @@ export const CONFIG = {
   },
   autoLayout: {
     disabledPropsDefaults: {
-      labelPosition: LabelPosition.Auto,
-      labelTextSize: 14,
+      // labelPosition: AntdLabelPosition.Auto,
+      labelTextSize: "0.875rem",
     },
     autoDimension: (props: BaseInputWidgetProps) => ({
       height: props.inputType !== "MULTI_LINE_TEXT",

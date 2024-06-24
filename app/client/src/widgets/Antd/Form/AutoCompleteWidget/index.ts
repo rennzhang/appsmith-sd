@@ -1,4 +1,4 @@
-import { LabelPosition } from "components/constants";
+import { AntdLabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { Alignment, ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
@@ -29,9 +29,8 @@ export const CONFIG = {
     ...DEFAULT_CONFIG.defaults,
     ...BaseConfig.defaults,
     labelWidth: 6,
-    labelPosition: LabelPosition.Auto,
+    labelPosition: AntdLabelPosition.Auto,
     dynamicHeight: DynamicHeight.AUTO_HEIGHT,
-    labelTextSize: 14,
     options: ["option1", "option2", "option3"],
     emailOptions: {
       item1: {
@@ -97,8 +96,8 @@ export const CONFIG = {
   },
   autoLayout: {
     disabledPropsDefaults: {
-      labelPosition: LabelPosition.Auto,
-      labelTextSize: 14,
+      labelPosition: AntdLabelPosition.Auto,
+      labelTextSize: "0.875rem",
     },
     autoDimension: (props: BaseInputWidgetProps) => ({
       height: props.inputType !== "MULTI_LINE_TEXT",

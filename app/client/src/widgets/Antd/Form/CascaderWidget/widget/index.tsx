@@ -1,5 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
+import { AntdLabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
 import type { TextSize, WidgetType } from "constants/WidgetConstants";
@@ -27,6 +27,8 @@ import type { CascaderProps } from "antd";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { mergeWidgetConfig } from "utils/helpers";
+import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
 
 function defaultValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -127,6 +129,7 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
             label: "选项",
             controlType: "INPUT_TEXT",
             placeholderText: "请输入选项数据",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -233,11 +236,11 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
             fullWidth: false,
             hidden: isAutoLayout,
             options: [
-              { label: "自动", value: LabelPosition.Auto },
-              { label: "左", value: LabelPosition.Left },
-              { label: "上", value: LabelPosition.Top },
+              { label: "自动", value: AntdLabelPosition.Auto },
+              { label: "左", value: AntdLabelPosition.Left },
+              { label: "上", value: AntdLabelPosition.Top },
             ],
-            defaultValue: LabelPosition.Left,
+            defaultValue: AntdLabelPosition.Left,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -262,7 +265,7 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: CascaderWidgetProps) =>
-              props.labelPosition !== LabelPosition.Left,
+              props.labelPosition !== AntdLabelPosition.Left,
             dependencies: ["labelPosition"],
           },
           {
@@ -281,7 +284,7 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
               },
             },
             hidden: (props: CascaderWidgetProps) =>
-              props.labelPosition !== LabelPosition.Left,
+              props.labelPosition !== AntdLabelPosition.Left,
             dependencies: ["labelPosition"],
           },
         ],
@@ -495,123 +498,7 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneStyleConfig() {
-    return [
-      {
-        sectionName: "标签样式",
-        children: [
-          {
-            propertyName: "labelTextColor",
-            label: "字体颜色",
-            helpText: "设置标签字体颜色",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "labelTextSize",
-            label: "字体大小",
-            helpText: "设置标签字体大小",
-            controlType: "DROP_DOWN",
-            defaultValue: "0.875rem",
-            hidden: isAutoLayout,
-            options: [
-              {
-                label: "S",
-                value: "0.875rem",
-                subText: "0.875rem",
-              },
-              {
-                label: "M",
-                value: "1rem",
-                subText: "1rem",
-              },
-              {
-                label: "L",
-                value: "1.25rem",
-                subText: "1.25rem",
-              },
-              {
-                label: "XL",
-                value: "1.875rem",
-                subText: "1.875rem",
-              },
-              {
-                label: "XXL",
-                value: "3rem",
-                subText: "3rem",
-              },
-              {
-                label: "3XL",
-                value: "3.75rem",
-                subText: "3.75rem",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "labelStyle",
-            label: "强调",
-            helpText: "设置标签字体是否加粗或斜体",
-            controlType: "BUTTON_GROUP",
-            options: [
-              {
-                icon: "text-bold",
-                value: "BOLD",
-              },
-              {
-                icon: "text-italic",
-                value: "ITALIC",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-      {
-        sectionName: "轮廓样式",
-        children: [
-          {
-            propertyName: "accentColor",
-            label: "强调色",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            invisible: true,
-          },
-          {
-            propertyName: "borderRadius",
-            label: "边框圆角",
-            helpText: "边框圆角样式",
-            controlType: "BORDER_RADIUS_OPTIONS",
-
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "boxShadow",
-            label: "阴影",
-            helpText: "组件轮廓投影",
-            controlType: "BOX_SHADOW_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-    ];
+    return mergeWidgetConfig(DEFAULT_STYLE_PANEL_CONFIG, []);
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -685,9 +572,6 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
     const { componentWidth } = this.getComponentDimensions();
     return (
       <CustomComponent
-        accentColor={this.props.accentColor}
-        allowClear={this.props.allowClear}
-        borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         compactMode={
           !(
@@ -696,7 +580,6 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
             1
           )
         }
-        defaultValue={this.props.defaultValue}
         disabled={this.props.isDisabled ?? false}
         errorMessage={this.props.errorMessage}
         fieldNames={this.props.fieldNames}
@@ -713,24 +596,20 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
-        labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
         labelWidth={this.props.labelWidth}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
-        onDropdownClose={this.onDropdownClose}
-        onDropdownOpen={this.onDropdownOpen}
         options={options}
         placeholder={this.props.placeholderText as string}
-        renderMode={this.props.renderMode}
-        required={this.props.isFormRequired || this.props.isRequired}
-        selectedOption={this.props.selectedOption}
+        required={this.props.isRequired}
         status={this.props.status}
-        widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
         width={componentWidth}
+        {...this.props}
+        onDropdownClose={this.onDropdownClose}
+        onDropdownOpen={this.onDropdownOpen}
       />
     );
   }
@@ -819,7 +698,7 @@ export interface CascaderWidgetProps extends WidgetProps {
   selectedOption: CascaderProps["value"];
   // expandAll: boolean;
   labelText: string;
-  labelPosition?: LabelPosition;
+  labelPosition?: AntdLabelPosition;
   labelAlignment?: "left" | "right";
   labelWidth?: number;
   labelTextColor?: string;

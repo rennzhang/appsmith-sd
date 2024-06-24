@@ -2,8 +2,9 @@ import type { ButtonPlacement } from "components/constants";
 import {
   CheckboxGroupAlignmentTypes,
   ButtonPlacementTypes,
+  AntdLabelPosition,
 } from "components/constants";
-import { LabelPosition } from "design-system-old";
+
 import styled from "styled-components";
 
 export const AntdProformContainer = styled.div<{
@@ -36,7 +37,7 @@ export const AntdFormItemContainer = styled.div<{
   alignment?: string;
   boxShadow?: string;
   borderRadius?: string;
-  labelPosition?: LabelPosition;
+  labelPosition?: AntdLabelPosition;
 }>`
   width: 100%;
   .ant-form-item {
@@ -44,18 +45,18 @@ export const AntdFormItemContainer = styled.div<{
   }
   .ant-form-item-row {
     flex-flow: ${({ labelPosition }) =>
-      labelPosition == LabelPosition.Left ? "row nowrap" : "row wrap"};
+      labelPosition == AntdLabelPosition.Left ? "row nowrap" : "row wrap"};
   }
   .ant-form-item-control {
     ${({ labelPosition }) =>
-      labelPosition == LabelPosition.Top ? "width: 100%;" : ""};
+      labelPosition == AntdLabelPosition.Top ? "width: 100%;" : ""};
   }
   .ant-form-item-row .ant-form-item-label {
     font-weight: ${({ labelStyle }) => labelStyle?.includes("BOLD") && "bold"};
     font-style: ${({ labelStyle }) =>
       labelStyle?.includes("ITALIC") && "italic"};
     overflow: ${({ labelPosition }) =>
-      labelPosition == LabelPosition.Left ? "unset" : "hidden"};
+      labelPosition == AntdLabelPosition.Left ? "unset" : "hidden"};
   }
   div.ant-form-item div.ant-form-item-label-wrap label {
     height: auto;
@@ -63,7 +64,8 @@ export const AntdFormItemContainer = styled.div<{
   .ant-form-item-control .ant-form-item-control-input .ant-select-selector {
     box-shadow: ${({ boxShadow }) => boxShadow};
   }
-  .ant-transfer-list {
+  .ant-transfer-list,
+  .antd-input {
     box-shadow: ${({ boxShadow }) => boxShadow};
     overflow: hidden;
   }
@@ -79,6 +81,15 @@ export const AntdFormItemContainer = styled.div<{
 
   div.ant-upload.ant-upload-select {
     box-shadow: ${({ boxShadow }) => boxShadow};
+  }
+
+  .ant-input-textarea-show-count {
+    margin-bottom: 22px;
+  }
+
+  .ant-radio-wrapper {
+    flex-direction: ${({ alignment }) =>
+      alignment === "left" ? "row-reverse" : "row"};
   }
 `;
 

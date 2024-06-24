@@ -1,5 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
+import { AntdLabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
@@ -60,8 +60,7 @@ export const CONFIG = {
     expandAll: false,
     placeholderText: "请选择",
     labelText: "标签",
-    labelPosition: LabelPosition.Auto,
-    labelAlignment: Alignment.LEFT,
+    labelPosition: AntdLabelPosition.Auto,
     labelWidth: 6,
     labelTextSize: "0.875rem",
     responsiveBehavior: ResponsiveBehavior.Fill,
@@ -80,13 +79,13 @@ export const CONFIG = {
   },
   autoLayout: {
     disabledPropsDefaults: {
-      labelPosition: LabelPosition.Top,
+      labelPosition: AntdLabelPosition.Top,
       labelTextSize: "0.875rem",
     },
-    defaults: {
-      rows: 6.6,
-      columns: 5.632,
-    },
+    // defaults: {
+    //   rows: 6.6,
+    //   columns: 5.632,
+    // },
     autoDimension: {
       height: true,
     },

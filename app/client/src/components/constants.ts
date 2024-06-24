@@ -101,6 +101,11 @@ export enum LabelPosition {
   Left = "Left",
   Right = "Right",
 }
+export enum AntdLabelPosition {
+  Auto = "auto",
+  Top = "top",
+  Left = "left",
+}
 
 /**
  * Default height for Select, MultiSelect, SingleTreeSelect and MultiTreeSelect

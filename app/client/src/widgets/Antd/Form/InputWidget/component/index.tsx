@@ -7,7 +7,8 @@ import { ProFormItem } from "@ant-design/pro-components";
 import { Input } from "antd";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 
-export interface InputComponentProps extends BaseInputComponentProps {
+const { TextArea } = Input;
+export interface InputComponentProps extends AntdInputWidgetProps {
   maxChars?: number;
   spellCheck?: boolean;
   maxNum?: number;
@@ -18,21 +19,31 @@ export interface InputComponentProps extends BaseInputComponentProps {
   required?: boolean;
   regex?: string;
   validation: boolean;
+  textareaRows?: number;
+  showCount?: boolean;
+  textareaMinRows?: number;
+  textareaMaxRows?: number;
+  textareaRowsControlType?: "固定值" | "自适应";
+  allowClear?: boolean;
 }
 
 // export default InputComponent;
 import React, { useEffect, useMemo, useState } from "react";
 import { AutoComplete, ConfigProvider } from "antd";
 import styled from "styled-components";
-import { LabelPosition } from "design-system-old";
 import type { InputProps } from "antd/lib";
+import type { TextAreaProps } from "@blueprintjs/core";
+import { AntdLabelPosition } from "components/constants";
+import type { AntdInputWidgetProps } from "../types";
 
 type InputDataType = string | undefined;
-const AntdAutoComplete = (props: InputComponentProps) => {
+const AntdInput = (props: InputComponentProps) => {
   const {
+    allowClear,
     autoFocus,
     borderRadius,
     boxShadow,
+    controlSize,
     defaultValue,
     disabled,
     errorMessage,
@@ -50,6 +61,11 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     placeholder,
     regex,
     required,
+    showCount,
+    textareaMaxRows: maxRows,
+    textareaMinRows: minRows,
+    textareaRows,
+    textareaRowsControlType,
     tooltip,
     validation,
     widgetId,
@@ -93,7 +109,7 @@ const AntdAutoComplete = (props: InputComponentProps) => {
   }, [required, validation, errorMessage, maxChars, ruleRegexMemo]);
 
   const colLayoutMemo = useMemo(() => {
-    if (labelPosition === LabelPosition.Left) {
+    if (labelPosition === AntdLabelPosition.Left) {
       return {
         labelCol: { sm: { span: labelWidth } },
         wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
@@ -101,9 +117,45 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     }
     return {};
   }, [labelPosition, labelWidth]);
-  const onChange: InputProps["onChange"] = (e) => {
+
+  const onChange: InputProps["onChange"] & TextAreaProps["onChange"] = (e) => {
     setValue(e.target.value);
     onValueChange(e.target.value);
+  };
+
+  const commonProps = {
+    className: "antd-input",
+    disabled,
+    maxLength: maxChars,
+    onBlur: () => onFocusChange(false),
+    onChange,
+    onFocus: () => onFocusChange(true),
+    placeholder: placeholder || "请输入内容",
+    value,
+    autoFocus,
+    style: { width: "100%" },
+    showCount,
+    allowClear,
+    size: controlSize,
+  };
+  const getInputComponent = () => {
+    switch (inputType) {
+      case "MULTI_LINE_TEXT":
+        return (
+          <TextArea
+            {...commonProps}
+            autoSize={
+              textareaRowsControlType == "自适应" ? { minRows, maxRows } : false
+            }
+            onChange={(e) => onChange(e as any)}
+            rows={textareaRows || 4}
+          />
+        );
+      case "PASSWORD":
+        return <Input.Password {...commonProps} />;
+      default:
+        return <Input {...commonProps} />;
+    }
   };
 
   return (
@@ -118,7 +170,7 @@ const AntdAutoComplete = (props: InputComponentProps) => {
           components: {
             Form: {
               labelColor: labelTextColor,
-              labelFontSize: parseInt(labelTextSize || "0"),
+              labelFontSize: (labelTextSize as unknown as number) || 0,
             },
             Input: {
               borderRadius: (borderRadius as unknown as number) || 0,
@@ -136,25 +188,11 @@ const AntdAutoComplete = (props: InputComponentProps) => {
           {...colLayoutMemo}
           {...validateProps}
         >
-          <Input
-            autoFocus={autoFocus}
-            className="custom"
-            disabled={disabled}
-            maxLength={maxChars}
-            onBlur={() => onFocusChange(false)}
-            onChange={onChange}
-            onFocus={() => onFocusChange(true)}
-            // onSearch={handleSearch}
-            placeholder={placeholder || "请输入内容"}
-            // prefix={"<UserOutlined />"}
-            style={{ width: "100%" }}
-            value={value}
-            // onKeyPress={handleKeyPress}
-          />
+          {getInputComponent()}
         </ProFormItem>
       </ConfigProvider>
     </AntdFormItemContainer>
   );
 };
 
-export default AntdAutoComplete;
+export default AntdInput;

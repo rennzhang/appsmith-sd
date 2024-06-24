@@ -3,7 +3,7 @@ import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { type Alignment } from "@blueprintjs/core";
 // import { RadioGroup, Radio, Classes } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
+import { AntdLabelPosition } from "components/constants";
 import type { RadioOption } from "../constants";
 import type { ButtonProps, RadioChangeEvent } from "antd";
 import { ConfigProvider, Radio, Space } from "antd";
@@ -15,7 +15,7 @@ import {
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 export interface RadioGroupContainerProps {
   compactMode: boolean;
-  labelPosition?: LabelPosition;
+  labelPosition?: AntdLabelPosition;
 }
 
 export interface StyledRadioGroupProps {
@@ -23,7 +23,7 @@ export interface StyledRadioGroupProps {
   compactMode: boolean;
   height?: number;
   inline: boolean;
-  labelPosition?: LabelPosition;
+  labelPosition?: AntdLabelPosition;
   optionCount: number;
   accentColor: string;
   isDynamicHeightEnabled?: boolean;
@@ -35,8 +35,8 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     accentColor,
     alignment,
     animateLoading,
-    buttonSize,
     compactMode,
+    controlSize,
     disabled,
     height,
     inline,
@@ -60,7 +60,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
   } = props;
 
   const colLayoutMemo = useMemo(() => {
-    if (labelPosition === LabelPosition.Left) {
+    if (labelPosition === AntdLabelPosition.Left) {
       return {
         labelCol: { sm: { span: labelWidth } },
         wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
@@ -110,7 +110,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
             onChange={handleChange}
             optionType={radioType === "button" ? "button" : "default"}
             options={radioType === "button" ? options : undefined}
-            size={buttonSize}
+            size={controlSize}
             style={{
               marginBottom: 0,
               // margin: 16,
@@ -145,7 +145,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   alignment: Alignment;
   compactMode: boolean;
   labelText: string;
-  labelPosition?: LabelPosition;
+  labelPosition?: AntdLabelPosition;
   labelAlignment?: "left" | "right";
   labelTextColor?: string;
   labelTextSize?: number;
@@ -158,7 +158,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   required?: boolean;
   animateLoading?: boolean;
   radioType?: "button" | "radio";
-  buttonSize?: ButtonProps["size"];
+  controlSize?: ButtonProps["size"];
 }
 
 export default RadioGroupComponent;

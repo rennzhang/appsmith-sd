@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
 import { ConfigProvider, message } from "antd";
-import { ButtonVariantTypes, LabelPosition } from "components/constants";
+import { ButtonVariantTypes, AntdLabelPosition } from "components/constants";
 import type { ButtonProps, UploadFile, UploadProps } from "antd";
 import { Button, Upload } from "antd";
 import styled from "styled-components";
@@ -163,7 +163,7 @@ function FilePickerComponent(props: FilePickerComponentProps) {
     //   });
   };
   const colLayoutMemo = useMemo(() => {
-    if (labelPosition === LabelPosition.Left) {
+    if (labelPosition === AntdLabelPosition.Left) {
       return {
         labelCol: { sm: { span: labelWidth } },
         wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
@@ -231,7 +231,6 @@ function FilePickerComponent(props: FilePickerComponentProps) {
           components: {
             Form: {
               labelColor: labelTextColor,
-              // labelFontSize: parseInt(labelTextSize || "0"),
               labelFontSize: (labelTextSize as unknown as number) || 0,
             },
             Button: {
@@ -344,7 +343,7 @@ export interface FilePickerComponentProps extends ComponentProps {
   iconName?: IconName;
   placement?: ButtonPlacement;
   labelStyle?: string;
-  labelPosition?: LabelPosition;
+  labelPosition?: AntdLabelPosition;
   labelText?: string;
   labelAlignment?: "left" | "right";
   labelWidth?: number;

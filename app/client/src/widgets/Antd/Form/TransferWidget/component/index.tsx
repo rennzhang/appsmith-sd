@@ -12,7 +12,7 @@ import type { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
 import styled from "styled-components";
 import type { RenderMode, TextSize } from "constants/WidgetConstants";
 import type { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
+import { AntdLabelPosition } from "components/constants";
 import type { ProFormItemProps } from "@ant-design/pro-components";
 import { ProFormItem } from "@ant-design/pro-components";
 import type { CascaderProps, TransferProps } from "antd";
@@ -36,7 +36,7 @@ export interface TransferComponentProps {
   onChange: (value?: DefaultValueType, labelList?: ReactNode[]) => void;
   // expandAll: boolean;
   labelText: string;
-  labelPosition?: LabelPosition;
+  labelPosition?: AntdLabelPosition;
   labelAlignment?: "left" | "right";
   labelWidth?: number;
   labelTextColor?: string;
@@ -176,7 +176,7 @@ function TransferComponent(props: TransferComponentProps): JSX.Element {
   }, [required, validation, errorMessage]);
 
   const colLayoutMemo = useMemo(() => {
-    if (labelPosition === LabelPosition.Left) {
+    if (labelPosition === AntdLabelPosition.Left) {
       return {
         labelCol: { sm: { span: labelWidth } },
         wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
@@ -237,7 +237,6 @@ function TransferComponent(props: TransferComponentProps): JSX.Element {
           components: {
             Form: {
               labelColor: labelTextColor,
-              // labelFontSize: parseInt(labelTextSize || "0"),
               labelFontSize: (labelTextSize as unknown as number) || 0,
             },
             Transfer: {

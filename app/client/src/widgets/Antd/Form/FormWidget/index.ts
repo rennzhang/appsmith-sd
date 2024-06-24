@@ -45,7 +45,6 @@ export const CONFIG = {
   },
   searchTags: ["group", "form"],
   defaults: {
-    isFormRequired: false,
     validateOnSubmit: true,
     fieldsError: [],
     labelCol: {
@@ -58,8 +57,8 @@ export const CONFIG = {
     },
     labelWrap: false,
     labelFlex: 120,
-    labelAlign: "left",
-    size: "default",
+    labelAlignment: "right",
+    controlSize: "middle",
     formLayout: "vertical",
     isKeyPressSubmit: false,
     rows: 40,

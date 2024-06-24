@@ -228,6 +228,7 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
           formRef={formRef}
           initialValues={initialValues}
           isKeyPressSubmit={isKeyPressSubmit}
+          labelAlign={labelAlign}
           labelWrap={labelWrap}
           layout={formLayout}
           name={widgetName}

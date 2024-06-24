@@ -1,5 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
+import { AntdLabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
 import type { TextSize, WidgetType } from "constants/WidgetConstants";
@@ -208,11 +208,11 @@ class AntdTransferWidget extends BaseWidget<
             fullWidth: false,
             hidden: isAutoLayout,
             options: [
-              { label: "自动", value: LabelPosition.Auto },
-              { label: "左", value: LabelPosition.Left },
-              { label: "上", value: LabelPosition.Top },
+              { label: "自动", value: AntdLabelPosition.Auto },
+              { label: "左", value: AntdLabelPosition.Left },
+              { label: "上", value: AntdLabelPosition.Top },
             ],
-            defaultValue: LabelPosition.Left,
+            defaultValue: AntdLabelPosition.Left,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -237,7 +237,7 @@ class AntdTransferWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: SingleSelectTreeWidgetProps) =>
-              props.labelPosition !== LabelPosition.Left,
+              props.labelPosition !== AntdLabelPosition.Left,
             dependencies: ["labelPosition"],
           },
           {
@@ -256,7 +256,7 @@ class AntdTransferWidget extends BaseWidget<
               },
             },
             hidden: (props: SingleSelectTreeWidgetProps) =>
-              props.labelPosition !== LabelPosition.Left,
+              props.labelPosition !== AntdLabelPosition.Left,
             dependencies: ["labelPosition"],
           },
           {
@@ -699,7 +699,7 @@ class AntdTransferWidget extends BaseWidget<
         oneWay={this.props.oneWay}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
-        required={this.props.isFormRequired || this.props.isRequired}
+        required={this.props.isRequired}
         rightTitle={this.props.rightTitle}
         selectedOption={this.props.selectedOption}
         sourceData={this.props.sourceData}
@@ -778,7 +778,7 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   selectedOptionLabel: string;
   // expandAll: boolean;
   labelText: string;
-  labelPosition?: LabelPosition;
+  labelPosition?: AntdLabelPosition;
   labelAlignment?: "left" | "right";
   labelWidth?: number;
   labelTextColor?: string;

@@ -1,6 +1,6 @@
 import type { MutableRefObject } from "react";
 import React from "react";
-import _, { cloneDeep, get, some } from "lodash";
+import _, { cloneDeep, get, last, some } from "lodash";
 import equal from "fast-deep-equal/es6";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
@@ -26,6 +26,7 @@ import type {
 } from "@ant-design/pro-components";
 import { AntdFormInstanceProps } from "./childPanels/FormInstance";
 import { INSTANCE_INVALID_VALUE } from "../../CONST/DEFAULT_CONFIG";
+import { mergeWidgetConfig } from "utils/helpers";
 // import FormItemLayoutConfig from "./childPanels/FormItemLayoutConfig";
 class FormWidget extends ContainerWidget {
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
@@ -72,6 +73,31 @@ class FormWidget extends ContainerWidget {
       );
     });
   };
+  overridChildPropsOnDidUpdate = async (
+    prevProps: ContainerWidgetProps<any>,
+    isNewWdget?: boolean,
+  ) => {
+    const updateChildrenPropsFields = [
+      "isDisabled",
+      "labelAlignment",
+      // "isRequired",
+      "controlSize",
+      "isRequired",
+    ];
+    const childContainer = isNewWdget
+      ? [last(this.props?.childWidgets?.[0].children)]
+      : this.getChildContainer().children;
+    updateChildrenPropsFields.forEach((field) => {
+      if (isNewWdget || this.props[field] !== prevProps[field]) {
+        this.batchUpdateChildrenProperty(
+          childContainer,
+          field,
+          this.props[field],
+        );
+      }
+    });
+  };
+
   componentDidUpdate(prevProps: ContainerWidgetProps<any>) {
     super.componentDidUpdate(prevProps);
     this.updateFormData();
@@ -82,27 +108,17 @@ class FormWidget extends ContainerWidget {
       this.props.updateWidgetMetaProperty("hasChanges", hasChanges);
     }
 
-    if (this.props.isDisabled !== prevProps.isDisabled) {
-      this.batchUpdateChildrenProperty(
-        this.getChildContainer().children,
-        "isDisabled",
-        this.props.isDisabled,
-      );
-    }
-
-    if (this.props.labelAlign !== prevProps.labelAlign) {
-      this.batchUpdateChildrenProperty(
-        this.getChildContainer().children,
-        "labelAlignment",
-        this.props.labelAlign,
-      );
-    }
-    if (this.props.isFormRequired !== prevProps.isFormRequired) {
-      this.batchUpdateChildrenProperty(
-        this.getChildContainer().children,
-        "isFormRequired",
-        this.props.isFormRequired,
-      );
+    // 当 form 组件新增子组件时，延迟 300ms 覆盖更新子组件属性，如禁用、必填、控件大小等
+    if (
+      this.props?.childWidgets?.[0].children?.length >
+      prevProps?.childWidgets?.[0].children?.length
+    ) {
+      setTimeout(() => {
+        this.overridChildPropsOnDidUpdate(prevProps, true);
+      }, 300);
+    } else {
+      // 当 form 组件部分属性变化时，覆盖更新子组件属性，如禁用、必填、控件大小等
+      this.overridChildPropsOnDidUpdate(prevProps);
     }
   }
 
@@ -177,10 +193,13 @@ class FormWidget extends ContainerWidget {
         (child: WidgetProps) => {
           const grandChild = {
             ...child,
+            isDisabled: this.props.isDisabled,
             formParentWidgetId: this.props.widgetId,
             validateOnSubmit: this.props.validateOnSubmit,
+            // isRequired: this.props.isRequired,
+            // labelPosition:
+            //   this.props.formLayout === "horizontal" ? "left" : "top",
           } as any;
-          grandChild.isDisabled = this.props.isDisabled;
           if (isInvalid) grandChild.isFormValid = false;
 
           // Add submit and reset handlers
@@ -205,14 +224,14 @@ class FormWidget extends ContainerWidget {
         getFormData={this.getFormData}
         initialValues={initialValues}
         isKeyPressSubmit={this.props.isKeyPressSubmit}
-        labelAlign={this.props.labelAlign}
+        labelAlign={this.props.labelAlignment}
         labelCol={this.props.labelCol}
         labelFlex={this.props.labelFlex}
         updateWidgetProps={this.updateWidgetProps}
         wrapperCol={this.props.wrapperCol}
         labelWrap={this.props.labelWrap}
         // setFormRef={this.setFormRef}
-        size={this.props.size}
+        size={this.props.controlSize}
         {...this.props}
       >
         {super.renderChildWidget(childContainer)}
@@ -244,7 +263,7 @@ class FormWidget extends ContainerWidget {
         children: [
           {
             helpText: "控制所有表单项是否必填",
-            propertyName: "isFormRequired",
+            propertyName: "isRequired",
             label: "必填",
             defaultValue: false,
             controlType: "SWITCH",
@@ -277,135 +296,7 @@ class FormWidget extends ContainerWidget {
           },
         ],
       },
-      {
-        sectionName: "样式",
-        children: [
-          // size 控制
-          {
-            helpText: "表单控件大小",
-            propertyName: "size",
-            label: "表单尺寸",
-            controlType: "ICON_TABS",
-            options: [
-              {
-                label: "小",
-                value: "small",
-              },
-              {
-                label: "默认",
-                value: "default",
-              },
-              {
-                label: "大",
-                value: "large",
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-            isJSConvertible: true,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          // 表单布局控制
-          {
-            helpText: "表单布局控制",
-            propertyName: "formLayout",
-            label: "表单布局",
-            // controlType 类型
-            controlType: "ICON_TABS" as PropertyControlType,
-            options: [
-              {
-                label: "水平",
-                value: "horizontal",
-              },
-              {
-                label: "垂直",
-                value: "vertical",
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-            isJSConvertible: true,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          // labelAlign
-          {
-            helpText: "标签对齐方式",
-            propertyName: "labelAlign",
-            label: "标签对齐",
-            controlType: "ICON_TABS",
-            options: [
-              {
-                label: "左对齐",
-                value: "left",
-              },
-              {
-                label: "右对齐",
-                value: "right",
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-            isJSConvertible: true,
-            validation: { type: ValidationTypes.TEXT },
-          },
 
-          // labelWrap 控制
-          {
-            helpText: "标签是否换行",
-            propertyName: "labelWrap",
-            label: "标签换行",
-            defaultValue: false,
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            isJSConvertible: true,
-            validation: { type: ValidationTypes.BOOLEAN },
-            dependencies: ["formLayout"],
-            hidden: (props: FormWidgetProps) => props.formLayout === "vertical",
-          },
-          // labelWidth 控制
-          {
-            helpText: "标签宽度达到一定长度后换行",
-            propertyName: "labelFlex",
-            label: "标签宽度",
-            controlType: "INPUT_TEXT",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            isJSConvertible: true,
-            validation: { type: ValidationTypes.NUMBER },
-            dependencies: ["labelWrap"],
-            hidden: (props: FormWidgetProps) => !props.labelWrap,
-          },
-          // labelCol 控制
-          {
-            helpText: "标签栅格占位格数",
-            propertyName: "labelCol",
-            label: "标签宽度",
-            controlType: "INPUT_TEXT" as PropertyControlType,
-            isBindProperty: false,
-            isTriggerProperty: false,
-            isJSConvertible: true,
-            validation: { type: ValidationTypes.OBJECT },
-            dependencies: ["labelWrap"],
-            hidden: (props: FormWidgetProps) =>
-              props.labelWrap || props.formLayout === "vertical",
-          },
-          // wrapperCol 控制
-          {
-            helpText: "表单控件栅格占位格数",
-            propertyName: "wrapperCol",
-            label: "控件宽度",
-            controlType: "INPUT_TEXT",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            isJSConvertible: true,
-            validation: { type: ValidationTypes.OBJECT },
-            dependencies: ["labelWrap"],
-            hidden: (props: FormWidgetProps) =>
-              props.labelWrap || props.formLayout === "vertical",
-          },
-        ],
-      },
       {
         sectionName: "属性",
         children: [
@@ -444,6 +335,146 @@ class FormWidget extends ContainerWidget {
       },
       AntdFormInstanceProps,
     ];
+  }
+  static getPropertyPaneStyleConfig() {
+    return mergeWidgetConfig(
+      [
+        {
+          sectionName: "样式",
+          children: [
+            // controlSize 控制
+            {
+              helpText: "表单控件大小",
+              propertyName: "controlSize",
+              label: "表单尺寸",
+              controlType: "ICON_TABS",
+              options: [
+                {
+                  label: "小",
+                  value: "small",
+                },
+                {
+                  label: "默认",
+                  value: "middle",
+                },
+                {
+                  label: "大",
+                  value: "large",
+                },
+              ],
+              isBindProperty: false,
+              isTriggerProperty: false,
+              isJSConvertible: true,
+              validation: { type: ValidationTypes.TEXT },
+            },
+            // 表单布局控制
+            {
+              helpText: "表单布局控制",
+              propertyName: "formLayout",
+              label: "表单布局",
+              // controlType 类型
+              controlType: "ICON_TABS" as PropertyControlType,
+              options: [
+                {
+                  label: "水平",
+                  value: "horizontal",
+                },
+                {
+                  label: "垂直",
+                  value: "vertical",
+                },
+              ],
+              isBindProperty: false,
+              isTriggerProperty: false,
+              isJSConvertible: true,
+              validation: { type: ValidationTypes.TEXT },
+            },
+            // labelAlignment
+            {
+              helpText: "标签对齐方式",
+              propertyName: "labelAlignment",
+              label: "标签对齐",
+              controlType: "ICON_TABS",
+              options: [
+                {
+                  label: "左对齐",
+                  value: "left",
+                },
+                {
+                  label: "右对齐",
+                  value: "right",
+                },
+              ],
+              isBindProperty: false,
+              isTriggerProperty: false,
+              isJSConvertible: true,
+              validation: { type: ValidationTypes.TEXT },
+              dependencies: ["formLayout"],
+              hidden: (props: FormWidgetProps) =>
+                props.formLayout === "vertical",
+            },
+
+            // labelWrap 控制
+            {
+              helpText: "标签是否换行",
+              propertyName: "labelWrap",
+              label: "标签换行",
+              defaultValue: false,
+              controlType: "SWITCH",
+              isBindProperty: false,
+              isTriggerProperty: false,
+              isJSConvertible: true,
+              validation: { type: ValidationTypes.BOOLEAN },
+              dependencies: ["formLayout"],
+              hidden: (props: FormWidgetProps) =>
+                props.formLayout === "vertical",
+            },
+            // labelWidth 控制
+            {
+              helpText: "标签宽度达到一定长度后换行",
+              propertyName: "labelFlex",
+              label: "标签宽度",
+              controlType: "INPUT_TEXT",
+              isBindProperty: false,
+              isTriggerProperty: false,
+              isJSConvertible: true,
+              validation: { type: ValidationTypes.NUMBER },
+              dependencies: ["labelWrap"],
+              hidden: (props: FormWidgetProps) => !props.labelWrap,
+            },
+            // labelCol 控制
+            {
+              helpText: "标签栅格占位格数",
+              propertyName: "labelCol",
+              label: "标签宽度",
+              controlType: "INPUT_TEXT" as PropertyControlType,
+              isBindProperty: false,
+              isTriggerProperty: false,
+              isJSConvertible: true,
+              validation: { type: ValidationTypes.OBJECT },
+              dependencies: ["labelWrap"],
+              hidden: (props: FormWidgetProps) =>
+                props.labelWrap || props.formLayout === "vertical",
+            },
+            // wrapperCol 控制
+            {
+              helpText: "表单控件栅格占位格数",
+              propertyName: "wrapperCol",
+              label: "控件宽度",
+              controlType: "INPUT_TEXT",
+              isBindProperty: false,
+              isTriggerProperty: false,
+              isJSConvertible: true,
+              validation: { type: ValidationTypes.OBJECT },
+              dependencies: ["labelWrap"],
+              hidden: (props: FormWidgetProps) =>
+                props.labelWrap || props.formLayout === "vertical",
+            },
+          ],
+        },
+      ],
+      super.getPropertyPaneStyleConfig(),
+    );
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {

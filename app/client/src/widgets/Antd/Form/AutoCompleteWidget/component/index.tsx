@@ -7,7 +7,7 @@ import { ProFormItem } from "@ant-design/pro-components";
 import { Input } from "antd";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 
-export interface InputComponentProps extends BaseInputComponentProps {
+export interface InputComponentProps extends AntdInputWidgetProps {
   inputType: InputTypes;
   maxChars?: number;
   spellCheck?: boolean;
@@ -27,7 +27,9 @@ export interface InputComponentProps extends BaseInputComponentProps {
 import React, { useEffect, useMemo, useState } from "react";
 import { AutoComplete, ConfigProvider } from "antd";
 import styled from "styled-components";
-import { LabelPosition } from "design-system-old";
+import { AntdLabelPosition } from "components/constants";
+import type { AntdInputWidgetProps } from "../../InputWidget/types";
+
 const mockVal = (str: InputDataType, repeat = 1) => ({
   value: String(str).repeat(repeat),
 });
@@ -38,6 +40,7 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     autoFocus,
     borderRadius,
     boxShadow,
+    controlSize,
     defaultValue,
     disabled,
     emailOptions,
@@ -109,7 +112,7 @@ const AntdAutoComplete = (props: InputComponentProps) => {
   }, [required, validation, errorMessage, maxChars, ruleRegexMemo]);
 
   const colLayoutMemo = useMemo(() => {
-    if (labelPosition === LabelPosition.Left) {
+    if (labelPosition === AntdLabelPosition.Left) {
       return {
         labelCol: { sm: { span: labelWidth } },
         wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
@@ -171,7 +174,7 @@ const AntdAutoComplete = (props: InputComponentProps) => {
           components: {
             Form: {
               labelColor: labelTextColor,
-              labelFontSize: parseInt(labelTextSize || "0"),
+              labelFontSize: (labelTextSize as unknown as number) || 0,
             },
             Input: {
               borderRadius: (borderRadius as unknown as number) || 0,
@@ -207,6 +210,7 @@ const AntdAutoComplete = (props: InputComponentProps) => {
                 ? null
                 : placeholder || "请输入内容"
             }
+            size={controlSize}
             style={{ width: "100%" }}
             value={value}
           >
