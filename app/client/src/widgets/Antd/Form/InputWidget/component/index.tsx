@@ -48,10 +48,10 @@ const AntdInput = (props: InputComponentProps) => {
     disabled,
     errorMessage,
     inputType,
-    label,
     labelAlignment,
     labelPosition,
     labelStyle,
+    labelText,
     labelTextColor,
     labelTextSize,
     labelWidth,
@@ -181,7 +181,7 @@ const AntdInput = (props: InputComponentProps) => {
       >
         <ProFormItem
           disabled={disabled}
-          label={label}
+          label={labelText}
           labelAlign={labelAlignment}
           name={widgetName}
           tooltip={tooltip}

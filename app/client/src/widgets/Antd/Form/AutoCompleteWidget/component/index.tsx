@@ -46,10 +46,10 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     emailOptions,
     errorMessage,
     inputType,
-    label,
     labelAlignment,
     labelPosition,
     labelStyle,
+    labelText,
     labelTextColor,
     labelTextSize,
     labelWidth,
@@ -188,7 +188,7 @@ const AntdAutoComplete = (props: InputComponentProps) => {
         }}
       >
         <ProFormItem
-          label={label}
+          label={labelText}
           labelAlign={labelAlignment}
           name={widgetName}
           tooltip={tooltip}

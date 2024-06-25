@@ -36,7 +36,6 @@ export const DEFAULT_CONFIG = {
     labelText: "标签",
     labelAlignment: "right",
     labelWidth: 6,
-    label: "标签",
     widgetName: "Input",
     version: 1,
     defaultText: "",
@@ -54,7 +53,7 @@ export const FORM_LABEL_CONTENT_CONFIG = {
   children: [
     {
       helpText: "设置组件标签文本",
-      propertyName: "label",
+      propertyName: "labelText",
       label: "文本",
       controlType: "INPUT_TEXT",
       placeholderText: "名称：",

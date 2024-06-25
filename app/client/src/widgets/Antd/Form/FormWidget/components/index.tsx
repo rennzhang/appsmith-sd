@@ -4,7 +4,7 @@ import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
 import { ProForm } from "@ant-design/pro-components";
 import { AntdProformContainer } from "widgets/Antd/Style";
 // export default InputComponent;
-import { ConfigProvider } from "antd";
+import { ConfigProvider, message } from "antd";
 import type { WidgetStyleContainerProps } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { MouseEventHandler, ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -13,6 +13,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { INSTANCE_INVALID_VALUE } from "../../CONST/DEFAULT_CONFIG";
 import { isNumber } from "lodash";
+import type { FieldError } from "rc-field-form/lib/interface";
 
 export interface ProformContainerComponentProps
   extends WidgetStyleContainerProps {
@@ -55,8 +56,8 @@ export interface ProformContainerComponentProps
   validateFieldsParamsChange?: number;
   validateOnSubmit?: boolean;
   startValidateFields?: boolean;
-  showValidateMessage?: boolean;
   validateMessage?: string;
+  formItems: { name: string; label: string }[];
 }
 
 type InputDataType = string | undefined;
@@ -66,6 +67,7 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
     boxShadow,
     children,
     disabled,
+    formItems,
     formLayout,
     getChildContainer,
     getFormData,
@@ -80,6 +82,7 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
     updateWidgetProps,
     validateFieldsParams: __vfp,
 
+    validateMessage,
     validateOnSubmit,
     widgetName,
     wrapperCol,
@@ -93,6 +96,32 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
 
   const formRef = useRef<ProFormInstance<any>>();
 
+  const updateErrorFidlds = (errorFields?: FieldError[]) => {
+    // 按照formItems的顺序排序，返回格式和errorFields一致，并在每个item中增加label字段，只返回有错误的字段
+
+    const sortErrorFields = formItems
+      .map((item) => {
+        const errorItem = errorFields?.find((c) => c.name[0] === item.name);
+        const _label = formItems
+          .filter((c) => c.name === item.name)
+          .map((c) => c.label);
+        if (errorItem) {
+          return {
+            ...errorItem,
+            label: _label,
+          };
+        }
+        return null;
+      })
+      .filter((item) => item !== null);
+    updateWidgetProps("errorFields", sortErrorFields);
+
+    console.log(
+      "表单组件 handleValidateFields finally",
+      errorFields,
+      sortErrorFields,
+    );
+  };
   const handleValidateFields = async (params?: any) => {
     if (validating) return;
     await setValidating(true);
@@ -104,9 +133,11 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
         const errorFields = formRef.current
           ?.getFieldsError()
           .filter((item) => item.errors.length > 0 || item.warnings.length > 0);
-        updateWidgetProps("errorFields", errorFields);
+        updateErrorFidlds(errorFields);
 
-        console.log("表单组件 handleValidateFields error", errorFields);
+        if (validateMessage && errorFields?.length) {
+          message.error(validateMessage);
+        }
 
         await setValidating(false);
       });

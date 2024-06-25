@@ -263,7 +263,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         children: [
           {
             helpText: "设置组件标签文本",
-            propertyName: "label",
+            propertyName: "labelText",
             label: "文本",
             controlType: "INPUT_TEXT",
             placeholderText: "请输入文本内容",
@@ -640,7 +640,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       isDisabled,
       isInline,
       isLoading,
-      label,
+      labelText,
       labelAlignment,
       labelPosition,
       labelStyle,
@@ -675,7 +675,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}
         labelStyle={labelStyle}
-        labelText={label}
+        labelText={labelText}
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
         labelTooltip={this.props.labelTooltip}

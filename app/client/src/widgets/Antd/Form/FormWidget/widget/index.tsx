@@ -27,6 +27,7 @@ import type {
 import { AntdFormInstanceProps } from "./childPanels/FormInstance";
 import { INSTANCE_INVALID_VALUE } from "../../CONST/DEFAULT_CONFIG";
 import { mergeWidgetConfig } from "utils/helpers";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 // import FormItemLayoutConfig from "./childPanels/FormItemLayoutConfig";
 class FormWidget extends ContainerWidget {
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
@@ -186,6 +187,22 @@ class FormWidget extends ContainerWidget {
     return formData;
   };
 
+  getFormItems = (formWidget: ContainerWidgetProps<WidgetProps>) => {
+    const items: {
+      name: string;
+      label: string;
+    }[] = [];
+    if (formWidget.children) {
+      formWidget.children.forEach((widgetData) => {
+        items.push({
+          name: widgetData.widgetName,
+          label: widgetData.labelText,
+        });
+      });
+    }
+    return items;
+  };
+
   renderChildWidget(): React.ReactNode {
     const childContainer = this.getChildContainer();
 
@@ -218,9 +235,12 @@ class FormWidget extends ContainerWidget {
     console.groupEnd();
 
     const initialValues = this.getFormDefaultData(childContainer);
+
+    const formItems = this.getFormItems(childContainer);
     return (
       <ProForm
         disabled={this.props.isDisabled}
+        formItems={formItems}
         formLayout={this.props.formLayout}
         getChildContainer={this.getChildContainer}
         getFormData={this.getFormData}
@@ -302,35 +322,31 @@ class FormWidget extends ContainerWidget {
             isJSConvertible: true,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          // 是否在校验失败弹出提示
-          {
-            helpText: "校验失败时是否弹出提示",
-            propertyName: "showValidateMessage",
-            label: "校验提示",
-            defaultValue: true,
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            isJSConvertible: true,
-            validation: { type: ValidationTypes.BOOLEAN },
-            hidden: (props: FormWidgetProps) => !props.isRequired,
-            dependencies: ["isRequired"],
-          },
           // 失败时弹出提示的内容
           {
-            helpText: "校验失败时的提示信息",
+            helpText: "校验失败时的提示信息，不填写时不会出现任何提示",
             propertyName: "validateMessage",
-            label: "提示信息",
+            label: "校验失败提示信息",
             controlType: "INPUT_TEXT",
-            defaultValue: "请完善表单内容",
+
+            // defaultValue: "请完善表单内容",
             placeholderText: "请完善表单内容",
             isBindProperty: false,
             isTriggerProperty: false,
             isJSConvertible: true,
-            validation: { type: ValidationTypes.TEXT },
-            hidden: (props: FormWidgetProps) =>
-              !props.isRequired || !props.showValidateMessage,
-            dependencies: ["isRequired", "showValidateMessage"],
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                expected: {
+                  type: "string |\nother data (only works in mustache syntax)",
+                  example:
+                    "abc | {{AntdForm1.errorFields[0].label[0] + '是必填项'}}",
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+            hidden: (props: FormWidgetProps) => !props.isRequired,
+            dependencies: ["isRequired"],
           },
         ],
       },

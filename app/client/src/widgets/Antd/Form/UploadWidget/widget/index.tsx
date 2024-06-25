@@ -235,7 +235,7 @@ class FilePickerWidget extends BaseWidget<
         children: [
           {
             helpText: "设置按钮文本内容",
-            propertyName: "label",
+            propertyName: "labelText",
             label: "按钮内容",
             controlType: "INPUT_TEXT",
             placeholderText: "请输入文本内容",
@@ -635,7 +635,7 @@ class FilePickerWidget extends BaseWidget<
             this.state.isWaitingForUppyToLoad
           }
           key={this.props.widgetId}
-          label={this.props.label}
+          label={this.props.labelText}
           labelAlignment={this.props.labelAlignment}
           labelPosition={this.props.labelPosition}
           labelStyle={this.props.labelStyle}
