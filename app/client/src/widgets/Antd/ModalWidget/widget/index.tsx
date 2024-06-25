@@ -51,6 +51,15 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       {
         sectionName: "属性",
         children: [
+          // 默认打开
+          {
+            propertyName: "isVisible",
+            label: "默认打开",
+            controlType: "SWITCH",
+            helpText: "默认打开弹窗",
+            isBindProperty: true,
+            isTriggerProperty: false,
+          },
           {
             helpText: "允许组件内部内容滚动",
             propertyName: "shouldScrollContents",
