@@ -77,23 +77,25 @@ class FormWidget extends ContainerWidget {
     prevProps: ContainerWidgetProps<any>,
     isNewWdget?: boolean,
   ) => {
-    const updateChildrenPropsFields = [
-      "isDisabled",
-      "labelAlignment",
-      // "isRequired",
-      "controlSize",
-      "isRequired",
-    ];
+    const shouldUpdateValues: Record<string, any> = {
+      isDisabled: this.props.isDisabled,
+      labelAlignment: this.props.labelAlignment,
+      // isRequired: this.props.isRequired,
+      controlSize: this.props.controlSize,
+      isRequired: this.props.isRequired,
+    };
+
+    if (isNewWdget && this.props.isFullWidth) {
+      shouldUpdateValues.rightColumn = 64;
+      shouldUpdateValues.leftColumn = 0;
+    }
+
     const childContainer = isNewWdget
       ? [last(this.props?.childWidgets?.[0].children)]
       : this.getChildContainer().children;
-    updateChildrenPropsFields.forEach((field) => {
+    Object.entries(shouldUpdateValues).forEach(([field, value]) => {
       if (isNewWdget || this.props[field] !== prevProps[field]) {
-        this.batchUpdateChildrenProperty(
-          childContainer,
-          field,
-          this.props[field],
-        );
+        this.batchUpdateChildrenProperty(childContainer, field, value);
       }
     });
   };
@@ -367,6 +369,17 @@ class FormWidget extends ContainerWidget {
               isJSConvertible: true,
               validation: { type: ValidationTypes.TEXT },
             },
+            // isFullWidth
+            {
+              helpText: "新增的子组件是否占满宽度",
+              propertyName: "isFullWidth",
+              label: "默认宽度占满",
+              controlType: "SWITCH",
+              isBindProperty: false,
+              isTriggerProperty: false,
+              isJSConvertible: true,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
             // 表单布局控制
             {
               helpText: "表单布局控制",
@@ -389,6 +402,7 @@ class FormWidget extends ContainerWidget {
               isJSConvertible: true,
               validation: { type: ValidationTypes.TEXT },
             },
+
             // labelAlignment
             {
               helpText: "标签对齐方式",
