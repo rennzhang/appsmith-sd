@@ -13,7 +13,8 @@ type DeepPartial<T> = T extends object
     }
   : T;
 
-export const DEFAULT_CONFIG: DeepPartial<WidgetConfiguration> = {
+// DeepPartial<WidgetConfiguration>
+export const DEFAULT_CONFIG = {
   features: {
     dynamicHeight: {
       sectionIndex: 3,

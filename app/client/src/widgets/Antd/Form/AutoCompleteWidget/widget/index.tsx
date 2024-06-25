@@ -647,7 +647,7 @@ class AutoCompleteWidget extends AntdInputWidget<
   }
 
   static getWidgetType(): WidgetType {
-    return "AUTO_COMPLETE_WIDGET";
+    return "ANTD_AUTO_COMPLETE_WIDGET";
   }
 }
 
