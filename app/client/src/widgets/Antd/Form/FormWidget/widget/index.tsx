@@ -255,13 +255,30 @@ class FormWidget extends ContainerWidget {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       hasChanges: false,
-      fieldsError: [],
+      errorFields: [],
     };
   }
   static getPropertyPaneContentConfig() {
     return [
       {
         sectionName: "功能",
+        children: [
+          {
+            helpText: "是否使用回车提交",
+            propertyName: "isKeyPressSubmit",
+            label: "回车提交",
+            defaultValue: false,
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      // 校验
+      {
+        sectionName: "校验",
         children: [
           {
             helpText: "控制所有表单项是否必填",
@@ -285,20 +302,38 @@ class FormWidget extends ContainerWidget {
             isJSConvertible: true,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          // 是否在校验失败弹出提示
           {
-            helpText: "是否使用回车提交",
-            propertyName: "isKeyPressSubmit",
-            label: "回车提交",
-            defaultValue: false,
+            helpText: "校验失败时是否弹出提示",
+            propertyName: "showValidateMessage",
+            label: "校验提示",
+            defaultValue: true,
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
             isJSConvertible: true,
             validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: FormWidgetProps) => !props.isRequired,
+            dependencies: ["isRequired"],
+          },
+          // 失败时弹出提示的内容
+          {
+            helpText: "校验失败时的提示信息",
+            propertyName: "validateMessage",
+            label: "提示信息",
+            controlType: "INPUT_TEXT",
+            defaultValue: "请完善表单内容",
+            placeholderText: "请完善表单内容",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: FormWidgetProps) =>
+              !props.isRequired || !props.showValidateMessage,
+            dependencies: ["isRequired", "showValidateMessage"],
           },
         ],
       },
-
       {
         sectionName: "属性",
         children: [
@@ -499,7 +534,7 @@ class FormWidget extends ContainerWidget {
         "!url": "https://docs.appsmith.com/widget-reference/form",
         isVisible: DefaultAutocompleteDefinitions.isVisible,
         data: generateTypeDef(widget.data, extraDefsToDefine),
-        fieldsError: generateTypeDef(widget.fieldsError, extraDefsToDefine),
+        errorFields: generateTypeDef(widget.errorFields, extraDefsToDefine),
         hasChanges: "bool",
       };
     };
@@ -528,10 +563,12 @@ type FormWidgetPropsExtends = ContainerComponentProps & ProFormProps;
 export interface FormWidgetProps extends FormWidgetPropsExtends {
   name: string;
   data: Record<string, unknown>;
-  fieldsError: ReturnType<FormInstance["getFieldsError"]>;
+  errorFields: ReturnType<FormInstance["getFieldsError"]>;
   hasChanges: boolean;
   labelWrap?: boolean;
   formLayout?: "horizontal" | "vertical";
+  isRequired: boolean;
+  showValidateMessage: boolean;
 }
 
 export default FormWidget;

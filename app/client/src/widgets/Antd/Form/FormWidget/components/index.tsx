@@ -55,6 +55,8 @@ export interface ProformContainerComponentProps
   validateFieldsParamsChange?: number;
   validateOnSubmit?: boolean;
   startValidateFields?: boolean;
+  showValidateMessage?: boolean;
+  validateMessage?: string;
 }
 
 type InputDataType = string | undefined;
@@ -99,13 +101,13 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
     const values = await formRef.current
       ?.validateFields(...(_params || []))
       .finally(async () => {
-        console.log(
-          "表单组件 validateFields finally",
-          formRef.current?.getFieldsError(),
-        );
-        const fieldsError = formRef.current?.getFieldsError();
+        const errorFields = formRef.current
+          ?.getFieldsError()
+          .filter((item) => item.errors.length > 0 || item.warnings.length > 0);
+        updateWidgetProps("errorFields", errorFields);
 
-        updateWidgetProps("fieldsError", fieldsError);
+        console.log("表单组件 handleValidateFields error", errorFields);
+
         await setValidating(false);
       });
     console.log("表单组件 handleValidateFields values", values);
@@ -119,7 +121,7 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
         handleValidateFields(__vfp);
         return;
       }
-      validateOnSubmit && handleValidateFields({ validateOnly: true });
+      validateOnSubmit && handleValidateFields();
       return;
     } else if (!__vfp || isNumber(__vfp)) return;
     const _data = __vfp?.includes?.("UNDEFINED") ? undefined : __vfp;
@@ -168,38 +170,38 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
     console.log("validateFieldsReturnFormatValue:", val2);
     console.groupEnd();
   };
-  const handleFinishFailed = async (values: any) => {
-    console.group("表单组件 handleFinishFailed");
-    console.log("handleFinishFailed values", values);
-    console.log("getFormData", getFormData(getChildContainer?.()));
+  // const handleFinishFailed = async (values: any) => {
+  //   console.group("表单组件 handleFinishFailed");
+  //   console.log("handleFinishFailed values", values);
+  //   console.log("getFormData", getFormData(getChildContainer?.()));
 
-    console.log(" formRef.current", formRef.current);
-    console.log(
-      " formRef.current getFieldsError",
-      formRef.current?.getFieldsError(),
-    );
-    const val1 = await handleValidateFields();
-    console.log("validateFields:", val1);
-    const val2 = await formRef.current?.validateFieldsReturnFormatValue?.();
-    console.log("validateFieldsReturnFormatValue:", val2);
-    console.groupEnd();
-  };
+  //   console.log(" formRef.current", formRef.current);
+  //   console.log(
+  //     " formRef.current getFieldsError",
+  //     formRef.current?.getFieldsError(),
+  //   );
+  //   const val1 = await handleValidateFields();
+  //   console.log("validateFields:", val1);
+  //   const val2 = await formRef.current?.validateFieldsReturnFormatValue?.();
+  //   console.log("validateFieldsReturnFormatValue:", val2);
+  //   console.groupEnd();
+  // };
 
-  const handleSubmit = async (values: any) => {
-    console.group("表单组件 handleSubmit");
-    console.log("handleSubmit values", values);
-    console.log("getFormData", getFormData(getChildContainer?.()));
-    console.log(" formRef.current", formRef.current);
-    console.log(
-      " formRef.current getFieldsError",
-      formRef.current?.getFieldsError(),
-    );
-    const val1 = await formRef.current?.validateFields();
-    console.log("validateFields:", val1);
-    const val2 = await formRef.current?.validateFieldsReturnFormatValue?.();
-    console.log("validateFieldsReturnFormatValue:", val2);
-    console.groupEnd();
-  };
+  // const handleSubmit = async (values: any) => {
+  //   console.group("表单组件 handleSubmit");
+  //   console.log("handleSubmit values", values);
+  //   console.log("getFormData", getFormData(getChildContainer?.()));
+  //   console.log(" formRef.current", formRef.current);
+  //   console.log(
+  //     " formRef.current getFieldsError",
+  //     formRef.current?.getFieldsError(),
+  //   );
+  //   const val1 = await formRef.current?.validateFields();
+  //   console.log("validateFields:", val1);
+  //   const val2 = await formRef.current?.validateFieldsReturnFormatValue?.();
+  //   console.log("validateFieldsReturnFormatValue:", val2);
+  //   console.groupEnd();
+  // };
 
   console.group("表单组件 AntdForm");
   console.log("表单组件 props", props);
@@ -225,6 +227,7 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
             labelAlign?.toLowerCase() === "right" ? "ant-form-label-right" : ""
           }
           disabled={disabled}
+          fields={[{ name: "roleName" }]}
           formRef={formRef}
           initialValues={initialValues}
           isKeyPressSubmit={isKeyPressSubmit}
@@ -233,10 +236,10 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
           layout={formLayout}
           name={widgetName}
           onFinish={handleFinsh}
-          onFinishFailed={handleFinishFailed}
+          // onFinishFailed={handleFinishFailed}
           size={size}
           style={{ maxWidth: "100%" }}
-          submitter={false}
+          // submitter={false}
           {...formItemLayoutMemo}
         >
           {children}
