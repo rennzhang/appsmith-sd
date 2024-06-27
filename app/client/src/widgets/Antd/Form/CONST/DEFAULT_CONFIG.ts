@@ -151,6 +151,8 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         validation: {
           type: ValidationTypes.TEXT,
         },
+        //ANTD_TREE_WIDGET 不显示
+        hidden: (props: any) => ["ANTD_TREE_WIDGET"].includes(props.type),
       },
     ],
   },

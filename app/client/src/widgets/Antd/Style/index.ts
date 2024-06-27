@@ -91,6 +91,12 @@ export const AntdFormItemContainer = styled.div<{
     flex-direction: ${({ alignment }) =>
       alignment === "left" ? "row-reverse" : "row"};
   }
+
+  .ant-tree-switcher {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 export const AntdImageContainer = styled.div<{

@@ -62,7 +62,7 @@ export const CONFIG = {
             canExtend: true,
             isVisible: true,
             isDisabled: false,
-            shouldScrollContents: false,
+            shouldScrollContents: true,
             children: [],
             version: 1,
             blueprint: {
