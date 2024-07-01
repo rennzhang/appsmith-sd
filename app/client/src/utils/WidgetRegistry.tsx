@@ -47,6 +47,11 @@ import AntdTransferWidget, {
 import AntdTreeWidget, {
   CONFIG as ANTD_TREE_CONFIG,
 } from "widgets/Antd/Form/TreeWidget";
+
+// 树选择
+import AntdTreeSelectWidget, {
+  CONFIG as ANTD_TREE_SELECT_CONFIG,
+} from "widgets/Antd/Form/TreeSelectWidget";
 /* Antd form 组件注册 end */
 
 // widgets/Antd/ModalWidget
@@ -301,6 +306,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdUploadWidget, ANTD_UPLOAD_WIDGET_CONFIG],
   [AntdImageWidget, ANTD_IMAGE_CONFIG],
   [AntdTransferWidget, ANTD_TRANSFER_CONFIG],
+  [AntdTreeSelectWidget, ANTD_TREE_SELECT_CONFIG],
   [AntdTreeWidget, ANTD_TREE_CONFIG],
   [AntdTableWidget, ANTD_Table_CONFIG],
   [CanvasWidget, CANVAS_WIDGET_CONFIG],

@@ -44,7 +44,7 @@ export const DEFAULT_CONFIG = {
     labelStyle: "",
     resetOnSubmit: true,
     animateLoading: false,
-    controlSize: "millde",
+    controlSize: "middle",
   },
 };
 

@@ -192,6 +192,7 @@ function TreeComponent(props: TreeComponentProps): JSX.Element {
   console.groupEnd();
   return (
     <AntdFormItemContainer
+      borderRadius={borderRadius}
       boxShadow={boxShadow}
       className="antd-radio-container"
       labelPosition={labelPosition}
@@ -204,13 +205,9 @@ function TreeComponent(props: TreeComponentProps): JSX.Element {
               labelColor: labelTextColor,
               labelFontSize: (labelTextSize as unknown as number) || 0,
             },
-            Input: {
+
+            Tree: {
               borderRadius: (borderRadius as unknown as number) || 0,
-              boxShadow: boxShadow,
-            },
-            Select: {
-              borderRadius: (borderRadius as unknown as number) || 0,
-              boxShadow: boxShadow,
             },
           },
         }}

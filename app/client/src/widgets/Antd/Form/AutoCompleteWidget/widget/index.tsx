@@ -367,7 +367,7 @@ class AutoCompleteWidget extends AntdInputWidget<
   }
 
   static getPropertyPaneStyleConfig() {
-    return mergeWidgetConfig(DEFAULT_STYLE_PANEL_CONFIG, []);
+    return mergeWidgetConfig([],DEFAULT_STYLE_PANEL_CONFIG);
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

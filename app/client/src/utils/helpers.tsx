@@ -768,6 +768,7 @@ export function isValidColor(color: string) {
  *
  */
 export const mergeWidgetConfig = (target: any, source: any) => {
+  console.log(" mergeWidgetConfig", target, source);
   const sectionMap: Record<string, any> = {};
 
   target.forEach((section: { sectionName: string }) => {

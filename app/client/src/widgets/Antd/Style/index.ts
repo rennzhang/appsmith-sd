@@ -92,6 +92,10 @@ export const AntdFormItemContainer = styled.div<{
       alignment === "left" ? "row-reverse" : "row"};
   }
 
+  .ant-tree {
+    box-shadow: ${({ boxShadow }) => boxShadow};
+    border-radius: ${({ borderRadius }) => borderRadius};
+  }
   .ant-tree-switcher {
     display: inline-flex;
     align-items: center;

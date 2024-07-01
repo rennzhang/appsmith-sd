@@ -8,7 +8,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isArray, last } from "lodash";
-import type { DefaultValueType } from "rc-tree-select/lib/interface";
+import type {
+  ChangeEventExtra,
+  DefaultValueType,
+} from "rc-tree-select/lib/interface";
 import type { Key, ReactNode } from "react";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -23,13 +26,14 @@ import {
 import CustomComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import type { CascaderProps, TreeProps } from "antd";
+import type { CascaderProps, TreeProps, TreeSelectProps } from "antd";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
 import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
 import type { Def } from "tern";
+import type { DefaultOptionType } from "rc-select/lib/Select";
 
 function getTypeDefOfTreeSelectInfo(isCheck?: boolean): string | Def {
   const def: Def = {
@@ -68,6 +72,13 @@ export function defaultValueValidation(
   props: any,
   _: any,
 ): ValidationResponse {
+  if (!props.isMultiple) {
+    return {
+      isValid: true,
+      parsed: _value,
+      messages: [],
+    };
+  }
   const invalidResponse = {
     isValid: false,
     parsed: [],
@@ -109,8 +120,8 @@ function optionValidation(
   props: any,
   _: any,
 ): ValidationResponse {
-  const labelField = props.fieldNames?.title || "title";
-  const valueField = props.fieldNames?.key || "key";
+  const labelField = props.fieldNames?.label || "label";
+  const valueField = props.fieldNames?.value || "value";
   const childrenField = props.fieldNames?.children || "children";
   const validateTreeStr = `
   return function validateTree(tree) {
@@ -241,8 +252,8 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "默认选中复选框的值",
-            propertyName: "defaultCheckedKeys",
+            helpText: "默认选中的值",
+            propertyName: "defaultValue",
             label: "默认值",
             controlType: "INPUT_TEXT",
             placeholderText: "请输入选项数据",
@@ -260,30 +271,14 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
               },
             },
           },
-          // defaultSelectedKeys
-          {
-            helpText: "默认选中的值（defaultSelectedKeys）",
-            propertyName: "defaultSelectedKeys",
-            label: "默认选中的值",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入选项数据",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.ARRAY,
-              params: {
-                allowedTypes: ["string"],
-              },
-            },
-          },
           {
             helpText: "自定义字段名",
             propertyName: "fieldNames",
             label: "自定义字段名",
             controlType: "INPUT_TEXT",
             defaultValue: {
-              title: "title",
-              key: "key",
+              label: "label",
+              value: "value",
               children: "children",
             },
             isJSConvertible: false,
@@ -295,18 +290,18 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
                 required: true,
                 allowedKeys: [
                   {
-                    name: "title",
+                    name: "label",
                     type: ValidationTypes.TEXT,
                     params: {
-                      default: "title",
+                      default: "label",
                       required: true,
                     },
                   },
                   {
-                    name: "key",
+                    name: "value",
                     type: ValidationTypes.TEXT,
                     params: {
-                      default: "key",
+                      default: "value",
                       required: true,
                     },
                   },
@@ -426,53 +421,6 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
       {
         sectionName: "属性",
         children: [
-          // checkable
-          {
-            propertyName: "checkable",
-            label: "显示复选框",
-            helpText: "是否显示复选框",
-            controlType: "SWITCH",
-            defaultValue: false,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          // selectable
-          {
-            propertyName: "selectable",
-            label: "可选择",
-            helpText: "是否可选择",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isMultiple",
-            label: "开启多选",
-            helpText: "允许用户多选，每个选项的值必须唯一",
-            controlType: "SWITCH",
-            defaultValue: false,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-            hidden: (props: TreeWidgetProps) => !props.selectable,
-            dependencies: ["selectable"],
-          },
-
-          {
-            propertyName: "defaultExpandAll",
-            label: "默认展开",
-            helpText: "默认展开所有层级的选项",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
           {
             helpText: "提示信息",
             propertyName: "labelTooltip",
@@ -524,36 +472,143 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-
+        ],
+      },
+      {
+        sectionName: "组件配置",
+        children: [
+          {
+            propertyName: "showSearch",
+            label: "开启搜索",
+            helpText: "输入内容搜索相关选项",
+            controlType: "SWITCH",
+            defaultValue: false,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "allowClear",
+            label: "允许清空",
+            helpText: "显示清空按钮用来清空选择",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "treeDefaultExpandAll",
+            label: "默认展开",
+            helpText: "默认展开所有层级的选项",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          // treeExpandAction
           // {
-          //   propertyName: "isSearchable",
-          //   label: "开启搜索",
-          //   helpText: "输入内容搜索相关选项",
-          //   controlType: "SWITCH",
-          //   defaultValue: false,
-          //   isJSConvertible: true,
+          //   propertyName: "treeExpandAction",
+          //   label: "展开方式",
+          //   helpText: "展开方式",
+          //   controlType: "ICON_TABS",
+          //   options: [
+          //     {
+          //       label: "单击展开",
+          //       value: "click",
+          //     },
+          //     {
+          //       label: "双击展开",
+          //       value: "doubleClick",
+          //     },
+          //   ],
+          //   defaultValue: "click",
           //   isBindProperty: true,
           //   isTriggerProperty: false,
-          //   validation: { type: ValidationTypes.BOOLEAN },
+          //   validation: { type: ValidationTypes.TEXT },
           // },
+          // 模式
+          {
+            propertyName: "isMultiple",
+            label: "选择模式",
+            helpText: "选择模式配置，单选或多选",
+            controlType: "ICON_TABS",
+            fullWidth: false,
+            options: [
+              { label: "单选", value: false },
+              { label: "多选", value: true },
+            ],
+            defaultValue: false,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+
+          // checkable
+          {
+            propertyName: "checkable",
+            label: "显示复选框",
+            helpText: "是否显示复选框",
+            controlType: "SWITCH",
+            defaultValue: false,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: TreeWidgetProps) => !props.isMultiple,
+            dependencies: ["isMultiple"],
+          },
+          // treeCheckStrictly
+          {
+            propertyName: "treeCheckStrictly",
+            label: "父子节点选中不关联",
+            helpText:
+              "父子节点选中不关联，即开启此配置后，选择父节点不会将其包含的子节点全部选中",
+            controlType: "SWITCH",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: TreeWidgetProps) =>
+              !props.isMultiple || !props.checkable,
+            dependencies: ["isMultiple", "checkable"],
+          },
+
+          // maxTagCount
+          {
+            propertyName: "maxTagCount",
+            label: "最大标签数量",
+            helpText: "最多显示的标签数量",
+            controlType: "NUMERIC_INPUT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+            hidden: (props: TreeWidgetProps) => !props.isMultiple,
+            dependencies: ["isMultiple"],
+          },
+          // maxTagTextLength
+          {
+            propertyName: "maxTagTextLength",
+            label: "最大标签文本长度",
+            helpText: "最大显示的 tag 文本长度",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+            hidden: (props: TreeWidgetProps) => !props.isMultiple,
+            dependencies: ["isMultiple"],
+          },
         ],
       },
       {
         sectionName: "事件",
         children: [
           {
-            helpText: "用户点击复选框时触发",
-            propertyName: "onCheckChange",
-            label: "onCheckChange",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText: "用户点击选项时触发",
-            propertyName: "onSelectChange",
-            label: "onSelectChange",
+            helpText: "选中值变化时触发",
+            propertyName: "onValueChange",
+            label: "onValueChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -593,21 +648,20 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
         {
           sectionName: "属性",
           children: [
-            // blockNode
+            // height
+            // {
+            //   propertyName: "height",
+            //   label: "高度",
+            //   controlType: "INPUT_TEXT",
+            //   helpText: "设置组件的高度",
+            //   placeholderText: "请输入高度",
+            //   isBindProperty: true,
+            //   isTriggerProperty: false,
+            //   validation: { type: ValidationTypes.NUMBER },
+            // },
+            // treeLine
             {
-              propertyName: "blockNode",
-              label: "节点占据一行",
-              helpText: "是否节点占据一行",
-              controlType: "SWITCH",
-              defaultValue: false,
-              isJSConvertible: true,
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.BOOLEAN },
-            },
-            // showLine
-            {
-              propertyName: "showLine",
+              propertyName: "treeLine",
               label: "显示连接线",
               controlType: "SWITCH",
               helpText: "是否显示连接线",
@@ -634,151 +688,17 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return (widget: TreeWidgetProps, extraDefsToDefine?: ExtraDef) => {
-      console.log(
-        " generateTypeDef(widget.selectedInfo, extraDefsToD",
-        generateTypeDef(
-          {
-            event: "check",
-            node: {
-              title: "0-1",
-              key: "0-1",
-              children: [
-                {
-                  title: "0-1-0-0",
-                  key: "0-1-0-0",
-                },
-                {
-                  title: "0-1-0-1",
-                  key: "0-1-0-1",
-                },
-                {
-                  title: "0-1-0-2",
-                  key: "0-1-0-2",
-                },
-              ],
-              expanded: false,
-              selected: true,
-              checked: false,
-              loaded: false,
-              loading: false,
-              halfChecked: false,
-              dragOver: false,
-              dragOverGapTop: false,
-              dragOverGapBottom: false,
-              pos: "0-1",
-              active: false,
-            },
-            checked: true,
-            nativeEvent: {
-              isTrusted: true,
-            },
-            checkedNodes: [
-              {
-                title: "0-0-0-1",
-                key: "0-0-0-1",
-              },
-              {
-                title: "0-1",
-                key: "0-1",
-                children: [
-                  {
-                    title: "0-1-0-0",
-                    key: "0-1-0-0",
-                  },
-                  {
-                    title: "0-1-0-1",
-                    key: "0-1-0-1",
-                  },
-                  {
-                    title: "0-1-0-2",
-                    key: "0-1-0-2",
-                  },
-                ],
-              },
-              {
-                title: "0-1-0-0",
-                key: "0-1-0-0",
-              },
-              {
-                title: "0-1-0-1",
-                key: "0-1-0-1",
-              },
-              {
-                title: "0-1-0-2",
-                key: "0-1-0-2",
-              },
-            ],
-            checkedNodesPositions: [
-              {
-                node: {
-                  title: "0-0-0-1",
-                  key: "0-0-0-1",
-                },
-                pos: "0-0-0-1",
-              },
-              {
-                node: {
-                  title: "0-1",
-                  key: "0-1",
-                  children: [
-                    {
-                      title: "0-1-0-0",
-                      key: "0-1-0-0",
-                    },
-                    {
-                      title: "0-1-0-1",
-                      key: "0-1-0-1",
-                    },
-                    {
-                      title: "0-1-0-2",
-                      key: "0-1-0-2",
-                    },
-                  ],
-                },
-                pos: "0-1",
-              },
-              {
-                node: {
-                  title: "0-1-0-0",
-                  key: "0-1-0-0",
-                },
-                pos: "0-1-0",
-              },
-              {
-                node: {
-                  title: "0-1-0-1",
-                  key: "0-1-0-1",
-                },
-                pos: "0-1-1",
-              },
-              {
-                node: {
-                  title: "0-1-0-2",
-                  key: "0-1-0-2",
-                },
-                pos: "0-1-2",
-              },
-            ],
-            halfCheckedKeys: ["0-0-0", "0-0"],
-          },
-          extraDefsToDefine,
-        ),
-      );
       return {
-        checkedInfo: getTypeDefOfTreeSelectInfo(true),
         selectedInfo: getTypeDefOfTreeSelectInfo(),
-        selectedKeys: generateTypeDef(widget.selectedKeys, extraDefsToDefine),
-        checkedKeys: generateTypeDef(widget.checkedKeys, extraDefsToDefine),
+        selectedNode: generateTypeDef(widget.selectedNode, extraDefsToDefine),
         "!doc":
           "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
         "!url": "https://docs.appsmith.com/widget-reference/treeselect",
         isVisible: DefaultAutocompleteDefinitions.isVisible,
         value: generateTypeDef(widget.value, extraDefsToDefine),
-        checkedLabels: generateTypeDef(widget.checkedLabels, extraDefsToDefine),
-        selectedLabels: generateTypeDef(
-          widget.selectedLabels,
-          extraDefsToDefine,
-        ),
+        // checkedLabels: generateTypeDef(widget.checkedLabels, extraDefsToDefine),
+        selectedLabel: generateTypeDef(widget.selectedLabel, extraDefsToDefine),
+        selectedValue: generateTypeDef(widget.selectedValue, extraDefsToDefine),
         isDisabled: "bool",
         isValid: generateTypeDef(widget.isValid, extraDefsToDefine),
         options: generateTypeDef(widget.options, extraDefsToDefine),
@@ -788,8 +708,7 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
 
   static getDerivedPropertiesMap() {
     return {
-      value: `{{this.checkedKeys}}`,
-      selectedKeys: `{{this.selectedKeys}}`,
+      value: `{{this.selectedValue}}`,
       flattenedOptions: `{{(()=>{${derivedProperties.getFlattenedOptions}})()}}`,
       isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
     };
@@ -797,46 +716,71 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      value: "checkedKeys",
-      checkedKeys: "defaultCheckedKeys",
-      selectedKeys: "defaultSelectedKeys",
+      value: "selectedValue",
+      selectedValue: "defaultValue",
       checkedLabels: "defaultLabel",
-      selectedLabels: "defaultSelectedLabel",
+      selectedLabel: "defaultSelectedLabel",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       value: undefined,
-      checkedKeys: undefined,
-      selectedKeys: undefined,
+      selectedValue: undefined,
       checkedLabels: undefined,
-      selectedLabels: undefined,
+      selectedLabel: undefined,
+      selectedNode: [],
       isDirty: false,
     };
   }
 
   componentDidUpdate(prevProps: TreeWidgetProps): void {
+    const {
+      isMultiple,
+      selectedLabel,
+      selectedValue,
+      updateWidgetMetaProperty,
+    } = this.props;
     if (
-      this.props.defaultCheckedKeys !== prevProps.defaultCheckedKeys &&
+      this.props.defaultValue !== prevProps.defaultValue &&
       this.props.isDirty
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
 
-    if (this.props.defaultCheckedKeys !== prevProps.defaultCheckedKeys) {
-      this?.onCheckChange?.(this.props.defaultCheckedKeys, null as any);
+    if (this.props.defaultValue !== prevProps.defaultValue) {
+      this?.onValueChange?.(this.props.defaultValue, this.props.defaultLabel);
     }
 
-    if (this.props.defaultSelectedKeys !== prevProps.defaultSelectedKeys) {
-      this?.onSelectChange?.(this.props.defaultSelectedKeys, null as any);
+    if (this.props.checkable !== prevProps.checkable) {
+      updateWidgetMetaProperty("selectedValue", []);
+      updateWidgetMetaProperty("selectedLabel", []);
+      updateWidgetMetaProperty("selectedNode", []);
+    }
+
+    if (isMultiple !== prevProps.isMultiple) {
+      updateWidgetMetaProperty(
+        "selectedValue",
+        this.handleValueOrLabel(selectedValue, isMultiple),
+      );
+      updateWidgetMetaProperty(
+        "selectedLabel",
+        this.handleValueOrLabel(selectedLabel, isMultiple),
+      );
     }
   }
+  handleValueOrLabel = (input: any, isMultiple: boolean) => {
+    if (isMultiple) {
+      return input ? (Array.isArray(input) ? input : [input]) : [];
+    } else {
+      return last(input) ?? "";
+    }
+  };
 
   getPageView() {
-    console.group("树组件 getPageView");
-    console.log("树组件 this.props", this.props);
-    console.log("树组件 this", this);
+    console.group("树选择组件 getPageView");
+    console.log("树选择组件 this.props", this.props);
+    console.log("树选择组件 this", this);
     console.groupEnd();
     const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
@@ -857,7 +801,6 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
         fieldNames={this.props.fieldNames}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isMultiple={this.props.isMultiple}
-        isSearchable={this.props.isSearchable}
         isValid={!isInvalid}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
@@ -871,14 +814,14 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
         required={this.props.isRequired}
         width={componentWidth}
         {...this.props}
-        onCheckChange={this.onCheckChange}
-        onSelectChange={this.onSelectChange}
+        onValueChange={this.onValueChange}
+        updateSelectInfo={this.updateSelectInfo}
       />
     );
   }
   getFlattenedOptions = () => {
-    const valueName = this.props.fieldNames?.title ?? "title";
-    const labelName = this.props.fieldNames?.key ?? "key";
+    const valueName = this.props.fieldNames?.label ?? "label";
+    const labelName = this.props.fieldNames?.value ?? "value";
 
     const flat = (array?: any[]) => {
       if (!array) return [];
@@ -893,74 +836,40 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
     };
     return flat(this.props.options);
   };
-  getLabels = (keys?: Key[]) => {
-    const valueName = this.props.fieldNames?.title ?? "title";
-    const labelName = this.props.fieldNames?.key ?? "key";
-    const options = this.getFlattenedOptions();
-    if (Array.isArray(keys) && keys.length) {
-      const labels = keys?.map((value) => {
-        return (options as any)?.find(
-          (option: any) => option[valueName] === value,
-        )?.[labelName];
-      });
-      return labels;
-    }
-    return [];
+
+  updateSelectInfo = (selectInfo: any) => {
+    // selectedInfo
+    this.props.updateWidgetMetaProperty("selectedInfo", selectInfo);
   };
 
-  onCheckChange: TreeProps["onCheck"] = (value, info) => {
-    const checkedLabels = this.getLabels(value as Key[]);
+  onValueChange = (value?: string | string[], label?: string | string[]) => {
+    console.log("树选择组件 onValueChange", value, label);
 
-    if (!info) {
-      this.props.updateWidgetMetaProperty("checkedLabels", checkedLabels);
-      return;
-    }
-    if (this.props.checkedKeys !== value) {
+    if (this.props.selectedValue !== value) {
       if (!this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", true);
       }
-      this.props.updateWidgetMetaProperty("checkedKeys", value);
-      delete (info as any).nativeEvent;
+      // delete (info as any).nativeEvent;
 
-      this.props.updateWidgetMetaProperty("checkedInfo", info);
-      this.props.updateWidgetMetaProperty("checkedLabels", checkedLabels, {
-        triggerPropertyName: "onCheckChange",
-        dynamicString: this.props.onCheckChange,
+      this.props.updateWidgetMetaProperty("selectedValue", value);
+      this.props.updateWidgetMetaProperty("selectedLabel", label, {
+        triggerPropertyName: "onValueChange",
+        dynamicString: this.props.onValueChange,
         event: {
           type: EventType.ON_OPTION_CHANGE,
         },
       });
-    }
-  };
 
-  onSelectChange: TreeProps["onSelect"] = (value, info) => {
-    const _selectedLabel = this.getLabels(value as Key[]);
-
-    if (!info) {
-      this.props.updateWidgetMetaProperty("selectedLabels", _selectedLabel);
-      return;
-    }
-    if (this.props.selectedKeys !== value) {
-      if (!this.props.isDirty) {
-        this.props.updateWidgetMetaProperty("isDirty", true);
-      }
-      this.props.updateWidgetMetaProperty("selectedKeys", value);
-      delete (info as any).nativeEvent;
-
-      this.props.updateWidgetMetaProperty("selectedInfo", info);
-
-      this.props.updateWidgetMetaProperty("selectedLabels", _selectedLabel, {
-        triggerPropertyName: "onSelectChange",
-        dynamicString: this.props.onCheckChange,
-        event: {
-          type: EventType.ON_OPTION_CHANGE,
-        },
-      });
+      const flattenedOptions = this.getFlattenedOptions();
+      const newSelectedNode = flattenedOptions.filter((option) =>
+        value?.includes(option.value),
+      );
+      this.props.updateWidgetMetaProperty("selectedNode", newSelectedNode);
     }
   };
 
   static getWidgetType(): WidgetType {
-    return "ANTD_TREE_WIDGET";
+    return "ANTD_TREE_SELECT_WIDGET";
   }
 }
 
@@ -975,18 +884,14 @@ export interface TreeWidgetProps extends WidgetProps {
   placeholderText?: string;
   selectedIndex?: number;
   options?: TreeProps["treeData"];
-  flattenedOptions?: TreeProps["treeData"];
-  onCheckChange: TreeProps["onCheck"];
-  onSelectChange: TreeProps["onSelect"];
+  onValueChange: (value?: string | string[], label?: string | string[]) => void;
+  updateSelectInfo: (selectInfo: any) => void;
 
-  onDropdownOpen?: string;
-  onDropdownClose?: string;
-  defaultCheckedKeys: string[];
+  defaultValue: string[];
   isRequired: boolean;
   isLoading: boolean;
   allowClear: boolean;
   checkedLabels: string[];
-  checkedKeys: TreeProps["checkedKeys"];
   // expandAll: boolean;
   labelText: string;
   labelPosition?: AntdLabelPosition;

@@ -498,7 +498,7 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneStyleConfig() {
-    return mergeWidgetConfig(DEFAULT_STYLE_PANEL_CONFIG, []);
+    return mergeWidgetConfig([],DEFAULT_STYLE_PANEL_CONFIG);
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
