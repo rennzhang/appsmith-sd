@@ -35,17 +35,17 @@ export function optionsCustomValidation(
   props: any,
   _: any,
 ): ValidationResponse {
-  const validationUtil = (
-    options: { label: string; value: string | number }[],
-    _: any,
-  ) => {
+  const labelField = props.fieldNames?.label || "label";
+  const valueField = props.fieldNames?.value || "value";
+  const validationUtil = (options: any[], _: any) => {
     let _isValid = true;
     let message = { name: "", message: "" };
     let valueType = "";
     const uniqueLabels: Record<string | number, string> = {};
 
     for (let i = 0; i < options.length; i++) {
-      const { label, value } = options[i];
+      const label = options[i][labelField];
+      const value = options[i][valueField];
       if (!valueType) {
         valueType = typeof value;
       }
@@ -56,7 +56,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "ValidationError",
-          message: "path:value must be unique. Duplicate values found",
+          message: `path:${valueField} must be unique. Duplicate values found`,
         };
         break;
       }
@@ -66,8 +66,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "ValidationError",
-          message:
-            "Invalid entry at index: " + i + ". Missing required key: label",
+          message: `Invalid entry at index: ${i}. Missing required key: ${labelField}`,
         };
         break;
       }
@@ -81,10 +80,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "ValidationError",
-          message:
-            "Invalid entry at index: " +
-            i +
-            ". Value of key: label is invalid: This value does not evaluate to type string",
+          message: `Invalid entry at index: ${i}. Value of key: ${labelField} is invalid: This value does not evaluate to type string`,
         };
         break;
       }
@@ -104,8 +100,7 @@ export function optionsCustomValidation(
         _isValid = false;
         message = {
           name: "TypeError",
-          message:
-            'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+          message: `This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>`,
         };
         break;
       }
@@ -640,10 +635,10 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       isDisabled,
       isInline,
       isLoading,
-      labelText,
       labelAlignment,
       labelPosition,
       labelStyle,
+      labelText,
       labelTextColor,
       labelTextSize,
       options,
