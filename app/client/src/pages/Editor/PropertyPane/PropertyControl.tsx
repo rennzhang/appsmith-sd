@@ -751,7 +751,7 @@ const PropertyControl = memo((props: Props) => {
 
     const helpText =
       config.controlType === "ACTION_SELECTOR"
-        ? `配置一个或多个操作${props.helpText}，所有嵌套操作同时运行。`
+        ? `${props.helpText}（配置一个或多个操作，所有嵌套操作同时运行。）`
         : props.helpText;
 
     if (config.controlType === "ACTION_SELECTOR") {
