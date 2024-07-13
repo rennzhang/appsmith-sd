@@ -35,7 +35,12 @@ import { DatePickerValidator, SelectValidator } from "widgets/Antd/tools";
 import { disabledDateRuleConfig } from "./childrenConfig";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
-import { disabledRuleOptions } from "./childrenConfig/data";
+import {
+  DateFormatOptions,
+  DatePresetsOptions,
+  DateRangePresetsOptions,
+  DisabledRuleOptions,
+} from "./data";
 
 class AntdDatePickerWidget extends BaseWidget<
   DatePickerWidgetProps,
@@ -83,6 +88,19 @@ class AntdDatePickerWidget extends BaseWidget<
               return propertiesToUpdate;
             },
           },
+          // format
+          {
+            propertyName: "format",
+            label: "日期格式",
+            controlType: "DROP_DOWN",
+            options: DateFormatOptions,
+            helpText: "设置所选日期的格式",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hideSubText: true,
+          },
           // antd datePicker picker, date | week | month | quarter | year
           {
             propertyName: "picker",
@@ -99,6 +117,16 @@ class AntdDatePickerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "showTime",
+            label: "显示时间",
+            controlType: "SWITCH",
+            helpText: "显示时间选择器",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "默认选中的值",
@@ -143,7 +171,7 @@ class AntdDatePickerWidget extends BaseWidget<
             helperText: (props: DatePickerWidgetProps) => {
               return (
                 "当前规则：" +
-                  disabledRuleOptions.find(
+                  DisabledRuleOptions.find(
                     (c) =>
                       c.value === props.disabledDateRule.config.disabledRule,
                   )?.label || "无"
@@ -239,12 +267,32 @@ class AntdDatePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          // // minDate
+          // {
+          //   helpText: "设置日期选择器可选的最小日期",
+          //   propertyName: "minDate",
+          //   label: "最小日期",
+          //   controlType: "DATE_PICKER",
+          //   dateFormat: "yyyy-MM-dd",
+          //   isBindProperty: true,
+          //   isTriggerProperty: false,
+          // },
+          // // maxDate
+          // {
+          //   helpText: "设置日期选择器可选的最大日期",
+          //   propertyName: "maxDate",
+          //   label: "最大日期",
+          //   controlType: "DATE_PICKER",
+          //   dateFormat: "yyyy-MM-dd",
+          //   isBindProperty: true,
+          //   isTriggerProperty: false,
+          // },
           {
             helpText: "普通校验或正则校验失败后显示的错误信息",
             propertyName: "errorMessage",
             label: "错误信息",
             controlType: "INPUT_TEXT",
-            placeholderText: "输入不符合规范",
+            placeholderText: "请输入错误信息",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -443,16 +491,7 @@ class AntdDatePickerWidget extends BaseWidget<
             dependencies: ["isRangePicker"],
             hidden: (props: DatePickerWidgetProps) => !props.isRangePicker,
           },
-          {
-            propertyName: "showTime",
-            label: "显示时间",
-            controlType: "SWITCH",
-            helpText: "显示时间选择器",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
+
           {
             propertyName: "allowClear",
             label: "允许清空",
@@ -462,6 +501,51 @@ class AntdDatePickerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+          // 显示预设
+          {
+            helpText: "显示预设范围",
+            propertyName: "showPreset",
+            label: "显示预设",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          // 预设范围 下拉选择
+          {
+            helpText: "选中的数据将会展示在日期组件的预设范围面板",
+            propertyName: "presetDate",
+            label: "预设范围",
+            controlType: "DROP_DOWN",
+            placeholderText: "请选择预设范围",
+            options: DatePresetsOptions,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isMultiSelect: true,
+            dependencies: ["showPreset", "isRangePicker"],
+            validation: { type: ValidationTypes.ARRAY },
+            hidden: (props: DatePickerWidgetProps) =>
+              !props.showPreset || props.isRangePicker,
+          },
+          // 范围选择 预设范围
+          {
+            helpText: "选中的数据将会展示在日期组件的预设范围面板",
+            propertyName: "presetRange",
+            placeholderText: "请选择预设范围",
+            label: "预设范围",
+            controlType: "DROP_DOWN",
+            options: DateRangePresetsOptions,
+            isMultiSelect: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            dependencies: ["showPreset", "isRangePicker"],
+            validation: { type: ValidationTypes.ARRAY },
+            hidden: (props: DatePickerWidgetProps) =>
+              !props.showPreset || !props.isRangePicker,
           },
         ],
       },

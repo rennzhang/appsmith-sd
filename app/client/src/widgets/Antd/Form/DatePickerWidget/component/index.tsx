@@ -9,14 +9,23 @@ import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TextSize, RenderMode } from "constants/WidgetConstants";
 import locale from "antd/locale/zh_CN";
 import type { Dayjs } from "dayjs";
+import weekday from "dayjs/plugin/weekday";
+
+// 使用 weekday 插件
+dayjs.extend(weekday);
+// isoWeek
+
 import dayjs from "dayjs";
+import isoWeek from "dayjs/plugin/isoWeek";
 
 import "dayjs/locale/zh-cn";
 import type { RangePickerProps } from "antd/es/date-picker";
 import { omit } from "lodash";
 import quarterOfYear from "dayjs/plugin/quarterOfYear";
+import { DatePresetsOptions, DateRangePresetsOptions } from "../widget/data";
 // import quarterOfYear from 'dayjs/plugin/quarterOfYear' // ES 2015
 
+dayjs.extend(isoWeek);
 dayjs.extend(quarterOfYear);
 dayjs.locale("zh-cn");
 
@@ -218,6 +227,9 @@ export interface DatePickerWidgetProps {
   isRangePicker?: boolean;
   allowEmpty?: boolean;
   disabledDateRule?: DisabledDateRule;
+  showPreset?: boolean;
+  presetRange?: string[];
+  presetDate?: string[];
 }
 
 const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
@@ -248,6 +260,7 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     picker,
     placeholderText,
     required,
+    showPreset,
     showTime,
     widgetId,
     widgetName,
@@ -263,6 +276,22 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     }
     return defaultValue ? dayjs(defaultValue) : undefined;
   }, [defaultValue]);
+
+  const presetRange = useMemo(() => {
+    return DateRangePresetsOptions.filter((c) =>
+      props.presetRange?.find((d) => d === c.value),
+    ).map((c) => {
+      return { label: c.label, value: c.dateValue };
+    });
+  }, [props.presetRange]);
+
+  const presetDate = useMemo(() => {
+    return DatePresetsOptions.filter((c) =>
+      props.presetDate?.find((d) => d === c.value),
+    ).map((c) => {
+      return { label: c.label, value: c.dateValue };
+    });
+  }, [props.presetDate]);
 
   useEffect(() => {
     setValue(defaultValueMemo as any);
@@ -368,11 +397,15 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
             defaultValue={defaultValueMemo}
             disabled={disabled}
             disabledDate={disabledDate}
+            format={format}
             isRangePicker={isRangePicker}
             onChange={handleChange}
             onRangeChange={handleRangeChange}
             placeholder={placeholderText}
+            presetDate={presetDate}
+            presetRange={presetRange}
             rangeValue={rangeValue}
+            showPreset={showPreset}
             type={picker}
             // defaultValue={defaultValueMemo}
             // format={"MM/DD"}
@@ -392,11 +425,22 @@ const PickerWithType = (props: {
   type: DatePickerProps["picker"];
   onChange: TimePickerProps["onChange"] | DatePickerProps["onChange"];
   onRangeChange: RangePickerProps["onChange"];
-
+  showPreset?: boolean;
   isRangePicker?: boolean;
+  presetRange: any;
+  presetDate: any;
   [key: string]: any;
 }) => {
-  const { onChange, onRangeChange, rangeValue, type, value } = props;
+  const {
+    onChange,
+    onRangeChange,
+    presetDate,
+    presetRange,
+    rangeValue,
+    showPreset,
+    type,
+    value,
+  } = props;
   console.group("Antd 日期选择框 PickerWithType");
   console.log(" props", props);
   console.log(" props defaultValue", props.defaultValue);
@@ -412,7 +456,7 @@ const PickerWithType = (props: {
     return (
       <DatePicker.RangePicker
         {...rangeProps}
-        format="YYYY-MM-DD"
+        presets={showPreset ? presetRange : undefined}
         value={rangeValue}
         picker={type}
         // defaultValue={[dayjs("2024-07-13"), dayjs("2024-07-23")]}
@@ -421,9 +465,23 @@ const PickerWithType = (props: {
     );
   }
 
-  if (type === "time") return <TimePicker {...props} onChange={onChange} />;
+  // if (type === "time") return <TimePicker {...props} onChange={onChange} />;
   if (type === "date")
-    return <DatePicker {...props} onChange={onChange} picker={type} />;
-  return <DatePicker {...props} onChange={onChange} picker={type} />;
+    return (
+      <DatePicker
+        {...props}
+        onChange={onChange}
+        picker={type}
+        presets={showPreset ? presetDate : undefined}
+      />
+    );
+  return (
+    <DatePicker
+      {...props}
+      onChange={onChange}
+      picker={type}
+      presets={showPreset ? presetDate : undefined}
+    />
+  );
 };
 export default DatePickerWidget;

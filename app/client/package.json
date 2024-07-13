@@ -115,7 +115,7 @@
     "craco-babel-loader": "^1.0.4",
     "craco-less": "2.1.0-alpha.0",
     "cypress-log-to-output": "^1.1.2",
-    "dayjs": "^1.10.6",
+    "dayjs": "^1.11.11",
     "deep-diff": "^1.0.2",
     "delayed-stream": "^1.0.0",
     "design-system": "npm:@appsmithorg/design-system@2.1.28",

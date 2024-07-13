@@ -4,7 +4,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { MenuButtonWidgetProps } from "widgets/MenuButtonWidget/constants";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 import { ICON_NAMES } from "widgets/constants";
-import { disabledRuleOptions } from "./data";
+import { DisabledRuleOptions } from "../data";
 
 export const disabledDateRuleConfig = {
   editableTitle: false,
@@ -28,7 +28,7 @@ export const disabledDateRuleConfig = {
           isBindProperty: true,
           isTriggerProperty: false,
           // isMultiSelect: true,
-          options: disabledRuleOptions,
+          options: DisabledRuleOptions,
         },
         {
           helpText: "设置禁用的年份,",

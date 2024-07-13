@@ -156,6 +156,33 @@ function validateArray(
   // Do we have validation config for array children?
   const shouldValidateChildren = !!childrenValidationConfig;
 
+  // 校验数组长度-最少个数
+  if (config.params?.minItems && value.length < config.params.minItems) {
+    return {
+      isValid: false,
+      parsed: config.params?.default || [],
+      messages: [
+        {
+          name: "ValidationError",
+          message: `Array must have at least ${config.params.minItems} items`,
+        },
+      ],
+    };
+  }
+  // 校验数组长度-最多个数
+  if (config.params?.maxItems && value.length > config.params.maxItems) {
+    return {
+      isValid: false,
+      parsed: config.params?.default || [],
+      messages: [
+        {
+          name: "ValidationError",
+          message: `Array must have at most ${config.params.maxItems} items`,
+        },
+      ],
+    };
+  }
+
   // Should array values be unique? This should applies only to primitive values in array children
   // If we have to validate children with their own validation config, this should be false (Needs verification)
   // If this option is true, shouldArrayValuesHaveUniqueValuesForKeys will become false

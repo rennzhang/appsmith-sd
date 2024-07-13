@@ -79,7 +79,7 @@ class DatePickerControl extends BaseControl<
       <div ref={this.wrapperRef} tabIndex={0}>
         <DatePicker
           closeOnSelection
-          dateFormat="yyyy-MM-dd'T'HH:mm:ss z"
+          dateFormat={this.props.dateFormat || "yyyy-MM-dd'T'HH:mm:ss z"}
           formatDate={this.formatDate}
           inputRef={this.inputRef}
           maxDate={this.maxDate}
@@ -170,6 +170,7 @@ export interface DatePickerControlProps extends ControlProps {
   placeholderText: string;
   propertyValue: string;
   widgetProperties: WidgetProps;
+  dateFormat: string;
 }
 
 interface DatePickerControlState {

@@ -65,6 +65,17 @@ export const CONFIG = {
       },
     },
     isRangePicker: false,
+    presetDate: [
+      "today",
+      "yesterday",
+      "this week",
+      "last week",
+      "this month",
+      "last month",
+    ],
+    presetRange: ["past 3 days", "past 7 days", "past 30 days"],
+    showPreset: true,
+    format: "YYYY-MM-DD HH:mm:ss",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
