@@ -23,7 +23,7 @@ class OpenConfigPanelControl extends BaseControl<OpenConfigPanelControlProps> {
 
     return (
       <Button
-        className={` t--${widgetName}-open-next-panel-button`}
+        className={` t--${widgetName}-open-next-panel-button w-full`}
         kind="secondary"
         onClick={this.openConfigPanel}
         size="sm"
