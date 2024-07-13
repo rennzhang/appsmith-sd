@@ -1,0 +1,30 @@
+export const disabledRuleOptions = [
+  { label: "无", value: "none" },
+  { label: "禁用今天", value: "today" },
+  { label: "禁用今天之前的日期", value: "beforeToday" },
+  { label: "禁用今天之后的日期", value: "afterToday" },
+  { label: "禁用过去一年前", value: "lastYear" },
+  { label: "禁用本年", value: "currentYear" },
+  { label: "禁用未来一年后", value: "nextYear" },
+  { label: "禁用特定年份", value: "specificYear" },
+  { label: "禁用上季度", value: "lastQuarter" },
+  { label: "禁用本季度", value: "currentQuarter" },
+  { label: "禁用下季度", value: "nextQuarter" },
+  { label: "禁用特定季度", value: "specificQuarters" },
+  { label: "禁用过去 30 天", value: "last30Days" },
+  { label: "禁用本月", value: "currentMonth" },
+  { label: "禁用未来 30 天", value: "next30Days" },
+  { label: "禁用特定月份", value: "specificMonths" },
+  { label: "禁用过去七天", value: "last7days" },
+  { label: "禁用未来七天", value: "next7days" },
+  { label: "禁用本周", value: "currentWeek" },
+  { label: "禁用特定星期几", value: "specificDaysOfWeek" },
+  { label: "禁用周末", value: "weekends" },
+  { label: "禁用特定日期", value: "specificDates" },
+  // 禁用每月指定日期
+  { label: "禁用每月特定日期", value: "specificDaysOfMonth" },
+  // 自定义范围
+  { label: "基于偏移量的自定义范围", value: "offsetRange" },
+
+  // { label: "自定义规则", value: "customFunc" },
+];

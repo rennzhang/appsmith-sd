@@ -128,7 +128,7 @@ export function defaultValueValidation(
     messages: [
       {
         name: "TypeError",
-        message: "传入的值应该是数组",
+        message: "请提供数组格式数据",
       },
     ],
   };
@@ -166,7 +166,79 @@ export function defaultValueValidation(
   }
 }
 
+const dateDefaultValueValidation = (value: any, props: any) => {
+  const defaultValue = value || "";
+
+  if (props.isRangePicker) {
+    let parsed;
+    let isValid;
+    let isArray;
+    let errMessage;
+    try {
+      parsed = JSON.parse(defaultValue);
+    } catch (error) {
+      isValid = false;
+      parsed = defaultValue;
+      errMessage = "JSON 解析错误, 请提供正确的 JSON 格式数据";
+      return {
+        isValid,
+        parsed,
+        messages: [
+          {
+            name: "TypeError",
+            message: errMessage,
+          },
+        ],
+      };
+    }
+    isArray = isValid = Array.isArray(parsed);
+    errMessage = isArray ? "" : "日期范围选择模式下，应提供数组格式数据";
+    // 不能超过两个，并且每个元素都是字符串
+    if (isValid) {
+      isValid = parsed.length <= 2;
+      if (isValid) {
+        isValid = parsed.every(
+          (item: any) =>
+            typeof item === "string" || item === null || item === undefined,
+        );
+        errMessage = isValid ? "" : "请提供 YYYY-MM-dd 格式数据，最大长度为 2";
+      }
+    }
+
+    return {
+      isValid,
+      parsed: defaultValue,
+      messages: isValid
+        ? []
+        : [
+            {
+              name: "TypeError",
+              message: errMessage,
+            },
+          ],
+    };
+  }
+
+  const isValidPlaceholder = typeof defaultValue === "string";
+  return {
+    isValid: isValidPlaceholder,
+    parsed: defaultValue,
+    messages: isValidPlaceholder
+      ? []
+      : [
+          {
+            name: "TypeError",
+            message: "请输入占位文本",
+          },
+        ],
+  };
+};
+
 export const SelectValidator = {
   optionsCustomValidation: selectOptionsCustomValidation,
   defaultValueValidation,
+};
+
+export const DatePickerValidator = {
+  defaultValueValidation: dateDefaultValueValidation,
 };

@@ -53,6 +53,11 @@ import AntdTreeSelectWidget, {
   CONFIG as ANTD_TREE_SELECT_CONFIG,
 } from "widgets/Antd/Form/TreeSelectWidget";
 
+// 日期选择
+import AntdDatePickerWidget, {
+  CONFIG as ANTD_DATE_PICKER_CONFIG,
+} from "widgets/Antd/Form/DatePickerWidget";
+
 // select
 import AntdSelectWidget, {
   CONFIG as ANTD_SELECT_CONFIG,
@@ -313,6 +318,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdImageWidget, ANTD_IMAGE_CONFIG],
   [AntdTransferWidget, ANTD_TRANSFER_CONFIG],
   [AntdTreeSelectWidget, ANTD_TREE_SELECT_CONFIG],
+  [AntdDatePickerWidget, ANTD_DATE_PICKER_CONFIG],
   [AntdSelectWidget, ANTD_SELECT_CONFIG],
   [AntdTreeWidget, ANTD_TREE_CONFIG],
   [AntdTableWidget, ANTD_Table_CONFIG],
