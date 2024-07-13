@@ -61,26 +61,24 @@ export const AntdFormItemContainer = styled.div<{
   div.ant-form-item div.ant-form-item-label-wrap label {
     height: auto;
   }
-  .ant-form-item-control .ant-form-item-control-input .ant-select-selector {
-    box-shadow: ${({ boxShadow }) => boxShadow};
-  }
+  .ant-form-item-control .ant-form-item-control-input .ant-select-selector,
   .ant-transfer-list,
-  .antd-input {
+  .antd-input,
+  .ant-picker,
+  div.ant-upload.ant-upload-select {
     box-shadow: ${({ boxShadow }) => boxShadow};
     overflow: hidden;
   }
 
-  .ant-upload {
+  .ant-upload,
+  .ant-picker {
     width: 100%;
   }
 
-  div.ant-upload.ant-upload-drag {
+  div.ant-upload.ant-upload-drag,
+  .ant-tree {
     box-shadow: ${({ boxShadow }) => boxShadow};
     border-radius: ${({ borderRadius }) => borderRadius};
-  }
-
-  div.ant-upload.ant-upload-select {
-    box-shadow: ${({ boxShadow }) => boxShadow};
   }
 
   .ant-input-textarea-show-count {
@@ -92,10 +90,6 @@ export const AntdFormItemContainer = styled.div<{
       alignment === "left" ? "row-reverse" : "row"};
   }
 
-  .ant-tree {
-    box-shadow: ${({ boxShadow }) => boxShadow};
-    border-radius: ${({ borderRadius }) => borderRadius};
-  }
   .ant-tree-switcher {
     display: inline-flex;
     align-items: center;
