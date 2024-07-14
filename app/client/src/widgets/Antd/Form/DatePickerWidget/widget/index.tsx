@@ -41,6 +41,7 @@ import {
   DateRangePresetsOptions,
   DisabledRuleOptions,
 } from "./data";
+import type { DatePickerProps } from "design-system";
 
 class AntdDatePickerWidget extends BaseWidget<
   DatePickerWidgetProps,
@@ -123,10 +124,23 @@ class AntdDatePickerWidget extends BaseWidget<
             label: "显示时间",
             controlType: "SWITCH",
             helpText: "显示时间选择器",
+            defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+          // showNow
+          {
+            helpText: "显示此刻按钮",
+            propertyName: "showNow",
+            label: "显示此刻",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: DatePickerWidgetProps) => !props.showTime,
           },
           {
             helpText: "默认选中的值",
@@ -502,6 +516,7 @@ class AntdDatePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+
           // 显示预设
           {
             helpText: "显示预设范围",
@@ -561,11 +576,11 @@ class AntdDatePickerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: true,
           },
-          // onSearch
+          // onOk
           {
-            helpText: "搜索时触发",
-            propertyName: "onOptionSearch",
-            label: "onSearch",
+            helpText: "点击确定按钮时触发",
+            propertyName: "onOk",
+            label: "onOk",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -713,10 +728,24 @@ class AntdDatePickerWidget extends BaseWidget<
         width={componentWidth}
         {...this.props}
         // defaultValue={defaultValueTransformed}
+        onOk={this.onOk}
         onValueChange={this.onDateChange}
       />
     );
   }
+  onOk = () => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
+    this.props.updateWidgetMetaProperty("isOk", true, {
+      triggerPropertyName: "onOk",
+      dynamicString: this.props.onOk,
+      event: {
+        type: EventType.ON_CLICK,
+      },
+    });
+  };
 
   onDateChange = <
     T extends Dayjs | Dayjs[] | null,

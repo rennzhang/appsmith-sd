@@ -44,8 +44,9 @@ export const CONFIG = {
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     picker: "date",
-    showTime: false,
-    allowEmpty: [false, true],
+    format: "YYYY-MM-DD HH:mm:ss",
+    showTime: true,
+    allowEmpty: [false, false],
     disabledDateRule: {
       label: "禁用日期",
       id: "config",
@@ -75,7 +76,6 @@ export const CONFIG = {
     ],
     presetRange: ["past 3 days", "past 7 days", "past 30 days"],
     showPreset: true,
-    format: "YYYY-MM-DD HH:mm:ss",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

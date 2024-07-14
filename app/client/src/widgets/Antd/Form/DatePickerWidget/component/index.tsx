@@ -230,6 +230,8 @@ export interface DatePickerWidgetProps {
   showPreset?: boolean;
   presetRange?: string[];
   presetDate?: string[];
+  showNow?: boolean;
+  onOk: () => void;
 }
 
 const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
@@ -260,6 +262,7 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     picker,
     placeholderText,
     required,
+    showNow,
     showPreset,
     showTime,
     widgetId,
@@ -329,6 +332,9 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     return data;
   }, [required, errorMessage]);
 
+  const handleOk: DatePickerProps["onOk"] = () => {
+    props.onOk();
+  };
   const handleChange: DatePickerProps["onChange"] = (date, dateString) => {
     console.log("日期选择 handleChange", date, dateString);
     setValue(date);
@@ -400,18 +406,20 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
             format={format}
             isRangePicker={isRangePicker}
             onChange={handleChange}
+            onOk={handleOk}
             onRangeChange={handleRangeChange}
             placeholder={placeholderText}
             presetDate={presetDate}
             presetRange={presetRange}
             rangeValue={rangeValue}
             showPreset={showPreset}
-            type={picker}
+            showTime={showTime}
+            showNow={showNow}
             // defaultValue={defaultValueMemo}
             // format={"MM/DD"}
             // format={dateFormat}
-            showTime={showTime}
             size={controlSize}
+            type={picker}
             value={value}
           />
         </ProFormItem>
@@ -425,6 +433,7 @@ const PickerWithType = (props: {
   type: DatePickerProps["picker"];
   onChange: TimePickerProps["onChange"] | DatePickerProps["onChange"];
   onRangeChange: RangePickerProps["onChange"];
+  onOk: DatePickerProps["onOk"];
   showPreset?: boolean;
   isRangePicker?: boolean;
   presetRange: any;
@@ -433,6 +442,7 @@ const PickerWithType = (props: {
 }) => {
   const {
     onChange,
+    onOk,
     onRangeChange,
     presetDate,
     presetRange,
@@ -471,6 +481,7 @@ const PickerWithType = (props: {
       <DatePicker
         {...props}
         onChange={onChange}
+        onOk={onOk}
         picker={type}
         presets={showPreset ? presetDate : undefined}
       />
@@ -479,6 +490,7 @@ const PickerWithType = (props: {
     <DatePicker
       {...props}
       onChange={onChange}
+      onOk={onOk}
       picker={type}
       presets={showPreset ? presetDate : undefined}
     />
