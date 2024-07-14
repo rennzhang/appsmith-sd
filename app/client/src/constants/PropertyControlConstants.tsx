@@ -105,7 +105,10 @@ export type PropertyPaneControlConfig = {
   defaultValue?: any;
 };
 
+// 属性校验参数
 type ValidationConfigParams = {
+  maxItems?: number; // max items in an array
+  minItems?: number; // min items in an array
   min?: number; // min allowed for a number
   max?: number; // max allowed for a number
   natural?: boolean; // is a positive integer
