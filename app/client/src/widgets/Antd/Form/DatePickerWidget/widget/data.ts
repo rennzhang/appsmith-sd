@@ -455,6 +455,11 @@ export const DateFormatOptions = [
     value: "YYYY-MM-DD HH:mm",
   },
   {
+    label: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    subText: "YYYY-MM-DD HH:mm:ss",
+    value: "YYYY-MM-DD HH:mm:ss",
+  },
+  {
     label: dayjs().format("DD-MM-YYYY"),
     subText: "DD-MM-YYYY",
     value: "DD-MM-YYYY",
