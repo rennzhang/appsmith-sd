@@ -1,28 +1,16 @@
 import { Alignment } from "@blueprintjs/core";
 import { AntdLabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Layers } from "constants/Layers";
 import type { TextSize, WidgetType } from "constants/WidgetConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { isArray, isEqual, last } from "lodash";
-import type {
-  ChangeEventExtra,
-  DefaultValueType,
-} from "rc-tree-select/lib/interface";
-import type { Key, ReactNode } from "react";
-import React from "react";
+import { isEqual } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
-import {
-  isAutoHeightEnabledForWidget,
-  DefaultAutocompleteDefinitions,
-} from "widgets/WidgetUtils";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import CustomComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
 import type { AutocompletionDefinitions } from "widgets/constants";
@@ -30,18 +18,15 @@ import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
 import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
-import type { Def } from "tern";
-import { DatePickerValidator, SelectValidator } from "widgets/Antd/tools";
+import { DatePickerValidator } from "widgets/Antd/tools";
 import { disabledDateRuleConfig } from "./childrenConfig";
 import type { Dayjs } from "dayjs";
-import dayjs from "dayjs";
 import {
   DateFormatOptions,
   DatePresetsOptions,
   DateRangePresetsOptions,
   DisabledRuleOptions,
 } from "./data";
-import type { DatePickerProps } from "design-system";
 
 class AntdDatePickerWidget extends BaseWidget<
   DatePickerWidgetProps,
@@ -79,10 +64,6 @@ class AntdDatePickerWidget extends BaseWidget<
                   propertyValue: propertyValue
                     ? JSON.stringify(["开始日期", "结束日期"])
                     : "请选择日期",
-                },
-                {
-                  propertyPath: "defaultValue",
-                  propertyValue: propertyValue ? JSON.stringify(["", ""]) : "",
                 },
               ];
 
@@ -281,6 +262,16 @@ class AntdDatePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          // 校验日期是否合法
+          {
+            helpText: "校验日期是否合法，如果日期在禁用范围内则不合法",
+            propertyName: "isEnabledDateValid",
+            label: "校验合法性",
+            controlType: "SWITCH",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
           // // minDate
           // {
           //   helpText: "设置日期选择器可选的最小日期",
@@ -301,6 +292,19 @@ class AntdDatePickerWidget extends BaseWidget<
           //   isBindProperty: true,
           //   isTriggerProperty: false,
           // },
+          // unValidDateMessage
+          {
+            helpText: "日期不合法时（选择日期在禁用范围内）显示的错误信息",
+            propertyName: "unValidDateMessage",
+            label: "非法日期错误信息",
+            controlType: "INPUT_TEXT",
+            placeholderText: "请输入错误信息",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: DatePickerWidgetProps) => !props.isEnabledDateValid,
+            dependencies: ["isEnabledDateValid"],
+          },
           {
             helpText: "普通校验或正则校验失败后显示的错误信息",
             propertyName: "errorMessage",
@@ -569,8 +573,8 @@ class AntdDatePickerWidget extends BaseWidget<
         children: [
           {
             helpText: "选中日期变化时触发，如果设置允许留空，则会多次触发",
-            propertyName: "onDateChange",
-            label: "onDateChange",
+            propertyName: "onDateSelected",
+            label: "onDateSelected",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -609,6 +613,10 @@ class AntdDatePickerWidget extends BaseWidget<
         setRequired: {
           path: "isRequired",
           type: "boolean",
+        },
+        setValue: {
+          path: "selectedValue",
+          type: "string",
         },
       },
     };
@@ -663,7 +671,6 @@ class AntdDatePickerWidget extends BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       value: "selectedValue",
-      checkedLabels: "defaultLabel",
     };
   }
 
@@ -671,13 +678,14 @@ class AntdDatePickerWidget extends BaseWidget<
     return {
       value: undefined,
       selectedValue: undefined,
-      checkedLabels: undefined,
       isDirty: false,
     };
   }
 
   componentDidUpdate(prevProps: DatePickerWidgetProps): void {
     const { isRangePicker, updateWidgetMetaProperty } = this.props;
+    console.log("日期选择组件 componentDidUpdate", this.props, prevProps);
+
     if (
       this.props.defaultValue !== prevProps.defaultValue &&
       this.props.isDirty
@@ -686,11 +694,11 @@ class AntdDatePickerWidget extends BaseWidget<
     }
 
     // if (this.props.defaultValue !== prevProps.defaultValue) {
-    //   this?.onDateChange?.(null, this.props.defaultValue);
+    //   this?.onDateSelected?.(null, this.props.defaultValue);
     // }
 
     if (isRangePicker !== prevProps.isRangePicker) {
-      updateWidgetMetaProperty("selectedValue", isRangePicker ? [] : "");
+      updateWidgetMetaProperty("selectedValue", isRangePicker ? [] : undefined);
     }
   }
 
@@ -727,12 +735,18 @@ class AntdDatePickerWidget extends BaseWidget<
         required={this.props.isRequired}
         width={componentWidth}
         {...this.props}
-        // defaultValue={defaultValueTransformed}
+        handleDateValid={this.handleDateValid}
+        onDateSelected={this.onDateSelected}
         onOk={this.onOk}
-        onValueChange={this.onDateChange}
+        selectedValue={this.props.value}
       />
     );
   }
+  handleDateValid = (validData: boolean | boolean[]) => {
+    console.log("日期选择组件 handleDateValid", validData);
+
+    this.props.updateWidgetMetaProperty("isDateValid", validData);
+  };
   onOk = () => {
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
@@ -747,14 +761,14 @@ class AntdDatePickerWidget extends BaseWidget<
     });
   };
 
-  onDateChange = <
+  onDateSelected = <
     T extends Dayjs | Dayjs[] | null,
     U extends string | string[],
   >(
     date?: T,
     dateString?: U,
   ) => {
-    console.log("日期选择组件 onDateChange", date, dateString);
+    console.log("日期选择组件 onDateSelected", date, dateString);
 
     if (!isEqual(this.props.selectedValue, dateString)) {
       if (!this.props.isDirty) {
@@ -762,8 +776,8 @@ class AntdDatePickerWidget extends BaseWidget<
       }
 
       this.props.updateWidgetMetaProperty("selectedValue", dateString, {
-        triggerPropertyName: "onDateChange",
-        dynamicString: this.props.onDateChange,
+        triggerPropertyName: "onDateSelected",
+        dynamicString: this.props.onDateSelected,
         event: {
           type: Array.isArray(dateString)
             ? EventType.ON_DATE_RANGE_SELECTED
@@ -794,7 +808,6 @@ export interface DatePickerWidgetProps extends WidgetProps {
   isRequired: boolean;
   isLoading: boolean;
   allowClear: boolean;
-  checkedLabels: string[];
   // expandAll: boolean;
   labelText: string;
   labelPosition?: AntdLabelPosition;
@@ -807,6 +820,7 @@ export interface DatePickerWidgetProps extends WidgetProps {
   boxShadow?: string;
   accentColor: string;
   isDirty?: boolean;
+  isDateValid?: boolean | boolean[];
 }
 
 export default AntdDatePickerWidget;

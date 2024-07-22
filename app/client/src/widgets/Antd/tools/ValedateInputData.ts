@@ -169,13 +169,18 @@ export function defaultValueValidation(
 const dateDefaultValueValidation = (value: any, props: any) => {
   const defaultValue = value || "";
 
+  console.log(
+    "dateDefaultValueValidation defaultValue",
+    defaultValue,
+    props.isRangePicker,
+  );
   if (props.isRangePicker) {
     let parsed;
     let isValid;
     let isArray;
     let errMessage;
     try {
-      parsed = JSON.parse(defaultValue);
+      parsed = JSON.parse(defaultValue || "[]");
     } catch (error) {
       isValid = false;
       parsed = defaultValue;

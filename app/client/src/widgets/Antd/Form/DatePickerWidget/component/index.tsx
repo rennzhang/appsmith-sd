@@ -66,13 +66,6 @@ const disabledDateFunc = (
     "day",
   );
 
-  // console.log(
-  //   "日期选择 disabledDateRule",
-  //   disabledDateRule,
-  //   offsetStartDate.format("YYYY-MM-DD"),
-  //   offsetEndDate.format("YYYY-MM-DD"),
-  // );
-
   switch (disabledRule) {
     case "today":
       return currentDate.isSame(today, "day");
@@ -137,7 +130,7 @@ const disabledDateFunc = (
     case "weekends":
       return currentDate.day() === 0 || currentDate.day() === 6;
     case "specificDates":
-      return specificDates?.includes(currentDate.format("YYYY-MM-DD"));
+      return specificDates?.includes(currentDate?.format("YYYY-MM-DD"));
     case "specificDaysOfMonth":
       return specificDaysOfMonth
         ?.split(",")
@@ -192,7 +185,7 @@ export interface DatePickerWidgetProps {
   widgetName: string;
   disabled?: boolean;
   placeholderText?: string;
-  onValueChange: <
+  onDateSelected: <
     T extends Dayjs | Dayjs[] | null,
     U extends string | string[],
   >(
@@ -231,7 +224,12 @@ export interface DatePickerWidgetProps {
   presetRange?: string[];
   presetDate?: string[];
   showNow?: boolean;
+  isEnabledDateValid?: boolean;
   onOk: () => void;
+  selectedValue?: string | [string, string];
+  handleDateValid: (value: any) => void;
+  isDateValid?: boolean | boolean[];
+  unValidDateMessage?: string;
 }
 
 const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
@@ -248,6 +246,9 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     disabledDateRule,
     errorMessage,
     format,
+    handleDateValid,
+    isDateValid,
+    isEnabledDateValid,
     isRangePicker,
     isValid,
     labelAlignment,
@@ -258,13 +259,15 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     labelTextSize,
     labelTooltip,
     labelWidth,
-    onValueChange,
+    onDateSelected,
     picker,
     placeholderText,
     required,
+    selectedValue,
     showNow,
     showPreset,
     showTime,
+    unValidDateMessage,
     widgetId,
     widgetName,
   } = props;
@@ -273,11 +276,15 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
 
   const defaultValueMemo = useMemo(() => {
     if (isRangePicker) {
-      return JSON.parse(defaultValue || "[]").map((c: any) =>
-        c ? dayjs(c) : undefined,
-      );
+      try {
+        return JSON.parse(defaultValue || "[]").map((c: any) =>
+          c ? dayjs(c) : undefined,
+        );
+      } catch (error) {
+        return [undefined, undefined];
+      }
     }
-    return defaultValue ? dayjs(defaultValue) : undefined;
+    return defaultValue?.length ? dayjs(defaultValue) : undefined;
   }, [defaultValue]);
 
   const presetRange = useMemo(() => {
@@ -297,9 +304,49 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
   }, [props.presetDate]);
 
   useEffect(() => {
-    setValue(defaultValueMemo as any);
+    !Array.isArray(defaultValueMemo) && setValue(defaultValueMemo as any);
     setRangeValue(defaultValueMemo as any);
   }, [defaultValueMemo]);
+
+  useEffect(() => {
+    let transValue: typeof value | typeof rangeValue;
+    if (!selectedValue) return setValue((selectedValue as any) || undefined);
+    if (isRangePicker) {
+      if (Array.isArray(selectedValue)) {
+        transValue = selectedValue.map((c: any) =>
+          c ? dayjs(c) : undefined,
+        ) as any;
+      } else {
+        transValue = [dayjs(selectedValue), undefined as any];
+      }
+      setRangeValue(transValue as any);
+    } else {
+      if (Array.isArray(selectedValue)) {
+        transValue = dayjs(selectedValue[0]);
+      } else {
+        transValue = dayjs(selectedValue);
+      }
+      setValue(transValue);
+    }
+  }, [selectedValue]);
+
+  // 校验合法性
+  useEffect(() => {
+    if (isEnabledDateValid) {
+      if (isRangePicker) {
+        const startDate = rangeValue?.[0] as Dayjs;
+        const endDate = rangeValue?.[1] as Dayjs;
+        props.handleDateValid([
+          startDate && !disabledDateFunc(startDate, disabledDateRule),
+          endDate && !disabledDateFunc(endDate, disabledDateRule),
+        ]);
+      } else {
+        props.handleDateValid(
+          !disabledDateFunc(value as Dayjs, disabledDateRule),
+        );
+      }
+    }
+  }, [value, rangeValue, disabledDateFunc, disabledDateRule]);
 
   const colLayoutMemo = useMemo(() => {
     if (labelPosition === AntdLabelPosition.Left) {
@@ -314,6 +361,7 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
   const validateProps = useMemo(() => {
     const data: ProFormItemProps = {
       required,
+      validateTrigger: ["onChange", "onBlur"],
       rules: [
         {
           required: required,
@@ -328,17 +376,26 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
         },
       ],
     };
-
+    if (isEnabledDateValid && isDateValid?.toString()?.includes?.("false")) {
+      data.validateStatus = "error";
+      data.help = unValidDateMessage;
+    }
     return data;
-  }, [required, errorMessage]);
+  }, [
+    required,
+    errorMessage,
+    isEnabledDateValid,
+    isDateValid,
+    unValidDateMessage,
+  ]);
 
-  const handleOk: DatePickerProps["onOk"] = () => {
+  const handleOk = () => {
     props.onOk();
   };
   const handleChange: DatePickerProps["onChange"] = (date, dateString) => {
     console.log("日期选择 handleChange", date, dateString);
     setValue(date);
-    onValueChange?.(date, dateString);
+    onDateSelected?.(date, dateString);
   };
   const handleRangeChange: RangePickerProps["onChange"] = (
     dates,
@@ -346,22 +403,13 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
   ) => {
     console.log("日期选择 handleChange", dates, dateStrings);
     setRangeValue(dates);
-    onValueChange?.(dates as any, dateStrings);
+    onDateSelected?.(dates as any, dateStrings);
   };
 
   const disabledDate = useCallback(
     (d) => disabledDateFunc(d, disabledDateRule),
     [disabledDateRule],
   );
-
-  const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY", "DD-MM-YYYY", "DD-MM-YY"];
-
-  const dateFormat = useCallback(() => {
-    return dateFormatList;
-    if (format) return format;
-    if (showTime) return "YYYY-MM-DD HH:mm:ss";
-    return "YYYY-MM-DD";
-  }, [format, showTime]);
 
   console.group("Antd 日期选择框");
   console.log(" props", props);
@@ -408,18 +456,15 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
             onChange={handleChange}
             onOk={handleOk}
             onRangeChange={handleRangeChange}
+            picker={picker}
             placeholder={placeholderText}
             presetDate={presetDate}
             presetRange={presetRange}
             rangeValue={rangeValue}
+            showNow={showNow}
             showPreset={showPreset}
             showTime={showTime}
-            showNow={showNow}
-            // defaultValue={defaultValueMemo}
-            // format={"MM/DD"}
-            // format={dateFormat}
             size={controlSize}
-            type={picker}
             value={value}
           />
         </ProFormItem>
@@ -430,25 +475,26 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
 const PickerWithType = (props: {
   value: DatePickerProps["value"];
   rangeValue: RangePickerProps["value"];
-  type: DatePickerProps["picker"];
+  picker: DatePickerProps["picker"];
   onChange: TimePickerProps["onChange"] | DatePickerProps["onChange"];
   onRangeChange: RangePickerProps["onChange"];
-  onOk: DatePickerProps["onOk"];
+  onOk: () => void;
   showPreset?: boolean;
   isRangePicker?: boolean;
   presetRange: any;
   presetDate: any;
+  status?: DatePickerProps["status"];
   [key: string]: any;
 }) => {
   const {
     onChange,
     onOk,
     onRangeChange,
+    picker,
     presetDate,
     presetRange,
     rangeValue,
     showPreset,
-    type,
     value,
   } = props;
   console.group("Antd 日期选择框 PickerWithType");
@@ -466,32 +512,36 @@ const PickerWithType = (props: {
     return (
       <DatePicker.RangePicker
         {...rangeProps}
+        onOk={onOk}
         presets={showPreset ? presetRange : undefined}
         value={rangeValue}
-        picker={type}
+        picker={picker}
         // defaultValue={[dayjs("2024-07-13"), dayjs("2024-07-23")]}
         onChange={onRangeChange}
       />
     );
   }
 
+  const dateProps = omit(props, [
+    "isRangePicker",
+    "onRangeChange",
+    // "defaultValue",
+    // "value",
+  ]);
+
   // if (type === "time") return <TimePicker {...props} onChange={onChange} />;
-  if (type === "date")
+  if (picker === "date")
     return (
       <DatePicker
-        {...props}
-        onChange={onChange}
-        onOk={onOk}
-        picker={type}
+        {...dateProps}
+        picker={picker}
         presets={showPreset ? presetDate : undefined}
       />
     );
   return (
     <DatePicker
-      {...props}
-      onChange={onChange}
-      onOk={onOk}
-      picker={type}
+      {...dateProps}
+      picker={picker}
       presets={showPreset ? presetDate : undefined}
     />
   );
