@@ -58,6 +58,11 @@ import AntdDatePickerWidget, {
   CONFIG as ANTD_DATE_PICKER_CONFIG,
 } from "widgets/Antd/Form/DatePickerWidget";
 
+// 时间选择
+import AntdTimePickerWidget, {
+  CONFIG as ANTD_TIME_PICKER_CONFIG,
+} from "widgets/Antd/Form/TimePickerWidget";
+
 // select
 import AntdSelectWidget, {
   CONFIG as ANTD_SELECT_CONFIG,
@@ -319,6 +324,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdTransferWidget, ANTD_TRANSFER_CONFIG],
   [AntdTreeSelectWidget, ANTD_TREE_SELECT_CONFIG],
   [AntdDatePickerWidget, ANTD_DATE_PICKER_CONFIG],
+  [AntdTimePickerWidget, ANTD_TIME_PICKER_CONFIG],
   [AntdSelectWidget, ANTD_SELECT_CONFIG],
   [AntdTreeWidget, ANTD_TREE_CONFIG],
   [AntdTableWidget, ANTD_Table_CONFIG],
