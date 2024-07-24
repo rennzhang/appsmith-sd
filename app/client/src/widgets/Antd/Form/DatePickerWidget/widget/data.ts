@@ -39,152 +39,168 @@ export const DisabledRuleOptions = [
 ];
 
 export const DatePresetsOptions = [
-  { label: "今天", value: "today", dateValue: dayjs() },
-  { label: "明天", value: "tomorrow", dateValue: dayjs().add(1, "day") },
-  { label: "昨天", value: "yesterday", dateValue: dayjs().subtract(1, "day") },
+  { label: "今天", value: "today", getValue: () => dayjs() },
+  { label: "明天", value: "tomorrow", getValue: () => dayjs().add(1, "day") },
+  {
+    label: "昨天",
+    value: "yesterday",
+    getValue: () => dayjs().subtract(1, "day"),
+  },
   {
     label: "前天",
     value: "the day before yesterday",
-    dateValue: dayjs().subtract(2, "day"),
+    getValue: () => dayjs().subtract(2, "day"),
   },
   {
     label: "后天",
     value: "the day after tomorrow",
-    dateValue: dayjs().add(2, "day"),
+    getValue: () => dayjs().add(2, "day"),
   },
-  { label: "上周", value: "last week", dateValue: dayjs().subtract(1, "week") },
-  { label: "本周", value: "this week", dateValue: dayjs() },
-  { label: "下周", value: "next week", dateValue: dayjs().add(1, "week") },
+  {
+    label: "上周",
+    value: "last week",
+    getValue: () => dayjs().subtract(1, "week"),
+  },
+  { label: "本周", value: "this week", getValue: () => dayjs() },
+  { label: "下周", value: "next week", getValue: () => dayjs().add(1, "week") },
   {
     label: "上个月",
     value: "last month",
-    dateValue: dayjs().subtract(1, "month"),
+    getValue: () => dayjs().subtract(1, "month"),
   },
-  { label: "本月", value: "this month", dateValue: dayjs() },
-  { label: "下个月", value: "next month", dateValue: dayjs().add(1, "month") },
+  { label: "本月", value: "this month", getValue: () => dayjs() },
+  {
+    label: "下个月",
+    value: "next month",
+    getValue: () => dayjs().add(1, "month"),
+  },
   {
     label: "上季度",
     value: "last quarter",
-    dateValue: dayjs().subtract(1, "quarter"),
+    getValue: () => dayjs().subtract(1, "quarter"),
   },
-  { label: "本季度", value: "this quarter", dateValue: dayjs() },
+  { label: "本季度", value: "this quarter", getValue: () => dayjs() },
   {
     label: "下季度",
     value: "next quarter",
-    dateValue: dayjs().add(1, "quarter"),
+    getValue: () => dayjs().add(1, "quarter"),
   },
   {
     label: "半年前",
     value: "half a year ago",
-    dateValue: dayjs().subtract(6, "month"),
+    getValue: () => dayjs().subtract(6, "month"),
   },
   {
     label: "半年后",
     value: "half a year later",
-    dateValue: dayjs().add(6, "month"),
+    getValue: () => dayjs().add(6, "month"),
   },
-  { label: "去年", value: "last year", dateValue: dayjs().subtract(1, "year") },
-  { label: "今年", value: "this year", dateValue: dayjs() },
-  { label: "明年", value: "next year", dateValue: dayjs().add(1, "year") },
+  {
+    label: "去年",
+    value: "last year",
+    getValue: () => dayjs().subtract(1, "year"),
+  },
+  { label: "今年", value: "this year", getValue: () => dayjs() },
+  { label: "明年", value: "next year", getValue: () => dayjs().add(1, "year") },
   {
     label: "3 天前",
     value: "3 days ago",
-    dateValue: dayjs().subtract(3, "day"),
+    getValue: () => dayjs().subtract(3, "day"),
   },
   {
     label: "7 天前",
     value: "7 days ago",
-    dateValue: dayjs().subtract(7, "day"),
+    getValue: () => dayjs().subtract(7, "day"),
   },
   {
     label: "14 天前",
     value: "14 days ago",
-    dateValue: dayjs().subtract(14, "day"),
+    getValue: () => dayjs().subtract(14, "day"),
   },
   {
     label: "30 天前",
     value: "30 days ago",
-    dateValue: dayjs().subtract(30, "day"),
+    getValue: () => dayjs().subtract(30, "day"),
   },
   {
     label: "60 天前",
     value: "60 days ago",
-    dateValue: dayjs().subtract(60, "day"),
+    getValue: () => dayjs().subtract(60, "day"),
   },
   {
     label: "90 天前",
     value: "90 days ago",
-    dateValue: dayjs().subtract(90, "day"),
+    getValue: () => dayjs().subtract(90, "day"),
   },
   {
     label: "180 天前",
     value: "180 days ago",
-    dateValue: dayjs().subtract(180, "day"),
+    getValue: () => dayjs().subtract(180, "day"),
   },
   {
     label: "1 年前",
     value: "1 year ago",
-    dateValue: dayjs().subtract(1, "year"),
+    getValue: () => dayjs().subtract(1, "year"),
   },
   {
     label: "2 年前",
     value: "2 years ago",
-    dateValue: dayjs().subtract(2, "year"),
+    getValue: () => dayjs().subtract(2, "year"),
   },
   {
     label: "5 年前",
     value: "5 years ago",
-    dateValue: dayjs().subtract(5, "year"),
+    getValue: () => dayjs().subtract(5, "year"),
   },
   {
     label: "3 天后",
     value: "3 days later",
-    dateValue: dayjs().add(3, "day"),
+    getValue: () => dayjs().add(3, "day"),
   },
   {
     label: "7 天后",
     value: "7 days later",
-    dateValue: dayjs().add(7, "day"),
+    getValue: () => dayjs().add(7, "day"),
   },
   {
     label: "14 天后",
     value: "14 days later",
-    dateValue: dayjs().add(14, "day"),
+    getValue: () => dayjs().add(14, "day"),
   },
   {
     label: "30 天后",
     value: "30 days later",
-    dateValue: dayjs().add(30, "day"),
+    getValue: () => dayjs().add(30, "day"),
   },
   {
     label: "60 天后",
     value: "60 days later",
-    dateValue: dayjs().add(60, "day"),
+    getValue: () => dayjs().add(60, "day"),
   },
   {
     label: "90 天后",
     value: "90 days later",
-    dateValue: dayjs().add(90, "day"),
+    getValue: () => dayjs().add(90, "day"),
   },
   {
     label: "180 天后",
     value: "180 days later",
-    dateValue: dayjs().add(180, "day"),
+    getValue: () => dayjs().add(180, "day"),
   },
   {
     label: "1 年后",
     value: "1 year later",
-    dateValue: dayjs().add(1, "year"),
+    getValue: () => dayjs().add(1, "year"),
   },
   {
     label: "2 年后",
     value: "2 years later",
-    dateValue: dayjs().add(2, "year"),
+    getValue: () => dayjs().add(2, "year"),
   },
   {
     label: "5 年后",
     value: "5 years later",
-    dateValue: dayjs().add(5, "year"),
+    getValue: () => dayjs().add(5, "year"),
   },
 ];
 
@@ -193,13 +209,13 @@ export const DateRangePresetsOptions = [
   {
     label: "今天",
     value: "today",
-    dateValue: [dayjs().startOf("day"), dayjs().endOf("day")],
+    getValue: () => [dayjs().startOf("day"), dayjs().endOf("day")],
   },
 
   {
     label: "上周",
     value: "last week",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(1, "week").startOf("isoWeek"),
       dayjs().subtract(1, "week").endOf("isoWeek"),
     ],
@@ -207,12 +223,12 @@ export const DateRangePresetsOptions = [
   {
     label: "本周",
     value: "this week",
-    dateValue: [dayjs().startOf("isoWeek"), dayjs().endOf("isoWeek")],
+    getValue: () => [dayjs().startOf("isoWeek"), dayjs().endOf("isoWeek")],
   },
   {
     label: "下周",
     value: "next week",
-    dateValue: [
+    getValue: () => [
       dayjs().add(1, "week").startOf("isoWeek"),
       dayjs().add(1, "week").endOf("isoWeek"),
     ],
@@ -221,7 +237,7 @@ export const DateRangePresetsOptions = [
   {
     label: "上个月",
     value: "last month",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(1, "month").startOf("month"),
       dayjs().subtract(1, "month").endOf("month"),
     ],
@@ -229,12 +245,12 @@ export const DateRangePresetsOptions = [
   {
     label: "本月",
     value: "this month",
-    dateValue: [dayjs().startOf("month"), dayjs().endOf("month")],
+    getValue: () => [dayjs().startOf("month"), dayjs().endOf("month")],
   },
   {
     label: "下个月",
     value: "next month",
-    dateValue: [
+    getValue: () => [
       dayjs().add(1, "month").startOf("month"),
       dayjs().add(1, "month").endOf("month"),
     ],
@@ -243,7 +259,7 @@ export const DateRangePresetsOptions = [
   {
     label: "上季度",
     value: "last quarter",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(1, "quarter").startOf("quarter"),
       dayjs().subtract(1, "quarter").endOf("quarter"),
     ],
@@ -251,12 +267,12 @@ export const DateRangePresetsOptions = [
   {
     label: "本季度",
     value: "this quarter",
-    dateValue: [dayjs().startOf("quarter"), dayjs().endOf("quarter")],
+    getValue: () => [dayjs().startOf("quarter"), dayjs().endOf("quarter")],
   },
   {
     label: "下季度",
     value: "next quarter",
-    dateValue: [
+    getValue: () => [
       dayjs().add(1, "quarter").startOf("quarter"),
       dayjs().add(1, "quarter").endOf("quarter"),
     ],
@@ -265,7 +281,7 @@ export const DateRangePresetsOptions = [
   {
     label: "上半年",
     value: "last half year",
-    dateValue: [
+    getValue: () => [
       dayjs().month(0).startOf("month"),
       dayjs().month(5).endOf("month"),
     ],
@@ -273,7 +289,7 @@ export const DateRangePresetsOptions = [
   {
     label: "下半年",
     value: "next half year",
-    dateValue: [
+    getValue: () => [
       dayjs().month(6).startOf("month"),
       dayjs().month(11).endOf("month"),
     ],
@@ -281,7 +297,7 @@ export const DateRangePresetsOptions = [
   {
     label: "去年",
     value: "last year",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(1, "year").startOf("year"),
       dayjs().subtract(1, "year").endOf("year"),
     ],
@@ -289,12 +305,12 @@ export const DateRangePresetsOptions = [
   {
     label: "今年",
     value: "this year",
-    dateValue: [dayjs().startOf("year"), dayjs().endOf("year")],
+    getValue: () => [dayjs().startOf("year"), dayjs().endOf("year")],
   },
   {
     label: "明年",
     value: "next year",
-    dateValue: [
+    getValue: () => [
       dayjs().add(1, "year").startOf("year"),
       dayjs().add(1, "year").endOf("year"),
     ],
@@ -303,7 +319,7 @@ export const DateRangePresetsOptions = [
   {
     label: "过去 3 天",
     value: "past 3 days",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(3, "day").startOf("day"),
       dayjs().endOf("day"),
     ],
@@ -311,7 +327,7 @@ export const DateRangePresetsOptions = [
   {
     label: "过去 7 天",
     value: "past 7 days",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(7, "day").startOf("day"),
       dayjs().endOf("day"),
     ],
@@ -319,7 +335,7 @@ export const DateRangePresetsOptions = [
   {
     label: "过去 14 天",
     value: "past 14 days",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(14, "day").startOf("day"),
       dayjs().endOf("day"),
     ],
@@ -327,7 +343,7 @@ export const DateRangePresetsOptions = [
   {
     label: "过去 30 天",
     value: "past 30 days",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(30, "day").startOf("day"),
       dayjs().endOf("day"),
     ],
@@ -335,7 +351,7 @@ export const DateRangePresetsOptions = [
   {
     label: "过去 60 天",
     value: "past 60 days",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(60, "day").startOf("day"),
       dayjs().endOf("day"),
     ],
@@ -343,7 +359,7 @@ export const DateRangePresetsOptions = [
   {
     label: "过去 90 天",
     value: "past 90 days",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(90, "day").startOf("day"),
       dayjs().endOf("day"),
     ],
@@ -351,7 +367,7 @@ export const DateRangePresetsOptions = [
   {
     label: "过去 180 天",
     value: "past 180 days",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(180, "day").startOf("day"),
       dayjs().endOf("day"),
     ],
@@ -359,7 +375,7 @@ export const DateRangePresetsOptions = [
   {
     label: "过去 1 年",
     value: "past 1 year",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(1, "year").startOf("day"),
       dayjs().endOf("day"),
     ],
@@ -367,7 +383,7 @@ export const DateRangePresetsOptions = [
   {
     label: "过去 2 年",
     value: "past 2 years",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(2, "year").startOf("day"),
       dayjs().endOf("day"),
     ],
@@ -375,7 +391,7 @@ export const DateRangePresetsOptions = [
   {
     label: "过去 5 年",
     value: "past 5 years",
-    dateValue: [
+    getValue: () => [
       dayjs().subtract(5, "year").startOf("day"),
       dayjs().endOf("day"),
     ],
@@ -384,52 +400,82 @@ export const DateRangePresetsOptions = [
   {
     label: "未来 3 天",
     value: "next 3 days",
-    dateValue: [dayjs().startOf("day"), dayjs().add(3, "day").endOf("day")],
+    getValue: () => [
+      dayjs().startOf("day"),
+      dayjs().add(3, "day").endOf("day"),
+    ],
   },
   {
     label: "未来 7 天",
     value: "next 7 days",
-    dateValue: [dayjs().startOf("day"), dayjs().add(7, "day").endOf("day")],
+    getValue: () => [
+      dayjs().startOf("day"),
+      dayjs().add(7, "day").endOf("day"),
+    ],
   },
   {
     label: "未来 14 天",
     value: "next 14 days",
-    dateValue: [dayjs().startOf("day"), dayjs().add(14, "day").endOf("day")],
+    getValue: () => [
+      dayjs().startOf("day"),
+      dayjs().add(14, "day").endOf("day"),
+    ],
   },
   {
     label: "未来 30 天",
     value: "next 30 days",
-    dateValue: [dayjs().startOf("day"), dayjs().add(30, "day").endOf("day")],
+    getValue: () => [
+      dayjs().startOf("day"),
+      dayjs().add(30, "day").endOf("day"),
+    ],
   },
   {
     label: "未来 60 天",
     value: "next 60 days",
-    dateValue: [dayjs().startOf("day"), dayjs().add(60, "day").endOf("day")],
+    getValue: () => [
+      dayjs().startOf("day"),
+      dayjs().add(60, "day").endOf("day"),
+    ],
   },
   {
     label: "未来 90 天",
     value: "next 90 days",
-    dateValue: [dayjs().startOf("day"), dayjs().add(90, "day").endOf("day")],
+    getValue: () => [
+      dayjs().startOf("day"),
+      dayjs().add(90, "day").endOf("day"),
+    ],
   },
   {
     label: "未来 180 天",
     value: "next 180 days",
-    dateValue: [dayjs().startOf("day"), dayjs().add(180, "day").endOf("day")],
+    getValue: () => [
+      dayjs().startOf("day"),
+      dayjs().add(180, "day").endOf("day"),
+    ],
   },
   {
     label: "未来 1 年",
     value: "next 1 year",
-    dateValue: [dayjs().startOf("day"), dayjs().add(1, "year").endOf("day")],
+    getValue: () => [
+      dayjs().startOf("day"),
+      dayjs().add(1, "year").endOf("day"),
+    ],
   },
   {
     label: "未来 2 年",
     value: "next 2 years",
-    dateValue: [dayjs().startOf("day"), dayjs().add(2, "year").endOf("day")],
+    getValue: () => [
+      dayjs().startOf("day"),
+      dayjs().add(2, "year").endOf("day"),
+    ],
   },
   {
     label: "未来 5 年",
     value: "next 5 years",
-    dateValue: [dayjs().startOf("day"), dayjs().add(5, "year").endOf("day")],
+    getValue: () => [
+      dayjs().startOf("day"),
+      dayjs().add(5, "year").endOf("day"),
+    ],
   },
 ];
 

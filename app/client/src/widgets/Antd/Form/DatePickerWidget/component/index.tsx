@@ -291,7 +291,7 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     return DateRangePresetsOptions.filter((c) =>
       props.presetRange?.find((d) => d === c.value),
     ).map((c) => {
-      return { label: c.label, value: c.dateValue };
+      return { label: c.label, value: c.getValue() };
     });
   }, [props.presetRange]);
 
@@ -299,7 +299,7 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     return DatePresetsOptions.filter((c) =>
       props.presetDate?.find((d) => d === c.value),
     ).map((c) => {
-      return { label: c.label, value: c.dateValue };
+      return { label: c.label, value: c.getValue() };
     });
   }, [props.presetDate]);
 
