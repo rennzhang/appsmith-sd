@@ -552,9 +552,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         messages: [
           {
             name: "TypeError",
-            message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(
-              config,
-            )}`,
+            message:
+              config.params?.errMsg ||
+              `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
           },
         ],
         isValid: false,
