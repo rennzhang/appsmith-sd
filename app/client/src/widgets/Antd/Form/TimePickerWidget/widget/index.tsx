@@ -83,6 +83,17 @@ class AntdDatePickerWidget extends BaseWidget<
             validation: { type: ValidationTypes.TEXT },
             hideSubText: true,
           },
+          // use12Hours
+          {
+            helpText: "是否使用 12 小时制",
+            propertyName: "use12Hours",
+            label: "12 小时制",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
 
           // showNow
           {
@@ -538,6 +549,42 @@ class AntdDatePickerWidget extends BaseWidget<
             validation: { type: ValidationTypes.ARRAY },
             hidden: (props: DatePickerWidgetProps) =>
               !props.showPreset || !props.isRangePicker,
+          },
+          // hourStep
+          {
+            helpText: "设置小时的步长",
+            propertyName: "hourStep",
+            label: "小时步长",
+            controlType: "INPUT_TEXT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+            defaultValue: 1,
+          },
+          // minuteStep
+          {
+            helpText: "设置分钟的步长",
+            propertyName: "minuteStep",
+            label: "分钟步长",
+            controlType: "INPUT_TEXT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+            defaultValue: 1,
+          },
+          // secondStep
+          {
+            helpText: "设置秒的步长",
+            propertyName: "secondStep",
+            label: "秒步长",
+            controlType: "INPUT_TEXT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+            defaultValue: 1,
           },
         ],
       },

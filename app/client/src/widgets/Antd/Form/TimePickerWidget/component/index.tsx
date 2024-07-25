@@ -118,6 +118,7 @@ type disabledTimeRule = {
     frontOffset: number;
     backOffset: number;
     customRanges: string | string[];
+    hideDisabledOptions: boolean;
   };
 };
 export interface DatePickerWidgetProps {
@@ -167,6 +168,10 @@ export interface DatePickerWidgetProps {
   handleDateValid: (value: any) => void;
   isDateValid?: boolean | boolean[];
   unValidDateMessage?: string;
+  hourStep?: number;
+  minuteStep?: number;
+  secondStep?: number;
+  use12Hours?: boolean;
 }
 
 const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
@@ -184,6 +189,7 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     errorMessage,
     format,
     handleDateValid,
+    hourStep,
     isDateValid,
     isEnabledDateValid,
     isRangePicker,
@@ -196,13 +202,16 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     labelTextSize,
     labelTooltip,
     labelWidth,
+    minuteStep,
     onTimeSelected,
     placeholderText,
     required,
+    secondStep,
     selectedValue,
     showNow,
     showPreset,
     unValidDateMessage,
+    use12Hours,
     widgetId,
     widgetName,
   } = props;
@@ -398,7 +407,6 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
         specificMinutes,
         specificSeconds,
       } = disabledTimeRule?.config || {};
-
       if (["am", "pm"].includes(disabledRule)) {
         return {
           disabledHours: () =>
@@ -463,7 +471,10 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
             allowClear={allowClear}
             disabledTime={disabledTime}
             format={format}
+            hideDisabledOptions={disabledTimeRule?.config?.hideDisabledOptions}
+            hourStep={hourStep}
             isRangePicker={isRangePicker}
+            minuteStep={minuteStep}
             onChange={handleChange}
             onOk={handleOk}
             onRangeChange={handleRangeChange}
@@ -471,9 +482,11 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
             presetRange={presetRange}
             presetSingle={presetSingle}
             rangeValue={rangeValue}
+            secondStep={secondStep}
             showNow={showNow}
             showPreset={showPreset}
             size={controlSize}
+            use12Hours={use12Hours}
             value={value}
             allowEmpty={allowEmpty}
             // defaultValue={defaultValueMemo}

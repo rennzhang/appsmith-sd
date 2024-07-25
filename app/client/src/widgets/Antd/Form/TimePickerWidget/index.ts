@@ -23,6 +23,9 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     ...DEFAULT_CONFIG.defaults,
+    hourStep: 1,
+    minuteStep: 1,
+    secondStep: 1,
     errorMessage: "必填字段",
     rows: 8,
     columns: 20,
@@ -70,7 +73,7 @@ export const CONFIG = {
       "past 1 hour",
       "past 3 hours",
     ],
-    showPreset: true,
+    showPreset: false,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

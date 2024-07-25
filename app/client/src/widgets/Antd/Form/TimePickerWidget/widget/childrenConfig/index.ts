@@ -30,6 +30,17 @@ export const disabledTimeRuleConfig = {
           // isMultiSelect: true,
           options: DisabledRuleOptions,
         },
+        // hideDisabledOptions
+        {
+          label: "隐藏禁用选项",
+          helpText: "隐藏禁用的选项",
+          propertyName: "hideDisabledOptions",
+          controlType: "SWITCH",
+          isBindProperty: true,
+          isTriggerProperty: false,
+          hidden: (props: any) =>
+            [props.disabledTimeRule?.config?.disabledRule]?.includes("none"),
+        },
         {
           helpText: "设置禁用的小时",
           label: "指定小时",
@@ -253,6 +264,8 @@ export const disabledTimeRuleConfig = {
                 params: {
                   expected: {
                     type: `"HH:MM:SS-HH:MM:SS" | "HH:MM-HH:MM" | "HH-HH"`,
+                    example: `"08:00:00-10:00:00"`,
+                    autocompleteDataType: AutocompleteDataType.STRING,
                   },
                   regex:
                     /^(?:(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d-(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d|(?:[01]\d|2[0-3])-(?:[01]\d|2[0-3])|(?:[01]\d|2[0-3]):[0-5]\d-(?:[01]\d|2[0-3]):[0-5]\d)$/,
