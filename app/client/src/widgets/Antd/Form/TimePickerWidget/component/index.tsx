@@ -71,8 +71,34 @@ function transDayjs(
 
 function transDayjs(...args: any[]) {
   const dayStr = dayjs().format("YYYY-MM-DD") + " " + args[0];
-  return dayjs(dayStr);
+  return dayjs(dayStr, "YYYY-MM-DD " + args[1]);
 }
+
+// 将任何格式的时分秒字符串转换为 dayjs 对象
+const transTimeToDayjs = (time: string | Dayjs, format: string) => {
+  let dateVal, result;
+  if (time instanceof dayjs) {
+    dateVal = dayjs(time, "YYYY-MM-DD " + format);
+  } else {
+    const dayStr = dayjs().format("YYYY-MM-DD") + " " + time;
+    dateVal = dayjs(dayStr, "YYYY-MM-DD " + format);
+  }
+
+  // 将 res 转换为 HH:mm:ss 格式,但如果 format 本身没有秒数,则返回 HH:mm，本身没有分钟数，则返回 HH
+  // 正则匹配大小写 s
+  const regS = /s/gi;
+  // 正则匹配大小写 m
+  const regM = /m/gi;
+  if (regS.test(format) && regM.test(format)) {
+    result = dateVal.format("HH:mm:ss");
+  } else if (regM.test(format)) {
+    result = dateVal.format("HH:mm");
+  }
+  result = result || dateVal.format("HH");
+  console.log("时间选择 transTimeToDayjs", time, format, result);
+
+  return result;
+};
 
 type disabledTimeRule = {
   label: "禁用时间";
@@ -220,7 +246,7 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
 
   useEffect(() => {
     let transValue: typeof value | typeof rangeValue;
-    if (!selectedValue) return setValue((selectedValue as any) || undefined);
+    if (!selectedValue) return setValue(undefined);
     if (isRangePicker) {
       if (Array.isArray(selectedValue)) {
         transValue = selectedValue.map((c: any) =>
@@ -324,11 +350,17 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
   ]);
 
   const isDisabledTime = (t: string) => {
-    const [h, m, s] = parseTime(t);
+    const [h, m, s] = t.split(":").map(Number);
+    const hVoid = h === undefined;
+    const mVoid = m === undefined;
+    const sVoid = s === undefined;
     return (
       disabledTimeMapMemo?.["HH"]?.includes(h) ||
-      disabledTimeMapMemo?.[h]?.includes(m) ||
-      disabledTimeMapMemo?.[`${h}:${m}`]?.includes(s)
+      (!hVoid && !mVoid && disabledTimeMapMemo?.[h]?.includes(m)) ||
+      (!hVoid &&
+        !mVoid &&
+        !sVoid &&
+        disabledTimeMapMemo?.[`${h}:${m}`]?.includes(s))
     );
   };
 
@@ -339,11 +371,20 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
         const startDate = rangeValue?.[0] as Dayjs;
         const endDate = rangeValue?.[1] as Dayjs;
         props.handleDateValid([
-          !isDisabledTime(startDate?.format("HH:mm:ss") || ""),
-          !isDisabledTime(endDate?.format("HH:mm:ss") || ""),
+          !isDisabledTime(transTimeToDayjs(startDate, format || "") || ""),
+          !isDisabledTime(transTimeToDayjs(endDate, format || "") || ""),
         ]);
       } else {
-        const isValid = !isDisabledTime(value?.format("HH:mm:ss") || "");
+        // transTimeToDayjs
+        const isValid = !isDisabledTime(
+          transTimeToDayjs(value!, format || "") || "",
+        );
+        console.log(
+          "时间选择 isValid",
+          isValid,
+          transTimeToDayjs(value!, format || ""),
+        );
+
         props.handleDateValid(isValid);
       }
     }
@@ -385,6 +426,7 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
 
   console.group("Antd 时间选择框");
   console.log(" props", props);
+  console.log(" value", value);
   console.groupEnd();
 
   return (
