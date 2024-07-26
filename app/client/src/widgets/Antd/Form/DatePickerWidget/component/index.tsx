@@ -1,15 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ConfigProvider, DatePicker, TimePicker } from "antd";
-import { AntdLabelPosition } from "components/constants";
 import type { ProFormItemProps } from "@ant-design/pro-components";
 import { ProFormItem } from "@ant-design/pro-components";
 import type { DatePickerProps, TimePickerProps } from "antd";
-import { AntdFormItemContainer } from "widgets/Antd/Style";
+import { ConfigProvider, DatePicker, TimePicker } from "antd";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
-import type { TextSize, RenderMode } from "constants/WidgetConstants";
 import locale from "antd/locale/zh_CN";
+import { AntdLabelPosition } from "components/constants";
+import type { RenderMode, TextSize } from "constants/WidgetConstants";
 import type { Dayjs } from "dayjs";
 import weekday from "dayjs/plugin/weekday";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { AntdFormItemContainer } from "widgets/Antd/Style";
 
 // 使用 weekday 插件
 dayjs.extend(weekday);
@@ -18,10 +18,10 @@ dayjs.extend(weekday);
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 
-import "dayjs/locale/zh-cn";
 import type { RangePickerProps } from "antd/es/date-picker";
-import { omit } from "lodash";
+import "dayjs/locale/zh-cn";
 import quarterOfYear from "dayjs/plugin/quarterOfYear";
+import { omit } from "lodash";
 import { DatePresetsOptions, DateRangePresetsOptions } from "../widget/data";
 // import quarterOfYear from 'dayjs/plugin/quarterOfYear' // ES 2015
 
@@ -278,13 +278,13 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     if (isRangePicker) {
       try {
         return JSON.parse(defaultValue || "[]").map((c: any) =>
-          c ? dayjs(c) : undefined,
+          c ? dayjs(c, format) : undefined,
         );
       } catch (error) {
         return [undefined, undefined];
       }
     }
-    return defaultValue?.length ? dayjs(defaultValue) : undefined;
+    return defaultValue?.length ? dayjs(defaultValue, format) : undefined;
   }, [defaultValue]);
 
   const presetRange = useMemo(() => {
@@ -314,17 +314,17 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     if (isRangePicker) {
       if (Array.isArray(selectedValue)) {
         transValue = selectedValue.map((c: any) =>
-          c ? dayjs(c) : undefined,
+          c ? dayjs(c, format) : undefined,
         ) as any;
       } else {
-        transValue = [dayjs(selectedValue), undefined as any];
+        transValue = [dayjs(selectedValue, format), undefined as any];
       }
       setRangeValue(transValue as any);
     } else {
       if (Array.isArray(selectedValue)) {
-        transValue = dayjs(selectedValue[0]);
+        transValue = dayjs(selectedValue[0], format);
       } else {
-        transValue = dayjs(selectedValue);
+        transValue = dayjs(selectedValue, format);
       }
       setValue(transValue);
     }
@@ -393,7 +393,7 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     props.onOk();
   };
   const handleChange: DatePickerProps["onChange"] = (date, dateString) => {
-    console.log("日期选择 handleChange", date, dateString);
+    console.log("日期选择 handleChange", { date, dateString });
     setValue(date);
     onDateSelected?.(date, dateString);
   };
@@ -528,16 +528,6 @@ const PickerWithType = (props: {
     // "defaultValue",
     // "value",
   ]);
-
-  // if (type === "time") return <TimePicker {...props} onChange={onChange} />;
-  if (picker === "date")
-    return (
-      <DatePicker
-        {...dateProps}
-        picker={picker}
-        presets={showPreset ? presetDate : undefined}
-      />
-    );
   return (
     <DatePicker
       {...dateProps}
