@@ -85,7 +85,8 @@ export const AntdFormItemContainer = styled.div<{
     margin-bottom: 22px;
   }
 
-  .ant-radio-wrapper {
+  .ant-radio-wrapper,
+  .ant-checkbox-wrapper {
     flex-direction: ${({ alignment }) =>
       alignment === "left" ? "row-reverse" : "row"};
   }

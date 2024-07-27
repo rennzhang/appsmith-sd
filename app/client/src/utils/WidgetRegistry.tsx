@@ -33,7 +33,7 @@ import AntdInputWidget, {
   CONFIG as ANTD_INPUT_CONFIG,
 } from "widgets/Antd/Form/InputWidget";
 
-import RadioWidgetWidget, {
+import AntdRadioWidgetWidget, {
   CONFIG as ANTD_RADIO_CONFIG,
 } from "widgets/Antd/Form/RadioWidget";
 import AntdCascaderWidget, {
@@ -67,6 +67,11 @@ import AntdTimePickerWidget, {
 import AntdSelectWidget, {
   CONFIG as ANTD_SELECT_CONFIG,
 } from "widgets/Antd/Form/SelectWidget";
+
+// 多选框
+import AntdCheckboxWidget, {
+  CONFIG as ANTD_CHECKBOX_CONFIG,
+} from "widgets/Antd/Form/CheckboxWidget";
 
 /* Antd form 组件注册 end */
 
@@ -312,7 +317,8 @@ import MTextWidget, {
 export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdButtonWidget, ANTD_BUTTON_CONFIG],
   [AntdDropdownWidget, ANTD_DROPDOWN_CONFIG],
-  [RadioWidgetWidget, ANTD_RADIO_CONFIG],
+  [AntdRadioWidgetWidget, ANTD_RADIO_CONFIG],
+  [AntdCheckboxWidget, ANTD_CHECKBOX_CONFIG],
   [AntdInputWidget, ANTD_INPUT_CONFIG],
   [AntdAutoCompleteWidget, ANTD_AUTO_COMPLETE_CONFIG],
   [AntdCascaderWidget, ANTD_CASCADER_CONFIG],
