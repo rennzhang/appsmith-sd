@@ -351,7 +351,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             propertyName: "labelTooltip",
             label: "提示",
             controlType: "INPUT_TEXT",
-            placeholderText: "请至少输入 6 个字符",
+            placeholderText: "请输入提示信息",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },

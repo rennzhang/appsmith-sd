@@ -73,6 +73,11 @@ import AntdCheckboxWidget, {
   CONFIG as ANTD_CHECKBOX_CONFIG,
 } from "widgets/Antd/Form/CheckboxWidget";
 
+// Rate
+import AntdRateWidget, {
+  CONFIG as ANTD_RATE_CONFIG,
+} from "widgets/Antd/Form/RateWidget";
+
 /* Antd form 组件注册 end */
 
 // widgets/Antd/ModalWidget
@@ -319,6 +324,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdDropdownWidget, ANTD_DROPDOWN_CONFIG],
   [AntdRadioWidgetWidget, ANTD_RADIO_CONFIG],
   [AntdCheckboxWidget, ANTD_CHECKBOX_CONFIG],
+  [AntdRateWidget, ANTD_RATE_CONFIG],
   [AntdInputWidget, ANTD_INPUT_CONFIG],
   [AntdAutoCompleteWidget, ANTD_AUTO_COMPLETE_CONFIG],
   [AntdCascaderWidget, ANTD_CASCADER_CONFIG],

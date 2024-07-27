@@ -38,6 +38,7 @@ export const AntdFormItemContainer = styled.div<{
   boxShadow?: string;
   borderRadius?: string;
   labelPosition?: AntdLabelPosition;
+  accentColor?: string;
 }>`
   width: 100%;
   .ant-form-item {
@@ -95,6 +96,14 @@ export const AntdFormItemContainer = styled.div<{
     display: inline-flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .ant-rate {
+    color: ${({ accentColor }) => accentColor};
+  }
+
+  .ant-rate .bp3-icon.antd-rate-icon {
+    color: inherit !important;
   }
 `;
 
