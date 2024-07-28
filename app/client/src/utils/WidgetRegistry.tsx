@@ -78,6 +78,11 @@ import AntdRateWidget, {
   CONFIG as ANTD_RATE_CONFIG,
 } from "widgets/Antd/Form/RateWidget";
 
+// Switch
+import AntdSwitchWidget, {
+  CONFIG as ANTD_SWITCH_CONFIG,
+} from "widgets/Antd/Form/SwitchWidget";
+
 /* Antd form 组件注册 end */
 
 // widgets/Antd/ModalWidget
@@ -325,6 +330,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdRadioWidgetWidget, ANTD_RADIO_CONFIG],
   [AntdCheckboxWidget, ANTD_CHECKBOX_CONFIG],
   [AntdRateWidget, ANTD_RATE_CONFIG],
+  [AntdSwitchWidget, ANTD_SWITCH_CONFIG],
   [AntdInputWidget, ANTD_INPUT_CONFIG],
   [AntdAutoCompleteWidget, ANTD_AUTO_COMPLETE_CONFIG],
   [AntdCascaderWidget, ANTD_CASCADER_CONFIG],

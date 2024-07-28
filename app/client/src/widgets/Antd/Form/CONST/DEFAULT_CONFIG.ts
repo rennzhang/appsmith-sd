@@ -132,18 +132,9 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         helpText: "设置控件的大小",
         defaultValue: "middle",
         options: [
-          {
-            label: "小",
-            value: "small",
-          },
-          {
-            label: "中等",
-            value: "middle",
-          },
-          {
-            label: "大",
-            value: "large",
-          },
+          { label: "小", value: "small" },
+          { label: "中等", value: "middle" },
+          { label: "大", value: "large" },
         ],
         isJSConvertible: true,
         isBindProperty: true,
@@ -151,8 +142,30 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         validation: {
           type: ValidationTypes.TEXT,
         },
-        //ANTD_TREE_WIDGET 不显示
-        hidden: (props: any) => ["ANTD_TREE_WIDGET"].includes(props.type),
+        dependencies: ["type"],
+        //ANTD_TREE_WIDGET、ANTD_SWITCH_WIDGET 不显示
+        hidden: (props: any) =>
+          ["ANTD_TREE_WIDGET", "ANTD_SWITCH_WIDGET"].includes(props.type),
+      },
+      {
+        propertyName: "controlSize",
+        label: "尺寸",
+        controlType: "ICON_TABS",
+        helpText: "设置控件的大小",
+        defaultValue: "middle",
+        options: [
+          { label: "小", value: "small" },
+          { label: "标准", value: "default" },
+        ],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+        },
+        dependencies: ["type"],
+        //ANTD_SWITCH_WIDGET 显示
+        hidden: (props: any) => !["ANTD_SWITCH_WIDGET"].includes(props.type),
       },
     ],
   },
@@ -246,8 +259,21 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
-        invisible: true,
+        //ANTD_SWITCH_WIDGET 显示
+        hidden: (props: any) => !["ANTD_SWITCH_WIDGET"].includes(props.type),
       },
+      // hoverColor
+      {
+        propertyName: "hoverColor",
+        label: "悬停颜色",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        hidden: (props: any) => !["ANTD_SWITCH_WIDGET"].includes(props.type),
+      },
+
       {
         propertyName: "borderRadius",
         label: "边框圆角",
@@ -258,6 +284,9 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        //ANTD_TREE_WIDGET、ANTD_SWITCH_WIDGET 不显示
+        hidden: (props: any) =>
+          ["ANTD_TREE_WIDGET", "ANTD_SWITCH_WIDGET"].includes(props.type),
       },
       {
         propertyName: "boxShadow",

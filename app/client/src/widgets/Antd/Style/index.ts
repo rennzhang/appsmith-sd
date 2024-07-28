@@ -66,6 +66,7 @@ export const AntdFormItemContainer = styled.div<{
   .ant-transfer-list,
   .antd-input,
   .ant-picker,
+  .ant-switch,
   div.ant-upload.ant-upload-select {
     box-shadow: ${({ boxShadow }) => boxShadow};
     overflow: hidden;
@@ -102,7 +103,8 @@ export const AntdFormItemContainer = styled.div<{
     color: ${({ accentColor }) => accentColor};
   }
 
-  .ant-rate .bp3-icon.antd-rate-icon {
+  .ant-rate .bp3-icon.antd-rate-icon,
+  .ant-switch .bp3-icon.antd-inner-icon {
     color: inherit !important;
   }
 `;
