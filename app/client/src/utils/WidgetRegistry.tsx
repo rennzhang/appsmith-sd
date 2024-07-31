@@ -83,6 +83,10 @@ import AntdSwitchWidget, {
   CONFIG as ANTD_SWITCH_CONFIG,
 } from "widgets/Antd/Form/SwitchWidget";
 
+// Slider
+import AntdSliderWidget, {
+  CONFIG as ANTD_SLIDER_CONFIG,
+} from "widgets/Antd/Form/SliderWidget";
 /* Antd form 组件注册 end */
 
 // widgets/Antd/ModalWidget
@@ -331,6 +335,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdCheckboxWidget, ANTD_CHECKBOX_CONFIG],
   [AntdRateWidget, ANTD_RATE_CONFIG],
   [AntdSwitchWidget, ANTD_SWITCH_CONFIG],
+  [AntdSliderWidget, ANTD_SLIDER_CONFIG],
   [AntdInputWidget, ANTD_INPUT_CONFIG],
   [AntdAutoCompleteWidget, ANTD_AUTO_COMPLETE_CONFIG],
   [AntdCascaderWidget, ANTD_CASCADER_CONFIG],

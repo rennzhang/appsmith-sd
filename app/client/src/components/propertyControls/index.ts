@@ -26,7 +26,9 @@ import ColorPickerControl from "components/propertyControls/ColorPickerControl";
 import type { PrimaryColumnColorPickerControlProps } from "components/propertyControls/PrimaryColumnColorPickerControl";
 import PrimaryColumnColorPickerControl from "components/propertyControls/PrimaryColumnColorPickerControl";
 import type { ComputeTablePropertyControlProps } from "components/propertyControls/ComputeTablePropertyControl";
+import type { ComputeValuePropertyControlProps } from "components/propertyControls/ComputeValuePropertyControl";
 import ComputeTablePropertyControl from "components/propertyControls/ComputeTablePropertyControl";
+import ComputeValuePropertyControl from "components/propertyControls/ComputeValuePropertyControl";
 import type { IconTabControlProps } from "components/propertyControls/IconTabControl";
 import IconTabsControl from "components/propertyControls/IconTabControl";
 import type { ButtonTabControlProps } from "components/propertyControls/ButtonTabControl";
@@ -96,6 +98,7 @@ export const PropertyControls = {
   IconTabsControl,
   ButtonTabControl,
   ComputeTablePropertyControl,
+  ComputeValuePropertyControl,
   ComputeTablePropertyControlV2,
   MenuItemsControl,
   MenuButtonDynamicItemsControl,
@@ -154,6 +157,7 @@ export type PropertyControlPropsType =
   | StepControlProps
   | ColorPickerControlProps
   | ComputeTablePropertyControlProps
+  | ComputeValuePropertyControlProps
   | PrimaryColumnDropdownControlProps
   | NumericInputControlProps
   | PrimaryColumnColorPickerControlProps

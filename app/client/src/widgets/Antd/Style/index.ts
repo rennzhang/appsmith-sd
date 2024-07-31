@@ -73,7 +73,8 @@ export const AntdFormItemContainer = styled.div<{
   }
 
   .ant-upload,
-  .ant-picker {
+  .ant-picker,
+  .ant-slider:not(.ant-slider-vertical) {
     width: 100%;
   }
 
@@ -104,8 +105,18 @@ export const AntdFormItemContainer = styled.div<{
   }
 
   .ant-rate .bp3-icon.antd-rate-icon,
-  .ant-switch .bp3-icon.antd-inner-icon {
+  .ant-switch .bp3-icon.antd-inner-icon,
+  &.antd-slider-container .bp3-icon.antd-inner-icon {
     color: inherit !important;
+  }
+
+  &.antd-slider-container .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  &.antd-slider-container .icon-wrapper.vertical {
+    flex-direction: column;
   }
 `;
 
