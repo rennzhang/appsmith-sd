@@ -4,6 +4,7 @@ import type { MaybeElement } from "@blueprintjs/core";
 import { Alignment } from "@blueprintjs/core";
 import { Button, ConfigProvider, Tooltip } from "antd";
 import type { IconName } from "@blueprintjs/icons";
+import type { SeedToken } from "antd/es/theme/interface";
 // antd Button component
 import type { ComponentToken as ButtonComponentToken } from "antd/es/button/style";
 import type { ComponentProps } from "widgets/BaseComponent";
@@ -52,7 +53,7 @@ interface RecaptchaProps {
   recaptchaType?: RecaptchaType;
 }
 interface ButtonComponentProps extends ComponentProps {
-  configToken?: ButtonComponentToken;
+  configToken?: Partial<ButtonComponentToken & SeedToken>;
   text?: string;
   icon?: IconName | MaybeElement;
   tooltip?: string;
@@ -333,9 +334,10 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
             components: {
               Button: {
                 algorithm: true,
-                colorPrimary: buttonColor,
-                colorLink: buttonColor,
+                colorPrimary: buttonColor || undefined,
+                colorLink: buttonColor || undefined,
                 borderRadius: (borderRadius as unknown as number) || 0,
+                ...(configToken || {}),
               },
             },
           }}
