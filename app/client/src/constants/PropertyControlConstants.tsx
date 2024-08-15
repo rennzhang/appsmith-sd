@@ -103,6 +103,10 @@ export type PropertyPaneControlConfig = {
   hideSetting?: boolean;
   createButtonText?: string;
   defaultValue?: any;
+  presetLabel?: string;
+  placeholderText?: string;
+  defaultProperties?: Record<string, any>;
+
 };
 
 // 属性校验参数

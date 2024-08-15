@@ -87,7 +87,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
               ...props,
               hideSetting: this.props.hideSetting,
               isDelete: true,
-              placeholder: "Menu item label",
+              placeholder: this.props.placeholderText || "Menu item label",
             })
           }
           toggleVisibility={this.toggleVisibility}
@@ -156,7 +156,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
     const menuItemsArray = this.getMenuItems();
     const newMenuItemId = generateReactKey({ prefix: "menuItem" });
     const newMenuItemLabel = getNextEntityName(
-      "Menu Item ",
+      this.props.presetLabel || "Menu Item ",
       menuItemsArray.map((menuItem: any) => menuItem.label),
     );
     menuItems = {
@@ -168,6 +168,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
         widgetId: generateReactKey(),
         isDisabled: false,
         isVisible: true,
+        ...(this.props.defaultProperties || {}),
       },
     };
 
