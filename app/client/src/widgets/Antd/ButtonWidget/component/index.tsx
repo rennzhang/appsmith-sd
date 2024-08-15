@@ -4,7 +4,8 @@ import type { MaybeElement } from "@blueprintjs/core";
 import { Alignment } from "@blueprintjs/core";
 import { Button, ConfigProvider, Tooltip } from "antd";
 import type { IconName } from "@blueprintjs/icons";
-
+// antd Button component
+import type { ComponentToken as ButtonComponentToken } from "antd/es/button/style";
 import type { ComponentProps } from "widgets/BaseComponent";
 
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
@@ -46,21 +47,20 @@ export enum ButtonType {
 
 interface RecaptchaProps {
   googleRecaptchaKey?: string;
-  clickWithRecaptcha: (token: string) => void;
+  clickWithRecaptcha?: (token: string) => void;
   handleRecaptchaV2Loading?: (isLoading: boolean) => void;
   recaptchaType?: RecaptchaType;
 }
-
 interface ButtonComponentProps extends ComponentProps {
+  configToken?: ButtonComponentToken;
   text?: string;
   icon?: IconName | MaybeElement;
   tooltip?: string;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   isDisabled?: boolean;
-  isLoading: boolean;
-  shouldFitContent: boolean;
+  isLoading?: boolean;
   rightIcon?: IconName | MaybeElement;
-  type: ButtonType;
+  type?: ButtonType;
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   borderRadius?: string;
@@ -105,7 +105,7 @@ function RecaptchaV2Component(
         await recaptchaRef?.current?.reset();
         const token = await recaptchaRef?.current?.executeAsync();
         if (token) {
-          props.clickWithRecaptcha(token);
+          props?.clickWithRecaptcha?.(token);
         } else {
           // Handle incorrent google recaptcha site key
           props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
@@ -159,7 +159,7 @@ function RecaptchaV3Component(
               action: "submit",
             })
             .then((token: any) => {
-              props.clickWithRecaptcha(token);
+              props?.clickWithRecaptcha?.(token);
             })
             .catch(() => {
               // Handle incorrent google recaptcha site key
@@ -269,43 +269,21 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
     buttonColor,
     buttonSize,
     buttonVariant,
+    configToken,
     iconAlign,
     iconName,
     placement,
   } = props;
   const btnWrapper = (
     <BtnWrapper
-      isLoading={props.isLoading}
       className={props.className}
       clickWithRecaptcha={props.clickWithRecaptcha}
       googleRecaptchaKey={props.googleRecaptchaKey}
       handleRecaptchaV2Loading={props.handleRecaptchaV2Loading}
       isDisabled={props.isDisabled}
+      isLoading={!!props.isLoading}
       recaptchaType={props.recaptchaType}
     >
-      {/* <Button
-        borderRadius={props.borderRadius}
-        boxShadow={props.boxShadow}
-        boxShadowColor={props.boxShadowColor}
-        buttonColor={props.buttonColor}
-        buttonVariant={props.buttonVariant}
-        disabled={props.isDisabled}
-        icon={props.icon}
-        iconAlign={props.iconAlign}
-        iconName={props.iconName}
-        loading={props.isLoading}
-        maxWidth={props.maxWidth}
-        minHeight={props.minHeight}
-        minWidth={props.minWidth}
-        onClick={hasOnClick ? props.onClick : undefined}
-        placement={props.placement}
-        rightIcon={props.rightIcon}
-        shouldFitContent={props.shouldFitContent}
-        // type={props.type}
-        type="primary"
-      >
-        {props.text}
-      </Button> */}
       <ConfigProvider
         theme={{
           components: {
@@ -314,6 +292,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
               colorPrimary: buttonColor,
               colorLink: buttonColor,
               borderRadius: (borderRadius as unknown as number) || 0,
+              ...(configToken || {}),
             },
           },
         }}
