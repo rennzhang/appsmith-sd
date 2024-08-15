@@ -13,7 +13,44 @@ import type { ColumnAction } from "components/propertyControls/ColumnActionSelec
 import type { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
-
+export interface ButtonAction {
+  btnIconName: IconName;
+  iconName: IconName;
+  iconAlign: Alignment;
+  columnType:
+    | ColumnTypes.BUTTON
+    | ColumnTypes.ICON_BUTTON
+    | ColumnTypes.MENU_BUTTON;
+  label: string;
+  id: string;
+  widgetId: string;
+  index: number;
+  tooltip: string;
+  buttonLabel: string;
+  boxShadow: string;
+  borderRadius: string;
+  buttonColor: string;
+  buttonVariant: ButtonVariant;
+  isDisabled: boolean;
+  onBtnClick: string;
+  showButton: boolean;
+  menuItems: {
+    [key: string]: {
+      id: string;
+      index: number;
+      label: string;
+      widgetId: string;
+      isDisabled: boolean;
+      isVisible: boolean;
+      onClick?: string;
+      iconName: IconName;
+      iconAlign: Alignment;
+      backgroundColor: string;
+      iconColor: string;
+      textColor: string;
+    };
+  };
+}
 export type EditableCell = {
   column: string;
   index: number;

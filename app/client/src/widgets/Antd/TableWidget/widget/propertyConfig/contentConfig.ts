@@ -7,7 +7,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
+import {
+  ColumnTypes,
+  InlineEditingSaveOptions,
+} from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
   tableDataValidation,
@@ -19,6 +22,9 @@ import {
   updateInlineEditingSaveOptionHook,
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
+import ActionPanelConfig from "./ActionPanelConfig";
+import { ButtonVariantTypes } from "components/constants";
+import { Colors } from "constants/Colors";
 
 export default [
   {
@@ -552,7 +558,35 @@ export default [
           type: ValidationTypes.BOOLEAN,
         },
       },
-
+    ],
+  },
+  {
+    // 操作栏配置
+    sectionName: "操作栏配置",
+    children: [
+      {
+        helpText: "操作栏按钮配置",
+        propertyName: "columnActions",
+        controlType: "MENU_ITEMS",
+        label: "操作栏按钮",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        createButtonText: "添加按钮",
+        presetLabel: "Action",
+        panelConfig: ActionPanelConfig,
+        defaultProperties: {
+          buttonColor: Colors.AZURE_RADIANCE,
+          columnType: ColumnTypes.BUTTON,
+          iconName: "",
+          btnIconName: "add",
+          showButton: true,
+          isDisabled: false,
+          buttonVariant: ButtonVariantTypes.TERTIARY,
+          menuVariant: ButtonVariantTypes.TERTIARY,
+          buttonLabel: "动作",
+          tooltip: "提示",
+        },
+      },
     ],
   },
 ] as PropertyPaneConfig[];

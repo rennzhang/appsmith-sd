@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { reduce } from "lodash";
 import type { Row as ReactTableRowType } from "react-table";
 import {
@@ -17,14 +17,9 @@ import type {
   AddNewRowActions,
   StickyType,
 } from "./Constants";
-import {
-  TABLE_SIZES,
-  CompactModeTypes,
-  TABLE_SCROLLBAR_HEIGHT,
-} from "./Constants";
 import { Colors } from "constants/Colors";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { EditableCell, TableVariant } from "../constants";
+import type { ButtonAction, EditableCell, TableVariant } from "../constants";
 import type SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
@@ -51,6 +46,9 @@ const PopoverStyles = createGlobalStyle<{
     }
 `;
 export interface TableProps {
+  columnActionClick: (onClick: string | undefined, index: number) => void;
+
+  columnActions: ButtonAction[];
   queryData: Record<string, any>;
   width: number;
   height: number;
@@ -202,15 +200,7 @@ export function Table(props: TableProps) {
       ? Math.ceil(props.totalRecordsCount / props.pageSize)
       : Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
-  const {
-    getTableBodyProps,
-    headerGroups,
-    page,
-    pageOptions,
-    prepareRow,
-    state,
-    totalColumnsWidth,
-  } = useTable(
+  const { page, pageOptions, prepareRow, state, totalColumnsWidth } = useTable(
     {
       //columns and data needs to be memoised as per useTable specs
       columns,
@@ -269,16 +259,6 @@ export function Table(props: TableProps) {
       selectedRowCount === 0 ? 0 : selectedRowCount === page.length ? 1 : 2;
     return result;
   }, [multiRowSelection, page, selectedRowIndices]);
-  const handleAllRowSelectClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      // if all / some rows are selected we remove selection on click
-      // else select all rows
-      toggleAllRowSelect(!Boolean(rowSelectionState), page);
-      // loop over subPage rows and toggleRowSelected if required
-      e.stopPropagation();
-    },
-    [page, rowSelectionState, toggleAllRowSelect],
-  );
   const isHeaderVisible =
     props.isVisibleSearch ||
     props.isVisibleFilters ||
@@ -300,7 +280,6 @@ export function Table(props: TableProps) {
       });
     }
   }, [props.isAddRowInProgress]);
-
 
   return (
     <>
@@ -336,6 +315,8 @@ export function Table(props: TableProps) {
             borderRadius={props.borderRadius}
             boxShadow={props.boxShadow}
             canFreezeColumn={props.canFreezeColumn}
+            columnActionClick={props.columnActionClick}
+            columnActions={props.columnActions}
             columns={tableHeadercolumns}
             compactMode={props.compactMode}
             delimiter={props.delimiter}

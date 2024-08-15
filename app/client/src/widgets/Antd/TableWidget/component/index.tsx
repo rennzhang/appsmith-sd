@@ -11,7 +11,7 @@ import type { Row } from "react-table";
 
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import equal from "fast-deep-equal/es6";
-import type { EditableCell, TableVariant } from "../constants";
+import type { ButtonAction, EditableCell, TableVariant } from "../constants";
 import { ColumnTypes } from "../constants";
 import { useCallback } from "react";
 
@@ -38,6 +38,8 @@ export interface ColumnMenuSubOptionProps {
 }
 
 interface ReactTableComponentProps {
+  columnActionClick: (onClick: string | undefined, index: number) => void;
+  columnActions: ButtonAction[];
   queryData: Record<string, any>;
   widgetId: string;
   widgetName: string;
@@ -122,6 +124,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     borderColor,
     borderWidth,
     canFreezeColumn,
+    columnActionClick,
+    columnActions,
     columns,
     columnWidthMap,
     compactMode,
@@ -240,6 +244,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       borderWidth={borderWidth}
       boxShadow={props.boxShadow}
       canFreezeColumn={canFreezeColumn}
+      columnActionClick={columnActionClick}
+      columnActions={columnActions}
       columnWidthMap={columnWidthMap}
       columns={columns}
       compactMode={compactMode}
@@ -301,6 +307,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
+    equal(prev.columnActions, next.columnActions) &&
     prev.applyFilter === next.applyFilter &&
     prev.compactMode === next.compactMode &&
     prev.delimiter === next.delimiter &&

@@ -4,8 +4,14 @@ import { Space, Tag, Table } from "antd";
 import { useEffect, useMemo, useRef } from "react";
 import React from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
 
 import type { CompactMode, ReactTableColumnProps } from "./Constants";
+import { ColumnTypes, type ButtonAction } from "../constants";
+import ButtonComponent from "widgets/Antd/ButtonWidget/component";
+import { Alignment } from "@blueprintjs/core";
+import { Icon } from "@blueprintjs/core";
+
 // import request from "umi-request";
 export const waitTimePromise = async (time = 100) => {
   return new Promise((resolve) => {
@@ -20,6 +26,8 @@ export const waitTime = async (time = 100) => {
 };
 
 export interface TableProps {
+  columnActionClick: (onClick: string | undefined, index: number) => void;
+  columnActions: ButtonAction[];
   compactMode?: CompactMode;
   queryData: Record<string, any>;
   tableData: Record<string, unknown>[];
@@ -115,7 +123,15 @@ type GithubIssueItem = {
   closed_at?: string;
 };
 
-const getActionColumn = (props: TableProps) => {
+const getActionColumn = (props: TableProps): ProColumns => {
+  console.clear();
+  console.group("表格 getActionColumn");
+  console.log("props", props);
+  console.groupEnd();
+
+  const sortedButtons = Object.values(props.columnActions)
+    .sort((a, b) => a.index - b.index)
+    .filter((c) => c.showButton);
   return {
     title: "操作",
     valueType: "option",
@@ -123,25 +139,78 @@ const getActionColumn = (props: TableProps) => {
     fixed: "right",
     width: 140,
     render: (text, record, _, action) => [
-      <a
-        key="editable"
-        onClick={() => {
-          action?.startEditable?.(record[props.primaryColumnId || ""]);
-        }}
-      >
-        编辑
-      </a>,
-      <a href={record.url} key="view" rel="noopener noreferrer" target="_blank">
-        查看
-      </a>,
-      <TableDropdown
-        key="actionGroup"
-        menus={[
-          { key: "copy", name: "复制" },
-          { key: "delete", name: "删除" },
-        ]}
-        onSelect={() => action?.reload()}
-      />,
+      ...Object.values(sortedButtons).map((button) => {
+        return button.columnType == ColumnTypes.MENU_BUTTON ? (
+          <TableDropdown
+            key="actionGroup"
+            menus={Object.values(button.menuItems || {})
+              .filter((c) => c.isVisible)
+              ?.map((c) => ({
+                disabled: c.isDisabled,
+                key: c.id,
+                name: (
+                  <div
+                    className="inline-flex justify-center items-center"
+                    style={{
+                      color: c.textColor,
+                      backgroundColor: c.backgroundColor,
+                    }}
+                  >
+                    {c.iconAlign !== Alignment.RIGHT && c.iconName ? (
+                      <Icon
+                        className="mr-1"
+                        color={c.iconColor || "currentColor"}
+                        icon={c.iconName}
+                      />
+                    ) : null}
+                    <span
+                      onClick={() =>
+                        props.columnActionClick(c.onClick, record.index)
+                      }
+                    >
+                      {c.label}
+                    </span>
+                    {c.iconAlign == Alignment.RIGHT && c.iconName ? (
+                      <Icon
+                        className="ml-1"
+                        color={c.iconColor || "currentColor"}
+                        icon={c.iconName}
+                      />
+                    ) : null}
+                  </div>
+                ),
+              }))}
+          />
+        ) : (
+          <ButtonComponent
+            buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
+            buttonSize="sm"
+            buttonVariant={"TERTIARY"}
+            configToken={{
+              paddingInline: 0,
+              controlHeight: 22,
+            }}
+            iconAlign={button.iconAlign}
+            iconName={
+              button.columnType == ColumnTypes.BUTTON
+                ? button.iconName
+                : button.btnIconName
+            }
+            isDisabled={button.isDisabled}
+            key={button.id}
+            onClick={() => {
+              props.columnActionClick(button.onBtnClick, record.index);
+            }}
+            text={
+              button.columnType == ColumnTypes.ICON_BUTTON
+                ? ""
+                : button.buttonLabel
+            }
+            tooltip={button.tooltip}
+            widgetId={button.widgetId}
+          />
+        );
+      }),
     ],
   };
 };
@@ -221,9 +290,12 @@ export default (props: TableProps) => {
       }) || [];
     props?.onQueryDataChange(initialQueryData, true);
 
-    console.log(" props.columns transColumns", props, transColumns);
     return [...transColumns, getActionColumn(props)];
-  }, [props.columns]);
+  }, [props.columns, props.columnActions]);
+
+  // const columnActions = useMemo(() => {
+  //   return getActionColumn(props);
+  // }, [props.columnActions]);
 
   return (
     <div className="overflow-auto">

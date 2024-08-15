@@ -2,7 +2,7 @@ import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { InlineEditingSaveOptions } from "./constants";
+import { ColumnTypes, InlineEditingSaveOptions } from "./constants";
 import type { TableWidgetProps } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -23,6 +23,36 @@ export const CONFIG = {
   needsMeta: true,
   needsHeightForContent: true,
   defaults: {
+    columnActions: {
+      edit: {
+        columnType: ColumnTypes.BUTTON,
+
+        label: "编辑",
+        id: "edit",
+        widgetId: "",
+        showButton: true,
+        isDisabled: false,
+        index: 0,
+        tooltip: "编辑",
+        buttonLabel: "编辑",
+        buttonColor: Colors.AZURE_RADIANCE,
+        btnIconName: "edit",
+      },
+      delete: {
+        columnType: ColumnTypes.BUTTON,
+
+        label: "删除",
+        id: "delete",
+        widgetId: "",
+        showButton: true,
+        isDisabled: false,
+        index: 1,
+        tooltip: "删除",
+        buttonLabel: "删除",
+        buttonColor: Colors.AZURE_RADIANCE,
+        btnIconName: "trash",
+      },
+    },
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     rows: 28,

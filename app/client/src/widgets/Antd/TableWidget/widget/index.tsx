@@ -21,6 +21,7 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetType } from "constants/WidgetConstants";
 import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
+import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
@@ -1011,6 +1012,27 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return { componentHeight, componentWidth };
   };
 
+  columnActionClick = (onClick: string | undefined, index: number) => {
+    if (onClick) {
+      const config: ExecuteTriggerPayload = {
+        triggerPropertyName: "onClick",
+        dynamicString: onClick,
+        event: {
+          type: EventType.ON_CLICK,
+        },
+      };
+
+      config.globalContext = {
+        currentRecord: this.props.finalTableData
+          ? this.props.finalTableData[index]
+          : {},
+        currentIndex: index,
+      };
+
+      super.executeAction(config);
+    }
+  };
+
   getPageView() {
     const {
       delimiter,
@@ -1041,6 +1063,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.newRowContent,
     );
 
+    console.group("Antd 表格 Table Widget");
+    console.log(" this.props", this.props);
+    console.groupEnd();
+
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
@@ -1054,6 +1080,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           borderWidth={this.props.borderWidth}
           boxShadow={this.props.boxShadow}
           canFreezeColumn={this.props.canFreezeColumn}
+          columnActionClick={this.columnActionClick}
+          columnActions={this.props.columnActions}
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
