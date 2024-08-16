@@ -87,6 +87,11 @@ import AntdSwitchWidget, {
 import AntdSliderWidget, {
   CONFIG as ANTD_SLIDER_CONFIG,
 } from "widgets/Antd/Form/SliderWidget";
+
+// Text Display
+import AntdTextWidget, {
+  CONFIG as ANTD_TEXT_CONFIG,
+} from "widgets/Antd/Form/TextWidget";
 /* Antd form 组件注册 end */
 
 // widgets/Antd/ModalWidget
@@ -336,6 +341,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdRateWidget, ANTD_RATE_CONFIG],
   [AntdSwitchWidget, ANTD_SWITCH_CONFIG],
   [AntdSliderWidget, ANTD_SLIDER_CONFIG],
+  [AntdTextWidget, ANTD_TEXT_CONFIG],
   [AntdInputWidget, ANTD_INPUT_CONFIG],
   [AntdAutoCompleteWidget, ANTD_AUTO_COMPLETE_CONFIG],
   [AntdCascaderWidget, ANTD_CASCADER_CONFIG],
