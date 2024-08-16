@@ -56,10 +56,35 @@ export default {
       label: "图标",
       helpText: "设置按钮图标",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return !hideByColumnType(props, propertyPath, [
-          ColumnTypes.ICON_BUTTON,
-          ColumnTypes.MENU_BUTTON,
-        ]);
+        return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);
+      },
+
+      updateHook: updateIconAlignment,
+      dependencies: ["columnActions", "columnType"],
+      controlType: "ICON_SELECT",
+      customJSControl: "TABLE_COMPUTE_VALUE",
+      defaultIconName: "",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+        params: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ICON_NAMES,
+            default: null,
+          },
+        },
+      },
+    },
+    // menuIconName
+    {
+      propertyName: "menuIconName",
+      label: "图标",
+      helpText: "设置按钮图标",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
       },
 
       updateHook: updateIconAlignment,
@@ -110,9 +135,9 @@ export default {
     {
       propertyName: "buttonLabel",
       label: "文本",
+      placeholderText: "按钮文本内容",
       helpText: "按钮文本内容",
       controlType: "TABLE_COMPUTE_VALUE",
-      defaultValue: "动作",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);
       },
@@ -123,9 +148,9 @@ export default {
     {
       propertyName: "menuButtonLabel",
       label: "文本",
-      helpText: "Sets the label of the button",
+      helpText: "菜单按钮文本内容",
+      placeholderText: "菜单按钮文本内容",
       controlType: "TABLE_COMPUTE_VALUE",
-      defaultValue: "打开菜单",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
       },
@@ -134,7 +159,21 @@ export default {
       isTriggerProperty: false,
     },
     {
-      helpText: "鼠标交互时显示的提示信息",
+      helpText: "菜单按钮鼠标悬浮时显示的提示信息",
+      propertyName: "menuTooltip",
+      label: "提示",
+      controlType: "INPUT_TEXT",
+      placeholderText: "提交表单",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+      dependencies: ["columnActions"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
+      },
+    },
+    {
+      helpText: "按钮鼠标悬浮时显示的提示信息",
       propertyName: "tooltip",
       label: "提示",
       controlType: "INPUT_TEXT",
@@ -144,9 +183,7 @@ export default {
       validation: { type: ValidationTypes.TEXT },
       dependencies: ["columnActions"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return !hideByColumnType(props, propertyPath, [
-          ColumnTypes.MENU_BUTTON,
-        ]);
+        return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);
       },
     },
     // {

@@ -1,6 +1,6 @@
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable, TableDropdown } from "@ant-design/pro-components";
-import { Space, Tag, Table } from "antd";
+import { ConfigProvider, Space, Table } from "antd";
 import { useEffect, useMemo, useRef } from "react";
 import React from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -13,17 +13,6 @@ import { Alignment } from "@blueprintjs/core";
 import { Icon } from "@blueprintjs/core";
 
 // import request from "umi-request";
-export const waitTimePromise = async (time = 100) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, time);
-  });
-};
-
-export const waitTime = async (time = 100) => {
-  await waitTimePromise(time);
-};
 
 export interface TableProps {
   columnActionClick: (onClick: string | undefined, index: number) => void;
@@ -124,7 +113,7 @@ type GithubIssueItem = {
 };
 
 const getActionColumn = (props: TableProps): ProColumns => {
-  console.clear();
+  // console.clear();
   console.group("表格 getActionColumn");
   console.log("props", props);
   console.groupEnd();
@@ -132,6 +121,7 @@ const getActionColumn = (props: TableProps): ProColumns => {
   const sortedButtons = Object.values(props.columnActions)
     .sort((a, b) => a.index - b.index)
     .filter((c) => c.showButton);
+
   return {
     title: "操作",
     valueType: "option",
@@ -161,6 +151,7 @@ const getActionColumn = (props: TableProps): ProColumns => {
                         className="mr-1"
                         color={c.iconColor || "currentColor"}
                         icon={c.iconName}
+                        size={14}
                       />
                     ) : null}
                     <span
@@ -175,12 +166,35 @@ const getActionColumn = (props: TableProps): ProColumns => {
                         className="ml-1"
                         color={c.iconColor || "currentColor"}
                         icon={c.iconName}
+                        size={14}
                       />
                     ) : null}
                   </div>
                 ),
               }))}
-          />
+            style={{
+              color: button.buttonColor,
+            }}
+          >
+            <ButtonComponent
+              buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
+              buttonSize="sm"
+              buttonVariant={"TERTIARY"}
+              configToken={{
+                paddingInline: 0,
+                controlHeight: 22,
+              }}
+              iconAlign={button.iconAlign}
+              iconName={button.menuIconName}
+              iconSize={14}
+              isDisabled={button.isDisabled}
+              key={button.id}
+              placement="CENTER"
+              text={button.menuButtonLabel}
+              tooltip={button.menuTooltip}
+              widgetId={button.widgetId}
+            />
+          </TableDropdown>
         ) : (
           <ButtonComponent
             buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
@@ -201,6 +215,7 @@ const getActionColumn = (props: TableProps): ProColumns => {
             onClick={() => {
               props.columnActionClick(button.onBtnClick, record.index);
             }}
+            placement="CENTER"
             text={
               button.columnType == ColumnTypes.ICON_BUTTON
                 ? ""

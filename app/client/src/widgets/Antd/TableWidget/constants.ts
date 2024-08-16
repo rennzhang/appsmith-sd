@@ -34,6 +34,9 @@ export interface ButtonAction {
   isDisabled: boolean;
   onBtnClick: string;
   showButton: boolean;
+  menuButtonLabel: string;
+  menuIconName: IconName;
+  menuTooltip: string;
   menuItems: {
     [key: string]: {
       id: string;

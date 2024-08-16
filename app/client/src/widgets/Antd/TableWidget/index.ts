@@ -26,7 +26,6 @@ export const CONFIG = {
     columnActions: {
       edit: {
         columnType: ColumnTypes.BUTTON,
-
         label: "编辑",
         id: "edit",
         widgetId: "",
@@ -37,10 +36,10 @@ export const CONFIG = {
         buttonLabel: "编辑",
         buttonColor: Colors.AZURE_RADIANCE,
         btnIconName: "edit",
+        onBtnClick: "{{showAlert('请先配置编辑按钮的动作', 'warning');}}",
       },
       delete: {
         columnType: ColumnTypes.BUTTON,
-
         label: "删除",
         id: "delete",
         widgetId: "",
@@ -51,6 +50,7 @@ export const CONFIG = {
         buttonLabel: "删除",
         buttonColor: Colors.AZURE_RADIANCE,
         btnIconName: "trash",
+        onBtnClick: "{{showAlert('请先配置删除按钮的动作', 'warning');}}",
       },
     },
     responsiveBehavior: ResponsiveBehavior.Fill,

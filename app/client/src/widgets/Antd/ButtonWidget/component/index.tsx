@@ -53,6 +53,7 @@ interface RecaptchaProps {
   recaptchaType?: RecaptchaType;
 }
 interface ButtonComponentProps extends ComponentProps {
+  iconSize?: number;
   configToken?: Partial<ButtonComponentToken & SeedToken>;
   text?: string;
   icon?: IconName | MaybeElement;
@@ -251,11 +252,16 @@ const StyledDButtonBox = styled.div<{
 const StyledDropdownBtnContent = styled.div<{
   placement?: ButtonPlacement;
   borderRadius?: string;
+  iconSize?: number;
 }>`
   justify-content: ${({ placement }) =>
     CheckboxGroupAlignmentTypes[placement || ButtonPlacementTypes.CENTER]};
   .bp3-icon {
     color: inherit !important;
+  }
+  svg {
+    width: ${({ iconSize }) => iconSize}px;
+    height: ${({ iconSize }) => iconSize}px;
   }
 `;
 // To be used with the canvas
@@ -273,6 +279,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
     configToken,
     iconAlign,
     iconName,
+    iconSize,
     placement,
   } = props;
   const btnWrapper = (
@@ -312,14 +319,15 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
         >
           <StyledDropdownBtnContent
             className="w-full h-full flex items-center"
+            iconSize={iconSize}
             placement={placement}
           >
             {iconAlign !== Alignment.RIGHT && iconName ? (
-              <Icon className="mr-1" icon={iconName} />
+              <Icon className="mr-1" icon={iconName} size={iconSize} />
             ) : null}
             {props.text}
             {iconAlign == Alignment.RIGHT && iconName ? (
-              <Icon className="ml-1" icon={iconName} />
+              <Icon className="ml-1" icon={iconName} size={iconSize} />
             ) : null}
           </StyledDropdownBtnContent>
         </Button>
@@ -356,14 +364,15 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
           >
             <StyledDropdownBtnContent
               className="w-full h-full flex items-center"
+              iconSize={iconSize}
               placement={placement}
             >
               {iconAlign !== Alignment.RIGHT && iconName ? (
-                <Icon className="mr-1" icon={iconName} />
+                <Icon className="mr-1" icon={iconName} size={iconSize} />
               ) : null}
               {props.text}
               {iconAlign == Alignment.RIGHT && iconName ? (
-                <Icon className="ml-1" icon={iconName} />
+                <Icon className="ml-1" icon={iconName} size={iconSize} />
               ) : null}
             </StyledDropdownBtnContent>
           </Button>

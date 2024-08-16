@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ColumnTypes, ICON_NAMES } from "widgets/TableWidgetV2/constants";
-import { hideByColumnType, updateIconAlignment } from "../../propertyUtils";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { hideByColumnType } from "../../propertyUtils";
 import Basic from "./Basic";
 import type { TableWidgetProps } from "../../../constants";
 
@@ -42,7 +42,7 @@ export default {
         {
           propertyName: "isDisabled",
           label: "禁用",
-          helpText: "控制当前按钮是否显示",
+          helpText: "控制当前按钮是否禁用",
           defaultValue: false,
           controlType: "SWITCH",
           customJSControl: "TABLE_COMPUTE_VALUE",
@@ -56,6 +56,11 @@ export default {
             },
           },
           dependencies: ["columnActions", "columnOrder"],
+          hidden: (props: TableWidgetProps, propertyPath: string) => {
+            return !hideByColumnType(props, propertyPath, [
+              ColumnTypes.MENU_BUTTON,
+            ]);
+          },
         },
       ],
     },
@@ -65,32 +70,6 @@ export default {
     {
       sectionName: "图标",
       children: [
-        {
-          propertyName: "menuButtoniconName",
-          label: "菜单按钮图标",
-          helpText: "设置菜单按钮图标",
-          hidden: (props: TableWidgetProps, propertyPath: string) => {
-            return hideByColumnType(props, propertyPath, [
-              ColumnTypes.MENU_BUTTON,
-            ]);
-          },
-          updateHook: updateIconAlignment,
-          dependencies: ["columnActions"],
-          controlType: "ICON_SELECT",
-          customJSControl: "TABLE_COMPUTE_VALUE",
-          isJSConvertible: true,
-          isBindProperty: true,
-          isTriggerProperty: false,
-          validation: {
-            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-            params: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ICON_NAMES,
-              },
-            },
-          },
-        },
         {
           propertyName: "iconAlign",
           label: "图标位置",
@@ -112,10 +91,11 @@ export default {
           isTriggerProperty: false,
           hidden: (props: TableWidgetProps, propertyPath: string) => {
             return hideByColumnType(props, propertyPath, [
+              ColumnTypes.BUTTON,
               ColumnTypes.MENU_BUTTON,
             ]);
           },
-          dependencies: ["columnActions"],
+          dependencies: ["columnActions", "columnType"],
           validation: {
             type: ValidationTypes.TEXT,
             params: {
@@ -238,11 +218,6 @@ export default {
           helpText: "设置按钮颜色",
           isJSConvertible: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
-          hidden: (props: TableWidgetProps, propertyPath: string) => {
-            return !hideByColumnType(props, propertyPath, [
-              ColumnTypes.MENU_BUTTON,
-            ]);
-          },
           dependencies: ["columnActions"],
           isBindProperty: true,
           validation: {
@@ -255,32 +230,6 @@ export default {
             },
           },
           isTriggerProperty: false,
-        },
-        {
-          propertyName: "menuColor",
-          helpText: "设置菜单按钮颜色",
-          label: "按钮颜色",
-          controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
-          customJSControl: "TABLE_COMPUTE_VALUE",
-          isJSConvertible: true,
-          isBindProperty: true,
-          isTriggerProperty: false,
-          placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-          validation: {
-            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-            params: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^(?![<|{{]).+/,
-              },
-            },
-          },
-          hidden: (props: TableWidgetProps, propertyPath: string) => {
-            return hideByColumnType(props, propertyPath, [
-              ColumnTypes.MENU_BUTTON,
-            ]);
-          },
-          dependencies: ["columnActions", "childStylesheet"],
         },
         {
           propertyName: "textColor",
