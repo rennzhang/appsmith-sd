@@ -19,7 +19,12 @@ import type {
 } from "./Constants";
 import { Colors } from "constants/Colors";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ButtonAction, EditableCell, TableVariant } from "../constants";
+import type {
+  AntdTableProps,
+  ButtonAction,
+  EditableCell,
+  TableVariant,
+} from "../constants";
 import type SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
@@ -45,86 +50,6 @@ const PopoverStyles = createGlobalStyle<{
       }
     }
 `;
-export interface TableProps {
-  columnActionClick: (onClick: string | undefined, index: number) => void;
-
-  columnActions: ButtonAction[];
-  queryData: Record<string, any>;
-  width: number;
-  height: number;
-  pageSize: number;
-  widgetId: string;
-  widgetName: string;
-  searchKey: string;
-  isLoading: boolean;
-  columnWidthMap?: { [key: string]: number };
-  columns: ReactTableColumnProps[];
-  data: Array<Record<string, unknown>>;
-  totalRecordsCount?: number;
-  editMode: boolean;
-  editableCell: EditableCell;
-  sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
-  handleReorderColumn: (columnOrder: string[]) => void;
-  selectTableRow: (row: {
-    original: Record<string, unknown>;
-    index: number;
-  }) => void;
-  pageNo: number;
-  updatePageNo: (pageNo: number, event?: EventType) => void;
-  multiRowSelection?: boolean;
-  isSortable?: boolean;
-  nextPageClick: () => void;
-  prevPageClick: () => void;
-  serverSidePaginationEnabled: boolean;
-  selectedRowIndex: number;
-  selectedRowIndices: number[];
-  disableDrag: () => void;
-  enableDrag: () => void;
-  toggleAllRowSelect: (
-    isSelect: boolean,
-    pageData: ReactTableRowType<Record<string, unknown>>[],
-  ) => void;
-  triggerRowSelection: boolean;
-  searchTableData: (searchKey: any) => void;
-  filters?: ReactTableFilter[];
-  applyFilter: (filters: ReactTableFilter[]) => void;
-  compactMode?: CompactMode;
-  isVisibleDownload?: boolean;
-  isVisibleDensity?: boolean;
-  isVisibleFullScreen?: boolean;
-  isVisibleRefresh?: boolean;
-  isVisibleCellSetting?: boolean;
-  isVisibleFilters?: boolean;
-  isVisiblePagination?: boolean;
-  isVisibleSearch?: boolean;
-  delimiter: string;
-  accentColor: string;
-  borderRadius: string;
-  boxShadow: string;
-  borderWidth?: number;
-  borderColor?: string;
-  onBulkEditDiscard: () => void;
-  onBulkEditSave: () => void;
-  variant?: TableVariant;
-  primaryColumnId?: string;
-  isAddRowInProgress: boolean;
-  allowAddNewRow: boolean;
-  onAddNewRow: () => void;
-  onAddNewRowAction: (
-    type: AddNewRowActions,
-    onActionComplete: () => void,
-  ) => void;
-  disabledAddNewRowSave: boolean;
-  handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
-  canFreezeColumn?: boolean;
-  showConnectDataOverlay: boolean;
-  onConnectData: () => void;
-  onQueryDataChange: (
-    queryData: Record<string, unknown>,
-    isInit?: boolean,
-  ) => void;
-}
 
 const defaultColumn = {
   minWidth: 30,
@@ -160,7 +85,7 @@ export type HeaderComponentProps = {
 
 const emptyArr: any = [];
 
-export function Table(props: TableProps) {
+export function Table(props: AntdTableProps) {
   const isResizingColumn = React.useRef(false);
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
     const columnWidthMap = {
@@ -310,12 +235,12 @@ export function Table(props: TableProps) {
         />
         {
           <Protable
+            {...props}
             accentColor={props.accentColor}
             allowAddNewRow={props.allowAddNewRow}
             borderRadius={props.borderRadius}
             boxShadow={props.boxShadow}
             canFreezeColumn={props.canFreezeColumn}
-            columnActionClick={props.columnActionClick}
             columnActions={props.columnActions}
             columns={tableHeadercolumns}
             compactMode={props.compactMode}

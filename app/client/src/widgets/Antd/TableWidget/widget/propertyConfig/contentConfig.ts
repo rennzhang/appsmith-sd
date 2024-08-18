@@ -564,6 +564,23 @@ export default [
     // 操作栏配置
     sectionName: "操作栏配置",
     children: [
+      // 操作栏宽度
+      {
+        helpText: "操作栏宽度",
+        propertyName: "actionWidth",
+        label: "操作栏宽度",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        defaultValue: 120,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: {
+            min: 0,
+          },
+        },
+      },
+
       {
         helpText: "操作栏按钮配置",
         propertyName: "columnActions",

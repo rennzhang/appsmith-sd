@@ -285,6 +285,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         selectedRows: generateTypeDef(widget.selectedRows, extraDefsToDefine),
         selectedRowIndices: generateTypeDef(widget.selectedRowIndices),
         triggeredRow: generateTypeDef(widget.triggeredRow),
+        currentRecord: generateTypeDef(widget.currentRecord),
         updatedRow: generateTypeDef(widget.updatedRow),
         selectedRowIndex: "number",
         tableData: generateTypeDef(widget.tableData, extraDefsToDefine),
@@ -1012,6 +1013,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return { componentHeight, componentWidth };
   };
 
+  updateCurrentRecord = (currentRecord: Record<string, unknown>) => {
+    this.updateWidgetProperty("currentRecord", currentRecord);
+  };
+
   columnActionClick = (onClick: string | undefined, index: number) => {
     if (onClick) {
       const config: ExecuteTriggerPayload = {
@@ -1021,16 +1026,32 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           type: EventType.ON_CLICK,
         },
       };
+      const finalTableData = this.getFinalTableData();
+
+      console.log("finalTableData", finalTableData, index);
+
+      const currentRecord = finalTableData ? finalTableData[index] : {};
 
       config.globalContext = {
-        currentRecord: this.props.finalTableData
-          ? this.props.finalTableData[index]
-          : {},
+        currentRecord: currentRecord,
         currentIndex: index,
       };
+      this.updateCurrentRecord(currentRecord);
 
       super.executeAction(config);
     }
+  };
+
+  getFinalTableData = () => {
+    const { filteredTableData = [] } = this.props;
+    const tableColumns = this.getTableColumns() || emptyArr;
+    const transformedData = this.transformData(filteredTableData, tableColumns);
+    const finalTableData = this.memoisedAddNewRow(
+      transformedData,
+      this.props.isAddRowInProgress,
+      this.props.newRowContent,
+    );
+    return finalTableData;
   };
 
   getPageView() {
@@ -1046,9 +1067,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       totalRecordsCount,
     } = this.props;
 
-    const tableColumns = this.getTableColumns() || emptyArr;
-    const transformedData = this.transformData(filteredTableData, tableColumns);
-
     const isVisibleHeaderOptions =
       isVisibleDownload ||
       isVisibleFilters ||
@@ -1057,11 +1075,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const { componentHeight, componentWidth } =
       this.getPaddingAdjustedDimensions();
-    const finalTableData = this.memoisedAddNewRow(
-      transformedData,
-      this.props.isAddRowInProgress,
-      this.props.newRowContent,
-    );
+    const tableColumns = this.getTableColumns() || emptyArr;
+    const finalTableData = this.getFinalTableData();
 
     console.group("Antd 表格 Table Widget");
     console.log(" this.props", this.props);
@@ -1070,6 +1085,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
+          {...this.props}
           accentColor={this.props.accentColor}
           allowAddNewRow={this.props.allowAddNewRow}
           allowRowSelection={!this.props.isAddRowInProgress}

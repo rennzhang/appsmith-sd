@@ -4,6 +4,9 @@ import type {
   ReactTableFilter,
   TableStyles,
   SortOrderTypes,
+  ReactTableColumnProps,
+  StickyType,
+  AddNewRowActions,
 } from "./component/Constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WithMeta } from "widgets/MetaHOC";
@@ -13,6 +16,102 @@ import type { ColumnAction } from "components/propertyControls/ColumnActionSelec
 import type { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
+import type { Row } from "react-table";
+
+export interface AntdTableProps {
+  isActionFixed?: boolean;
+  actionWidth?: number;
+  editableCell: EditableCell;
+  variant?: TableVariant;
+  columnActionClick: (onClick: string | undefined, index: number) => void;
+  columnActions: ButtonAction[];
+  compactMode?: CompactMode;
+  queryData: Record<string, any>;
+  tableData: Record<string, unknown>[];
+  width: number;
+  height: number;
+  pageSize: number;
+  widgetId: string;
+  widgetName: string;
+  searchKey: string;
+  isLoading: boolean;
+  columnWidthMap?: { [key: string]: number };
+  columns: ReactTableColumnProps[];
+  data: Array<Record<string, unknown>>;
+  filters?: ReactTableFilter[];
+  totalRecordsCount?: number;
+  editMode: boolean;
+  onAddNewRowAction: (
+    type: AddNewRowActions,
+    onActionComplete: () => void,
+  ) => void;
+  // editableCell: EditableCell;
+  applyFilter: (filters: ReactTableFilter[]) => void;
+  sortTableColumn: (columnIndex: number, asc: boolean) => void;
+  handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
+  handleReorderColumn: (columnOrder: string[]) => void;
+  handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
+  selectTableRow: (row: {
+    original: Record<string, unknown>;
+    index: number;
+  }) => void;
+  pageNo: number;
+  updatePageNo: (pageNo: number, event?: EventType) => void;
+  multiRowSelection?: boolean;
+  isSortable?: boolean;
+  nextPageClick: () => void;
+  prevPageClick: () => void;
+  serverSidePaginationEnabled: boolean;
+  selectedRowIndex: number;
+  selectedRowIndices: number[];
+  disableDrag: (disable: boolean) => void;
+  enableDrag: () => void;
+  toggleAllRowSelect: (
+    isSelect: boolean,
+    pageData: Row<Record<string, unknown>>[],
+  ) => void;
+  triggerRowSelection: boolean;
+  searchTableData: (searchKey: any) => void;
+  // filters?: ReactTableFilter[];
+  // applyFilter: (filters: ReactTableFilter[]) => void;
+  // compactMode?: CompactMode;
+  isVisibleDownload?: boolean;
+  isVisibleFilters?: boolean;
+  isVisiblePagination?: boolean;
+  isVisibleSearch?: boolean;
+  isVisibleDensity?: boolean;
+  isVisibleFullScreen?: boolean;
+  isVisibleRefresh?: boolean;
+  isVisibleCellSetting?: boolean;
+  delimiter: string;
+  accentColor: string;
+  borderRadius: string;
+  boxShadow: string;
+  borderWidth?: number;
+  borderColor?: string;
+  onBulkEditDiscard: () => void;
+  onBulkEditSave: () => void;
+  // variant?: TableVariant;
+  primaryColumnId?: string;
+  isAddRowInProgress: boolean;
+  allowAddNewRow: boolean;
+  onAddNewRow: () => void;
+  // onAddNewRowAction: (
+  //   type: AddNewRowActions,
+  //   onActionComplete: () => void,
+  // ) => void;
+  disabledAddNewRowSave: boolean;
+  // handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
+  canFreezeColumn?: boolean;
+  showConnectDataOverlay: boolean;
+  onConnectData: () => void;
+  onQueryDataChange: (
+    queryData: Record<string, unknown>,
+    isInit?: boolean,
+  ) => void;
+  disableAddNewRow: boolean;
+}
+
 export interface ButtonAction {
   btnIconName: IconName;
   iconName: IconName;

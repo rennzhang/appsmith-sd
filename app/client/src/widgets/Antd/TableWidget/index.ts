@@ -53,6 +53,7 @@ export const CONFIG = {
         onBtnClick: "{{showAlert('请先配置删除按钮的动作', 'warning');}}",
       },
     },
+    actionWidth: 100,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     rows: 28,

@@ -11,7 +11,12 @@ import type { Row } from "react-table";
 
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import equal from "fast-deep-equal/es6";
-import type { ButtonAction, EditableCell, TableVariant } from "../constants";
+import type {
+  AntdTableProps,
+  ButtonAction,
+  EditableCell,
+  TableVariant,
+} from "../constants";
 import { ColumnTypes } from "../constants";
 import { useCallback } from "react";
 
@@ -37,8 +42,7 @@ export interface ColumnMenuSubOptionProps {
   isHeader?: boolean;
 }
 
-interface ReactTableComponentProps {
-  columnActionClick: (onClick: string | undefined, index: number) => void;
+interface ReactTableComponentProps extends AntdTableProps {
   columnActions: ButtonAction[];
   queryData: Record<string, any>;
   widgetId: string;
@@ -61,7 +65,7 @@ interface ReactTableComponentProps {
   selectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
   unSelectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
   updatePageNo: (pageNo: number, event?: EventType) => void;
-  sortTableColumn: (column: string, asc: boolean) => void;
+  sortTableColumn: (columnIndex: number, asc: boolean) => void;
   nextPageClick: () => void;
   prevPageClick: () => void;
   updatePageNumber: () => void;
@@ -101,14 +105,10 @@ interface ReactTableComponentProps {
   isAddRowInProgress: boolean;
   allowAddNewRow: boolean;
   onAddNewRow: () => void;
-  onAddNewRowAction: (
-    type: AddNewRowActions,
-    onActionComplete: () => void,
-  ) => void;
+
   allowRowSelection: boolean;
   allowSorting: boolean;
   disabledAddNewRowSave: boolean;
-  handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
@@ -124,7 +124,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     borderColor,
     borderWidth,
     canFreezeColumn,
-    columnActionClick,
     columnActions,
     columns,
     columnWidthMap,
@@ -236,6 +235,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
   return (
     <Table
+      {...props}
       accentColor={props.accentColor}
       allowAddNewRow={allowAddNewRow}
       applyFilter={applyFilter}
@@ -244,7 +244,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       borderWidth={borderWidth}
       boxShadow={props.boxShadow}
       canFreezeColumn={canFreezeColumn}
-      columnActionClick={columnActionClick}
       columnActions={columnActions}
       columnWidthMap={columnWidthMap}
       columns={columns}
@@ -307,6 +306,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
+    prev.actionWidth === next.actionWidth &&
     equal(prev.columnActions, next.columnActions) &&
     prev.applyFilter === next.applyFilter &&
     prev.compactMode === next.compactMode &&

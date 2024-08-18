@@ -1,4 +1,8 @@
-import type { ActionType, ProColumns } from "@ant-design/pro-components";
+import type {
+  ActionType,
+  ProColumns,
+  ProTableProps,
+} from "@ant-design/pro-components";
 import { ProTable, TableDropdown } from "@ant-design/pro-components";
 import { ConfigProvider, Space, Table } from "antd";
 import { useEffect, useMemo, useRef } from "react";
@@ -7,112 +11,17 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 
 import type { CompactMode, ReactTableColumnProps } from "./Constants";
+import type { AntdTableProps } from "../constants";
 import { ColumnTypes, type ButtonAction } from "../constants";
 import ButtonComponent from "widgets/Antd/ButtonWidget/component";
 import { Alignment } from "@blueprintjs/core";
 import { Icon } from "@blueprintjs/core";
+// ColumnStateType
+import type { ColumnStateType } from "@ant-design/pro-table/es/typing";
 
 // import request from "umi-request";
 
-export interface TableProps {
-  columnActionClick: (onClick: string | undefined, index: number) => void;
-  columnActions: ButtonAction[];
-  compactMode?: CompactMode;
-  queryData: Record<string, any>;
-  tableData: Record<string, unknown>[];
-  width: number;
-  height: number;
-  pageSize: number;
-  widgetId: string;
-  widgetName: string;
-  searchKey: string;
-  isLoading: boolean;
-  columnWidthMap?: { [key: string]: number };
-  columns: ReactTableColumnProps[];
-  data: Array<Record<string, unknown>>;
-  totalRecordsCount?: number;
-  editMode: boolean;
-  // editableCell: EditableCell;
-  sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
-  handleReorderColumn: (columnOrder: string[]) => void;
-  selectTableRow: (row: {
-    original: Record<string, unknown>;
-    index: number;
-  }) => void;
-  pageNo: number;
-  updatePageNo: (pageNo: number, event?: EventType) => void;
-  multiRowSelection?: boolean;
-  isSortable?: boolean;
-  nextPageClick: () => void;
-  prevPageClick: () => void;
-  serverSidePaginationEnabled: boolean;
-  selectedRowIndex: number;
-  selectedRowIndices: number[];
-  disableDrag: () => void;
-  enableDrag: () => void;
-  toggleAllRowSelect: (
-    isSelect: boolean,
-    pageData: Record<string, unknown>[],
-  ) => void;
-  triggerRowSelection: boolean;
-  searchTableData: (searchKey: any) => void;
-  // filters?: ReactTableFilter[];
-  // applyFilter: (filters: ReactTableFilter[]) => void;
-  // compactMode?: CompactMode;
-  isVisibleDownload?: boolean;
-  isVisibleFilters?: boolean;
-  isVisiblePagination?: boolean;
-  isVisibleSearch?: boolean;
-  isVisibleDensity?: boolean;
-  isVisibleFullScreen?: boolean;
-  isVisibleRefresh?: boolean;
-  isVisibleCellSetting?: boolean;
-  delimiter: string;
-  accentColor: string;
-  borderRadius: string;
-  boxShadow: string;
-  borderWidth?: number;
-  borderColor?: string;
-  onBulkEditDiscard: () => void;
-  onBulkEditSave: () => void;
-  // variant?: TableVariant;
-  primaryColumnId?: string;
-  isAddRowInProgress: boolean;
-  allowAddNewRow: boolean;
-  onAddNewRow: () => void;
-  // onAddNewRowAction: (
-  //   type: AddNewRowActions,
-  //   onActionComplete: () => void,
-  // ) => void;
-  disabledAddNewRowSave: boolean;
-  // handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
-  canFreezeColumn?: boolean;
-  showConnectDataOverlay: boolean;
-  onConnectData: () => void;
-  onQueryDataChange: (
-    queryData: Record<string, unknown>,
-    isInit?: boolean,
-  ) => void;
-  disableAddNewRow: boolean;
-}
-type GithubIssueItem = {
-  url: string;
-  id: number;
-  number: number;
-  title: string;
-  labels: {
-    name: string;
-    color: string;
-  }[];
-  state: string;
-  comments: number;
-  created_at: string;
-  updated_at: string;
-  closed_at?: string;
-};
-
-const getActionColumn = (props: TableProps): ProColumns => {
+const getActionColumn = (props: AntdTableProps): ProColumns => {
   // console.clear();
   console.group("表格 getActionColumn");
   console.log("props", props);
@@ -127,8 +36,8 @@ const getActionColumn = (props: TableProps): ProColumns => {
     valueType: "option",
     key: "option",
     fixed: "right",
-    width: 140,
-    render: (text, record, _, action) => [
+    width: props.actionWidth || 120,
+    render: (text, record, recordIndex, action) => [
       ...Object.values(sortedButtons).map((button) => {
         return button.columnType == ColumnTypes.MENU_BUTTON ? (
           <TableDropdown
@@ -156,7 +65,7 @@ const getActionColumn = (props: TableProps): ProColumns => {
                     ) : null}
                     <span
                       onClick={() =>
-                        props.columnActionClick(c.onClick, record.index)
+                        props.columnActionClick(c.onClick, recordIndex)
                       }
                     >
                       {c.label}
@@ -213,7 +122,7 @@ const getActionColumn = (props: TableProps): ProColumns => {
             isDisabled={button.isDisabled}
             key={button.id}
             onClick={() => {
-              props.columnActionClick(button.onBtnClick, record.index);
+              props.columnActionClick(button.onBtnClick, recordIndex);
             }}
             placement="CENTER"
             text={
@@ -230,7 +139,7 @@ const getActionColumn = (props: TableProps): ProColumns => {
   };
 };
 
-export default (props: TableProps) => {
+export default (props: AntdTableProps) => {
   const actionRef = useRef<ActionType>();
   // queryData
   const [queryData, setQueryData] = React.useState({ ...props.queryData });
@@ -305,29 +214,44 @@ export default (props: TableProps) => {
       }) || [];
     props?.onQueryDataChange(initialQueryData, true);
 
-    return [...transColumns, getActionColumn(props)];
-  }, [props.columns, props.columnActions]);
+    return [...transColumns];
+  }, [props.columns]);
+
+  const actionColumnMemo = useMemo(
+    () => getActionColumn(props),
+    [props.columnActions, props.actionWidth],
+  );
+  console.group("表格 protable");
+  console.log("表格 props", props);
+  console.groupEnd();
 
   // const columnActions = useMemo(() => {
   //   return getActionColumn(props);
   // }, [props.columnActions]);
+
+  const columnsState = useMemo((): ColumnStateType => {
+    return {
+      persistenceKey: "pro-table-singe-demos_" + props.widgetId,
+      persistenceType: "localStorage",
+      defaultValue: {
+        option: {
+          fixed: "right",
+          disable: true,
+        },
+      },
+      onChange(value) {
+        console.log("value: ", value);
+      },
+    };
+  }, [props.widgetId]);
 
   return (
     <div className="overflow-auto">
       <ProTable<any>
         actionRef={actionRef}
         cardBordered
-        columns={tableColumns}
-        columnsState={{
-          persistenceKey: "pro-table-singe-demos",
-          persistenceType: "localStorage",
-          defaultValue: {
-            option: { fixed: "right", disable: true },
-          },
-          onChange(value) {
-            console.log("value: ", value);
-          },
-        }}
+        columns={[...tableColumns, actionColumnMemo]}
+        columnsState={columnsState}
         dataSource={dataSource}
         dateFormatter="string"
         editable={{
