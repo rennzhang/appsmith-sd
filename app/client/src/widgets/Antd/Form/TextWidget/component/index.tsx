@@ -19,13 +19,24 @@ export interface TextDisplayComponentProps {
   tooltip?: string;
   disabled?: boolean;
   required?: boolean;
+  textSize?: string;
+  textColor?: string;
+  textStyle?: string;
 }
 
-const TextContent = styled.div`
+const TextContent = styled.div<{
+  textColor?: string;
+  textSize?: string;
+  textStyle?: string;
+}>`
   padding: 4px 11px;
   min-height: 32px;
   display: flex;
   align-items: center;
+  color: ${(props) => props.textColor};
+  font-size: ${(props) => props.textSize};
+  font-weight: ${({ textStyle }) => textStyle?.includes("BOLD") && "bold"};
+  font-style: ${({ textStyle }) => textStyle?.includes("ITALIC") && "italic"};
 `;
 
 const AntdTextDisplay = (props: TextDisplayComponentProps) => {
@@ -40,6 +51,9 @@ const AntdTextDisplay = (props: TextDisplayComponentProps) => {
     labelTextSize,
     labelWidth,
     required,
+    textColor,
+    textSize,
+    textStyle,
     tooltip,
     widgetName,
   } = props;
@@ -78,7 +92,13 @@ const AntdTextDisplay = (props: TextDisplayComponentProps) => {
           tooltip={tooltip}
           {...colLayoutMemo}
         >
-          <TextContent>{defaultValue}</TextContent>
+          <TextContent
+            textColor={textColor}
+            textSize={textSize}
+            textStyle={textStyle}
+          >
+            {defaultValue}
+          </TextContent>
         </ProFormItem>
       </ConfigProvider>
     </AntdFormItemContainer>

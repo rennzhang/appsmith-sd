@@ -143,9 +143,13 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
           type: ValidationTypes.TEXT,
         },
         dependencies: ["type"],
-        //ANTD_TREE_WIDGET、ANTD_SWITCH_WIDGET 不显示
+        //ANTD_TREE_WIDGET、ANTD_SWITCH_WIDGET ANTD_TEXT_WIDGET 不显示
         hidden: (props: any) =>
-          ["ANTD_TREE_WIDGET", "ANTD_SWITCH_WIDGET"].includes(props.type),
+          [
+            "ANTD_TREE_WIDGET",
+            "ANTD_SWITCH_WIDGET",
+            "ANTD_TEXT_WIDGET",
+          ].includes(props.type),
       },
       {
         propertyName: "controlSize",
@@ -286,7 +290,11 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         validation: { type: ValidationTypes.TEXT },
         //ANTD_TREE_WIDGET、ANTD_SWITCH_WIDGET 不显示
         hidden: (props: any) =>
-          ["ANTD_TREE_WIDGET", "ANTD_SWITCH_WIDGET"].includes(props.type),
+          [
+            "ANTD_TREE_WIDGET",
+            "ANTD_SWITCH_WIDGET",
+            "ANTD_TEXT_WIDGET",
+          ].includes(props.type),
       },
       {
         propertyName: "boxShadow",
@@ -297,6 +305,7 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        hidden: (props: any) => ["ANTD_TEXT_WIDGET"].includes(props.type),
       },
     ],
   },

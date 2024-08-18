@@ -20,6 +20,7 @@ import {
 import BaseWidget from "widgets/BaseWidget";
 import type { AntdTextDisplayWidgetProps } from "../types";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 // class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState>
 
@@ -137,7 +138,90 @@ class AntdInputWidget<
   }
 
   static getPropertyPaneStyleConfig() {
-    return mergeWidgetConfig([], DEFAULT_STYLE_PANEL_CONFIG);
+    return mergeWidgetConfig(
+      [
+        {
+          sectionName: "内容文本样式",
+          children: [
+            {
+              propertyName: "textColor",
+              label: "字体颜色",
+              helpText: "设置标签字体颜色",
+              controlType: "COLOR_PICKER",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+            },
+            {
+              propertyName: "textSize",
+              label: "字体大小",
+              helpText: "设置标签字体大小",
+              controlType: "DROP_DOWN",
+              defaultValue: "0.875rem",
+              hidden: isAutoLayout,
+              options: [
+                {
+                  label: "S",
+                  value: "0.875rem",
+                  subText: "0.875rem",
+                },
+                {
+                  label: "M",
+                  value: "1rem",
+                  subText: "1rem",
+                },
+                {
+                  label: "L",
+                  value: "1.25rem",
+                  subText: "1.25rem",
+                },
+                {
+                  label: "XL",
+                  value: "1.875rem",
+                  subText: "1.875rem",
+                },
+                {
+                  label: "XXL",
+                  value: "3rem",
+                  subText: "3rem",
+                },
+                {
+                  label: "3XL",
+                  value: "3.75rem",
+                  subText: "3.75rem",
+                },
+              ],
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+            },
+            {
+              propertyName: "textStyle",
+              label: "强调",
+              helpText: "设置字体是否加粗或斜体",
+              controlType: "BUTTON_GROUP",
+              options: [
+                {
+                  icon: "text-bold",
+                  value: "BOLD",
+                },
+                {
+                  icon: "text-italic",
+                  value: "ITALIC",
+                },
+              ],
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+            },
+          ],
+        },
+      ],
+      DEFAULT_STYLE_PANEL_CONFIG,
+    );
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
