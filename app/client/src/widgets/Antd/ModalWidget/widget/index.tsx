@@ -11,7 +11,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { RenderMode } from "constants/WidgetConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
@@ -43,6 +43,17 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       isVisible: DefaultAutocompleteDefinitions.isVisible,
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+          type: "boolean",
+        },
+      },
     };
   }
 
