@@ -125,6 +125,16 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         sectionName: "表单设置",
         children: [
           {
+            helpText: "当按钮位于表单下，点击按钮时触发表单校验",
+            propertyName: "validateOnSubmit",
+            label: "提交时校验",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText: "当按钮位于表单下，表单必须校验成功时按钮才可以点击",
             propertyName: "disabledWhenInvalid",
             label: "表单校验不成功时禁用",

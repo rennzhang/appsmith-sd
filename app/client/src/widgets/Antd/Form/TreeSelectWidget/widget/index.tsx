@@ -862,7 +862,7 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
 
       const flattenedOptions = this.getFlattenedOptions();
       const newSelectedNode = flattenedOptions.filter((option) =>
-        value?.includes(option.value),
+        value?.toString()?.includes(option.value?.toString()),
       );
       this.props.updateWidgetMetaProperty("selectedNode", newSelectedNode);
     }

@@ -54,7 +54,6 @@ export interface ProformContainerComponentProps
   setFormRef?: (formRef: ProFormInstance<any>) => void;
   updateWidgetProps: (path: string, value: any) => void;
   validateFieldsParamsChange?: number;
-  validateOnSubmit?: boolean;
   startValidateFields?: boolean;
   validateMessage?: string;
   formItems: { name: string; label: string }[];
@@ -83,7 +82,6 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
     validateFieldsParams: __vfp,
 
     validateMessage,
-    validateOnSubmit,
     widgetName,
     wrapperCol,
   } = props;
@@ -152,7 +150,7 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
         handleValidateFields(__vfp);
         return;
       }
-      validateOnSubmit && handleValidateFields();
+      handleValidateFields();
       return;
     } else if (!__vfp || isNumber(__vfp)) return;
     const _data = __vfp?.includes?.("UNDEFINED") ? undefined : __vfp;

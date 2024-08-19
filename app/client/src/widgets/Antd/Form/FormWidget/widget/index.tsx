@@ -214,7 +214,7 @@ class FormWidget extends ContainerWidget {
             ...child,
             isDisabled: this.props.isDisabled,
             formParentWidgetId: this.props.widgetId,
-            validateOnSubmit: this.props.validateOnSubmit,
+
             // isRequired: this.props.isRequired,
             // labelPosition:
             //   this.props.formLayout === "horizontal" ? "left" : "top",
@@ -305,17 +305,6 @@ class FormWidget extends ContainerWidget {
             propertyName: "isRequired",
             label: "必填",
             defaultValue: false,
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            isJSConvertible: true,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            helpText: "是否在提交时校验表单",
-            propertyName: "validateOnSubmit",
-            label: "提交时校验",
-            defaultValue: true,
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,

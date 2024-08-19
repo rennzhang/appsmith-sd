@@ -45,7 +45,6 @@ export const CONFIG = {
   },
   searchTags: ["group", "form"],
   defaults: {
-    validateOnSubmit: true,
     errorFields: [],
     labelCol: {
       xs: { span: 24 },
@@ -113,6 +112,7 @@ export const CONFIG = {
                     resetFormOnClick: false,
                     recaptchaType: RecaptchaTypes.V3,
                     version: 1,
+                    validateOnSubmit: true,
                   },
                 },
                 {
