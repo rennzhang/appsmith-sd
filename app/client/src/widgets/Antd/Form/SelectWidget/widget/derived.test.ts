@@ -38,11 +38,11 @@ const flattenedOptions = flat(options);
 
 describe("Derived property - TreeSelect Widget", () => {
   describe("#getIsValid", () => {
-    it("return true when isRequired false and selectedOptionValue is empty string", () => {
+    it("return true when isRequired false and selectedValue is empty string", () => {
       const isValid = derivedProperty.getIsValid(
         {
           isRequired: false,
-          selectedOptionValue: "",
+          selectedValue: "",
         },
         null,
         _,
@@ -51,10 +51,10 @@ describe("Derived property - TreeSelect Widget", () => {
       expect(isValid).toBeTruthy();
     });
 
-    it("return true when isRequired true and selectedOptionValue is not empty", () => {
+    it("return true when isRequired true and selectedValue is not empty", () => {
       const isValid = derivedProperty.getIsValid(
         {
-          selectedOptionValue: "GREEN",
+          selectedValue: "GREEN",
           isRequired: true,
         },
         null,
@@ -64,10 +64,10 @@ describe("Derived property - TreeSelect Widget", () => {
       expect(isValid).toBeTruthy();
     });
 
-    it("return true when isRequired true and selectedOptionValue is not empty", () => {
+    it("return true when isRequired true and selectedValue is not empty", () => {
       const isValid = derivedProperty.getIsValid(
         {
-          selectedOptionValue: 0,
+          selectedValue: 0,
           isRequired: true,
         },
         null,
@@ -77,10 +77,10 @@ describe("Derived property - TreeSelect Widget", () => {
       expect(isValid).toBeTruthy();
     });
 
-    it("return false when isRequired true and selectedOptionValue is empty", () => {
+    it("return false when isRequired true and selectedValue is empty", () => {
       const isValid = derivedProperty.getIsValid(
         {
-          selectedOptionValue: "",
+          selectedValue: "",
           isRequired: true,
         },
         null,
@@ -91,9 +91,9 @@ describe("Derived property - TreeSelect Widget", () => {
     });
   });
 
-  // describe("#getSelectedOptionValue", () => {
-  //   it("selectedOptionValue should have a value if defaultValue(String) is in option", () => {
-  //     const selectedOptionValue = derivedProperty.getSelectedOptionValue(
+  // describe("#getselectedValue", () => {
+  //   it("selectedValue should have a value if defaultValue(String) is in option", () => {
+  //     const selectedValue = derivedProperty.getselectedValue(
   //       {
   //         checkedKeys: "GREEN",
   //         flattenedOptions,
@@ -102,10 +102,10 @@ describe("Derived property - TreeSelect Widget", () => {
   //       _,
   //     );
 
-  //     expect(selectedOptionValue).toBe("GREEN");
+  //     expect(selectedValue).toBe("GREEN");
   //   });
-  //   it("selectedOptionValue should have a value if defaultValue(Number) is in option", () => {
-  //     const selectedOptionValue = derivedProperty.getSelectedOptionValue(
+  //   it("selectedValue should have a value if defaultValue(Number) is in option", () => {
+  //     const selectedValue = derivedProperty.getselectedValue(
   //       {
   //         checkedKeys: 1,
   //         flattenedOptions,
@@ -114,11 +114,11 @@ describe("Derived property - TreeSelect Widget", () => {
   //       _,
   //     );
 
-  //     expect(selectedOptionValue).toBe(1);
+  //     expect(selectedValue).toBe(1);
   //   });
 
-  //   it("selectedOptionValue should not have a value if defaultValue(string) is not in option ", () => {
-  //     const selectedOptionValue = derivedProperty.getSelectedOptionValue(
+  //   it("selectedValue should not have a value if defaultValue(string) is not in option ", () => {
+  //     const selectedValue = derivedProperty.getselectedValue(
   //       {
   //         value: "YELLOW",
   //         flattenedOptions,
@@ -127,7 +127,7 @@ describe("Derived property - TreeSelect Widget", () => {
   //       _,
   //     );
 
-  //     expect(selectedOptionValue).toBe("");
+  //     expect(selectedValue).toBe("");
   //   });
   // });
 
@@ -135,7 +135,7 @@ describe("Derived property - TreeSelect Widget", () => {
     it("selectedOptionLabel should have a value if defaultValue(String) is in option", () => {
       const selectedOptionLabel = derivedProperty.getCheckedLabels(
         {
-          selectedOptionValue: "GREEN",
+          selectedValue: "GREEN",
 
           checkedLabels: "GREEN",
           flattenedOptions,
@@ -149,7 +149,7 @@ describe("Derived property - TreeSelect Widget", () => {
     it("selectedOptionLabel should have a value if defaultValue(Number) is in option", () => {
       const selectedOptionLabel = derivedProperty.getCheckedLabels(
         {
-          selectedOptionValue: 0,
+          selectedValue: 0,
 
           checkedLabels: 0,
           flattenedOptions,
@@ -164,7 +164,7 @@ describe("Derived property - TreeSelect Widget", () => {
     it("selectedOptionLabel should not have a value if defaultValue(string) is not in option", () => {
       const selectedOptionLabel = derivedProperty.getCheckedLabels(
         {
-          selectedOptionValue: "",
+          selectedValue: "",
 
           checkedLabels: "YELLOW",
           flattenedOptions,

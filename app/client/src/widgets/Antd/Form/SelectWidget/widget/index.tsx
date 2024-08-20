@@ -589,9 +589,9 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   };
 
   getPageView() {
-    console.group("树选择组件 getPageView");
-    console.log("树选择组件 this.props", this.props);
-    console.log("树选择组件 this", this);
+    console.group("Antd 选择器组件 getPageView");
+    console.log("Antd 选择器组件 this.props", this.props);
+    console.log("Antd 选择器组件 this", this);
     console.groupEnd();
     const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =

@@ -2,7 +2,7 @@
 export default {
   getIsValid: (props, moment, _) => {
     return props.isRequired
-      ? !_.isNil(props.selectedOptionValue) && props.selectedOptionValue !== ""
+      ? !_.isNil(props.selectedValue) && props.selectedValue !== ""
       : true;
   },
   //
