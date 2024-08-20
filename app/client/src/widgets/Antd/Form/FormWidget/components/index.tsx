@@ -4,10 +4,18 @@ import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
 import { ProForm } from "@ant-design/pro-components";
 import { AntdProformContainer } from "widgets/Antd/Style";
 // export default InputComponent;
+import type { ValidateFields } from "rc-field-form/es/interface";
 import { ConfigProvider, message } from "antd";
 import type { WidgetStyleContainerProps } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { MouseEventHandler, ReactNode } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
@@ -17,6 +25,7 @@ import type { FieldError } from "rc-field-form/lib/interface";
 
 export interface ProformContainerComponentProps
   extends WidgetStyleContainerProps {
+  validateOnly?: boolean;
   validateFieldsParams?: any;
   getFormData: (formWidget: ContainerWidgetProps<WidgetProps>) => any;
   getChildContainer: () => ContainerWidgetProps<WidgetProps>;
@@ -51,16 +60,14 @@ export interface ProformContainerComponentProps
   wrapperCol?: string;
   labelCol?: string;
   labelAlign?: "left" | "right";
-  setFormRef?: (formRef: ProFormInstance<any>) => void;
   updateWidgetProps: (path: string, value: any) => void;
   validateFieldsParamsChange?: number;
-  startValidateFields?: boolean;
   validateMessage?: string;
   formItems: { name: string; label: string }[];
 }
 
 type InputDataType = string | undefined;
-const AntdProForm = (props: ProformContainerComponentProps) => {
+const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   const {
     borderRadius,
     boxShadow,
@@ -85,9 +92,6 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
     widgetName,
     wrapperCol,
   } = props;
-
-  const [value, setValue] = useState<InputDataType>();
-  const [options, setOptions] = useState<{ value: string }[]>([]);
 
   // 是否校验中
   const [validating, setValidating] = useState<boolean>(false);
@@ -120,13 +124,16 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
       sortErrorFields,
     );
   };
-  const handleValidateFields = async (params?: any) => {
+
+  const handleValidateFields = async (namePath?: string[]) => {
     if (validating) return;
     await setValidating(true);
-    const _params = typeof params?.[1] == "object" ? params : [params];
-    console.log("表单组件 handleValidateFields params", _params);
+
+    const opt = { validateOnly: props.validateOnly } as any;
+    const params = namePath?.length ? [namePath, opt] : [opt];
+
     const values = await formRef.current
-      ?.validateFields(...(_params || []))
+      ?.validateFields(...params)
       .finally(async () => {
         const errorFields = formRef.current
           ?.getFieldsError()
@@ -145,23 +152,15 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
   // 当validateFieldsParams有值时，调用validateFields方法
   useEffect(() => {
     console.log("表单组件 validateFieldsParams", __vfp, props);
-    if (props.startValidateFields) {
-      if (__vfp && !isNumber(__vfp)) {
-        handleValidateFields(__vfp);
-        return;
-      }
-      handleValidateFields();
-      return;
-    } else if (!__vfp || isNumber(__vfp)) return;
+    if (!__vfp || isNumber(__vfp)) return;
     const _data = __vfp?.includes?.("UNDEFINED") ? undefined : __vfp;
 
     handleValidateFields(_data);
-  }, [props.validateFieldsParamsChange, props.startValidateFields]);
+  }, [props.validateFieldsParamsChange]);
 
-  // setFormRef
-  // useEffect(() => {
-  //   formRef.current && updateWidgetProps?.("formRef",formRef);
-  // }, [formRef, updateWidgetProps]);
+  useImperativeHandle(ref, () => ({
+    handleValidateFields,
+  }));
 
   const formItemLayoutMemo = useMemo(() => {
     if (formLayout == "vertical") {
@@ -276,6 +275,6 @@ const AntdProForm = (props: ProformContainerComponentProps) => {
       </ConfigProvider>
     </AntdProformContainer>
   );
-};
+});
 
 export default AntdProForm;

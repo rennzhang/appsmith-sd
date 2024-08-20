@@ -30,18 +30,9 @@ import { mergeWidgetConfig } from "utils/helpers";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 // import FormItemLayoutConfig from "./childPanels/FormItemLayoutConfig";
 class FormWidget extends ContainerWidget {
-  checkInvalidChildren = (children: WidgetProps[]): boolean => {
-    return some(children, (child) => {
-      if ("children" in child) {
-        return this.checkInvalidChildren(child.children || []);
-      }
-      if ("isValid" in child) {
-        return !child.isValid;
-      }
-      return false;
-    });
-  };
-
+  formRef = React.createRef<{
+    handleValidateFields: (params?: any) => Promise<any>;
+  }>();
   handleResetInputs = () => {
     super.resetChildrenMetaProperty(this.props.widgetId);
   };
@@ -62,6 +53,7 @@ class FormWidget extends ContainerWidget {
     children: WidgetProps[],
     propertyName: string,
     propertyValue: any,
+    shouldUpdate = true,
   ) => {
     children.map(async (child: WidgetProps) => {
       await this.context?.batchUpdateWidgetProperty?.(
@@ -70,7 +62,7 @@ class FormWidget extends ContainerWidget {
           modify: { [propertyName]: propertyValue },
           triggerPaths: [propertyName],
         },
-        true,
+        shouldUpdate,
       );
     });
   };
@@ -202,12 +194,41 @@ class FormWidget extends ContainerWidget {
     }
     return items;
   };
+  updateFormAndChildValid = (errorFields: any) => {
+    const isFormValid = !errorFields.length;
+    const formWidget = this.getChildContainer();
+    this.props.updateWidgetMetaProperty("isFormValid", isFormValid);
+
+    if (formWidget.children) {
+      this.batchUpdateChildrenProperty(
+        formWidget.children || [],
+        "isFormValid",
+        isFormValid,
+        false,
+      );
+    }
+  };
+
+  checkInvalidChildren = (children: WidgetProps[]): boolean => {
+    return some(children, (child) => {
+      console.log("child isValid", child.widgetName, child.isValid);
+
+      if ("children" in child) {
+        return this.checkInvalidChildren(child.children || []);
+      }
+      if ("isValid" in child) {
+        return !child.isValid;
+      }
+      return false;
+    });
+  };
 
   renderChildWidget(): React.ReactNode {
     const childContainer = this.getChildContainer();
 
     if (childContainer.children) {
       const isInvalid = this.checkInvalidChildren(childContainer.children);
+
       childContainer.children = childContainer.children.map(
         (child: WidgetProps) => {
           const grandChild = {
@@ -219,7 +240,9 @@ class FormWidget extends ContainerWidget {
             // labelPosition:
             //   this.props.formLayout === "horizontal" ? "left" : "top",
           } as any;
-          if (isInvalid) grandChild.isFormValid = false;
+          grandChild.isFormValid = !isInvalid;
+          grandChild.triggerFormValidation =
+            this.formRef.current?.handleValidateFields;
 
           // Add submit and reset handlers
           grandChild.onReset = this.handleResetInputs;
@@ -249,11 +272,11 @@ class FormWidget extends ContainerWidget {
         labelAlign={this.props.labelAlignment}
         labelCol={this.props.labelCol}
         labelFlex={this.props.labelFlex}
+        labelWrap={this.props.labelWrap}
+        ref={this.formRef}
+        size={this.props.controlSize}
         updateWidgetProps={this.updateWidgetProps}
         wrapperCol={this.props.wrapperCol}
-        labelWrap={this.props.labelWrap}
-        // setFormRef={this.setFormRef}
-        size={this.props.controlSize}
         {...this.props}
       >
         {super.renderChildWidget(childContainer)}
@@ -305,6 +328,17 @@ class FormWidget extends ContainerWidget {
             propertyName: "isRequired",
             label: "必填",
             defaultValue: false,
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          // validateOnly
+          {
+            helpText: "仅校验内容而不会将错误信息展示到 UI 上",
+            propertyName: "validateOnly",
+            label: "不展示错误信息",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,

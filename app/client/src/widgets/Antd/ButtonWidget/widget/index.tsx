@@ -10,6 +10,7 @@ import {
   ButtonVariantTypes,
   RecaptchaTypes,
 } from "components/constants";
+import type { ValidateFields } from "rc-field-form/es/interface";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
@@ -389,11 +390,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
 
   updateParentFormProperty = (propertyPath: string, propertyValue: any) => {
     if (this.props.formParentWidgetId) {
-      if (
-        propertyPath === "startValidateFields" &&
-        !this.props.validateOnSubmit
-      )
-        return;
       this.context?.syncUpdateWidgetMetaProperty?.(
         this.props.formParentWidgetId,
         propertyPath,
@@ -417,8 +413,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   };
 
   async onButtonClick() {
-    console.log("表单触发 点击按钮时触发", this.props);
-    this.updateParentFormProperty("startValidateFields", true);
+    await this.props.triggerFormValidation();
 
     if (this.props.onClick) {
       this.setState({
@@ -435,12 +430,10 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           },
         });
       }
-    } else if (this.props.resetFormOnClick && this.props.onReset) {
+    }
+
+    if (this.props.resetFormOnClick && this.props.onReset) {
       this.props.onReset();
-    } else {
-      setTimeout(() => {
-        this.updateParentFormProperty("startValidateFields", false);
-      });
     }
   }
 
@@ -476,7 +469,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     }
 
     this.batchUpdateParentFormProperty([
-      ["startValidateFields", false],
       ["validateFieldsParamsChange", +new Date()],
       // ["validateFieldsParams", +new Date()],
     ]);
@@ -505,14 +497,15 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     };
   }
 
+  isFormValid = () => {
+    return this.props.isFormValid && "isFormValid" in this.props;
+  };
+
   getPageView() {
     console.group("Antd 按钮组件");
     console.log("Antd 按钮组件 props", this.props);
     console.groupEnd();
-    const disabled =
-      this.props.disabledWhenInvalid &&
-      "isFormValid" in this.props &&
-      !this.props.isFormValid;
+    const disabled = this.props.disabledWhenInvalid && !this.isFormValid();
     const isDisabled = this.props.isDisabled || disabled;
     return (
       <ButtonComponent
@@ -567,6 +560,8 @@ export interface ButtonWidgetProps extends WidgetProps {
   placement?: ButtonPlacement;
   disabledWhenInvalid?: boolean;
   resetFormOnClick?: boolean;
+  validateOnSubmit?: boolean;
+  triggerFormValidation: (...arg: Parameters<ValidateFields>) => Promise<any>;
 }
 
 interface ButtonWidgetState extends WidgetState {
