@@ -1067,12 +1067,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       totalRecordsCount,
     } = this.props;
 
-    const isVisibleHeaderOptions =
-      isVisibleDownload ||
-      isVisibleFilters ||
-      isVisiblePagination ||
-      isVisibleSearch;
-
     const { componentHeight, componentWidth } =
       this.getPaddingAdjustedDimensions();
     const tableColumns = this.getTableColumns() || emptyArr;
@@ -1135,9 +1129,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onQueryDataChange={this.handleQueryDataChange}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
-          pageSize={
-            isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
-          }
+          pageSize={this.props.defaultPageSize}
           prevPageClick={this.handlePrevPageClick}
           primaryColumnId={this.props.primaryColumnId}
           queryData={this.props.queryData}

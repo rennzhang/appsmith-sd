@@ -83,7 +83,8 @@ export const transformDataPureFn = (
               if (
                 _.isString(value) ||
                 _.isNumber(value) ||
-                _.isBoolean(value)
+                _.isBoolean(value) ||
+                _.isArray(value)
               ) {
                 data = value;
               } else if (isNil(value)) {

@@ -148,6 +148,23 @@ export default [
   {
     sectionName: "分页配置",
     children: [
+      // defaultPageSize
+      {
+        helpText: "默认每页显示数量",
+        propertyName: "defaultPageSize",
+        label: "默认每页条数",
+        controlType: "INPUT_TEXT",
+        placeholderText: "10",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: {
+            min: 1,
+            default: 10,
+          },
+        },
+      },
       {
         propertyName: "isVisiblePagination",
         helpText: "是否显示分页器",

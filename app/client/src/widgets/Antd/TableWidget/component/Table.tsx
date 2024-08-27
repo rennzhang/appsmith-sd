@@ -111,11 +111,13 @@ export function Table(props: AntdTableProps) {
     showConnectDataOverlay,
     toggleAllRowSelect,
   } = props;
+  console.log("Table -> props", props, columns, data);
+
 
   const tableHeadercolumns = React.useMemo(
     () =>
       columns.filter((column: ReactTableColumnProps) => {
-        return column.alias !== "actions";
+        return column.alias !== "actions" && column.alias!=="children";
       }),
     [columns],
   );

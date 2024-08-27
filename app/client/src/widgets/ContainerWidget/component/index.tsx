@@ -19,7 +19,7 @@ import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const StyledContainerComponent = styled.div<
-  Omit<ContainerWrapperProps, "widgetId">
+  Omit<ContainerWrapperProps, "widgetid">
 >`
   height: 100%;
   width: 100%;
@@ -138,7 +138,7 @@ function ContainerComponentWrapper(
           ? "auto-layout"
           : ""
       }`}
-      data-widgetId={props.widgetId}
+      data-widgetid={props.widgetId}
       dropDisabled={props.dropDisabled}
       onClick={props.onClick}
       onClickCapture={props.onClickCapture}

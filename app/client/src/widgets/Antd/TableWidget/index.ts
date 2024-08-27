@@ -73,7 +73,7 @@ export const CONFIG = {
     horizontalAlignment: "LEFT",
     verticalAlignment: "CENTER",
     totalRecordsCount: 0,
-    defaultPageSize: 0,
+    defaultPageSize: 10,
     dynamicPropertyPathList: [],
     borderColor: Colors.GREY_5,
     borderWidth: "1",

@@ -139,13 +139,13 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
   };
 };
 
-export default (props: AntdTableProps) => {
+export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
   const actionRef = useRef<ActionType>();
   // queryData
   const [queryData, setQueryData] = React.useState({ ...props.queryData });
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 1);
   const [pageSize, setPageSize] = React.useState(props.pageSize || 10);
-  const [dataSource, setDataSource] = React.useState(props.tableData);
+  const [dataSource, setDataSource] = React.useState(props.tableData || []);
   const [selectedRowKeys, setSelectedRowKeys] = React.useState<React.Key[]>([]);
   useEffect(() => {
     setPageNumber(props.pageNo || 1);
@@ -153,7 +153,8 @@ export default (props: AntdTableProps) => {
   }, [props.pageNo, props.pageSize]);
 
   useEffect(() => {
-    setDataSource(props.tableData);
+    console.log(" props.tableData", props.tableData);
+    setDataSource(props.tableData || []);
   }, [props.tableData]);
 
   useEffect(() => {
@@ -246,7 +247,7 @@ export default (props: AntdTableProps) => {
   }, [props.widgetId]);
 
   return (
-    <div className="overflow-auto">
+    <div className="overflow-auto" ref={scrollBarRef}>
       <ProTable<any>
         actionRef={actionRef}
         cardBordered
@@ -287,6 +288,7 @@ export default (props: AntdTableProps) => {
         pagination={
           props.isVisiblePagination
             ? {
+                defaultPageSize: 10,
                 total: props.totalRecordsCount,
                 pageSize: pageSize,
                 showSizeChanger: true,
@@ -319,9 +321,9 @@ export default (props: AntdTableProps) => {
 
           return new Promise((resolve) => {
             props?.onQueryDataChange(params);
-
+            
             return resolve({
-              data: dataSource,
+              data: dataSource || [],
               success: true,
               total: props.totalRecordsCount || 0,
             });
@@ -398,4 +400,4 @@ export default (props: AntdTableProps) => {
       />
     </div>
   );
-};
+});
