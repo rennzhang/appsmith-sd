@@ -19,11 +19,16 @@ import type { ButtonVariant } from "components/constants";
 import type { Row } from "react-table";
 
 export interface AntdTableProps {
+  childrenColumnName: string;
   isActionFixed?: boolean;
   actionWidth?: number;
   editableCell: EditableCell;
   variant?: TableVariant;
-  columnActionClick: (onClick: string | undefined, index: number) => void;
+  columnActionClick: (
+    onClick: string | undefined,
+    record: Record<string, any>,
+    index: number,
+  ) => void;
   columnActions: ButtonAction[];
   compactMode?: CompactMode;
   queryData: Record<string, any>;

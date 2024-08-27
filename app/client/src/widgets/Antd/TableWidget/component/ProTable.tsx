@@ -34,57 +34,90 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
   return {
     title: "操作",
     valueType: "option",
-    key: "option",
+    key: "operation",
     fixed: "right",
     width: props.actionWidth || 120,
-    render: (text, record, recordIndex, action) => [
-      ...Object.values(sortedButtons).map((button) => {
-        return button.columnType == ColumnTypes.MENU_BUTTON ? (
-          <TableDropdown
-            key="actionGroup"
-            menus={Object.values(button.menuItems || {})
-              .filter((c) => c.isVisible)
-              ?.map((c) => ({
-                disabled: c.isDisabled,
-                key: c.id,
-                name: (
-                  <div
-                    className="inline-flex justify-center items-center"
-                    style={{
-                      color: c.textColor,
-                      backgroundColor: c.backgroundColor,
-                    }}
-                  >
-                    {c.iconAlign !== Alignment.RIGHT && c.iconName ? (
-                      <Icon
-                        className="mr-1"
-                        color={c.iconColor || "currentColor"}
-                        icon={c.iconName}
-                        size={14}
-                      />
-                    ) : null}
-                    <span
-                      onClick={() =>
-                        props.columnActionClick(c.onClick, recordIndex)
-                      }
+    render: (text, record, recordIndex, action, ...rest) => {
+      console.log("antd 表格 operation", {
+        text,
+        record,
+        recordIndex,
+        action,
+        rest,
+      });
+
+      return [
+        ...Object.values(sortedButtons).map((button) => {
+          return button.columnType == ColumnTypes.MENU_BUTTON ? (
+            <TableDropdown
+              key="actionGroup"
+              menus={Object.values(button.menuItems || {})
+                .filter((c) => c.isVisible)
+                ?.map((c) => ({
+                  disabled: c.isDisabled,
+                  key: c.id,
+                  name: (
+                    <div
+                      className="inline-flex justify-center items-center"
+                      style={{
+                        color: c.textColor,
+                        backgroundColor: c.backgroundColor,
+                      }}
                     >
-                      {c.label}
-                    </span>
-                    {c.iconAlign == Alignment.RIGHT && c.iconName ? (
-                      <Icon
-                        className="ml-1"
-                        color={c.iconColor || "currentColor"}
-                        icon={c.iconName}
-                        size={14}
-                      />
-                    ) : null}
-                  </div>
-                ),
-              }))}
-            style={{
-              color: button.buttonColor,
-            }}
-          >
+                      {c.iconAlign !== Alignment.RIGHT && c.iconName ? (
+                        <Icon
+                          className="mr-1"
+                          color={c.iconColor || "currentColor"}
+                          icon={c.iconName}
+                          size={14}
+                        />
+                      ) : null}
+                      <span
+                        onClick={() =>
+                          props.columnActionClick(
+                            c.onClick,
+                            record,
+                            recordIndex,
+                          )
+                        }
+                      >
+                        {c.label}
+                      </span>
+                      {c.iconAlign == Alignment.RIGHT && c.iconName ? (
+                        <Icon
+                          className="ml-1"
+                          color={c.iconColor || "currentColor"}
+                          icon={c.iconName}
+                          size={14}
+                        />
+                      ) : null}
+                    </div>
+                  ),
+                }))}
+              style={{
+                color: button.buttonColor,
+              }}
+            >
+              <ButtonComponent
+                buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
+                buttonSize="sm"
+                buttonVariant={"TERTIARY"}
+                configToken={{
+                  paddingInline: 0,
+                  controlHeight: 22,
+                }}
+                iconAlign={button.iconAlign}
+                iconName={button.menuIconName}
+                iconSize={14}
+                isDisabled={button.isDisabled}
+                key={button.id}
+                placement="CENTER"
+                text={button.menuButtonLabel}
+                tooltip={button.menuTooltip}
+                widgetId={button.widgetId}
+              />
+            </TableDropdown>
+          ) : (
             <ButtonComponent
               buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
               buttonSize="sm"
@@ -94,48 +127,29 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
                 controlHeight: 22,
               }}
               iconAlign={button.iconAlign}
-              iconName={button.menuIconName}
-              iconSize={14}
+              iconName={
+                button.columnType == ColumnTypes.BUTTON
+                  ? button.iconName
+                  : button.btnIconName
+              }
               isDisabled={button.isDisabled}
               key={button.id}
+              onClick={() => {
+                props.columnActionClick(button.onBtnClick, record, recordIndex);
+              }}
               placement="CENTER"
-              text={button.menuButtonLabel}
-              tooltip={button.menuTooltip}
+              text={
+                button.columnType == ColumnTypes.ICON_BUTTON
+                  ? ""
+                  : button.buttonLabel
+              }
+              tooltip={button.tooltip}
               widgetId={button.widgetId}
             />
-          </TableDropdown>
-        ) : (
-          <ButtonComponent
-            buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
-            buttonSize="sm"
-            buttonVariant={"TERTIARY"}
-            configToken={{
-              paddingInline: 0,
-              controlHeight: 22,
-            }}
-            iconAlign={button.iconAlign}
-            iconName={
-              button.columnType == ColumnTypes.BUTTON
-                ? button.iconName
-                : button.btnIconName
-            }
-            isDisabled={button.isDisabled}
-            key={button.id}
-            onClick={() => {
-              props.columnActionClick(button.onBtnClick, recordIndex);
-            }}
-            placement="CENTER"
-            text={
-              button.columnType == ColumnTypes.ICON_BUTTON
-                ? ""
-                : button.buttonLabel
-            }
-            tooltip={button.tooltip}
-            widgetId={button.widgetId}
-          />
-        );
-      }),
-    ],
+          );
+        }),
+      ];
+    },
   };
 };
 
@@ -270,6 +284,9 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
             return values;
           },
         }}
+        expandable={{
+          childrenColumnName:props.childrenColumnName
+        }}
         loading={props.isLoading}
         onReset={() => {
           setQueryData(initialQueryData);
@@ -321,7 +338,7 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
 
           return new Promise((resolve) => {
             props?.onQueryDataChange(params);
-            
+
             return resolve({
               data: dataSource || [],
               success: true,

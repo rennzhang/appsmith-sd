@@ -358,6 +358,23 @@ export default [
     ],
   },
   {
+    sectionName: "树形数据显示配置",
+    children: [
+      // childrenColumnName
+      {
+        helpText: "树形数据的子节点字段名",
+        propertyName: "childrenColumnName",
+        label: "子节点字段名",
+        controlType: "INPUT_TEXT",
+        defaultValue: "children",
+        placeholderText: "children",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+    ],
+  },
+  {
     sectionName: "排序",
     children: [
       {

@@ -1014,10 +1014,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   updateCurrentRecord = (currentRecord: Record<string, unknown>) => {
+    console.log("Antd 表格 updateCurrentRecord", currentRecord);
+
     this.updateWidgetProperty("currentRecord", currentRecord);
   };
 
-  columnActionClick = (onClick: string | undefined, index: number) => {
+  columnActionClick = (
+    onClick: string | undefined,
+    record: Record<string, any>,
+    index: number,
+  ) => {
     if (onClick) {
       const config: ExecuteTriggerPayload = {
         triggerPropertyName: "onClick",
@@ -1026,17 +1032,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           type: EventType.ON_CLICK,
         },
       };
-      const finalTableData = this.getFinalTableData();
-
-      console.log("finalTableData", finalTableData, index);
-
-      const currentRecord = finalTableData ? finalTableData[index] : {};
 
       config.globalContext = {
-        currentRecord: currentRecord,
+        currentRecord: record,
         currentIndex: index,
       };
-      this.updateCurrentRecord(currentRecord);
+      this.updateCurrentRecord(record);
 
       super.executeAction(config);
     }

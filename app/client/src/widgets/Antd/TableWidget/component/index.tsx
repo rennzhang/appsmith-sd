@@ -306,6 +306,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
+    prev.childrenColumnName === next.childrenColumnName &&
     prev.actionWidth === next.actionWidth &&
     equal(prev.columnActions, next.columnActions) &&
     prev.applyFilter === next.applyFilter &&
