@@ -413,7 +413,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   };
 
   async onButtonClick() {
-    if (this.props.formParentWidgetId) {
+    if (this.props.formParentWidgetId && this.props.validateOnSubmit) {
       await this.props?.triggerFormValidation();
     }
 
