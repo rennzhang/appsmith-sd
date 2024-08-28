@@ -75,7 +75,7 @@ const AntdInput = (props: InputComponentProps) => {
   const [value, setValue] = useState<InputDataType>();
 
   useEffect(() => {
-    setValue(String(defaultValue));
+    defaultValue && setValue(String(defaultValue));
     // setOptions(getPanelValue(String(defaultValue)));
   }, [defaultValue]);
 
@@ -157,6 +157,9 @@ const AntdInput = (props: InputComponentProps) => {
         return <Input {...commonProps} />;
     }
   };
+  console.group("AntdInput 输入框");
+  console.log("props", props);
+  console.groupEnd();
 
   return (
     <AntdFormItemContainer

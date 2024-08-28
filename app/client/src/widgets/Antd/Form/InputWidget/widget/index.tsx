@@ -95,14 +95,14 @@ export function defaultValueValidation(
          */
         isValid = true;
         messages = [EMPTY_ERROR_MESSAGE];
-        parsed = null;
+        parsed = undefined;
       } else if (!Number.isFinite(parsed)) {
         /*
          *  When parsed value is not a finite numer
          */
         isValid = false;
         messages = [NUMBER_ERROR_MESSAGE];
-        parsed = null;
+        parsed = undefined;
       } else {
         /*
          *  When parsed value is a Number
