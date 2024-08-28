@@ -1019,6 +1019,27 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     this.updateWidgetProperty("currentRecord", currentRecord);
   };
 
+  onExpand = (expanded: boolean, record: any) => {
+    const config: ExecuteTriggerPayload = {
+      triggerPropertyName: "onExpand",
+      dynamicString: this.props.onExpand,
+      event: {
+        type: EventType.ON_CLICK,
+      },
+    };
+
+    config.globalContext = {
+      expanded,
+      currentRecord: record,
+    };
+
+    this.updateWidgetProperty("currentRecord", record);
+
+    this.updateCurrentRecord(record);
+
+    super.executeAction(config);
+  };
+
   columnActionClick = (
     onClick: string | undefined,
     record: Record<string, any>,
@@ -1127,6 +1148,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onBulkEditDiscard={this.onBulkEditDiscard}
           onBulkEditSave={this.onBulkEditSave}
           onConnectData={this.onConnectData}
+          onExpand={this.onExpand}
           onQueryDataChange={this.handleQueryDataChange}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}

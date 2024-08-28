@@ -17,8 +17,11 @@ import type { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
 import type { Row } from "react-table";
+import { ProTableProps } from "@ant-design/pro-components";
 
 export interface AntdTableProps {
+  expandRowByClick?: boolean;
+  onExpand: (expanded: boolean, record: any) => void;
   childrenColumnName: string;
   isActionFixed?: boolean;
   actionWidth?: number;

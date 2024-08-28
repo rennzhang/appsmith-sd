@@ -372,6 +372,26 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
+      // expandRowByClick
+      {
+        helpText: "点击行时展开子节点",
+        propertyName: "expandRowByClick",
+        label: "点击行展开",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        defaultValue: false,
+      },
+      // onExpand 事件
+      {
+        helpText: "展开或收起树形数据时触发",
+        propertyName: "onExpand",
+        label: "onExpand",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
     ],
   },
   {

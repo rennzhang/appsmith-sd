@@ -145,15 +145,30 @@ class FormWidget extends ContainerWidget {
     const firstChild = this.getChildContainer();
     if (firstChild) {
       const formData = this.getFormData(firstChild);
+      const formAliasData = this.getFormAliasData(firstChild);
 
       if (!equal(formData, this.props.data)) {
         this.props.updateWidgetMetaProperty("data", formData);
+        this.props.updateWidgetMetaProperty("aliasData", formAliasData);
       }
     }
   }
   updateWidgetProps = async (path: string, value: any) => {
     this.props.updateWidgetMetaProperty(path, value);
   };
+
+  // 获取FormData Alias
+  getFormAliasData(formWidget: ContainerWidgetProps<WidgetProps>) {
+    const formData: any = {};
+
+    if (formWidget.children)
+      formWidget.children.forEach((widgetData) => {
+        if (!_.isNil(widgetData.value)) {
+          formData[widgetData.labelText] = widgetData.value;
+        }
+      });
+    return formData;
+  }
 
   getFormData(formWidget: ContainerWidgetProps<WidgetProps>) {
     const formData: any = {};
@@ -573,6 +588,7 @@ class FormWidget extends ContainerWidget {
         "!url": "https://docs.appsmith.com/widget-reference/form",
         isVisible: DefaultAutocompleteDefinitions.isVisible,
         data: generateTypeDef(widget.data, extraDefsToDefine),
+        aliasData: generateTypeDef(widget.aliasData, extraDefsToDefine),
         errorFields: generateTypeDef(widget.errorFields, extraDefsToDefine),
         hasChanges: "bool",
       };
@@ -602,6 +618,7 @@ type FormWidgetPropsExtends = ContainerComponentProps & ProFormProps;
 export interface FormWidgetProps extends FormWidgetPropsExtends {
   name: string;
   data: Record<string, unknown>;
+  aliasData: Record<string, unknown>;
   errorFields: ReturnType<FormInstance["getFieldsError"]>;
   hasChanges: boolean;
   labelWrap?: boolean;
