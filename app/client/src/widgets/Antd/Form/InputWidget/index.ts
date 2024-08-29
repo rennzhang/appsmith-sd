@@ -27,7 +27,8 @@ export const CONFIG = {
   searchTags: ["form", "text input", "number", "textarea"],
   defaults: {
     ...DEFAULT_CONFIG.defaults,
-
+    controls: true,
+    keyboard: true,
     textareaRowsControlType: "固定值",
     textareaRows: 4,
     textareaMinRows: 2,

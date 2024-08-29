@@ -10,7 +10,13 @@ type ValidationResponse = {
 };
 
 import _ from "lodash";
+export function validationNumberOrUndefined(value: any, props: any, _?: any) {
+  if (_?.isNil(value) || value === "") return { isValid: true, parsed: undefined, messages: [{ name: "", message: "" }] };
 
+  if (!_?.isNumber(parseInt(value))) return { isValid: false, parsed: undefined, messages: [{ name: "TypeError", message: "必须为数字" }] };
+
+  return { isValid: true, parsed: Number(value), messages: [{ name: "", message: "" }] };
+}
 export function selectOptionsCustomValidation(
   options: any,
   props: any,

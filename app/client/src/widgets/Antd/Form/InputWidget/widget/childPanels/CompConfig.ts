@@ -1,17 +1,14 @@
-import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { PropertyControlType } from "components/propertyControls";
-import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
-import { AntdLabelPosition, InputTypes } from "components/constants";
+import { InputTypes } from "components/constants";
 import type { AntdInputWidgetProps } from "../../types";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { defaultValueValidation } from "..";
 import { isInputTypeEmailOrPassword } from "../Utilities";
-import { Alignment } from "@blueprintjs/core";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import { FORM_LABEL_CONTENT_CONFIG } from "widgets/Antd/Form/CONST/DEFAULT_CONFIG";
+import { validationNumberOrUndefined } from "widgets/Antd/tools";
+
 export function minValueValidation(
   min: any,
   props: AntdInputWidgetProps,
@@ -162,19 +159,22 @@ export const InputControlProperty = [
         label: "默认值",
         controlType: "INPUT_TEXT",
         placeholderText: "请输入默认值",
+        isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.FUNCTION,
-          params: {
-            fn: defaultValueValidation,
-            expected: {
-              type: "string or number",
-              example: `John | 123`,
-              autocompleteDataType: AutocompleteDataType.STRING,
-            },
-          },
-        },
+        validation: { type: ValidationTypes.TEXT },
+
+        // validation: {
+        //   type: ValidationTypes.FUNCTION,
+        //   params: {
+        //     fn: defaultValueValidation,
+        //     expected: {
+        //       type: "string or number",
+        //       example: `John | 123`,
+        //       autocompleteDataType: AutocompleteDataType.STRING,
+        //     },
+        //   },
+        // },
       },
     ],
   },
@@ -291,6 +291,7 @@ export const InputControlProperty = [
       },
     ],
   },
+
   {
     sectionName: "属性",
     children: [
@@ -462,6 +463,129 @@ export const InputControlProperty = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
+    ],
+  },
+    // 数字输入框属性
+  {
+    sectionName: "数字输入框属性",
+    hidden: (props: AntdInputWidgetProps) => {
+      return props.inputType !== InputTypes.NUMBER;
+    },
+    children: [
+      // 是否使用 keyboard
+      {
+        helpText: "是否启用键盘快捷行为",
+        propertyName: "keyboard",
+        label: "键盘",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: true,
+        // hidden: (props: AntdInputWidgetProps) => {
+        //   return props.inputType !== InputTypes.NUMBER;
+        // },
+      },
+      // controls
+      {
+        helpText: "是否显示增减按钮",
+        propertyName: "controls",
+        label: "是否显示增减按钮",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: false,
+        // hidden: (props: AntdInputWidgetProps) => {
+        //   return props.inputType !== InputTypes.NUMBER;
+        // },
+      },
+      // stringMode
+      {
+        helpText: "字符值模式，开启后支持高精度小数",
+        propertyName: "stringMode",
+        label: "字符串模式",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: false,
+        dependencies: ["inputType"],
+        // hidden: (props: AntdInputWidgetProps) => {
+        //   return props.inputType !== InputTypes.NUMBER;
+        // },
+      },
+      // step
+      {
+        helpText: "设置步长",
+        propertyName: "step",
+        label: "步长",
+        controlType: "INPUT_TEXT",
+        placeholderText: "0.1",
+        isBindProperty: true,
+        defaultValue: 1,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.NUMBER },
+        dependencies: ["inputType"],
+        hidden: (props: AntdInputWidgetProps) => {
+          return props.inputType !== InputTypes.NUMBER;
+        },
+      },
+      // decimalSeparator
+      {
+        helpText: "设置小数点分隔符",
+        propertyName: "decimalSeparator",
+        label: "小数点分隔符",
+        controlType: "INPUT_TEXT",
+        placeholderText: ".",
+        isBindProperty: true,
+        defaultValue: ".",
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        dependencies: ["inputType"],
+        hidden: (props: AntdInputWidgetProps) => {
+          return props.inputType !== InputTypes.NUMBER;
+        },
+      },
+      // precision
+      {
+        helpText: "设置数字精度",
+        propertyName: "precision",
+        label: "精度",
+        controlType: "INPUT_TEXT",
+        placeholderText: "1",
+        isBindProperty: true,
+        // NUMBER or undefined
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: validationNumberOrUndefined,
+            expected: {
+              type: "number",
+              example: `1`,
+              autocompleteDataType: AutocompleteDataType.NUMBER,
+            },
+          },
+        },
+        isTriggerProperty: false,
+        dependencies: ["inputType"],
+        hidden: (props: AntdInputWidgetProps) => {
+          return props.inputType !== InputTypes.NUMBER;
+        },
+      },
+      // {
+      //   helpText: "通过 formatter 格式化数字",
+      //   propertyName: "formatterValue",
+      //   label: "格式化",
+      //   // controlType: "COMPUTE_VALUE_INPUT_TEXT",
+      //   controlType: "INPUT_TEXT",
+      //   defaultValue: "{{currentValue}}",
+      //   placeholderText: "请输入提示信息",
+      //   isJSConvertible: true,
+      //   isBindProperty: true,
+      //   isTriggerProperty: false,
+      //   validation: { type: ValidationTypes.TEXT },
+      // },
     ],
   },
   {

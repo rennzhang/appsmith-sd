@@ -361,8 +361,9 @@ class AutoCompleteWidget extends AntdInputWidget<
           children: [],
         },
       ],
-
-      InputControlProperty,
+      // InputControlProperty,
+      // 排除 sectionName: "数字输入框属性",
+      InputControlProperty.filter((item) => item.sectionName !== "数字输入框属性"),
     );
   }
 
