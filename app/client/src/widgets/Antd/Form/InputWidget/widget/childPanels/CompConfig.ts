@@ -315,6 +315,17 @@ export const InputControlProperty = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
+      // searchLoading
+      {
+        propertyName: "searchLoading",
+        label: "搜索加载中",
+        helpText: "搜索时显示加载中状态",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
       {
         propertyName: "allowClear",
         label: "显示清除按钮",
@@ -591,10 +602,22 @@ export const InputControlProperty = [
   {
     sectionName: "事件",
     children: [
+      // onSearch
+      {
+        helpText: "搜索时触发",
+        propertyName: "onSearch",
+        label: "onSearch",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        hidden: (props: AntdInputWidgetProps) => props.inputType !== InputTypes.SEARCH,
+        dependencies: ["inputType"],
+      },
       {
         helpText: "文本输入改变时触发",
         propertyName: "onTextChanged",
-        label: "onTextChanged",
+        label: "onChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,

@@ -3,13 +3,12 @@ import { ConfigProvider, Input, InputNumber } from "antd";
 import type { ProFormItemProps } from "@ant-design/pro-components";
 import { ProFormItem } from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
-import type { InputProps } from "antd/lib";
-import type { TextAreaProps } from "@blueprintjs/core";
 import { AntdLabelPosition } from "components/constants";
 import type { AntdInputWidgetProps } from "../types";
 import { omit, toNumber } from "lodash";
+import { Icon, IconName } from "@blueprintjs/core";
 
-const { TextArea } = Input;
+const { TextArea, Search } = Input;
 
 export interface InputComponentProps extends AntdInputWidgetProps {
   maxChars?: number;
@@ -28,97 +27,68 @@ export interface InputComponentProps extends AntdInputWidgetProps {
   textareaMaxRows?: number;
   textareaRowsControlType?: "固定值" | "自适应";
   allowClear?: boolean;
-  formatterValue?: string;
+  prefixType?: 'none' | 'icon' | 'text';
+  suffixType?: 'none' | 'icon' | 'text';
+  prefixIcon?: IconName;
+  suffixIcon?: IconName;
+  prefixText?: string;
+  suffixText?: string;
+  prefixColor?: string;
+  suffixColor?: string;
+  addonBeforeType?: 'none' | 'icon' | 'text';
+  addonAfterType?: 'none' | 'icon' | 'text';
+  addonBeforeIcon?: IconName;
+  addonAfterIcon?: IconName;
+  addonBeforeText?: string;
+  addonAfterText?: string;
+  addonBeforeColor?: string;
+  addonAfterColor?: string;
+  searchLoading?: boolean;
 }
 
 type InputDataType = number | string | undefined;
 
 const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
   const {
-    allowClear,
-    autoFocus,
-    borderRadius,
-    boxShadow,
-    controls,
-    controlSize,
-    defaultValue,
-    disabled,
-    errorMessage,
-    inputType,
-    keyboard,
-    labelAlignment,
-    labelPosition,
-    labelStyle,
-    labelText,
-    labelTextColor,
-    labelTextSize,
-    labelWidth,
-    maxChars,
-    maxNum,
-    minNum,
-    onFocusChange,
-    onValueChange,
-    placeholder,
-    regex,
-    required,
-    showCount,
-    textareaMaxRows: maxRows,
-    textareaMinRows: minRows,
-    textareaRows,
-    textareaRowsControlType,
-    tooltip,
-    validation,
-    widgetName,
-    decimalSeparator,
-    stringMode,
-    step,
-    formatterValue,
-    precision
-
+    allowClear, autoFocus, borderRadius, boxShadow, controls, controlSize,
+    defaultValue, disabled, errorMessage, inputType, keyboard, labelAlignment,
+    labelPosition, labelStyle, labelText, labelTextColor, labelTextSize,
+    labelWidth, maxChars, maxNum, minNum, onFocusChange, onValueChange,
+    placeholder, regex, required, showCount, textareaMaxRows: maxRows,
+    textareaMinRows: minRows, textareaRows, textareaRowsControlType, tooltip,
+    validation, widgetName, decimalSeparator, stringMode, step, precision,
+    prefixType, suffixType, prefixIcon, suffixIcon, prefixText, suffixText,
+    prefixColor, suffixColor, addonBeforeType, addonAfterType,
+    addonBeforeIcon, addonAfterIcon, addonBeforeText, addonAfterText,
+    addonBeforeColor, addonAfterColor,
   } = props;
 
   const [value, setValue] = useState<InputDataType>(defaultValue);
 
   useEffect(() => {
-    if (inputType === "NUMBER") {
-      setValue(defaultValue !== undefined ? toNumber(defaultValue) : undefined);
-    } else {
-      setValue(defaultValue);
-    }
+    setValue(inputType === "NUMBER" && defaultValue !== undefined ? toNumber(defaultValue) : defaultValue);
   }, [defaultValue, inputType]);
 
   const ruleRegexMemo = useMemo(() => (regex ? new RegExp(regex) : undefined), [regex]);
 
-  const validateProps = useMemo<ProFormItemProps>(() => {
-    const validateData: ProFormItemProps = {
+  const validateProps = useMemo<ProFormItemProps>(() => ({
+    required,
+    rules: [{
       required,
-      rules: [
-        {
-          required,
-          message: errorMessage,
-          max: maxChars,
-          pattern: ruleRegexMemo,
-          validateTrigger: ["onChange", "onBlur"],
-          type: inputType === "NUMBER" ? "number" : "string",
-        },
-      ],
-    };
-    if (required && validation === false) {
-      validateData.validateStatus = "error";
-      validateData.help = errorMessage;
-    }
-    return validateData;
-  }, [required, validation, errorMessage, maxChars, ruleRegexMemo, inputType]);
+      message: errorMessage,
+      max: maxChars,
+      pattern: ruleRegexMemo,
+      validateTrigger: ["onChange", "onBlur"],
+      type: inputType === "NUMBER" ? "number" : "string",
+    }],
+    ...(required && validation === false && { validateStatus: "error", help: errorMessage }),
+  }), [required, validation, errorMessage, maxChars, ruleRegexMemo, inputType]);
 
-  const colLayoutMemo = useMemo(() => {
-    if (labelPosition === AntdLabelPosition.Left) {
-      return {
-        labelCol: { sm: { span: labelWidth } },
-        wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
-      };
-    }
-    return {};
-  }, [labelPosition, labelWidth]);
+  const colLayoutMemo = useMemo(() =>
+    labelPosition === AntdLabelPosition.Left
+      ? { labelCol: { sm: { span: labelWidth } }, wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } } }
+      : {}
+    , [labelPosition, labelWidth]);
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -131,6 +101,38 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     setValue(newValue);
     onValueChange(newValue);
   }, [onValueChange]);
+
+  const getAddonContent = useCallback(() => {
+    const getContent = (type: 'none' | 'icon' | 'text', icon?: IconName, text?: string, color?: string) => {
+      if (type === 'icon' && icon) {
+        return <Icon icon={icon} color={color} />;
+      } else if (type === 'text' && text) {
+        return <span style={{ color }}>{text}</span>;
+      }
+      return null;
+    };
+
+    return {
+      addonBefore: getContent(addonBeforeType || 'none', addonBeforeIcon, addonBeforeText, addonBeforeColor),
+      addonAfter: getContent(addonAfterType || 'none', addonAfterIcon, addonAfterText, addonAfterColor),
+    };
+  }, [addonBeforeType, addonAfterType, addonBeforeIcon, addonAfterIcon, addonBeforeText, addonAfterText, addonBeforeColor, addonAfterColor]);
+
+  const getPrefixSuffixContent = useCallback(() => {
+    const getContent = (type: 'none' | 'icon' | 'text', icon?: IconName, text?: string, color?: string) => {
+      if (type === 'icon' && icon) {
+        return <Icon icon={icon} color={color} />;
+      } else if (type === 'text' && text) {
+        return <span style={{ color }}>{text}</span>;
+      }
+      return null;
+    };
+
+    return {
+      prefix: getContent(prefixType || 'none', prefixIcon, prefixText, prefixColor),
+      suffix: getContent(suffixType || 'none', suffixIcon, suffixText, suffixColor),
+    };
+  }, [prefixType, suffixType, prefixIcon, suffixIcon, prefixText, suffixText, prefixColor, suffixColor]);
 
   const commonProps = {
     className: "antd-input",
@@ -146,16 +148,18 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     showCount,
     allowClear,
     size: controlSize,
+    ...getAddonContent(),
+    ...getPrefixSuffixContent(),
   };
 
   const getInputComponent = useCallback(() => {
     switch (inputType) {
       case "MULTI_LINE_TEXT":
+        const textAreaProps = omit(commonProps, ['prefix', 'suffix', 'addonBefore', 'addonAfter']);
         return (
           <TextArea
-            {...commonProps}
+            {...textAreaProps}
             autoSize={textareaRowsControlType === "自适应" ? { minRows, maxRows } : undefined}
-            onChange={(e) => onChange(e as any)}
             rows={textareaRows || 4}
           />
         );
@@ -171,15 +175,22 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
             min={minNum}
             onChange={onNumberChange}
             value={value as number}
-            step={step||1}
+            step={step || 1}
             stringMode={stringMode}
             decimalSeparator={decimalSeparator}
             precision={precision}
-            // formatter={(value) => (formatterValue || value?.toString() || "").toString()}
-
-            // parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as unknown as number}
-            // formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            // parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as unknown as number}
+          />
+        );
+      case "SEARCH":
+        return (
+          <Search
+            {...commonProps}
+            onSearch={(value) => {
+              // 在这里处理搜索事件
+              console.log("Search:", value);
+              props.onSearch?.(value);
+            }}
+            loading={props.searchLoading}
           />
         );
       default:
@@ -187,9 +198,6 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     }
   }, [inputType, commonProps, textareaRowsControlType, minRows, maxRows, textareaRows, controls, keyboard, maxNum, minNum, onNumberChange]);
 
-  console.group("AntdInput 输入框组件");
-  console.log("props", props);
-  console.groupEnd();
   return (
     <AntdFormItemContainer
       boxShadow={boxShadow}
@@ -203,7 +211,6 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
             Form: {
               labelColor: labelTextColor,
               labelFontSize: (labelTextSize as unknown as number) || 0,
-
             },
             Input: {
               borderRadius: (borderRadius as unknown as number) || 0,

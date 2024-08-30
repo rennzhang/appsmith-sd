@@ -27,6 +27,7 @@ export const CONFIG = {
   searchTags: ["form", "text input", "number", "textarea"],
   defaults: {
     ...DEFAULT_CONFIG.defaults,
+
     controls: true,
     keyboard: true,
     textareaRowsControlType: "固定值",
@@ -38,9 +39,7 @@ export const CONFIG = {
     dynamicHeight: DynamicHeight.AUTO_HEIGHT,
     labelTextSize: "0.875rem",
     defaultValue: "",
-    // 组件拖拽后的默认高度
     rows: 8,
-    // 组件拖拽后的默认宽度
     columns: 16,
     inputType: "TEXT",
     widgetName: "AntdInput",
@@ -48,6 +47,23 @@ export const CONFIG = {
     showStepArrows: false,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
+
+    prefixType: "none",
+    suffixType: "none",
+    prefixIcon: "",
+    suffixIcon: "",
+    prefixText: "",
+    suffixText: "",
+    prefixColor: "",
+    suffixColor: "",
+    addonBeforeType: "none",
+    addonAfterType: "none",
+    addonBeforeIcon: "",
+    addonAfterIcon: "",
+    addonBeforeText: "",
+    addonAfterText: "",
+    addonBeforeColor: "",
+    addonAfterColor: "",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
