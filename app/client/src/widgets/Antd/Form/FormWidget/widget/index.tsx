@@ -314,6 +314,8 @@ class FormWidget extends ContainerWidget {
     return {
       hasChanges: false,
       errorFields: [],
+      data: {}, // 添加这行
+      aliasData: {}, // 添加这行
     };
   }
   static getPropertyPaneContentConfig() {
