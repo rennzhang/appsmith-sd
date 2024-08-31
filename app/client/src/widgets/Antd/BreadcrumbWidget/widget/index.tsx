@@ -23,6 +23,8 @@ import { updateMenuItemsSource } from "widgets/TableWidgetV2/widget/propertyUtil
 import { MenuItemsSource } from "../constants";
 import menuItemsConfig from "./propertyConfig/childPanels/menuItemsConfig";
 import { orderBy, isArray } from "lodash";
+import IconRenderer from "widgets/Antd/Components/IconRenderer";
+
 class BreadcrumWidget extends BaseWidget<
   BreadcrumWidgetProps,
   ButtonWidgetState
@@ -292,23 +294,21 @@ class BreadcrumWidget extends BaseWidget<
             {iconAlign == Alignment.RIGHT ? (
               <>
                 <span style={{ color: textColor }}>{item.label}</span>
-                {iconName && (
-                  <Icon
-                    className="ml-2"
-                    color={iconColor}
-                    icon={iconName as any}
-                  />
-                )}
+                {iconName && <IconRenderer
+                  className="ml-2"
+                  color={iconColor}
+                  icon={iconName as string}
+                />}
               </>
             ) : (
               <>
-                {iconName && (
-                  <Icon
+                {
+                  iconName &&
+                  <IconRenderer
                     className="mr-2"
                     color={iconColor}
-                    icon={iconName as any}
-                  />
-                )}
+                    icon={iconName as string}
+                  />}
                 <span style={{ color: textColor }}>{item.label}</span>
               </>
             )}

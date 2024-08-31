@@ -3,10 +3,12 @@ import styled, { createGlobalStyle } from "styled-components";
 import { Alignment, Button, Classes, MenuItem } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import { IconNames } from "@blueprintjs/icons";
+import * as AntIcons from "@ant-design/icons";
 import type { ItemListRenderer, ItemRenderer } from "@blueprintjs/select";
 import { Select } from "@blueprintjs/select";
 import type { GridListProps, VirtuosoGridHandle } from "react-virtuoso";
 import { VirtuosoGrid } from "react-virtuoso";
+import { useState, useEffect } from "react";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
@@ -103,6 +105,7 @@ const StyledMenuItem = styled(MenuItem)`
 export interface IconSelectControlProps extends ControlProps {
   propertyValue?: IconName;
   defaultIconName?: IconName;
+  showAntdIcon?: boolean;
 }
 
 export interface IconSelectControlState {
@@ -111,10 +114,16 @@ export interface IconSelectControlState {
 }
 
 const NONE = "(none)";
-type IconType = IconName | typeof NONE;
-const ICON_NAMES = Object.keys(IconNames).map<IconType>(
-  (name: string) => IconNames[name as keyof typeof IconNames],
-);
+const ANT_PREFIX = "ant-design:"; // 定���Ant Design图标的前缀
+type IconType = IconName | typeof NONE | string;
+const ICON_NAMES = [
+  ...Object.keys(IconNames).map<IconType>(
+    (name: string) => IconNames[name as keyof typeof IconNames],
+  ),
+  ...Object.keys(AntIcons)
+    .filter((key) => typeof AntIcons[key as keyof typeof AntIcons] === "object")
+    .map((key) => `${ANT_PREFIX}${key}`), // 为Ant Design图标添加前缀
+];
 ICON_NAMES.unshift(NONE);
 const icons = new Set(ICON_NAMES);
 
@@ -163,6 +172,8 @@ class IconSelectControl extends BaseControl<
   );
 
   componentDidMount() {
+    console.log("IconSelectControl componentDidMount", this.props);
+
     // keydown event is attached to body so that it will not interfere with the keydown handler in GlobalHotKeys
     document.body.addEventListener("keydown", this.handleKeydown);
   }
@@ -170,6 +181,10 @@ class IconSelectControl extends BaseControl<
   componentWillUnmount() {
     document.body.removeEventListener("keydown", this.handleKeydown);
   }
+
+  isAntdComponent = () => {
+    return this.props.widgetProperties.type.toLowerCase().includes("antd");
+  };
 
   private handleQueryChange = _.debounce(() => {
     if (this.filteredItems.length === 2)
@@ -194,7 +209,7 @@ class IconSelectControl extends BaseControl<
           itemListRenderer={this.renderMenu}
           itemPredicate={this.filterIconName}
           itemRenderer={this.renderIconItem}
-          items={ICON_NAMES}
+          items={this.getIconNames()}
           onItemSelect={this.handleItemSelect}
           onQueryChange={this.handleQueryChange}
           popoverProps={{
@@ -215,7 +230,7 @@ class IconSelectControl extends BaseControl<
             }
             elementRef={this.iconSelectTargetRef}
             fill
-            icon={iconName || defaultIconName}
+            icon={this.renderIcon(activeIcon)}
             onClick={this.handleButtonClick}
             rightIcon="caret-down"
             tabIndex={0}
@@ -394,18 +409,53 @@ class IconSelectControl extends BaseControl<
     );
   };
 
-  private renderIconItem: ItemRenderer<IconName | typeof NONE> = (
+  private getIconNames(): IconType[] {
+    const blueprintIcons = Object.keys(IconNames).map<IconType>(
+      (name: string) => IconNames[name as keyof typeof IconNames],
+    );
+
+    let iconNames = [NONE, ...blueprintIcons];
+
+    if (this.props.showAntdIcon || this.isAntdComponent()) {
+      const antIcons = Object.keys(AntIcons)
+        .filter(
+          (key) => typeof AntIcons[key as keyof typeof AntIcons] === "object",
+        )
+        .map((key) => `${ANT_PREFIX}${key}`);
+      iconNames = [
+        NONE,
+        ...antIcons,
+        ...iconNames.filter((icon) => icon !== NONE),
+      ];
+    }
+
+    return iconNames;
+  }
+
+  private renderIcon = (icon: IconType) => {
+    if (icon === NONE) return undefined;
+    if (
+      (this.props.showAntdIcon || this.isAntdComponent()) &&
+      icon.startsWith(ANT_PREFIX)
+    ) {
+      return <AntIconWrapper iconName={icon.slice(ANT_PREFIX.length)} />;
+    }
+    return icon as IconName;
+  };
+
+  private renderIconItem: ItemRenderer<IconType> = (
     icon,
     { handleClick, modifiers },
   ) => {
     if (!modifiers.matchesPredicate) {
       return null;
     }
+
     return (
       <Tooltip content={icon} mouseEnterDelay={0}>
         <StyledMenuItem
           active={modifiers.active}
-          icon={icon === NONE ? undefined : icon}
+          icon={this.renderIcon(icon)}
           key={icon}
           onClick={handleClick}
           text={icon === NONE ? NONE : undefined}
@@ -415,18 +465,17 @@ class IconSelectControl extends BaseControl<
     );
   };
 
-  private filterIconName = (
-    query: string,
-    iconName: IconName | typeof NONE,
-  ) => {
+  private filterIconName = (query: string, iconName: IconType) => {
     if (iconName === NONE || query === "") {
       return true;
     }
-    return iconName.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+    const searchableName = iconName;
+    return searchableName.toLowerCase().indexOf(query.toLowerCase()) >= 0;
   };
 
   private handleIconChange = (icon: IconType, isUpdatedViaKeyboard = false) => {
     this.setState({ activeIcon: icon });
+    // 如果是Ant Design图标,在存储时保留前缀
     this.updateProperty(
       this.props.propertyName,
       icon === NONE ? undefined : icon,
@@ -447,8 +496,34 @@ class IconSelectControl extends BaseControl<
     value: any,
   ): boolean {
     if (icons.has(value)) return true;
+    if (value.startsWith(ANT_PREFIX)) return true;
     return false;
   }
 }
+
+const AntIconWrapper: React.FC<{ iconName: string }> = ({ iconName }) => {
+  const [Icon, setIcon] = useState<React.ComponentType | null>(null);
+
+  useEffect(() => {
+    const loadIcon = async () => {
+      try {
+        const AntIcons = await import("@ant-design/icons");
+        const IconComponent = AntIcons[
+          iconName as keyof typeof AntIcons
+        ] as React.ComponentType;
+        if (IconComponent) {
+          setIcon(() => IconComponent);
+        }
+      } catch (error) {
+        console.error(`Failed to load icon: ${iconName}`, error);
+      }
+    };
+
+    loadIcon();
+  }, [iconName]);
+
+  if (!Icon) return null;
+  return <Icon />;
+};
 
 export default IconSelectControl;

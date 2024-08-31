@@ -328,6 +328,31 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       {
         sectionName: "颜色配置",
         children: [
+          // iconColor
+          {
+            propertyName: "iconColor",
+            helpText: "修改图标颜色",
+            defaultValue: "#FFF",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            label: "图标颜色",
+            controlType: "COLOR_PICKER",
+            validation: { type: ValidationTypes.TEXT },
+
+          },
+          // textColor
+          {
+            propertyName: "textColor",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            helpText: "修改文本颜色",
+            label: "文本颜色",
+            controlType: "COLOR_PICKER",
+            defaultValue: "#FFF",
+            validation: { type: ValidationTypes.TEXT },
+          },
           {
             propertyName: "buttonColor",
             helpText: "修改按钮颜色",
@@ -522,17 +547,17 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         isDisabled={isDisabled}
-        isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         maxWidth={this.props.maxWidth}
         minHeight={this.props.minHeight}
         minWidth={this.props.minWidth}
-        onClick={this.onButtonClickBound}
         placement={this.props.placement}
         recaptchaType={this.props.recaptchaType}
-        shouldFitContent={this.isAutoLayoutMode}
         text={this.props.text}
         tooltip={this.props.tooltip}
+        {...this.props}
+        isLoading={this.props.isLoading || this.state.isLoading}
+        onClick={this.onButtonClickBound}
         type={this.props.buttonType || ButtonType.BUTTON}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}

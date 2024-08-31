@@ -7,6 +7,8 @@ import { AntdLabelPosition } from "components/constants";
 import type { AntdInputWidgetProps } from "../types";
 import { omit, toNumber } from "lodash";
 import { Icon, IconName } from "@blueprintjs/core";
+import * as AntIcons from "@ant-design/icons";
+import IconRenderer from "widgets/Antd/Components/IconRenderer";
 
 const { TextArea, Search } = Input;
 
@@ -102,38 +104,6 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     onValueChange(newValue);
   }, [onValueChange]);
 
-  const getAddonContent = useCallback(() => {
-    const getContent = (type: 'none' | 'icon' | 'text', icon?: IconName, text?: string, color?: string) => {
-      if (type === 'icon' && icon) {
-        return <Icon icon={icon} color={color} />;
-      } else if (type === 'text' && text) {
-        return <span style={{ color }}>{text}</span>;
-      }
-      return null;
-    };
-
-    return {
-      addonBefore: getContent(addonBeforeType || 'none', addonBeforeIcon, addonBeforeText, addonBeforeColor),
-      addonAfter: getContent(addonAfterType || 'none', addonAfterIcon, addonAfterText, addonAfterColor),
-    };
-  }, [addonBeforeType, addonAfterType, addonBeforeIcon, addonAfterIcon, addonBeforeText, addonAfterText, addonBeforeColor, addonAfterColor]);
-
-  const getPrefixSuffixContent = useCallback(() => {
-    const getContent = (type: 'none' | 'icon' | 'text', icon?: IconName, text?: string, color?: string) => {
-      if (type === 'icon' && icon) {
-        return <Icon icon={icon} color={color} />;
-      } else if (type === 'text' && text) {
-        return <span style={{ color }}>{text}</span>;
-      }
-      return null;
-    };
-
-    return {
-      prefix: getContent(prefixType || 'none', prefixIcon, prefixText, prefixColor),
-      suffix: getContent(suffixType || 'none', suffixIcon, suffixText, suffixColor),
-    };
-  }, [prefixType, suffixType, prefixIcon, suffixIcon, prefixText, suffixText, prefixColor, suffixColor]);
-
   const commonProps = {
     className: "antd-input",
     disabled,
@@ -148,8 +118,30 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     showCount,
     allowClear,
     size: controlSize,
-    ...getAddonContent(),
-    ...getPrefixSuffixContent(),
+    addonBefore: IconRenderer({
+      type: addonBeforeType,
+      icon: addonBeforeIcon,
+      text: addonBeforeText,
+      color: addonBeforeColor,
+    }),
+    addonAfter: IconRenderer({
+      type: addonAfterType,
+      icon: addonAfterIcon,
+      text: addonAfterText,
+      color: addonAfterColor,
+    }),
+    prefix: IconRenderer({
+      type: prefixType,
+      icon: prefixIcon,
+      text: prefixText,
+      color: prefixColor,
+    }),
+    suffix: IconRenderer({
+      type: suffixType,
+      icon: suffixIcon,
+      text: suffixText,
+      color: suffixColor,
+    }),
   };
 
   const getInputComponent = useCallback(() => {

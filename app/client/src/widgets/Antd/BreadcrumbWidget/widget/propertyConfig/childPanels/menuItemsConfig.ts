@@ -71,6 +71,7 @@ export default {
           propertyName: "iconName",
           label: "图标",
           helpText: "设置菜单项的图标",
+          showAntdIcon: true,
           controlType: "ICON_SELECT",
           isBindProperty: false,
           isTriggerProperty: false,

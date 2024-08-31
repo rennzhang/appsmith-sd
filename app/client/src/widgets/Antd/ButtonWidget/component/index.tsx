@@ -31,7 +31,7 @@ import {
 } from "components/constants";
 import type { ButtonProps } from "design-system";
 import { toast } from "design-system";
-import { Icon } from "@blueprintjs/core";
+import IconRenderer from "../../Components/IconRenderer";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -76,6 +76,8 @@ interface ButtonComponentProps extends ComponentProps {
   minHeight?: number;
   maxWidth?: number;
   buttonSize?: ButtonProps["size"];
+  iconColor?: string;
+  textColor?: string;
 }
 
 type RecaptchaV2ComponentPropType = {
@@ -281,6 +283,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
     iconName,
     iconSize,
     placement,
+    iconColor,
   } = props;
   const btnWrapper = (
     <BtnWrapper
@@ -322,13 +325,24 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
             iconSize={iconSize}
             placement={placement}
           >
-            {iconAlign !== Alignment.RIGHT && iconName ? (
-              <Icon className="mr-1" icon={iconName} size={iconSize} />
-            ) : null}
-            {props.text}
-            {iconAlign == Alignment.RIGHT && iconName ? (
-              <Icon className="ml-1" icon={iconName} size={iconSize} />
-            ) : null}
+            {iconAlign !== Alignment.RIGHT && iconName && (
+              <IconRenderer
+                className="mr-1"
+                icon={iconName}
+                size={iconSize}
+                color={iconColor}
+              />
+            )}
+            <span style={{ color: props.textColor }}>{props.text}</span>
+
+            {iconAlign === Alignment.RIGHT && iconName && (
+              <IconRenderer
+                className="ml-1"
+                icon={iconName}
+                size={iconSize}
+                color={iconColor}
+              />
+            )}
           </StyledDropdownBtnContent>
         </Button>
       </ConfigProvider>
@@ -367,13 +381,23 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
               iconSize={iconSize}
               placement={placement}
             >
-              {iconAlign !== Alignment.RIGHT && iconName ? (
-                <Icon className="mr-1" icon={iconName} size={iconSize} />
-              ) : null}
-              {props.text}
-              {iconAlign == Alignment.RIGHT && iconName ? (
-                <Icon className="ml-1" icon={iconName} size={iconSize} />
-              ) : null}
+              {iconAlign !== Alignment.RIGHT && iconName && (
+                <IconRenderer
+                  color={iconColor}
+                  className="mr-1"
+                  icon={iconName}
+                  size={iconSize}
+                />
+              )}
+              <span style={{ color: props.textColor }}>{props.text}</span>
+              {iconAlign === Alignment.RIGHT && iconName && (
+                <IconRenderer
+                  className="ml-1"
+                  color={iconColor}
+                  icon={iconName}
+                  size={iconSize}
+                />
+              )}
             </StyledDropdownBtnContent>
           </Button>
         </ConfigProvider>

@@ -1,7 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { MenuButtonWidgetProps } from "../../../constants";
-import { ICON_NAMES } from "../../../constants";
-import { getKeysFromSourceDataForEventAutocomplete } from "../../helper";
+import { MenuButtonWidgetProps } from "widgets/MenuButtonWidget/constants";
+import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
+import { ICON_NAMES } from "widgets/constants";
 
 export default {
   editableTitle: false,
@@ -92,11 +92,14 @@ export default {
         {
           propertyName: "iconName",
           label: "图标",
-          helpText: "设置菜单项的图标，通过 {{currentItem}} 绑定当前菜单项数据",
+          helpText:
+            "设置当前项图标，通过 {{currentItem}} 绑定当前项数据",
+
           controlType: "ICON_SELECT",
           isBindProperty: true,
           isTriggerProperty: false,
           isJSConvertible: true,
+          showAntdIcon: true,
           validation: {
             type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
             params: {
@@ -113,7 +116,7 @@ export default {
           propertyName: "iconAlign",
           label: "位置",
           helpText:
-            "设置菜单项图标对齐方向，通过 {{currentItem}} 绑定当前菜单项数据",
+            "设置图标位置，通过 {{currentItem}} 绑定当前项数据",
           controlType: "ICON_TABS",
           defaultValue: "left",
           fullWidth: false,
@@ -150,7 +153,7 @@ export default {
         {
           propertyName: "iconColor",
           helpText:
-            "设置菜单项图标颜色，通过 {{currentItem}} 绑定当前菜单项数据",
+            "设置图标颜色，通过 {{currentItem}} 绑定当前项数据",
           label: "图标颜色",
           controlType: "COLOR_PICKER",
           isBindProperty: true,
