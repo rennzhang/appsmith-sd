@@ -9,6 +9,7 @@ import {
 } from "components/constants";
 import type { MenuButtonComponentProps, MenuItem } from "../constants";
 import { Button, ConfigProvider, Dropdown } from "antd";
+import IconRenderer from "widgets/Antd/Components/IconRenderer";
 const StyledDropdownBox = styled.div<{
   boxShadow?: string;
   borderRadius?: string;
@@ -54,7 +55,7 @@ type DropdownCompProps = PartialKeys<
   "width" | "widgetId"
 >;
 
-function DropdownComp(props: DropdownCompProps) {
+function AntdDropdownComp(props: DropdownCompProps) {
   const {
     borderRadius,
     boxShadow,
@@ -71,6 +72,8 @@ function DropdownComp(props: DropdownCompProps) {
     menuTrigger,
     onItemClicked,
     placement,
+    iconColor,
+    textColor,
   } = props;
 
   const visibleItems = getVisibleItems();
@@ -109,7 +112,7 @@ function DropdownComp(props: DropdownCompProps) {
           }
         >
           {iconAlign !== Alignment.RIGHT && iconName ? (
-            <Icon
+            <IconRenderer
               className="mr-1"
               color={iconColor || "currentColor"}
               icon={iconName}
@@ -118,7 +121,7 @@ function DropdownComp(props: DropdownCompProps) {
           <span style={{ color: textColor }}>{label}</span>
 
           {iconAlign === Alignment.RIGHT && iconName ? (
-            <Icon
+            <IconRenderer
               className="ml-1"
               color={iconColor || "currentColor"}
               icon={iconName}
@@ -129,6 +132,9 @@ function DropdownComp(props: DropdownCompProps) {
     };
   });
 
+  console.group("Antd 下拉菜单");
+  console.log(" props", props);
+  console.groupEnd();
   return (
     <Dropdown
       arrow
@@ -171,11 +177,19 @@ function DropdownComp(props: DropdownCompProps) {
               placement={placement}
             >
               {iconAlign !== Alignment.RIGHT && iconName ? (
-                <Icon className="mr-1" icon={iconName} />
+                <IconRenderer
+                  className="mr-1"
+                  icon={iconName}
+                  color={iconColor}
+                />
               ) : null}
-              {label}
+              <span style={{ color: textColor }}>{label}</span>
               {iconAlign == Alignment.RIGHT && iconName ? (
-                <Icon className="ml-1" icon={iconName} />
+                <IconRenderer
+                  className="ml-1"
+                  icon={iconName}
+                  color={iconColor}
+                />
               ) : null}
             </StyledDropdownBtnContent>
           </Button>
@@ -185,53 +199,4 @@ function DropdownComp(props: DropdownCompProps) {
   );
 }
 
-function MenuButtonComponent(props: MenuButtonComponentProps) {
-  console.log("MenuButtonComponent props", props);
-  const {
-    borderRadius,
-    boxShadow,
-    buttonColor,
-    buttonSize,
-    buttonVariant,
-    configureMenuItems,
-    getVisibleItems,
-    iconAlign,
-    iconName,
-    isCompact,
-    isDisabled,
-    label,
-    menuItems,
-    menuItemsSource,
-    menuPosition,
-    menuTrigger,
-    onItemClicked,
-    placement,
-    sourceData,
-  } = props;
-
-  return (
-    <DropdownComp
-      borderRadius={borderRadius}
-      boxShadow={boxShadow}
-      buttonColor={buttonColor}
-      buttonSize={buttonSize}
-      buttonVariant={buttonVariant}
-      configureMenuItems={configureMenuItems}
-      getVisibleItems={getVisibleItems}
-      iconAlign={iconAlign}
-      iconName={iconName}
-      isCompact={isCompact}
-      isDisabled={isDisabled}
-      label={label}
-      menuItems={menuItems}
-      menuItemsSource={menuItemsSource}
-      menuPosition={menuPosition}
-      menuTrigger={menuTrigger}
-      onItemClicked={onItemClicked}
-      placement={placement}
-      sourceData={sourceData}
-    />
-  );
-}
-
-export default MenuButtonComponent;
+export default AntdDropdownComp;

@@ -86,7 +86,6 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
-          // !暂不支持，需要配合 form 组件
           {
             helpText: "设置组件标签位置",
             propertyName: "labelPosition",

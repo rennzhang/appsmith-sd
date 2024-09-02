@@ -65,6 +65,8 @@ export const CONFIG = {
       },
     },
     isInc: true,
+    startAddonType: "none",
+    endAddonType: "none",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

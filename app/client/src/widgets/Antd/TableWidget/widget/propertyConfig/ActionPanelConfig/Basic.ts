@@ -23,7 +23,7 @@ export default {
       propertyName: "columnType",
       label: "按钮类型",
       helpText:
-        "Type of column to be shown corresponding to the data of the column",
+        "设置按钮类型，文本按钮、图标按钮、菜单按钮",
       controlType: "DROP_DOWN",
       options: [
         {
@@ -68,14 +68,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: ICON_NAMES,
-            default: null,
-          },
-        },
+        type: ValidationTypes.TEXT,
       },
     },
     // menuIconName

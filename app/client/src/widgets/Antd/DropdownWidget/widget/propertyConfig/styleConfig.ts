@@ -10,7 +10,7 @@ export default [
       {
         propertyName: "buttonVariant",
         label: "按钮类型",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
         helpText: "设置菜单按钮的风格类型",
         options: [
           {
@@ -194,6 +194,18 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
+      // textColor
+      {
+        propertyName: "textColor",
+        helpText: "设置文本颜色",
+        label: "文本颜色",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: "#ffffff",
+        validation: { type: ValidationTypes.TEXT },
+      },
       {
         propertyName: "iconColor",
         helpText: "设置图标颜色",
@@ -202,12 +214,8 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        defaultValue: "#ffffff",
         validation: { type: ValidationTypes.TEXT },
-        // 当 isDragger == true 时，显示该配置
-        hidden: (props: MenuButtonWidgetProps) => {
-          return !props.isDragger;
-        },
-        dependencies: ["isDragger"],
       },
     ],
   },

@@ -18,6 +18,7 @@ import type {
 import { ProFormItem } from "@ant-design/pro-components";
 import type { FormLabelAlign } from "@taroify/core/form";
 import type { FileType } from "design-system-old";
+import IconRenderer from "widgets/Antd/Components/IconRenderer";
 const StyledDropdownBox = styled.div<{
   boxShadow?: string;
   borderRadius?: string;
@@ -270,7 +271,7 @@ function FilePickerComponent(props: FilePickerComponentProps) {
             >
               <UploadDraggerContentBox iconColor={iconColor}>
                 <p className="ant-upload-drag-icon">
-                  <Icon color={iconColor} icon={iconName} size={iconSize} />
+                  <IconRenderer color={iconColor} icon={iconName} size={iconSize} />
                 </p>
                 <p className="ant-upload-text">
                   单击或拖动文件到此区域进行上传
@@ -306,11 +307,11 @@ function FilePickerComponent(props: FilePickerComponentProps) {
                   placement={placement}
                 >
                   {iconAlign !== Alignment.RIGHT && iconName ? (
-                    <Icon className="mr-1" icon={iconName} />
+                    <IconRenderer className="mr-1" icon={iconName} />
                   ) : null}
                   {label}
                   {iconAlign == Alignment.RIGHT && iconName ? (
-                    <Icon className="ml-1" icon={iconName} />
+                    <IconRenderer className="ml-1" icon={iconName} />
                   ) : null}
                 </BtnContent>
               </Button>

@@ -1,4 +1,4 @@
-import { Alignment } from "@blueprintjs/core";
+import { Alignment, IconName } from "@blueprintjs/core";
 import { compact, isArray, update } from "lodash";
 
 import { AntdLabelPosition } from "components/constants";
@@ -23,6 +23,19 @@ import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
 import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
+
+// 在 SliderWidgetProps 接口中修改和添加新的属性
+type SliderWidgetPropsMerge = WidgetProps & SliderComponentProps;
+interface SliderWidgetProps extends SliderWidgetPropsMerge {
+  startAddonType: "icon" | "text" | "none";
+  endAddonType: "icon" | "text" | "none";
+  startAddonColor?: string;
+  endAddonColor?: string;
+  startAddonText: string;
+  endAddonText: string;
+  startAddonIcon: IconName;
+  endAddonIcon: IconName;
+}
 
 class SliderWidget extends BaseWidget<SliderWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -514,6 +527,7 @@ class SliderWidget extends BaseWidget<SliderWidgetProps, WidgetState> {
           },
         ],
       },
+
     ];
   }
 
@@ -521,95 +535,112 @@ class SliderWidget extends BaseWidget<SliderWidgetProps, WidgetState> {
     return mergeWidgetConfig(
       [
         {
-          sectionName: "组件样式",
+          sectionName: "左侧附加内容",
           children: [
-            // 展示内容
             {
-              helpText: "设置滑动输入两侧附加内容",
-              propertyName: "displayContent",
-              label: "附加内容",
+              propertyName: "startAddonType",
+              label: "类型",
+              helpText: "设置左侧附加内容的颜色",
               controlType: "ICON_TABS",
-              fullWidth: true,
               options: [
                 { label: "无", value: "none" },
                 { label: "图标", value: "icon" },
                 { label: "文本", value: "text" },
               ],
-              defaultValue: AntdLabelPosition.Left,
               isBindProperty: false,
               isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
+              defaultValue: "none",
             },
-            // 选中时显示的图标
             {
-              propertyName: "startIconName",
-              label: "左侧自定义图标",
-              helpText: "设置滑动输入组件左侧自定义图标",
+              propertyName: "startAddonIcon",
+              label: "图标",
+              helpText: "设置左侧附加内容的图标",
               controlType: "ICON_SELECT",
-              isJSConvertible: true,
               isBindProperty: false,
+              disabledAntdTwoToneIcons: true,
               isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
+              dependencies: ["startAddonType"],
               hidden: (props: SliderWidgetProps) =>
-                props.displayContent !== "icon",
-              dependencies: ["displayContent"],
+                props.startAddonType !== "icon",
             },
-            // 未选中时显示的图标
             {
-              propertyName: "endIconName",
-              label: "右侧自定义图标",
-              helpText: "设置滑动输入组件右侧自定义图标",
-              controlType: "ICON_SELECT",
-              isJSConvertible: true,
-              isBindProperty: false,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
-              hidden: (props: SliderWidgetProps) =>
-                props.displayContent !== "icon",
-              dependencies: ["displayContent"],
-            },
-            // 选中时显示的文本
-            {
-              propertyName: "startText",
-              label: "左侧自定义文本",
-              helpText: "设置滑动输入组件左侧自定义文本内容",
+              propertyName: "startAddonText",
+              label: "文本",
+              helpText: "设置左侧附加内容的文本",
               controlType: "INPUT_TEXT",
-              isJSConvertible: true,
-              isBindProperty: false,
+              placeholderText: "输入文本",
+              isBindProperty: true,
               isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
+              dependencies: ["startAddonType"],
               hidden: (props: SliderWidgetProps) =>
-                props.displayContent !== "text",
-              dependencies: ["displayContent"],
-            },
-            // 未选中时显示的文本
-            {
-              propertyName: "endText",
-              label: "右侧自定义文本",
-              placeholderText: "请输入文本内容",
-              helpText: "设置滑动输入组件右侧自定义文本内容",
-              controlType: "INPUT_TEXT",
-              isJSConvertible: true,
-              isBindProperty: false,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
-              hidden: (props: SliderWidgetProps) =>
-                props.displayContent !== "text",
-              dependencies: ["displayContent"],
+                props.startAddonType !== "text",
             },
             {
-              propertyName: "displayContentColor",
-              label: "附加内容颜色",
-              helpText: "设置附加内容的颜色",
-              placeholderText: "请输入文本内容",
+              propertyName: "startAddonColor",
+              label: "左侧附加内容颜色",
+              helpText: "设置左侧附加内容的颜色",
               controlType: "COLOR_PICKER",
               isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.TEXT },
               hidden: (props: SliderWidgetProps) =>
-                props.displayContent == "none",
-              dependencies: ["displayContent"],
+                props.startAddonType === "none",
+              dependencies: ["startAddonType"],
+            },
+          ],
+        },
+        {
+          sectionName: "右侧附加内容",
+          children: [
+            {
+              propertyName: "endAddonType",
+              label: "类型",
+              helpText: "设置右侧附加内容的类型",
+              controlType: "ICON_TABS",
+              options: [
+                { label: "无", value: "none" },
+                { label: "图标", value: "icon" },
+                { label: "文本", value: "text" },
+              ],
+              isBindProperty: false,
+              isTriggerProperty: false,
+              defaultValue: "none",
+            },
+            {
+              propertyName: "endAddonIcon",
+              label: "图标",
+              helpText: "设置右侧附加内容的图标",
+              disabledAntdTwoToneIcons: true,
+              controlType: "ICON_SELECT",
+              isBindProperty: false,
+              isTriggerProperty: false,
+              dependencies: ["endAddonType"],
+              hidden: (props: SliderWidgetProps) => props.endAddonType !== "icon",
+            },
+            {
+              propertyName: "endAddonText",
+              label: "文本",
+              helpText: "设置右侧附加内容的文本",
+              controlType: "INPUT_TEXT",
+              placeholderText: "输入文本",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              dependencies: ["endAddonType"],
+              hidden: (props: SliderWidgetProps) => props.endAddonType !== "text",
+            },
+            {
+              propertyName: "endAddonColor",
+              label: "右侧附加内容颜色",
+              helpText: "设置右侧附加内容的颜色",
+              controlType: "COLOR_PICKER",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+              hidden: (props: SliderWidgetProps) =>
+                props.endAddonType === "none",
+              dependencies: ["endAddonType"],
             },
           ],
         },
@@ -736,5 +767,4 @@ class SliderWidget extends BaseWidget<SliderWidgetProps, WidgetState> {
   }
 }
 
-export type SliderWidgetProps = WidgetProps & SliderComponentProps;
 export default SliderWidget;

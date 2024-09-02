@@ -29,6 +29,7 @@ import {
 } from "@ant-design/icons";
 import type { IconName } from "@blueprintjs/icons";
 import { Icon } from "@blueprintjs/core";
+import IconRenderer from "widgets/Antd/Components/IconRenderer";
 
 export interface TreeComponentProps extends TreeProps {
   widgetName: string;
@@ -241,7 +242,7 @@ function TreeComponent(props: TreeComponentProps): JSX.Element {
             showIcon
             showLine={showLine}
             switcherIcon={
-              iconName ? <Icon icon={iconName} size={14} /> : undefined
+              iconName ? <IconRenderer icon={iconName} size={14} /> : undefined
             }
             treeData={options}
             // switcherIcon={<SmileOutlined />}

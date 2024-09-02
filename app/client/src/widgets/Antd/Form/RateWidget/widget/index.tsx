@@ -305,6 +305,8 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: false,
             isTriggerProperty: false,
+            // 禁用 antd 的双色图标
+            disableAntdTwoToneIcon: true,
             validation: { type: ValidationTypes.TEXT },
             hidden: (props: RateWidgetProps) => props.displayContent === "text",
             dependencies: ["displayContent"],

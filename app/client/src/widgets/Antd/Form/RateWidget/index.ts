@@ -38,7 +38,7 @@ export const CONFIG = {
     widgetName: "AntdRate",
     version: 1,
     accentColor: "#fde047",
-    iconName: "star",
+    iconName: "ant-design:StarFilled",
     displayContent: "icon",
     customText: "好",
   },

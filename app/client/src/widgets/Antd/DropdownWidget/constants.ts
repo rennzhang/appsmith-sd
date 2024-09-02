@@ -61,6 +61,8 @@ export interface MenuButtonWidgetProps extends WidgetProps {
 }
 
 export interface MenuButtonComponentProps {
+  iconColor?: string;
+  textColor?: string;
   label?: string;
   isDisabled?: boolean;
   isVisible?: boolean;

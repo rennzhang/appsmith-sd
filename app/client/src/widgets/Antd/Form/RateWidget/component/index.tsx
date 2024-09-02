@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import type { ComponentProps } from "widgets/BaseComponent";
-import { type Alignment } from "@blueprintjs/core";
+import { IconName, type Alignment } from "@blueprintjs/core";
 import { AntdLabelPosition } from "components/constants";
 import type { RadioOption } from "../constants";
 import type { ButtonProps } from "antd";
@@ -8,9 +8,8 @@ import { ConfigProvider, Rate } from "antd";
 import { ProFormItem } from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { RateProps } from "antd/lib";
-import { Icon } from "@blueprintjs/core";
-import { IconNames, type IconName } from "@blueprintjs/icons";
-console.log(" IconNames", IconNames);
+import IconRenderer from "widgets/Antd/Components/IconRenderer";
+
 export interface RadioGroupContainerProps {
   labelPosition?: AntdLabelPosition;
 }
@@ -80,11 +79,15 @@ function RateComponent(props: RateComponentProps) {
 
   const characterMemo = useMemo(() => {
     return displayContent === "icon" ? (
-      <Icon className="antd-rate-icon" color="currentColor" icon={iconName} />
+      <IconRenderer
+        className="antd-rate-icon"
+        // color={accentColor}
+        icon={iconName}
+      />
     ) : (
       customText
     );
-  }, [iconName, customText, displayContent]);
+  }, [iconName, customText, displayContent, accentColor]);
 
   return (
     <AntdFormItemContainer
@@ -103,6 +106,7 @@ function RateComponent(props: RateComponentProps) {
             },
             Rate: {
               colorPrimary: accentColor,
+              starColor: accentColor,
             },
           },
         }}

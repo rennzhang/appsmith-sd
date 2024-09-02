@@ -7,14 +7,13 @@ import type { SliderRef } from "rc-slider/lib/Slider";
 import { ConfigProvider, Slider } from "antd";
 import { ProFormItem } from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
-import { Icon } from "@blueprintjs/core";
 import { IconNames, type IconName } from "@blueprintjs/icons";
 import type {
   SliderBaseProps,
   SliderRangeProps,
   SliderTooltipProps,
 } from "antd/es/slider";
-console.log(" IconNames", IconNames);
+import IconRenderer from "widgets/Antd/Components/IconRenderer";
 export interface RadioGroupContainerProps {
   labelPosition?: AntdLabelPosition;
 }
@@ -27,6 +26,7 @@ export interface StyledRadioGroupProps {
   accentColor: string;
   isDynamicHeightEnabled?: boolean;
   children?: React.ReactNode;
+
 }
 
 function SliderComponent(props: SliderComponentProps) {
@@ -35,15 +35,18 @@ function SliderComponent(props: SliderComponentProps) {
     alignment,
     animateLoading,
     boxShadow,
-    controlSize,
     defaultValue,
     disabled,
-    displayContent,
-    displayContentColor,
+    startAddonType,
+    endAddonType,
+    startAddonColor,
+    endAddonColor,
+    startAddonText,
+    endAddonText,
+    startAddonIcon,
+    endAddonIcon,
     dots,
     draggableTrack,
-    endIconName,
-    endText,
     height,
     heightForVertical,
     hoverColor,
@@ -68,8 +71,6 @@ function SliderComponent(props: SliderComponentProps) {
     placement,
     required,
     reverse,
-    startIconName,
-    startText,
     step,
     stepNull,
     tooltipFormatter,
@@ -96,50 +97,48 @@ function SliderComponent(props: SliderComponentProps) {
     onValueChange(val);
   };
 
-  const startChildrenMemo = useMemo(() => {
-    if (displayContent === "none") return;
+  const startAddonMemo = useMemo(() => {
+    if (startAddonType === "none") return null;
     return (
-      <span style={{ color: displayContentColor }}>
-        {displayContent === "icon" ? (
-          <Icon
+      <span style={{ color: startAddonColor }}>
+        {startAddonType === "icon" ? (
+          <IconRenderer
             className="antd-inner-icon"
-            color="currentColor"
-            icon={startIconName}
+            color={startAddonColor || "currentColor"}
+            icon={startAddonIcon}
           />
         ) : (
-          startText
+          startAddonText
         )}
       </span>
     );
   }, [
-    startText,
-    startIconName,
-    endIconName,
-    displayContent,
-    displayContentColor,
+    startAddonText,
+    startAddonIcon,
+    startAddonType,
+    startAddonColor,
   ]);
 
-  const endChildrenMemo = useMemo(() => {
-    if (displayContent === "none") return;
+  const endAddonMemo = useMemo(() => {
+    if (endAddonType === "none") return null;
     return (
-      <span style={{ color: displayContentColor }}>
-        {displayContent === "icon" ? (
-          <Icon
+      <span style={{ color: endAddonColor }}>
+        {endAddonType === "icon" ? (
+          <IconRenderer
             className="antd-inner-icon"
-            color="currentColor"
-            icon={endIconName}
+            color={endAddonColor || "currentColor"}
+            icon={endAddonIcon}
           />
         ) : (
-          endText
+          endAddonText
         )}
       </span>
     );
   }, [
-    endText,
-    startIconName,
-    endIconName,
-    displayContent,
-    displayContentColor,
+    endAddonText,
+    endAddonIcon,
+    endAddonType,
+    endAddonColor,
   ]);
 
   const tooltipMemo = useMemo<SliderBaseProps["tooltip"]>(() => {
@@ -225,7 +224,7 @@ function SliderComponent(props: SliderComponentProps) {
             }}
             style={{ height: heightMemo }}
           >
-            {startChildrenMemo}
+            {startAddonMemo}
             <Slider
               defaultValue={defaultValue as any}
               disabled={disabled}
@@ -244,7 +243,7 @@ function SliderComponent(props: SliderComponentProps) {
               value={value as any}
               vertical={vertical}
             />
-            {endChildrenMemo}
+            {endAddonMemo}
           </div>
         </ProFormItem>
       </ConfigProvider>
@@ -255,6 +254,8 @@ function SliderComponent(props: SliderComponentProps) {
 type SliderComponentPropsExtends = SliderBaseProps & ComponentProps;
 
 export interface SliderComponentProps extends SliderComponentPropsExtends {
+  value: number | number[];
+  defaultValue: number | number[];
   onValueChange: (updatedValue: number | number[]) => void;
   isDynamicHeightEnabled?: boolean;
   alignment: Alignment;
@@ -272,17 +273,16 @@ export interface SliderComponentProps extends SliderComponentPropsExtends {
   required?: boolean;
   animateLoading?: boolean;
   iconName: IconName;
-  displayContent?: "icon" | "text" | "none";
-  value?: number | number[];
-  defaultValue: number;
-  controlSize: "small" | "default";
-  startText: string;
-  endText: string;
-  startIconName: IconName;
-  endIconName: IconName;
+  startAddonType: "icon" | "text" | "none";
+  endAddonType: "icon" | "text" | "none";
+  startAddonColor?: string;
+  endAddonColor?: string;
+  startAddonText: string;
+  endAddonText: string;
+  startAddonIcon: IconName;
+  endAddonIcon: IconName;
   hoverColor: string;
   boxShadow: string;
-  displayContentColor: string;
   step: number;
   max: number;
   min: number;

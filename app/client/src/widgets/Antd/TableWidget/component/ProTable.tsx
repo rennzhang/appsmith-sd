@@ -18,6 +18,7 @@ import { Alignment } from "@blueprintjs/core";
 import { Icon } from "@blueprintjs/core";
 // ColumnStateType
 import type { ColumnStateType } from "@ant-design/pro-table/es/typing";
+import IconRenderer from "widgets/Antd/Components/IconRenderer";
 
 // import request from "umi-request";
 
@@ -65,7 +66,7 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
                       }}
                     >
                       {c.iconAlign !== Alignment.RIGHT && c.iconName ? (
-                        <Icon
+                        <IconRenderer
                           className="mr-1"
                           color={c.iconColor || "currentColor"}
                           icon={c.iconName}
@@ -84,7 +85,7 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
                         {c.label}
                       </span>
                       {c.iconAlign == Alignment.RIGHT && c.iconName ? (
-                        <Icon
+                        <IconRenderer
                           className="ml-1"
                           color={c.iconColor || "currentColor"}
                           icon={c.iconName}

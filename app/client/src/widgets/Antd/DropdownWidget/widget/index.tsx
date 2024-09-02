@@ -135,14 +135,15 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     const { componentWidth } = this.getComponentDimensions();
     return (
       <MenuButtonComponent
-        {...this.props}
-        getVisibleItems={this.getVisibleItems}
         maxWidth={this.props.maxWidth}
         minHeight={this.props.minHeight}
         minWidth={this.props.minWidth}
         onItemClicked={this.menuItemClickHandler}
-        renderMode={this.props.renderMode}
         width={componentWidth}
+        {...this.props}
+        getVisibleItems={this.getVisibleItems}
+        renderMode={this.props.renderMode}
+
       />
     );
   }

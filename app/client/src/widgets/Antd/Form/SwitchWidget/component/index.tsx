@@ -6,9 +6,8 @@ import type { SwitchProps } from "antd";
 import { ConfigProvider, Switch } from "antd";
 import { ProFormItem } from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
-import { Icon } from "@blueprintjs/core";
-import { IconNames, type IconName } from "@blueprintjs/icons";
-console.log(" IconNames", IconNames);
+import {  type IconName } from "@blueprintjs/icons";
+import IconRenderer from "widgets/Antd/Components/IconRenderer";
 export interface RadioGroupContainerProps {
   labelPosition?: AntdLabelPosition;
 }
@@ -73,7 +72,7 @@ function SwitchComponent(props: SwitchComponentProps) {
   const checkedChildrenMemo = useMemo(() => {
     if (displayContent === "none") return;
     return displayContent === "icon" ? (
-      <Icon
+      <IconRenderer
         className="antd-inner-icon"
         color="currentColor"
         icon={checkedIconName}
@@ -86,7 +85,7 @@ function SwitchComponent(props: SwitchComponentProps) {
   const unCheckedChildrenMemo = useMemo(() => {
     if (displayContent === "none") return;
     return displayContent === "icon" ? (
-      <Icon
+      <IconRenderer
         className="antd-inner-icon"
         color="currentColor"
         icon={uncheckedIconName}

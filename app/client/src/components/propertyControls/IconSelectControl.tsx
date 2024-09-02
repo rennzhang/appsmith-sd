@@ -17,7 +17,6 @@ import _ from "lodash";
 import { generateReactKey } from "utils/generators";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import { Tooltip } from "design-system";
-
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
   id: string;
@@ -90,7 +89,8 @@ const StyledMenuItem = styled(MenuItem)`
     border-radius: var(--ads-v2-border-radius) !important;
   }
 
-  > span.bp3-icon {
+  > span.bp3-icon,
+  > .anticon {
     margin-right: 0;
     color: var(--ads-v2-color-fg) !important;
   }
@@ -106,6 +106,7 @@ export interface IconSelectControlProps extends ControlProps {
   propertyValue?: IconName;
   defaultIconName?: IconName;
   showAntdIcon?: boolean;
+  disableAntdTwoToneIcon?: boolean; // 新增属性
 }
 
 export interface IconSelectControlState {
@@ -114,7 +115,7 @@ export interface IconSelectControlState {
 }
 
 const NONE = "(none)";
-const ANT_PREFIX = "ant-design:"; // 定���Ant Design图标的前缀
+const ANT_PREFIX = "ant-design:"; // 定Ant Design图标的前缀
 type IconType = IconName | typeof NONE | string;
 const ICON_NAMES = [
   ...Object.keys(IconNames).map<IconType>(
@@ -421,6 +422,13 @@ class IconSelectControl extends BaseControl<
         .filter(
           (key) => typeof AntIcons[key as keyof typeof AntIcons] === "object",
         )
+        .filter((key) => {
+          // 如果 disableAntdTwoToneIcon 为 true，则过滤掉以 TwoTone 结尾的图标
+          if (this.props.disableAntdTwoToneIcon) {
+            return !key.endsWith("TwoTone");
+          }
+          return true;
+        })
         .map((key) => `${ANT_PREFIX}${key}`);
       iconNames = [
         NONE,

@@ -33,6 +33,7 @@ import {
 import type { IconName } from "@blueprintjs/icons";
 import { Icon } from "@blueprintjs/core";
 import { cloneDeep } from "lodash";
+import IconRenderer from "widgets/Antd/Components/IconRenderer";
 
 export interface TreeSelectComponentProps {
   widgetName: string;
@@ -304,7 +305,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
             showSearch={showSearch}
             size={controlSize}
             switcherIcon={
-              iconName ? <Icon icon={iconName} size={14} /> : undefined
+              iconName ? <IconRenderer icon={iconName} size={14} /> : undefined
             }
             treeCheckStrictly={treeCheckStrictly}
             treeCheckable={checkable}
