@@ -15,8 +15,7 @@ import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
-import RadioGroupComponent from "../component";
-import type { RadioOption } from "../constants";
+import CheckBoxGroupComponent from "../component";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { WidgetState, WidgetProps } from "widgets/BaseWidget";
@@ -24,167 +23,17 @@ import BaseWidget from "widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { CheckboxValueType } from "antd/es/checkbox/Group";
-
-/**
- * Validation rules:
- * 1. This property will take the value in the following format: Array<{ "label": "string", "value": "string" | number}>
- * 2. The `value` property should consists of unique values only.
- * 3. Data types of all the value props should be the same.
- */
-export function optionsCustomValidation(
-  options: unknown,
-  props: any,
-  _: any,
-): ValidationResponse {
-  const labelField = props.fieldNames?.label || "label";
-  const valueField = props.fieldNames?.value || "value";
-  const validationUtil = (options: any[], _: any) => {
-    let _isValid = true;
-    let message = { name: "", message: "" };
-    let valueType = "";
-    const uniqueLabels: Record<string | number, string> = {};
-
-    for (let i = 0; i < options.length; i++) {
-      const label = options[i][labelField];
-      const value = options[i][valueField];
-      if (!valueType) {
-        valueType = typeof value;
-      }
-      //Checks the uniqueness all the values in the options
-      if (!uniqueLabels.hasOwnProperty(value)) {
-        uniqueLabels[value] = "";
-      } else {
-        _isValid = false;
-        message = {
-          name: "ValidationError",
-          message: `path:${valueField} must be unique. Duplicate values found`,
-        };
-        break;
-      }
-
-      //Check if the required field "label" is present:
-      if (!label) {
-        _isValid = false;
-        message = {
-          name: "ValidationError",
-          message: `Invalid entry at index: ${i}. Missing required key: ${labelField}`,
-        };
-        break;
-      }
-
-      //Validation checks for the the label.
-      if (
-        _.isNil(label) ||
-        label === "" ||
-        (typeof label !== "string" && typeof label !== "number")
-      ) {
-        _isValid = false;
-        message = {
-          name: "ValidationError",
-          message: `Invalid entry at index: ${i}. Value of key: ${labelField} is invalid: This value does not evaluate to type string`,
-        };
-        break;
-      }
-
-      //Check if all the data types for the value prop is the same.
-      if (typeof value !== valueType) {
-        _isValid = false;
-        message = {
-          name: "TypeError",
-          message: "All value properties in options must have the same type",
-        };
-        break;
-      }
-
-      //Check if the each object has value property.
-      if (_.isNil(value)) {
-        _isValid = false;
-        message = {
-          name: "TypeError",
-          message: `This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>`,
-        };
-        break;
-      }
-    }
-
-    return {
-      isValid: _isValid,
-      parsed: _isValid ? options : [],
-      messages: [message],
-    };
-  };
-
-  const invalidResponse = {
-    isValid: false,
-    parsed: [],
-    messages: [
-      {
-        name: "TypeError",
-        message:
-          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
-      },
-    ],
-  };
-  try {
-    if (_.isString(options)) {
-      options = JSON.parse(options as string);
-    }
-
-    if (Array.isArray(options)) {
-      return validationUtil(options, _);
-    } else {
-      return invalidResponse;
-    }
-  } catch (e) {
-    return invalidResponse;
-  }
-}
-function defaultOptionValidation(
-  value: unknown,
-  props: any,
-  _: any,
-): ValidationResponse {
-  //Checks if the value is not of object type in {{}}
-  if (_.isObject(value)) {
-    return {
-      isValid: false,
-      parsed: JSON.stringify(value, null, 2),
-      messages: [
-        {
-          name: "TypeError",
-          message: "This value does not evaluate to type: string or number",
-        },
-      ],
-    };
-  }
-
-  //Checks if the value is not of boolean type in {{}}
-  if (_.isBoolean(value)) {
-    return {
-      isValid: false,
-      parsed: value,
-      messages: [
-        {
-          name: "TypeError",
-          message: "This value does not evaluate to type: string or number",
-        },
-      ],
-    };
-  }
-
-  return {
-    isValid: true,
-    parsed: value,
-  };
-}
-
-class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
+import { getFieldNamesPropConfig } from "../../CONST/DEFAULT_CONFIG";
+class CheckBoxGroupWidget extends BaseWidget<
+  CheckBoxGroupWidgetProps,
+  WidgetState
+> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (widget: RadioGroupWidgetProps, extraDefsToDefine?: ExtraDef) => {
+    return (widget: CheckBoxGroupWidgetProps, extraDefsToDefine?: ExtraDef) => {
       return {
         "!doc":
-          "Radio widget lets the user choose only one option from a predefined set of options. It is quite similar to a SingleSelect Dropdown in its functionality",
-        "!url": "https://docs.appsmith.com/widget-reference/radio",
+          "CheckBox widget lets the user choose only one option from a predefined set of options. It is quite similar to a SingleSelect Dropdown in its functionality",
+        "!url": "https://docs.appsmith.com/widget-reference/CheckBox",
         isVisible: DefaultAutocompleteDefinitions.isVisible,
         options: "[$__dropdownOption__$]",
         defaultValue: "string",
@@ -215,13 +64,13 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.FUNCTION,
+              type: ValidationTypes.ARRAY,
               params: {
-                fn: optionsCustomValidation,
-                expected: {
-                  type: 'Array<{ "label": "string", "value": "string" | number}>',
-                  example: `[{"label": "One", "value": "one"}]`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                  },
                 },
               },
             },
@@ -246,6 +95,8 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
               },
             },
           },
+          getFieldNamesPropConfig("label"),
+          getFieldNamesPropConfig("value"),
         ],
       },
       {
@@ -298,7 +149,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-            hidden: (props: RadioGroupWidgetProps) =>
+            hidden: (props: CheckBoxGroupWidgetProps) =>
               props.labelPosition !== AntdLabelPosition.Left,
             dependencies: ["labelPosition"],
           },
@@ -317,7 +168,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
                 natural: true,
               },
             },
-            hidden: (props: RadioGroupWidgetProps) =>
+            hidden: (props: CheckBoxGroupWidgetProps) =>
               props.labelPosition !== AntdLabelPosition.Left,
             dependencies: ["labelPosition"],
           },
@@ -568,7 +419,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     };
   }
 
-  componentDidUpdate(prevProps: RadioGroupWidgetProps): void {
+  componentDidUpdate(prevProps: CheckBoxGroupWidgetProps): void {
     if (
       this.props.defaultValue !== prevProps.defaultValue &&
       this.props.isDirty
@@ -619,7 +470,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       value,
       widgetId,
     } = this.props;
-    console.group("Antd 单选组件");
+    console.group("Antd 勾选组件");
     console.log(" props", this.props);
     console.log(" this", this);
     console.groupEnd();
@@ -627,7 +478,8 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     const { componentHeight } = this.getComponentDimensions();
 
     return (
-      <RadioGroupComponent
+      <CheckBoxGroupComponent
+        {...this.props}
         accentColor={this.props.accentColor}
         alignment={alignment}
         animateLoading={animateLoading}
@@ -692,8 +544,8 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   }
 }
 
-export interface RadioGroupWidgetProps extends WidgetProps {
-  options: RadioOption[];
+export interface CheckBoxGroupWidgetProps extends WidgetProps {
+  options: { value: string; label: string; [key: string]: any }[];
   onValueChange: string;
   defaultValue: CheckboxValueType[];
   isRequired?: boolean;
@@ -711,4 +563,4 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   accentColor: string;
 }
 
-export default RadioGroupWidget;
+export default CheckBoxGroupWidget;

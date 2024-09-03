@@ -2,20 +2,29 @@ type ValidationMessage = {
   name: string;
   message: string;
 };
-
-type ValidationResponse = {
-  isValid: boolean;
-  parsed: unknown[];
-  messages: ValidationMessage[];
-};
+import type { ValidationResponse } from "constants/WidgetValidation";
 
 import _ from "lodash";
 export function validationNumberOrUndefined(value: any, props: any, _?: any) {
-  if (_?.isNil(value) || value === "") return { isValid: true, parsed: undefined, messages: [{ name: "", message: "" }] };
+  if (_?.isNil(value) || value === "")
+    return {
+      isValid: true,
+      parsed: undefined,
+      messages: [{ name: "", message: "" }],
+    };
 
-  if (!_?.isNumber(parseInt(value))) return { isValid: false, parsed: undefined, messages: [{ name: "TypeError", message: "必须为数字" }] };
+  if (!_?.isNumber(parseInt(value)))
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: [{ name: "TypeError", message: "必须为数字" }],
+    };
 
-  return { isValid: true, parsed: Number(value), messages: [{ name: "", message: "" }] };
+  return {
+    isValid: true,
+    parsed: Number(value),
+    messages: [{ name: "", message: "" }],
+  };
 }
 export function selectOptionsCustomValidation(
   options: any,
@@ -244,6 +253,121 @@ const dateDefaultValueValidation = (value: any, props: any) => {
         ],
   };
 };
+
+export function labelKeyValidation(
+  value: unknown,
+  props: any,
+  _?: any,
+  __?: any,
+  path?: string,
+): ValidationResponse {
+  const _value = value || _.get(props, path);
+  const sourceData = props.options;
+  let keys: any[] = [];
+  let parsedValue: any[] | undefined = sourceData;
+
+  if (_.isString(sourceData)) {
+    try {
+      parsedValue = JSON.parse(sourceData);
+    } catch (e) {}
+  }
+
+  if (_.isArray(parsedValue)) {
+    keys = _.uniq(
+      parsedValue?.reduce((_keys, obj) => {
+        if (_.isPlainObject(obj)) {
+          Object.keys(obj).forEach((d) => keys.push(d));
+        }
+
+        return keys;
+      }, []),
+    ).map((d: unknown) => ({
+      label: d,
+      value: d,
+    }));
+  }
+  console.log("labelKeyValidation", { _value, path, props, keys });
+
+  /*
+   * Validation rules
+   *  1. Can be a string.
+   *  2. Can be an Array of string, number, boolean (only for option Value).
+   */
+
+  if (_value === "" || _.isNil(_value)) {
+    return {
+      parsed: "",
+      isValid: false,
+      messages: [
+        {
+          name: "ValidationError",
+          message: `value does not evaluate to type: string | Array<string>`,
+        },
+      ],
+    };
+  }
+
+  if (!keys.find((key) => key.label === _value)) {
+    return {
+      parsed: "",
+      isValid: false,
+      messages: [
+        {
+          name: "ValidationError",
+          // 中文提示
+          message: `值必须是源数据的键值之一`,
+        },
+      ],
+    };
+  }
+  // children 必须是数组，判断parsedValue数据中children字段是否为数组
+
+  if (path?.includes("children")) {
+    let childrenIsValid = true;
+    parsedValue?.forEach((item) => {
+      if (item.hasOwnProperty('children') && !Array.isArray(item.children)) {
+        childrenIsValid = false;
+      }
+    });
+    console.log(
+      "labelKeyValidation childrenIsValid",
+      {childrenIsValid,
+      value,
+      props,
+      keys}
+    );
+
+    if (!childrenIsValid) {
+      return {
+        parsed: _value,
+        isValid: false,
+        messages: [
+          {
+            name: "ValidationError",
+            // 中文提示
+            message: `children字段必须是数组`,
+          },
+        ],
+      };
+    }
+  }
+  const isValid = parsedValue?.every(
+    (d: unknown, i: number, arr: unknown[]) => arr.indexOf(d) === i,
+  );
+
+  return {
+    parsed: _value,
+    isValid: !!isValid,
+    messages: isValid
+      ? []
+      : [
+          {
+            name: "ValidationError",
+            message: "Duplicate values found, value must be unique",
+          },
+        ],
+  };
+}
 
 export const SelectValidator = {
   optionsCustomValidation: selectOptionsCustomValidation,

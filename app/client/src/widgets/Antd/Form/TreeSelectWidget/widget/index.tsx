@@ -31,7 +31,7 @@ import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
-import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
+import { DEFAULT_STYLE_PANEL_CONFIG, getFieldNamesPropConfig } from "../../CONST/DEFAULT_CONFIG";
 import type { Def } from "tern";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 
@@ -200,12 +200,16 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
             controlConfig: {
               aliases: [
                 {
-                  name: "title",
+                  name: "label",
                   isSearcheable: true,
                   isRequired: true,
                 },
                 {
-                  name: "key",
+                  name: "value",
+                  isRequired: true,
+                },
+                {
+                  name: "children",
                   isRequired: true,
                 },
               ],
@@ -213,20 +217,20 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
                 [
                   {
                     title: "蓝",
-                    key: "BLUE",
+                    value: "BLUE",
                     children: [
                       {
                         title: "深蓝",
-                        key: "DARK BLUE",
+                        value: "DARK BLUE",
                       },
                       {
                         title: "浅蓝",
-                        key: "LIGHT BLUE",
+                        value: "LIGHT BLUE",
                       },
                     ],
                   },
-                  { title: "绿", key: "GREEN" },
-                  { title: "红", key: "RED" },
+                  { title: "绿", value: "GREEN" },
+                  { title: "红", value: "RED" },
                 ],
                 null,
                 2,
@@ -236,15 +240,21 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            // validation: {
+            //   type: ValidationTypes.FUNCTION,
+            //   params: {
+            //     fn: optionValidation,
+            //     expected: {
+            //       type: "value",
+            //       example: `[{ "title": "title1", "value": "key1", "children": [{ "title": "title2", "value": "key2" }] }]`,
+            //       autocompleteDataType: AutocompleteDataType.ARRAY,
+            //     },
+            //   },
+            // },
             validation: {
-              type: ValidationTypes.FUNCTION,
+              type: ValidationTypes.OBJECT_ARRAY,
               params: {
-                fn: optionValidation,
-                expected: {
-                  type: "value",
-                  example: `[{ "title": "title1", "key": "key1", "children": [{ "title": "title2", "key": "key2" }] }]`,
-                  autocompleteDataType: AutocompleteDataType.ARRAY,
-                },
+                default: [],
               },
             },
             dependencies: ["fieldNames"],
@@ -269,54 +279,58 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
                   autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
+
             },
           },
-          {
-            helpText: "自定义字段名",
-            propertyName: "fieldNames",
-            label: "自定义字段名",
-            controlType: "INPUT_TEXT",
-            defaultValue: {
-              label: "label",
-              value: "value",
-              children: "children",
-            },
-            isJSConvertible: false,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.OBJECT,
-              params: {
-                required: true,
-                allowedKeys: [
-                  {
-                    name: "label",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "label",
-                      required: true,
-                    },
-                  },
-                  {
-                    name: "value",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "value",
-                      required: true,
-                    },
-                  },
-                  {
-                    name: "children",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "children",
-                      required: true,
-                    },
-                  },
-                ],
-              },
-            },
-          },
+          getFieldNamesPropConfig("label"),
+          getFieldNamesPropConfig("value"),
+          getFieldNamesPropConfig("children"),
+          // {
+          //   helpText: "自定义字段名",
+          //   propertyName: "fieldNames",
+          //   label: "自定义字段名",
+          //   controlType: "INPUT_TEXT",
+          //   defaultValue: {
+          //     label: "label",
+          //     value: "value",
+          //     children: "children",
+          //   },
+          //   isJSConvertible: false,
+          //   isBindProperty: true,
+          //   isTriggerProperty: false,
+          //   validation: {
+          //     type: ValidationTypes.OBJECT,
+          //     params: {
+          //       required: true,
+          //       allowedKeys: [
+          //         {
+          //           name: "label",
+          //           type: ValidationTypes.TEXT,
+          //           params: {
+          //             default: "label",
+          //             required: true,
+          //           },
+          //         },
+          //         {
+          //           name: "value",
+          //           type: ValidationTypes.TEXT,
+          //           params: {
+          //             default: "value",
+          //             required: true,
+          //           },
+          //         },
+          //         {
+          //           name: "children",
+          //           type: ValidationTypes.TEXT,
+          //           params: {
+          //             default: "children",
+          //             required: true,
+          //           },
+          //         },
+          //       ],
+          //     },
+          //   },
+          // },
         ],
       },
       {

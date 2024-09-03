@@ -28,7 +28,7 @@ import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
-import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
+import { DEFAULT_STYLE_PANEL_CONFIG, getFieldNamesPropConfig } from "../../CONST/DEFAULT_CONFIG";
 
 function defaultValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -167,52 +167,9 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
               },
             },
           },
-          {
-            helpText: "自定义字段名",
-            propertyName: "fieldNames",
-            label: "自定义字段名",
-            controlType: "INPUT_TEXT",
-            defaultValue: {
-              label: "label",
-              value: "value",
-              children: "children",
-            },
-            isJSConvertible: false,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.OBJECT,
-              params: {
-                required: true,
-                allowedKeys: [
-                  {
-                    name: "label",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "label",
-                      required: true,
-                    },
-                  },
-                  {
-                    name: "value",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "value",
-                      required: true,
-                    },
-                  },
-                  {
-                    name: "children",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "children",
-                      required: true,
-                    },
-                  },
-                ],
-              },
-            },
-          },
+          getFieldNamesPropConfig("label"),
+          getFieldNamesPropConfig("value"),
+          getFieldNamesPropConfig("children"),
         ],
       },
       {

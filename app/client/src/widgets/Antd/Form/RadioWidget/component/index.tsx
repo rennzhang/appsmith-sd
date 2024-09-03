@@ -57,8 +57,16 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     required,
     value,
     widgetName,
+    fieldNames,
   } = props;
-
+  const fieldNamesValue = useMemo(() => {
+    const defaultFieldNames = {
+      value: "value",
+      label: "label",
+      children: "children",
+    };
+    return Object.assign(defaultFieldNames, fieldNames || {});
+  }, [fieldNames]);
   const colLayoutMemo = useMemo(() => {
     if (labelPosition === AntdLabelPosition.Left) {
       return {
@@ -74,6 +82,17 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     },
     [onRadioSelectionChange],
   );
+
+  const RadioComponent = useMemo(() => {
+    return options.map((option) => {
+      const { value, label } = fieldNamesValue;
+      return (
+        <Radio key={option[value]} value={option[value]}>
+          {option[label]}
+        </Radio>
+      );
+    });
+  }, [options, fieldNamesValue]);
 
   return (
     <AntdFormItemContainer
@@ -119,11 +138,12 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
           >
             {radioType !== "button" && (
               <Space direction={inline ? "horizontal" : "vertical"}>
-                {options.map((option) => (
+                {RadioComponent}
+                {/* {options.map((option) => (
                   <Radio key={option.value} value={option.value}>
                     {option.label}
                   </Radio>
-                ))}
+                ))} */}
               </Space>
             )}
           </Radio.Group>
@@ -134,6 +154,11 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
 }
 
 export interface RadioGroupComponentProps extends ComponentProps {
+  fieldNames: {
+    value: string;
+    label: string;
+    children: string;
+  };
   radioButtonStyle?: boolean;
   options: RadioOption[];
   onRadioSelectionChange: (updatedOptionValue: string) => void;

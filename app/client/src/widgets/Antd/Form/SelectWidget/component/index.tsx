@@ -159,12 +159,9 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     const defaultFieldNames = {
       value: "value",
       label: "label",
-      options: "options",
+      children: "children",
     };
-    if (fieldNames?.label && fieldNames?.value) {
-      return fieldNames;
-    }
-    return defaultFieldNames;
+    return Object.assign({}, defaultFieldNames, fieldNames||{});
   }, [fieldNames]);
 
   const handleFilter: SelectProps["filterOption"] = (inputValue, node) => {

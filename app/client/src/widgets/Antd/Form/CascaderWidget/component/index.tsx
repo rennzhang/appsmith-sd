@@ -145,14 +145,11 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
 
   const fieldNamesValue = useMemo(() => {
     const defaultFieldNames = {
-      label: "label",
       value: "value",
+      label: "label",
       children: "children",
     };
-    if (fieldNames?.children && fieldNames?.label && fieldNames?.value) {
-      return fieldNames;
-    }
-    return defaultFieldNames;
+    return Object.assign({}, defaultFieldNames, fieldNames||{});
   }, [fieldNames]);
   const handleFilter = (inputValue: string, path: DefaultOptionType[]) =>
     path.some(

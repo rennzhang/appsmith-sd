@@ -58,8 +58,17 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
     required,
     value,
     widgetName,
+    fieldNames
   } = props;
 
+  const fieldNamesValue = useMemo(() => {
+    const defaultFieldNames = {
+      value: "value",
+      label: "label",
+      children: "children",
+    };
+    return Object.assign(defaultFieldNames, fieldNames||{});
+  }, [fieldNames]);
   const colLayoutMemo = useMemo(() => {
     if (labelPosition === AntdLabelPosition.Left) {
       return {
@@ -76,6 +85,21 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
     console.groupEnd();
     onValueChange(checkedValue);
   };
+
+  const CheckBoxComponent = useMemo(() => {
+    return options.map((option) => {
+      const { value, label } = fieldNamesValue;
+      console.log("勾选组件 111111option", {option,value,fieldNamesValue,fieldNames,label},option[value],option[label]);
+
+
+
+
+      return (
+      <Checkbox key={option[fieldNamesValue.value]} value={option[fieldNamesValue.value]}>
+        {option[fieldNamesValue.label]}
+      </Checkbox>
+    )});
+  }, [options, fieldNamesValue]);
 
   return (
     <AntdFormItemContainer
@@ -109,7 +133,6 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
             disabled={disabled}
             name={widgetName}
             onChange={handleChange}
-            // options={options}
             style={{
               marginBottom: 0,
               // margin: 16,
@@ -117,11 +140,7 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
             value={value}
           >
             <Space direction={inline ? "horizontal" : "vertical"}>
-              {options.map((option) => (
-                <Checkbox key={option.value} value={option.value}>
-                  {option.label}
-                </Checkbox>
-              ))}
+              {CheckBoxComponent}
             </Space>
           </Checkbox.Group>
         </ProFormItem>
@@ -131,7 +150,7 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
 }
 
 export interface RadioGroupComponentProps extends ComponentProps {
-  options: RadioOption[];
+  options: {value: string, label: string, [key: string]: any}[];
   onValueChange: (value: CheckboxValueType[]) => void;
   value: CheckboxProps["value"];
   disabled: boolean;
@@ -153,6 +172,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   accentColor: string;
   required?: boolean;
   animateLoading?: boolean;
+  fieldNames?: ProFormItemProps["fieldProps"];
 }
 
 export default CheckboxGroupComponent;

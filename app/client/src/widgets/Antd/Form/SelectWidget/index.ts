@@ -24,6 +24,10 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     ...DEFAULT_CONFIG.defaults,
+    labelKey: "label",
+    valueKey: "value",
+    optionsKey: "options",
+    childrenKey: "children",
     treeExpandAction: "click",
     treeLine: false,
     errorMessage: "必填字段",

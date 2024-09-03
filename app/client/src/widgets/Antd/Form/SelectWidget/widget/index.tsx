@@ -1,24 +1,16 @@
 import { Alignment } from "@blueprintjs/core";
 import { AntdLabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Layers } from "constants/Layers";
 import type { TextSize, WidgetType } from "constants/WidgetConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isArray, last } from "lodash";
-import type {
-  ChangeEventExtra,
-  DefaultValueType,
-} from "rc-tree-select/lib/interface";
-import type { Key, ReactNode } from "react";
-import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -26,15 +18,17 @@ import {
 import CustomComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import type { CascaderProps, SelectProps, TreeSelectProps } from "antd";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { SelectProps } from "antd";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
-import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
+import {
+  DEFAULT_STYLE_PANEL_CONFIG,
+  getFieldNamesPropConfig,
+} from "../../CONST/DEFAULT_CONFIG";
 import type { Def } from "tern";
-import type { DefaultOptionType } from "rc-select/lib/Select";
 import { SelectValidator } from "widgets/Antd/tools";
+import { WidgetQueryConfig, WidgetQueryGenerationFormConfig } from "WidgetQueryGenerators/types";
 function getTypeDefOfTreeSelectInfo(isCheck?: boolean): string | Def {
   const def: Def = {
     event: "string",
@@ -68,6 +62,30 @@ function getTypeDefOfTreeSelectInfo(isCheck?: boolean): string | Def {
   return def;
 }
 class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
+  static getPropertyUpdatesForQueryBinding(
+    queryConfig: WidgetQueryConfig,
+    widget: WidgetProps,
+    formConfig: WidgetQueryGenerationFormConfig,
+  ) {
+    console.log("Antd 选择器组件 getPropertyUpdatesForQueryBinding", queryConfig, widget, formConfig);
+
+    let modify;
+
+    if (queryConfig.select) {
+      modify = {
+        sourceData: queryConfig.select.data,
+        optionLabel: formConfig.aliases.find((d) => d.name === "label")?.alias,
+        optionValue: formConfig.aliases.find((d) => d.name === "value")?.alias,
+        defaultOptionValue: "",
+        serverSideFiltering: true,
+        onFilterUpdate: queryConfig.select.run,
+      };
+    }
+
+    return {
+      modify,
+    };
+  }
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -81,17 +99,51 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            controlConfig: {
+              aliases: [
+                {
+                  name: "label",
+                  isSearcheable: true,
+                  isRequired: true,
+                },
+                {
+                  name: "value",
+                  isRequired: true,
+                },
+              ],
+              sampleData: JSON.stringify(
+                [
+                  { name: "蓝", code: "BLUE" },
+                  { name: "绿", code: "GREEN" },
+                  { name: "红", code: "RED" },
+                ],
+                null,
+                2,
+              ),
+            },
+            placeholderText: '[{ "label": "label1", "value": "value1" }]',
             validation: {
-              type: ValidationTypes.FUNCTION,
+              type: ValidationTypes.ARRAY,
               params: {
-                fn: SelectValidator.optionsCustomValidation,
-                expected: {
-                  type: 'Array<{ "label": "string", "value": "string" | number}>',
-                  example: `[{"label": "One", "value": "one"}] | [{label: "One", options: [{label: "Two", value: "two"}]}]`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                  },
                 },
               },
             },
+            // validation: {
+            //   type: ValidationTypes.FUNCTION,
+            //   params: {
+            //     fn: SelectValidator.optionsCustomValidation,
+            //     expected: {
+            //       type: 'Array<{ "label": "string", "value": "string" | number}>',
+            //       example: `[{"label": "One", "value": "one"}] | [{label: "One", options: [{label: "Two", value: "two"}]}]`,
+            //       autocompleteDataType: AutocompleteDataType.STRING,
+            //     },
+            //   },
+            // },
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
@@ -116,51 +168,9 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               },
             },
           },
-          {
-            helpText: "自定义字段名",
-            propertyName: "fieldNames",
-            label: "自定义字段名",
-            controlType: "INPUT_TEXT",
-            defaultValue: {
-              label: "label",
-              value: "value",
-            },
-            isJSConvertible: false,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.OBJECT,
-              params: {
-                required: true,
-                allowedKeys: [
-                  {
-                    name: "label",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "label",
-                      required: true,
-                    },
-                  },
-                  {
-                    name: "value",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "value",
-                      required: true,
-                    },
-                  },
-                  {
-                    name: "options",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "options",
-                      required: false,
-                    },
-                  },
-                ],
-              },
-            },
-          },
+          getFieldNamesPropConfig("label"),
+          getFieldNamesPropConfig("value"),
+          getFieldNamesPropConfig("options"),
         ],
       },
       {

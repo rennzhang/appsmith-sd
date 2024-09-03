@@ -173,10 +173,8 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
       label: "label",
       children: "children",
     };
-    if (fieldNames?.children && fieldNames?.label && fieldNames?.value) {
-      return fieldNames;
-    }
-    return defaultFieldNames;
+
+    return Object.assign({}, defaultFieldNames, fieldNames||{});
   }, [fieldNames]);
 
   const handleFilter: TreeSelectProps["filterTreeNode"] = (
@@ -254,6 +252,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
   };
 
   console.group("Antd 树选择组件");
+  console.log(" fieldNamesValue",fieldNamesValue)
   console.log("Antd 树选择组件 props", props);
   console.groupEnd();
   return (

@@ -23,6 +23,7 @@ import type { WidgetState, WidgetProps } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { getFieldNamesPropConfig } from "../../CONST/DEFAULT_CONFIG";
 
 /**
  * Validation rules:
@@ -251,6 +252,8 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
               },
             },
           },
+          getFieldNamesPropConfig("label"),
+          getFieldNamesPropConfig("value"),
         ],
       },
       {
@@ -657,6 +660,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
     return (
       <RadioGroupComponent
+        {...this.props}
         accentColor={this.props.accentColor}
         alignment={alignment}
         animateLoading={animateLoading}

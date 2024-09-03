@@ -5,6 +5,18 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { WidgetConfiguration } from "widgets/constants";
 import type { AntdInputWidgetProps } from "../InputWidget/types";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import {
+  getOptionLabelValueExpressionPrefix,
+  optionLabelValueExpressionSuffix,
+} from "../SelectWidget/constants";
+import {
+  getLabelValueKeyOptions,
+  labelKeyValidation,
+  getLabelValueAdditionalAutocompleteData,
+} from "widgets/Antd/tools";
+import { PropertyControlType } from "components/propertyControls";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
 // 如果是对象，递归可选
 type DeepPartial<T> = T extends object
@@ -45,6 +57,12 @@ export const DEFAULT_CONFIG = {
     resetOnSubmit: true,
     animateLoading: false,
     controlSize: "middle",
+    fieldNames: {
+      value: "value",
+      label: "label",
+      options: "options",
+      children: "children",
+    },
   },
 };
 
@@ -313,3 +331,96 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
 ];
 
 export const INSTANCE_INVALID_VALUE = () => +new Date();
+
+export const getFieldNamesPropConfig = (
+  type: "value" | "label" | "options" | "children",
+  config?: Partial<PropertyPaneConfig>,
+) => {
+  const typeConfigMap = {
+    value: {
+      helpText: "选择或设置来自源数据的字段作为数值",
+      propertyName: "fieldNames.value",
+      label: "Value Key",
+    },
+    label: {
+      helpText: "选择或设置来自源数据的字段作为显示标签",
+      propertyName: "fieldNames.label",
+      label: "Label Key",
+    },
+    options: {
+      helpText: "选择或设置来自源数据的字段作为选项",
+      propertyName: "fieldNames.options",
+      label: "Options Key",
+    },
+    children: {
+      helpText: "选择或设置来自源数据的字段作为子选项",
+      propertyName: "fieldNames.children",
+      label: "Children Key",
+    },
+  };
+  return Object.assign(
+    {
+      helpText: "选择或设置来自源数据的字段作为显示标签",
+      propertyName: "valueKey",
+      label: "Value Key",
+      dropdownUsePropertyValue: true,
+      controlType: "DROP_DOWN",
+      customJSControl: "WRAPPED_CODE_EDITOR",
+      controlConfig: {
+        wrapperCode: {
+          prefix: getOptionLabelValueExpressionPrefix,
+          suffix: optionLabelValueExpressionSuffix,
+        },
+      },
+      placeholderText: "",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      isJSConvertible: true,
+      evaluatedDependencies: ["options"],
+      options: getLabelValueKeyOptions,
+      alwaysShowSelected: true,
+      validation: {
+        type: ValidationTypes.FUNCTION,
+        params: {
+          fn: labelKeyValidation,
+          expected: {
+            type: "String or Array<string>",
+            example: `color | ["blue", "green"]`,
+            autocompleteDataType: AutocompleteDataType.STRING,
+          },
+        },
+        dependentPaths: ["options"],
+      },
+      additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
+      hidden: (props: any) => {
+        // options 可能是 json需要先转换为对象
+        let options = props.options;
+        try {
+          if (typeof options === "string") {
+            options = JSON.parse(options);
+          }
+        } catch (error) {}
+        // 如果 type 不为 labelh或者 value，且 options 中的 key 数量小于等于 2，则隐藏
+        if (
+          type !== "label" &&
+          type !== "value" &&
+          options &&
+          Array.isArray(options)
+        ) {
+          // 查找options对象数组中 key 最多的一个对象
+          const maxKeyLength =
+            options?.reduce((max, option) => {
+              return Math.max(max, Object.keys(option)?.length);
+            }, 0) || Object.keys(options[0])?.length;
+          if (maxKeyLength <= 2) {
+            return true;
+          }
+        }
+
+        return false;
+      },
+    },
+    typeConfigMap[type],
+    config
+  );
+};
