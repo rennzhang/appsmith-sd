@@ -267,6 +267,9 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   };
 
   onEdit = (index: number) => {
+    this.updateProperty("editingColumnId", this.props.widgetProperties.columnOrder[index]);
+    this.updateProperty("editingColumnIndex", index);
+
     const columns: ColumnsType = this.props.propertyValue || {};
 
     const originalColumn = getOriginalColumn(
