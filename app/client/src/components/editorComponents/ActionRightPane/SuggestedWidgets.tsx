@@ -175,6 +175,14 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/list.svg`,
     icon: listWidgetIconSvg,
   },
+  ANTD_PRO_TABLE_WIDGET: {
+    label: "tabledata",
+    propertyName: "tableData",
+    widgetName: "AntProTable",
+    image: `${ASSETS_CDN_URL}/widgetSuggestion/table.svg`,
+    existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/existing_table.svg`,
+    icon: tableWidgetIconSvg,
+  },
   TABLE_WIDGET: {
     label: "tabledata",
     propertyName: "tableData",
@@ -471,7 +479,8 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
       canvasWidgetLength > 1 &&
       Object.keys(canvasWidgets).some((widgetKey: string) => {
         return (
-          canvasWidgets[widgetKey]?.type === "TABLE_WIDGET_V2" &&
+          (canvasWidgets[widgetKey]?.type === "TABLE_WIDGET_V2" ||
+           canvasWidgets[widgetKey]?.type === "ANTD_PRO_TABLE_WIDGET") &&
           parseInt(widgetKey, 0) !== 0
         );
       })
@@ -559,7 +568,11 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
                     const widgetInfo: WidgetBindingInfo | undefined =
                       WIDGET_DATA_FIELD_MAP[widget.type];
 
-                    if (!widgetInfo || widget?.type !== "TABLE_WIDGET_V2")
+                    if (
+                      !widgetInfo ||
+                      (widget?.type !== "TABLE_WIDGET_V2" &&
+                      widget?.type !== "ANTD_PRO_TABLE_WIDGET")
+                    )
                       return null;
 
                     return (
