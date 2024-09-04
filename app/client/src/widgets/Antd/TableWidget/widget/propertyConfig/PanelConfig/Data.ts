@@ -9,6 +9,7 @@ import {
   uniqueColumnAliasValidation,
   updateMenuItemsSource,
   updateNumberColumnTypeTextAlignment,
+  updateSelectSource,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -20,10 +21,29 @@ export default {
     {
       propertyName: "columnType",
       label: "列类型",
-      helpText:
-        "Type of column to be shown corresponding to the data of the column",
+      helpText: "选择列的类型。根据列类型，您可以配置列的其他属性",
       controlType: "DROP_DOWN",
       options: [
+        {
+          label: "文本",
+          value: ColumnTypes.TEXT,
+        },
+        {
+          label: "数字",
+          value: ColumnTypes.NUMBER,
+        },
+        {
+          label: "日期",
+          value: ColumnTypes.DATE,
+        },
+        {
+          label: "选择器",
+          value: ColumnTypes.SELECT,
+        },
+        {
+          label: "开关",
+          value: ColumnTypes.SWITCH,
+        },
         {
           label: "按钮",
           value: ColumnTypes.BUTTON,
@@ -32,10 +52,7 @@ export default {
           label: "勾选",
           value: ColumnTypes.CHECKBOX,
         },
-        {
-          label: "日期",
-          value: ColumnTypes.DATE,
-        },
+
         {
           label: "图标按钮",
           value: ColumnTypes.ICON_BUTTON,
@@ -48,22 +65,7 @@ export default {
           label: "菜单按钮",
           value: ColumnTypes.MENU_BUTTON,
         },
-        {
-          label: "数字",
-          value: ColumnTypes.NUMBER,
-        },
-        {
-          label: "文本",
-          value: ColumnTypes.TEXT,
-        },
-        {
-          label: "选择器",
-          value: ColumnTypes.SELECT,
-        },
-        {
-          label: "开关",
-          value: ColumnTypes.SWITCH,
-        },
+
         {
           label: "URL",
           value: ColumnTypes.URL,
@@ -77,8 +79,28 @@ export default {
         updateNumberColumnTypeTextAlignment,
         updateThemeStylesheetsInColumns,
         updateMenuItemsSource,
+        updateSelectSource,
       ]),
-      dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
+      dependencies: [
+        "primaryColumns",
+        "tableData",
+        "filteredTableData",
+        "editingColumnId",
+        "editingColumnIndex",
+        "orderedTableColumns",
+        "columnOrder",
+        "childStylesheet",
+      ],
+      evaluatedDependencies: [
+        "tableData",
+        "primaryColumns",
+        "filteredTableData",
+        "editingColumnId",
+        "editingColumnIndex",
+        "orderedTableColumns",
+        "columnOrder",
+        "childStylesheet",
+      ],
       isBindProperty: false,
       isTriggerProperty: false,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -92,8 +114,7 @@ export default {
       propertyName: "alias",
       label: "属性名",
       controlType: "INPUT_TEXT",
-      helperText: () =>
-        "Changing the name of the column overrides any changes to this field",
+      helperText: () => "在 selectedRow 中使用的别名。如果未设置，将使用列名",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const columnId = propertyPath.match(/primaryColumns\.(.*)\.alias/);
         let isDerivedProperty = false;
@@ -132,7 +153,7 @@ export default {
     {
       propertyName: "displayText",
       label: "显示文本",
-      helpText: "The text to be displayed in the column",
+      helpText: "显示在列中的文本",
       controlType: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);

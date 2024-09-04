@@ -190,8 +190,14 @@ export function getDefaultColumnProperties(
   columnType?: string,
 ): ColumnProperties {
   const columnProps = {
+    options: [],
+    fieldNames: {
+      value: "value",
+      label: "label",
+      options: "options",
+      children: "children",
+    },
     allowCellWrapping: false,
-    allowSameOptionsInNewRow: true,
     index: index,
     width: DEFAULT_COLUMN_WIDTH,
     originalId: id,
@@ -199,7 +205,7 @@ export function getDefaultColumnProperties(
     alias: id,
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: VerticalAlignmentTypes.CENTER,
-    columnType: columnType || ColumnTypes.TEXT,
+    columnType: columnType as any || ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
     textSize: "0.875rem",
     fontStyle: FontStyleTypes.REGULAR,
@@ -473,10 +479,7 @@ export const getCellProperties = (
         rowIndex,
       ),
       imageSize: getPropertyValue(columnProperties.imageSize, rowIndex, true),
-      isFilterable: getBooleanPropertyValue(
-        columnProperties.isFilterable,
-        rowIndex,
-      ),
+
       serverSideFiltering: getBooleanPropertyValue(
         columnProperties.serverSideFiltering,
         rowIndex,
@@ -486,10 +489,7 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
-      resetFilterTextOnClose: getPropertyValue(
-        columnProperties.resetFilterTextOnClose,
-        rowIndex,
-      ),
+
       inputFormat: getPropertyValue(
         columnProperties.inputFormat,
         rowIndex,
@@ -1093,7 +1093,7 @@ export const getSelectOptions = (
 ) => {
   if (isNewRow) {
     if (
-      columnProperties.allowSameOptionsInNewRow &&
+
       columnProperties?.selectOptions
     ) {
       // Use select options from the first row

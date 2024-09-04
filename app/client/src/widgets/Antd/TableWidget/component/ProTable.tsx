@@ -195,36 +195,25 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
           ellipsis: !column.columnProperties.allowCellWrapping,
           dataIndex: column.id,
           valueType: columnType,
+          fieldProps: {
+            ...column.columnProperties,
+            options: column.columnProperties.options?.map((option: any) => {
+              // fieldNames
+              return {
+                label: option[column.columnProperties.fieldNames?.label||""] ||option.label,
+                value: option[column.columnProperties.fieldNames?.value || ""] || option.value,
+                ...option,
+              };
+            }),
+          },
           // copyable: column.columnProperties.isCopyable,
-          filters:
-            props.isVisibleFilters && column.columnProperties.isFilterable,
+          filters: props.isVisibleFilters,
           hideInSearch: !(
             props.isVisibleSearch && column.columnProperties.isVisibleCellSearch
           ),
           // 筛选时使用本地搜索
           onFilter: true,
         };
-        if (columnType.includes("select")) {
-          proColumn.valueEnum = {} as Record<string, { text: string }>;
-          let selectOptions = column?.columnProperties?.selectOptions || [];
-          if (
-            typeof selectOptions == "string" &&
-            (selectOptions as any)?.includes("[{")
-          ) {
-            try {
-              selectOptions = JSON.parse(selectOptions);
-            } catch (error) {
-              selectOptions = [];
-            }
-          }
-          selectOptions?.map &&
-            selectOptions?.map((option: any) => {
-              (proColumn.valueEnum as any)[option.value] = {
-                text: option.label,
-                ...option,
-              };
-            });
-        }
         delete proColumn.sticky;
         return proColumn;
       }) || [];
@@ -237,8 +226,9 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
     () => getActionColumn(props),
     [props.columnActions, props.actionWidth],
   );
-  console.group("表格 protable");
+  console.group("Antd 表格 Table Protable  444");
   console.log("表格 props", props);
+  console.log("表格 tableColumns", tableColumns);
   console.groupEnd();
 
   // const columnActions = useMemo(() => {

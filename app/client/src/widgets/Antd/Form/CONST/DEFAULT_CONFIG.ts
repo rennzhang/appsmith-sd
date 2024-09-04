@@ -14,9 +14,11 @@ import {
   getLabelValueKeyOptions,
   labelKeyValidation,
   getLabelValueAdditionalAutocompleteData,
+  getDefaultValueOptions,
 } from "widgets/Antd/tools";
 import { PropertyControlType } from "components/propertyControls";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { merge } from "lodash";
 
 // 如果是对象，递归可选
 type DeepPartial<T> = T extends object
@@ -332,9 +334,29 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
 
 export const INSTANCE_INVALID_VALUE = () => +new Date();
 
+export const getDefaultValueDropdownPropConfig = (config?: DeepPartial<PropertyPaneConfig>,) => {
+  return merge({
+    helpText: "设置默认值",
+    propertyName: "defaultValue",
+    label: "默认值",
+    controlType: "DROP_DOWN",
+    placeholderText: "请选择默认值",
+    isBindProperty: true,
+    isTriggerProperty: false,
+    isJSConvertible: true,
+    options: getDefaultValueOptions,
+    validation: {
+      type: ValidationTypes.TEXT,
+    },
+    hidden: (props: any) => {
+      return ["ANTD_SLIDER_WIDGET", "ANTD_TREE_WIDGET"].includes(props.type);
+    },
+  }, config);
+}
+
 export const getFieldNamesPropConfig = (
   type: "value" | "label" | "options" | "children",
-  config?: Partial<PropertyPaneConfig>,
+  config?: DeepPartial<PropertyPaneConfig>,
 ) => {
   const typeConfigMap = {
     value: {
@@ -358,7 +380,8 @@ export const getFieldNamesPropConfig = (
       label: "Children Key",
     },
   };
-  return Object.assign(
+  // 深度合并
+  const cfg = merge(
     {
       helpText: "选择或设置来自源数据的字段作为显示标签",
       propertyName: "valueKey",
@@ -372,7 +395,7 @@ export const getFieldNamesPropConfig = (
           suffix: optionLabelValueExpressionSuffix,
         },
       },
-      placeholderText: "",
+      placeholderText: "value",
       isBindProperty: true,
       isTriggerProperty: false,
       isJSConvertible: true,
@@ -382,10 +405,10 @@ export const getFieldNamesPropConfig = (
       validation: {
         type: ValidationTypes.FUNCTION,
         params: {
-          fn: labelKeyValidation,
+          fnString: labelKeyValidation.toString(),
           expected: {
-            type: "String or Array<string>",
-            example: `color | ["blue", "green"]`,
+            type: "String",
+            example: `value`,
             autocompleteDataType: AutocompleteDataType.STRING,
           },
         },
@@ -393,6 +416,8 @@ export const getFieldNamesPropConfig = (
       },
       additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
       hidden: (props: any) => {
+        console.log("getFieldNamesPropConfig hidden", props);
+
         // options 可能是 json需要先转换为对象
         let options = props.options;
         try {
@@ -423,4 +448,8 @@ export const getFieldNamesPropConfig = (
     typeConfigMap[type],
     config
   );
+
+  console.log("getFieldNamesPropConfig", cfg);
+
+  return cfg;
 };

@@ -208,6 +208,9 @@ export function Table(props: AntdTableProps) {
     }
   }, [props.isAddRowInProgress]);
 
+  console.group("Antd 表格 Table Index 333");
+  console.log(" this.props", props);
+  console.groupEnd();
   return (
     <>
       {showConnectDataOverlay && (

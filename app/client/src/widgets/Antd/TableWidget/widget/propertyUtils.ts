@@ -184,11 +184,19 @@ export const updateColumnOrderHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
+  ...rest: any
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
   const propertiesToUpdate: Array<{
     propertyPath: string;
     propertyValue: any;
   }> = [];
+  console.log("updateColumnOrderHook ", {
+    props,
+    propertyPath,
+    propertyValue,
+    rest,
+  });
+
   if (props && propertyValue && /^primaryColumns\.\w+$/.test(propertyPath)) {
     const newColumnOrder = [...(props.columnOrder || [])];
 
@@ -716,6 +724,46 @@ export const hideIfMenuItemsSourceDataIsFalsy = (
 
   return !sourceData;
 };
+// updateSelectSource
+export const updateSelectSource = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: unknown,
+): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
+  const propertiesToUpdate: Array<{
+    propertyPath: string;
+    propertyValue: unknown;
+  }> = [];
+  const opts = [
+    {
+      propertyPath: "primaryColumns.action.selectSource",
+      propertyValue: "static",
+    },
+    {
+      propertyPath: "primaryColumns.action.selectSource",
+      propertyValue: "dynamic",
+    },
+  ];
+
+  const baseProperty = getBasePropertyPath(propertyPath);
+  const selectSource = get(props, `${baseProperty}.options`);
+
+  if (propertyValue === ColumnTypes.SELECT && !selectSource?.legnth) {
+    // Sets the default value for selectSource to static when
+    // selecting the select column type for the first time
+    const selectOptions = (
+      (props.__evaluation__?.evaluatedValues?.orderedTableColumns as any[])?.[
+        props.editingColumnIndex
+      ] as { computedValue: any[] }
+    )?.computedValue?.map((c) => ({ label: String(c), value: c })) || [];
+    propertiesToUpdate.push({
+      propertyPath: `${baseProperty}.options`,
+      propertyValue: selectOptions,
+    });
+  }
+
+  return propertiesToUpdate?.length ? propertiesToUpdate : undefined;
+};
 
 export const updateMenuItemsSource = (
   props: TableWidgetProps,
@@ -777,6 +825,7 @@ export function selectColumnOptionsValidation(
   props: TableWidgetProps,
   _?: any,
 ) {
+
   let _isValid = true,
     _parsed,
     _message = "";
@@ -826,44 +875,44 @@ export function selectColumnOptionsValidation(
       )} This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`;
     }
 
-    if (!option.hasOwnProperty("label")) {
-      // 2
-      return `${generateErrorMessagePrefix(
-        rowIndex,
-        optionIndex,
-      )} Missing required key: label`;
-    }
+    // if (!option.hasOwnProperty("label")) {
+    //   // 2
+    //   return `${generateErrorMessagePrefix(
+    //     rowIndex,
+    //     optionIndex,
+    //   )} Missing required key: label`;
+    // }
 
-    if (!allowedLabelTypes.includes(typeof option.label)) {
-      // 3
-      return `${generateErrorMessagePrefix(
-        rowIndex,
-        optionIndex,
-      )} label does not evaluate to type ${allowedLabelTypes.join(" | ")}`;
-    }
+    // if (!allowedLabelTypes.includes(typeof option.label)) {
+    //   // 3
+    //   return `${generateErrorMessagePrefix(
+    //     rowIndex,
+    //     optionIndex,
+    //   )} label does not evaluate to type ${allowedLabelTypes.join(" | ")}`;
+    // }
 
-    if (!option.hasOwnProperty("value")) {
-      // 4
-      return `${generateErrorMessagePrefix(
-        rowIndex,
-        optionIndex,
-      )} Missing required key: value`;
-    }
+    // if (!option.hasOwnProperty("value")) {
+    //   // 4
+    //   return `${generateErrorMessagePrefix(
+    //     rowIndex,
+    //     optionIndex,
+    //   )} Missing required key: value`;
+    // }
 
-    if (!allowedValueTypes.includes(typeof option.value)) {
-      // 5
-      return `${generateErrorMessagePrefix(
-        rowIndex,
-        optionIndex,
-      )} value does not evaluate to type ${allowedValueTypes.join(" | ")}`;
-    }
+    // if (!allowedValueTypes.includes(typeof option.value)) {
+    //   // 5
+    //   return `${generateErrorMessagePrefix(
+    //     rowIndex,
+    //     optionIndex,
+    //   )} value does not evaluate to type ${allowedValueTypes.join(" | ")}`;
+    // }
 
-    if (uniqueValues.has(option.value)) {
-      // 6
-      return `Duplicate values found for the following properties, in the array entries, that must be unique -- value.`;
-    } else {
-      uniqueValues.add(option.value);
-    }
+    // if (uniqueValues.has(option.value)) {
+    //   // 6
+    //   return `Duplicate values found for the following properties, in the array entries, that must be unique -- value.`;
+    // } else {
+    //   uniqueValues.add(option.value);
+    // }
 
     return "";
   };

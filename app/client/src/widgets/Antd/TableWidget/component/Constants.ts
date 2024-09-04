@@ -17,6 +17,7 @@ import type {
 import type { ColumnTypes } from "../constants";
 import type { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
+import { ProFieldValueType } from "@ant-design/pro-components";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -178,10 +179,8 @@ export interface URLCellProperties {
 }
 
 export interface SelectCellProperties {
-  isFilterable?: boolean;
   serverSideFiltering?: boolean;
   placeholderText?: string;
-  resetFilterTextOnClose?: boolean;
   selectOptions?: DropdownOption[];
 }
 
@@ -263,7 +262,7 @@ export interface ColumnBaseProperties {
   id: string;
   originalId: string;
   label?: string;
-  columnType: string;
+  columnType: ProFieldValueType;
   isVisible: boolean;
   isDisabled?: boolean;
   index: number;
@@ -327,10 +326,8 @@ export interface EditActionColumnProperties {
   discardActionIconName?: string;
   isDiscardVisible?: boolean;
   isDiscardDisabled?: boolean;
-  isFilterable?: boolean;
   serverSideFiltering?: boolean;
   placeholderText?: string;
-  resetFilterTextOnClose?: boolean;
   selectOptions?: DropdownOption[] | DropdownOption[][];
 }
 
@@ -340,8 +337,12 @@ export interface ColumnProperties
     DateColumnProperties,
     ColumnEditabilityProperties,
     EditActionColumnProperties {
-  allowSameOptionsInNewRow?: boolean;
-  newRowSelectOptions?: DropdownOption[];
+  options?: DropdownOption[];
+  fieldNames?: {
+    label: string;
+    value: string;
+    children?: string;
+  };
   buttonLabel?: string;
   menuButtonLabel?: string;
   buttonColor?: string;

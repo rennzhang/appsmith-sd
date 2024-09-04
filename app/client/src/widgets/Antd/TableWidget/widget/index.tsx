@@ -271,6 +271,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       newRow: undefined,
       previousPageVisited: false,
       nextPageVisited: false,
+      columns: [],
     };
   }
 
@@ -307,6 +308,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         isAddRowInProgress: "bool",
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
+        columns: generateTypeDef(widget.tableColumns||widget.columns),
       };
 
       return config;
@@ -419,7 +421,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       componentWidth,
       renderMode,
     );
+    console.log("getTableColumns columns", columns);
 
+
+
+    // this.batchUpdateWidgetProperty({
+    //   modify: {
+    //     columns,
+    //   },
+    // }, false);
     return columns;
   };
 
@@ -1068,6 +1078,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const { filteredTableData = [] } = this.props;
     const tableColumns = this.getTableColumns() || emptyArr;
     const transformedData = this.transformData(filteredTableData, tableColumns);
+
     const finalTableData = this.memoisedAddNewRow(
       transformedData,
       this.props.isAddRowInProgress,
@@ -1094,8 +1105,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const tableColumns = this.getTableColumns() || emptyArr;
     const finalTableData = this.getFinalTableData();
 
-    console.group("Antd 表格 Table Widget");
+    console.group("Antd 表格 Table Widget 111");
     console.log(" this.props", this.props);
+    console.log("tableColumns", tableColumns);
+
     console.groupEnd();
 
     return (

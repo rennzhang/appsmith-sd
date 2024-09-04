@@ -182,6 +182,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     width,
   } = props;
 
+  console.log("ReactTableComponent -> columns", columns);
+
   const sortTableColumn = useCallback(
     (columnIndex: number, asc: boolean) => {
       if (allowSorting) {
@@ -233,6 +235,9 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     [disableDrag],
   );
 
+  console.group("Antd 表格 Table Index 222");
+  console.log(" this.props", props);
+  console.groupEnd();
   return (
     <Table
       {...props}
@@ -306,6 +311,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
+    equal(prev.columns, next.columns) &&
+    equal(prev.queryData, next.queryData) &&
     prev.expandRowByClick === next.expandRowByClick &&
     prev.childrenColumnName === next.childrenColumnName &&
     prev.actionWidth === next.actionWidth &&

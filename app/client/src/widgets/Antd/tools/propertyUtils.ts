@@ -4,10 +4,45 @@ import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { SelectWidgetProps } from "../Form/SelectWidget/widget";
 
+export function getDefaultValueOptions(widget: WidgetProps) {
+  console.log("getDefaultValueOptions", widget);
+  let sourceData = get(widget, `${EVAL_VALUE_PATH}.options`);
+  if (widget.type === "ANTD_PRO_TABLE_WIDGET") {
+    sourceData = (widget?.__evaluation__?.evaluatedValues as any)
+      ?.orderedTableColumns?.[widget.editingColumnIndex]?.options||[];
+  }
+  const fieldNames = widget.primaryColumns[widget.editingColumnId].fieldNames || {};
+
+  let parsedValue: Record<string, any>[] | undefined = sourceData;
+
+  if (isString(sourceData)) {
+    try {
+      parsedValue = JSON.parse(sourceData);
+    } catch (e) {}
+  }
+
+  return (parsedValue as any[])?.map((d: any) => {
+    if (isPlainObject(d)) {
+      return {
+        label: d[fieldNames.label],
+        value: d[fieldNames.value],
+      };
+    }
+    return {
+      label: d,
+      value: d,
+    };
+  })
+}
+
 export function getLabelValueKeyOptions(widget: WidgetProps) {
   console.log("getLabelValueKeyOptions", widget);
 
-  const sourceData = get(widget, `${EVAL_VALUE_PATH}.options`);
+  let sourceData = get(widget, `${EVAL_VALUE_PATH}.options`);
+  if (widget.type === "ANTD_PRO_TABLE_WIDGET") {
+    sourceData = (widget?.__evaluation__?.evaluatedValues as any)
+      ?.orderedTableColumns?.[widget.editingColumnIndex]?.options||[];
+  }
   const fieldNames = widget.fieldNames || {};
 
   let parsedValue: Record<string, unknown> | undefined = sourceData;
@@ -19,18 +54,17 @@ export function getLabelValueKeyOptions(widget: WidgetProps) {
   }
 
   if (isArray(parsedValue)) {
-    let result= uniq(
+    let result = uniq(
       parsedValue.reduce((keys, obj) => {
         if (isPlainObject(obj)) {
           Object.entries(obj).forEach(([key, value]) => {
-            const isChildrenKey = "children" in fieldNames
+            const isChildrenKey = "children" in fieldNames;
             const valueIsArray = Array.isArray(value);
             if (isChildrenKey && valueIsArray) {
               keys.push(key);
-            } else if(!isChildrenKey && !valueIsArray) {
+            } else if (!isChildrenKey && !valueIsArray) {
               keys.push(key);
             }
-
           });
         }
         return keys;
@@ -39,7 +73,7 @@ export function getLabelValueKeyOptions(widget: WidgetProps) {
       label: d,
       value: d,
     }));
-console.log("getLabelValueKeyOptions result", result);
+    console.log("getLabelValueKeyOptions result", result);
 
     return result;
   } else {
@@ -60,7 +94,6 @@ export function getLabelValueAdditionalAutocompleteData(props: WidgetProps) {
       }, {}),
   };
 }
-
 
 export function defaultOptionValueValidation(
   value: unknown,
