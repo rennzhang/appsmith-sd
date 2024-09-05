@@ -30,6 +30,7 @@ export const CONFIG = {
     labelTextSize: 14,
     labelWidth: 6,
 
+    allowHalf: true,
     defaultValue: 4,
     isRequired: false,
     isDisabled: false,
