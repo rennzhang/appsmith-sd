@@ -23,160 +23,7 @@ import type { WidgetState, WidgetProps } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { getFieldNamesPropConfig } from "../../CONST/DEFAULT_CONFIG";
-
-/**
- * Validation rules:
- * 1. This property will take the value in the following format: Array<{ "label": "string", "value": "string" | number}>
- * 2. The `value` property should consists of unique values only.
- * 3. Data types of all the value props should be the same.
- */
-export function optionsCustomValidation(
-  options: unknown,
-  props: any,
-  _: any,
-): ValidationResponse {
-  const labelField = props.fieldNames?.label || "label";
-  const valueField = props.fieldNames?.value || "value";
-  const validationUtil = (options: any[], _: any) => {
-    let _isValid = true;
-    let message = { name: "", message: "" };
-    let valueType = "";
-    const uniqueLabels: Record<string | number, string> = {};
-
-    for (let i = 0; i < options.length; i++) {
-      const label = options[i][labelField];
-      const value = options[i][valueField];
-      if (!valueType) {
-        valueType = typeof value;
-      }
-      //Checks the uniqueness all the values in the options
-      if (!uniqueLabels.hasOwnProperty(value)) {
-        uniqueLabels[value] = "";
-      } else {
-        _isValid = false;
-        message = {
-          name: "ValidationError",
-          message: `path:${valueField} must be unique. Duplicate values found`,
-        };
-        break;
-      }
-
-      //Check if the required field "label" is present:
-      if (!label) {
-        _isValid = false;
-        message = {
-          name: "ValidationError",
-          message: `Invalid entry at index: ${i}. Missing required key: ${labelField}`,
-        };
-        break;
-      }
-
-      //Validation checks for the the label.
-      if (
-        _.isNil(label) ||
-        label === "" ||
-        (typeof label !== "string" && typeof label !== "number")
-      ) {
-        _isValid = false;
-        message = {
-          name: "ValidationError",
-          message: `Invalid entry at index: ${i}. Value of key: ${labelField} is invalid: This value does not evaluate to type string`,
-        };
-        break;
-      }
-
-      //Check if all the data types for the value prop is the same.
-      if (typeof value !== valueType) {
-        _isValid = false;
-        message = {
-          name: "TypeError",
-          message: "All value properties in options must have the same type",
-        };
-        break;
-      }
-
-      //Check if the each object has value property.
-      if (_.isNil(value)) {
-        _isValid = false;
-        message = {
-          name: "TypeError",
-          message: `This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>`,
-        };
-        break;
-      }
-    }
-
-    return {
-      isValid: _isValid,
-      parsed: _isValid ? options : [],
-      messages: [message],
-    };
-  };
-
-  const invalidResponse = {
-    isValid: false,
-    parsed: [],
-    messages: [
-      {
-        name: "TypeError",
-        message:
-          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
-      },
-    ],
-  };
-  try {
-    if (_.isString(options)) {
-      options = JSON.parse(options as string);
-    }
-
-    if (Array.isArray(options)) {
-      return validationUtil(options, _);
-    } else {
-      return invalidResponse;
-    }
-  } catch (e) {
-    return invalidResponse;
-  }
-}
-function defaultOptionValidation(
-  value: unknown,
-  props: any,
-  _: any,
-): ValidationResponse {
-  //Checks if the value is not of object type in {{}}
-  if (_.isObject(value)) {
-    return {
-      isValid: false,
-      parsed: JSON.stringify(value, null, 2),
-      messages: [
-        {
-          name: "TypeError",
-          message: "This value does not evaluate to type: string or number",
-        },
-      ],
-    };
-  }
-
-  //Checks if the value is not of boolean type in {{}}
-  if (_.isBoolean(value)) {
-    return {
-      isValid: false,
-      parsed: value,
-      messages: [
-        {
-          name: "TypeError",
-          message: "This value does not evaluate to type: string or number",
-        },
-      ],
-    };
-  }
-
-  return {
-    isValid: true,
-    parsed: value,
-  };
-}
+import { getDefaultValueDropdownPropConfig, getFieldNamesPropConfig } from "../../CONST/DEFAULT_CONFIG";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -213,45 +60,25 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.FUNCTION,
+              type: ValidationTypes.ARRAY,
               params: {
-                fn: optionsCustomValidation,
-                expected: {
-                  type: 'Array<{ "label": "string", "value": "string" | number}>',
-                  example: `[{"label": "One", "value": "one"}]`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                  },
                 },
               },
             },
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
-          {
-            helpText: "设置默认选中的选项",
-            propertyName: "defaultValue",
-            label: "默认选中值",
+          getDefaultValueDropdownPropConfig({
             placeholderText: "Y",
-            controlType: "INPUT_TEXT",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            /**
-             * Changing the validation to FUNCTION.
-             * If the user enters Integer inside {{}} e.g. {{1}} then value should evalute to integer.
-             * If user enters 1 e.g. then it should evaluate as string.
-             */
             validation: {
-              type: ValidationTypes.FUNCTION,
-              params: {
-                fn: defaultOptionValidation,
-                expected: {
-                  type: `string |\nnumber (only works in mustache syntax)`,
-                  example: `abc | {{1}}`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
-              },
+              type: ValidationTypes.TEXT,
             },
-          },
+          }),
           getFieldNamesPropConfig("label"),
           getFieldNamesPropConfig("value"),
         ],
@@ -661,6 +488,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     return (
       <RadioGroupComponent
         {...this.props}
+        fieldNames={this.props.fieldNames}
         accentColor={this.props.accentColor}
         alignment={alignment}
         animateLoading={animateLoading}

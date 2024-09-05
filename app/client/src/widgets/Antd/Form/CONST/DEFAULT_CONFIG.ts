@@ -15,10 +15,14 @@ import {
   labelKeyValidation,
   getLabelValueAdditionalAutocompleteData,
   getDefaultValueOptions,
+  SelectValidator,
 } from "widgets/Antd/tools";
 import { PropertyControlType } from "components/propertyControls";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { merge } from "lodash";
+import {
+  PropertyPaneConfig,
+  PropertyPaneControlConfig,
+} from "constants/PropertyControlConstants";
+import { merge, uniq } from "lodash";
 
 // 如果是对象，递归可选
 type DeepPartial<T> = T extends object
@@ -334,30 +338,63 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
 
 export const INSTANCE_INVALID_VALUE = () => +new Date();
 
-export const getDefaultValueDropdownPropConfig = (config?: DeepPartial<PropertyPaneConfig>,) => {
-  return merge({
-    helpText: "设置默认值",
-    propertyName: "defaultValue",
-    label: "默认值",
-    controlType: "DROP_DOWN",
-    placeholderText: "请选择默认值",
-    isBindProperty: true,
-    isTriggerProperty: false,
-    isJSConvertible: true,
-    options: getDefaultValueOptions,
-    validation: {
-      type: ValidationTypes.TEXT,
+export const getDefaultValueDropdownPropConfig = (
+  config?: DeepPartial<PropertyPaneControlConfig>,
+): PropertyPaneControlConfig => {
+  const dependencies = uniq([
+    "options",
+    "fieldNames",
+    ...(config?.dependencies || []),
+    ...(config?.evaluatedDependencies || []),
+  ]);
+
+  if (dependencies.includes("fieldNames")) {
+  }
+  const mergedConfig = merge(
+    {
+      helpText: "设置默认选中的选项",
+      propertyName: "defaultValue",
+      label: "默认选中值",
+      controlType: "DROP_DOWN",
+      placeholderText: "请选择默认值",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      isJSConvertible: true,
+      options: getDefaultValueOptions,
+      validation: {
+        type: ValidationTypes.UNION,
+        params: {
+          types: [
+            {
+              type: ValidationTypes.TEXT,
+            },
+            {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.TEXT,
+                },
+              },
+            },
+          ],
+        },
+      },
+    } as PropertyPaneControlConfig,
+    config,
+    {
+      dependencies,
+      evaluatedDependencies: dependencies,
     },
-    hidden: (props: any) => {
-      return ["ANTD_SLIDER_WIDGET", "ANTD_TREE_WIDGET"].includes(props.type);
-    },
-  }, config);
-}
+  );
+
+  console.log("getDefaultValueDropdownPropConfig", mergedConfig);
+  return mergedConfig;
+};
 
 export const getFieldNamesPropConfig = (
   type: "value" | "label" | "options" | "children",
   config?: DeepPartial<PropertyPaneConfig>,
-) => {
+): PropertyPaneConfig => {
   const typeConfigMap = {
     value: {
       helpText: "选择或设置来自源数据的字段作为数值",
@@ -444,9 +481,9 @@ export const getFieldNamesPropConfig = (
 
         return false;
       },
-    },
+    } as PropertyPaneConfig,
     typeConfigMap[type],
-    config
+    config,
   );
 
   console.log("getFieldNamesPropConfig", cfg);
