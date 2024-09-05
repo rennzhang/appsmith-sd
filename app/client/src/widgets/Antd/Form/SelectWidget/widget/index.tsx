@@ -24,11 +24,16 @@ import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
 import {
   DEFAULT_STYLE_PANEL_CONFIG,
+  getDefaultValueDropdownPropConfig,
   getFieldNamesPropConfig,
 } from "../../CONST/DEFAULT_CONFIG";
 import type { Def } from "tern";
 import { SelectValidator } from "widgets/Antd/tools";
-import { WidgetQueryConfig, WidgetQueryGenerationFormConfig } from "WidgetQueryGenerators/types";
+import {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
+import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 function getTypeDefOfTreeSelectInfo(isCheck?: boolean): string | Def {
   const def: Def = {
     event: "string",
@@ -67,7 +72,12 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     widget: WidgetProps,
     formConfig: WidgetQueryGenerationFormConfig,
   ) {
-    console.log("Antd 选择器组件 getPropertyUpdatesForQueryBinding", queryConfig, widget, formConfig);
+    console.log(
+      "Antd 选择器组件 getPropertyUpdatesForQueryBinding",
+      queryConfig,
+      widget,
+      formConfig,
+    );
 
     let modify;
 
@@ -147,27 +157,44 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
-          {
-            helpText: "默认选中的值",
-            propertyName: "defaultValue",
-            label: "默认值",
-            controlType: "INPUT_TEXT",
+          // {
+          //   helpText: "默认选中的值",
+          //   propertyName: "defaultValue",
+          //   label: "默认值",
+          //   controlType: "INPUT_TEXT",
+          //   placeholderText: "请输入选项数据",
+          //   isJSConvertible: true,
+          //   isBindProperty: true,
+          //   isTriggerProperty: false,
+          //   validation: {
+          //     type: ValidationTypes.FUNCTION,
+          //     params: {
+          //       fn: SelectValidator.defaultValueValidation,
+          //       expected: {
+          //         type: "value",
+          //         example: [`value1`],
+          //         autocompleteDataType: AutocompleteDataType.ARRAY,
+          //       },
+          //     },
+          //   },
+          // },
+          getDefaultValueDropdownPropConfig({
             placeholderText: "请输入选项数据",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.FUNCTION,
-              params: {
-                fn: SelectValidator.defaultValueValidation,
-                expected: {
-                  type: "value",
-                  example: [`value1`],
-                  autocompleteDataType: AutocompleteDataType.ARRAY,
-                },
-              },
-            },
-          },
+            dependencies: ["mode", "isMultiSelect"],
+            defaultValue:undefined,
+
+            // validation: {
+            //   type: ValidationTypes.FUNCTION,
+            //   params: {
+            //     fn: SelectValidator.defaultValueValidation,
+            //     // expected: {
+            //     //   type: "value",
+            //     //   example: [`value1`],
+            //     //   autocompleteDataType: AutocompleteDataType.ARRAY,
+            //     // },
+            //   },
+            // },
+          }),
           getFieldNamesPropConfig("label"),
           getFieldNamesPropConfig("value"),
           getFieldNamesPropConfig("options"),
@@ -413,6 +440,35 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+            dependencies: ["options", "defaultValue"],
+            updateHook: (
+              props: any,
+              propertyPath: string,
+              propertyValue: any,
+            ) => {
+              console.log("Antd 选择器组件 updateHook", {
+                props,
+                propertyPath,
+                propertyValue,
+              });
+              const isMultiSelect = propertyValue !== "void 0";
+              const defaultValue = isMultiSelect
+                ? [].concat(props.defaultValue)
+                : Array.isArray(props.defaultValue)
+                ? props.defaultValue[0]
+                : props.defaultValue;
+              return [
+                {
+                  propertyPath: "isMultiSelect",
+                  propertyValue: propertyValue !== "void 0",
+                },
+                // defaultValue
+                {
+                  propertyPath: "defaultValue",
+                  propertyValue: defaultValue,
+                },
+              ];
+            },
           },
 
           // maxTagCount
@@ -588,6 +644,7 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         "selectedLabel",
         this.handleValueOrLabel(selectedLabel, mode),
       );
+      // updateWidgetMetaProperty("defaultValue", ");
     }
   }
   handleValueOrLabel = (input: any, mode: string) => {

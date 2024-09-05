@@ -264,7 +264,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
         >
           <Select
             allowClear={allowClear}
-            defaultValue={defaultValue}
+            defaultValue={defaultValue||undefined}
             disabled={disabled}
             fieldNames={fieldNamesValue}
             filterOption={handleFilter}

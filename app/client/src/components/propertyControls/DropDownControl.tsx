@@ -58,10 +58,15 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     }
   };
 
+  getIsMultiSelect() {
+    return (
+      this.props.isMultiSelect || this.props.widgetProperties.isMultiSelect
+    );
+  }
   render() {
     let defaultSelected: string | string[] | undefined = undefined;
-
-    if (this.props.isMultiSelect) {
+    const isMultiSelect = this.getIsMultiSelect();
+    if (isMultiSelect) {
       defaultSelected = [];
     }
 
@@ -71,7 +76,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
         : this.props?.options || [];
 
     if (this.props.defaultValue) {
-      if (this.props.isMultiSelect) {
+      if (isMultiSelect) {
         const defaultValueSet = new Set(this.props.defaultValue);
         defaultSelected = options
           .filter((option) => defaultValueSet.has(option.value))
@@ -85,7 +90,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
     let selected: string | string[];
 
-    if (this.props.isMultiSelect) {
+    if (isMultiSelect) {
       const propertyValueSet = new Set(this.props.propertyValue);
       selected = options
         .filter((option) => propertyValueSet.has(option.value))
@@ -120,7 +125,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       <div className="w-full h-full" ref={this.containerRef}>
         <Select
           defaultValue={defaultSelected}
-          isMultiSelect={this.props.isMultiSelect}
+          isMultiSelect={isMultiSelect}
           isValid={!errors.length}
           onDeselect={this.onDeselect}
           onSelect={this.onSelect}
@@ -183,7 +188,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   onSelect = (value?: string): void => {
     if (!isNil(value)) {
       let selectedValue: string | string[] = this.props.propertyValue;
-      if (this.props.isMultiSelect) {
+      if (this.getIsMultiSelect()) {
         if (Array.isArray(selectedValue)) {
           const index = selectedValue.indexOf(value);
           if (index >= 0) {
@@ -207,7 +212,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   onDeselect = (value?: string) => {
     if (!isNil(value)) {
       let selectedValue: string | string[] = this.props.propertyValue;
-      if (this.props.isMultiSelect) {
+      if (this.getIsMultiSelect()) {
         if (Array.isArray(selectedValue)) {
           const index = selectedValue.indexOf(value);
           if (index >= 0) {
@@ -246,7 +251,9 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     const allowedValues = new Set(
       options?.map((x: { value: string | number }) => x.value.toString()),
     );
-    if (config.isMultiSelect) {
+    console.log("canDisplayValueInUI ", config);
+
+    if (config.isMultiSelect || config.widgetProperties.isMultiSelect) {
       try {
         const values = JSON.parse(value);
         for (const x of values) {

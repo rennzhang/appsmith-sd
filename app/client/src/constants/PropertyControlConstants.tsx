@@ -106,7 +106,7 @@ export type PropertyPaneControlConfig = {
   presetLabel?: string;
   placeholderText?: string;
   defaultProperties?: Record<string, any>;
-
+  isMultiSelect?: boolean;
 };
 
 // 属性校验参数
