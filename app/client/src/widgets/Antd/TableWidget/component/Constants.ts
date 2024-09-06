@@ -301,7 +301,7 @@ export interface ColumnEditabilityProperties {
     regex?: string;
     isEditableCellValid?: boolean;
     errorMessage?: string;
-    isEditableCellRequired?: boolean;
+    isColumnEditableCellRequired?: boolean;
     min?: number;
     max?: number;
     minDate?: string;
@@ -337,6 +337,8 @@ export interface ColumnProperties
     DateColumnProperties,
     ColumnEditabilityProperties,
     EditActionColumnProperties {
+  isVisibleCellFilters: boolean;
+  isCellCopyable: boolean;
   options?: DropdownOption[];
   fieldNames?: {
     label: string;

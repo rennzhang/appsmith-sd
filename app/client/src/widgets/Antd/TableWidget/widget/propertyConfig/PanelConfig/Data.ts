@@ -28,6 +28,27 @@ export default {
           label: "文本",
           value: ColumnTypes.TEXT,
         },
+        // TEXTAREA
+        {
+          label: "文本区域",
+          value: ColumnTypes.TEXTAREA,
+        },
+        // password
+        {
+          label: "密码",
+          value: ColumnTypes.PASSWORD,
+        },
+        // MONY
+        {
+          label: "金额",
+          value: ColumnTypes.MONY,
+        },
+        // COLOR
+        {
+          label: "颜色",
+          value: ColumnTypes.COLOR,
+        },
+
         {
           label: "数字",
           value: ColumnTypes.NUMBER,

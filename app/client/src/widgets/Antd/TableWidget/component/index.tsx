@@ -311,6 +311,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
+    // enableSearchFormValidation
+    prev.enableSearchFormValidation === next.enableSearchFormValidation &&
     equal(prev.columns, next.columns) &&
     equal(prev.queryData, next.queryData) &&
     prev.expandRowByClick === next.expandRowByClick &&

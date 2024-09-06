@@ -147,7 +147,7 @@ export default [
       },
     ],
   },
-    {
+  {
     // 操作栏配置
     sectionName: "操作栏配置",
     children: [
@@ -293,6 +293,18 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
+      },
+      // 开启查询表单校验
+      {
+        helpText: "是否启用查询表单校验",
+        propertyName: "enableSearchFormValidation",
+        label: "启用查询表单校验",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
       },
       // {
       //   propertyName: "enableClientSideSearch",
@@ -616,6 +628,8 @@ export default [
       // },
     ],
   },
+  // 查询表单配置
+
   {
     sectionName: "工具栏配置",
     children: [
@@ -665,5 +679,4 @@ export default [
       },
     ],
   },
-
 ] as PropertyPaneConfig[];

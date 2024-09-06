@@ -18,8 +18,23 @@ import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
 import type { Row } from "react-table";
 import { ProTableProps } from "@ant-design/pro-components";
-
+// export enum ColumnTypes {
+//   TEXT = "text",
+//   URL = "url",
+//   NUMBER = "digit",
+//   IMAGE = "image",
+//   VIDEO = "video",
+//   DATE = "date",
+//   BUTTON = "button",
+//   ICON_BUTTON = "iconButton",
+//   MENU_BUTTON = "menuButton",
+//   SELECT = "select",
+//   EDIT_ACTIONS = "editActions",
+//   CHECKBOX = "checkbox",
+//   SWITCH = "switch",
+// }
 export interface AntdTableProps {
+  enableSearchFormValidation: boolean;
   inlineEditingSaveOption?:  InlineEditingSaveOptions
   expandRowByClick?: boolean;
   onExpand: (expanded: boolean, record: any) => void;
@@ -277,7 +292,7 @@ export const TABLE_COLUMN_ORDER_KEY = "tableWidgetColumnOrder";
 export enum ColumnTypes {
   TEXT = "text",
   URL = "url",
-  NUMBER = "number",
+  NUMBER = "digit",
   IMAGE = "image",
   VIDEO = "video",
   DATE = "date",
@@ -288,6 +303,15 @@ export enum ColumnTypes {
   EDIT_ACTIONS = "editActions",
   CHECKBOX = "checkbox",
   SWITCH = "switch",
+  PASSWORD = "password",
+  MONY = "money",
+  RADIO = "radio",
+  // color
+  COLOR = "color",
+  // textarea
+  TEXTAREA = "textarea",
+
+
 }
 
 export enum ReadOnlyColumnTypes {
@@ -300,6 +324,8 @@ export enum ReadOnlyColumnTypes {
   CHECKBOX = "checkbox",
   SWITCH = "switch",
   SELECT = "select",
+  PASSWORD = "password",
+
 }
 
 export const ActionColumnTypes = [

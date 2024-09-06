@@ -1,6 +1,4 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import {
   getBasePropertyPath,
@@ -13,6 +11,10 @@ import { isColumnTypeEditable } from "../../utilities";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
 import { StickyType } from "widgets/TableWidgetV2/component/Constants";
+import {
+  TableWidgetProps,
+  ColumnTypes,
+} from "widgets/Antd/TableWidget/constants";
 
 export default {
   sectionName: "属性",
@@ -52,6 +54,60 @@ export default {
         },
       },
     },
+    // isCellCopyable
+    {
+      propertyName: "isCellCopyable",
+      label: "支持复制",
+      helpText: "支持表格单元格内容复制",
+      defaultValue: true,
+      controlType: "SWITCH",
+      customJSControl: "TABLE_COMPUTE_VALUE",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+    },
+    // isVisibleCellFilters
+    // {
+    //   propertyName: "isVisibleCellFilters",
+    //   label: "启用列筛选",
+    //   helpText: "启用列筛选",
+    //   defaultValue: true,
+    //   controlType: "SWITCH",
+    //   customJSControl: "TABLE_COMPUTE_VALUE",
+    //   isJSConvertible: true,
+    //   isBindProperty: true,
+    //   isTriggerProperty: false,
+    //   validation: {
+    //     type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+    //     params: {
+    //       type: ValidationTypes.BOOLEAN,
+    //     },
+    //   },
+    //   // dependencies: ["primaryColumns", "columnType"],
+    //   hidden: (props: TableWidgetProps, propertyPath: string) => {
+    //     // console.log(
+    //     //   "showCellValueEnum",
+    //     //   props,
+    //     //   propertyPath,
+    //     //   props?.primaryColumns?.[props?.editingColumnId || ""],
+    //     //   props?.primaryColumns?.[props?.editingColumnId || ""]?.options
+    //     //     ?.length,
+    //     //   (props?.primaryColumns?.[props?.editingColumnId || ""]?.options
+    //     //     ?.length || 0) <= 0,
+    //     // );
+    //     return (
+    //       (props?.primaryColumns?.[props?.editingColumnId || ""]?.options
+    //         ?.length || 0) <= 0
+    //     );
+    //   },
+    // },
+
     {
       propertyName: "isDisabled",
       label: "禁用",

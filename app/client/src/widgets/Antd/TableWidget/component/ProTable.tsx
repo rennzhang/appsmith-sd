@@ -9,7 +9,7 @@ import { useEffect, useMemo, useRef } from "react";
 import React from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
-
+import { TableColumnProps } from "widgets/Antd/TableWidget/component/Constants";
 import type { CompactMode, ReactTableColumnProps } from "./Constants";
 import type { AntdTableProps } from "../constants";
 import {
@@ -24,6 +24,7 @@ import { Icon } from "@blueprintjs/core";
 import type { ColumnStateType } from "@ant-design/pro-table/es/typing";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
 import { type } from "@testing-library/user-event/dist/type";
+import { Rule } from "antd/es/form";
 
 // import request from "umi-request";
 
@@ -166,6 +167,176 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
     },
   };
 };
+const getRules = (column: TableColumnProps) => {
+  const { columnProperties } = column;
+  const { validation } = columnProperties;
+  const rules: Rule[] = [];
+
+  const getErrorMessage = (defaultMessage: string) =>
+    validation?.errorMessage || defaultMessage;
+
+  // 通用的必填规则
+  if (validation?.isColumnEditableCellRequired) {
+    rules.push({
+      required: true,
+      message: getErrorMessage(`${columnProperties.label}是必填项`),
+    });
+  }
+
+  // 根据不同的 columnType 添加特定的规则
+  switch (columnProperties.columnType) {
+    case "text":
+    case "password":
+    case "textarea":
+      rules.push({
+        type: "string",
+        min: validation?.min,
+        max: validation?.max,
+        message: `${columnProperties.label}的长度必须在${
+          validation?.min || 0
+        }到${validation?.max || "+∞"}之间`,
+      });
+      break;
+
+    case "digit":
+    case "percent":
+    case "second":
+      rules.push({
+        type: "number",
+        min: validation?.min,
+        max: validation?.max,
+        message: `${columnProperties.label}必须在${validation?.min || "-∞"}到${
+          validation?.max || "+∞"
+        }之间`,
+      });
+      break;
+
+    case "money":
+      rules.push({
+        pattern: /^\d+(\.\d{1,2})?$/,
+        message: `请输入有效的金额`,
+      });
+      break;
+
+    case "date":
+    case "dateWeek":
+    case "dateMonth":
+    case "dateQuarter":
+    case "dateYear":
+    case "dateTime":
+    case "time":
+      rules.push({
+        type: "date",
+        message: `请输入有效的${columnProperties.label}`,
+      });
+      break;
+
+    case "dateRange":
+    case "dateTimeRange":
+    case "timeRange":
+      rules.push({
+        type: "array",
+        message: `请选择有效的${columnProperties.label}`,
+      });
+      break;
+
+    case "select":
+    case "cascader":
+    case "treeSelect":
+      // 这些类型通常由组件本身处理验证，但我们可以添加自定义验证如果需要
+      break;
+
+    case "checkbox":
+    case "radio":
+    case "switch":
+      // 这些类型通常不需要额外的验证规则
+      break;
+
+    case "rate":
+      rules.push({
+        type: "number",
+        min: 0,
+        max: 5, // 假设最大值为5，可以根据实际情况调整
+        message: `请选择有效的评分`,
+      });
+      break;
+
+    case "slider":
+      rules.push({
+        type: "number",
+        min: validation?.min,
+        max: validation?.max,
+        message: `${columnProperties.label}必须在${validation?.min || 0}到${
+          validation?.max || 100
+        }之间`,
+      });
+      break;
+
+    case "image":
+      // 可以添加文件类型验证如果需要
+      break;
+
+    case "color":
+      rules.push({
+        pattern: /^#([0-9A-F]{3}){1,2}$/i,
+        message: `请输入有效的颜色值`,
+      });
+      break;
+
+    case "code":
+    case "jsonCode":
+      // 这些类型可能需要特定的验证逻辑，这里只提供基本的必填控制
+      break;
+
+    // 对于其他不常见或复杂的类型，我们只提供基本的必填控制
+    default:
+      // 基本的必填控制已经在函数开始处添加，这里不需要额外操作
+      break;
+  }
+
+  // 如果提供了正则表达式，添加正则验证
+  if (validation?.regex) {
+    rules.push({
+      pattern: new RegExp(validation?.regex),
+      message: getErrorMessage(`${columnProperties.label}不符合指定格式`),
+    });
+  }
+
+  // 如果外部验证失败，添加自定义验证器
+  if (validation?.isEditableCellValid === false) {
+    rules.push({
+      validator: () =>
+        Promise.reject(
+          new Error(getErrorMessage(`${columnProperties.label}不符合验证规则`)),
+        ),
+    });
+  }
+
+  return rules;
+};
+
+const getValueEnum = (column: TableColumnProps) => {
+  const { columnProperties } = column;
+  const { options, fieldNames } = columnProperties;
+
+  // 如果不需要显示筛选或没有选项，则返回 undefined
+  if (!options || options.length === 0) return undefined;
+
+  const valueEnum: Record<string, any> = {};
+  options.forEach((option: any) => {
+    const value = option[fieldNames?.value || "value"];
+    const label = option[fieldNames?.label || "label"];
+    if (value !== undefined && label !== undefined) {
+      valueEnum[value] = {
+        text: label,
+        ...option,
+      };
+    }
+  });
+
+  console.log("表格 getValueEnum valueEnum", valueEnum);
+  return valueEnum;
+};
 
 export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
   const actionRef = useRef<ActionType>();
@@ -209,6 +380,10 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
           ellipsis: !column.columnProperties.allowCellWrapping,
           dataIndex: column.id,
           valueType: columnType,
+          formItemProps: {
+            rules: getRules(column),
+          },
+          valueEnum: getValueEnum(column),
           fieldProps: {
             ...column.columnProperties,
             options: column.columnProperties.options?.map((option: any) => {
@@ -224,13 +399,13 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
               };
             }),
           },
-          // copyable: column.columnProperties.isCopyable,
-          filters: props.isVisibleFilters,
+          copyable: column.columnProperties.isCellCopyable,
+          filters: column.columnProperties.isVisibleCellFilters,
+          // 筛选时使用本地搜索
+          onFilter: true,
           hideInSearch: !(
             props.isVisibleSearch && column.columnProperties.isVisibleCellSearch
           ),
-          // 筛选时使用本地搜索
-          onFilter: true,
         };
         delete proColumn.sticky;
         return proColumn;
@@ -293,6 +468,7 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
           expandRowByClick: props.expandRowByClick,
         }}
         form={{
+          ignoreRules: !props.enableSearchFormValidation,
           // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
           syncToUrl: (values, type) => {
             if (type === "get") {
@@ -432,6 +608,7 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
         //   </Button>,
         // ]}
       />
+
     </div>
   );
 });
