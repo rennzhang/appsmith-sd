@@ -112,7 +112,8 @@ export function selectOptionsCustomValidation(
     messages: [
       {
         name: "TypeError",
-        message: '此值不符合 Array<{ "label": "string", "value": "string" | number }> 类型',
+        message:
+          '此值不符合 Array<{ "label": "string", "value": "string" | number }> 类型',
       },
     ],
   };
@@ -138,7 +139,7 @@ export function defaultValueValidation(
 ): ValidationResponse {
   const invalidResponse = {
     isValid: false,
-    parsed: [],
+    parsed: _value,
     messages: [
       {
         name: "TypeError",
@@ -146,38 +147,41 @@ export function defaultValueValidation(
       },
     ],
   };
-  if (props.mode == "void 0") {
-    return {
-      isValid: true,
-      parsed: _value,
-      messages: [],
-    };
-  }
-
-  if (!_value) {
-    return {
-      isValid: true,
-      parsed: [],
-      messages: [],
-    };
-  }
   try {
-    if (_.isString(_value)) {
-      _value = JSON.parse(_value as string);
-    }
-
-    if (Array.isArray(_value) || _.isObject(_value)) {
+    if (props.mode == "void 0") {
       return {
         isValid: true,
         parsed: _value,
         messages: [],
       };
-    } else {
+    }
+
+    if (!_value) {
+      return {
+        isValid: true,
+        parsed: [],
+        messages: [],
+      };
+    }
+    try {
+      if (_.isString(_value)) {
+        _value = JSON.parse(_value as string);
+      }
+
+      if (Array.isArray(_value) || _.isObject(_value)) {
+        return {
+          isValid: true,
+          parsed: _value,
+          messages: [],
+        };
+      } else {
+        return invalidResponse;
+      }
+    } catch (e) {
       return invalidResponse;
     }
-  } catch (e) {
-    return invalidResponse;
-  }
+  } catch (error) {}
+  return invalidResponse;
 }
 
 const dateDefaultValueValidation = (value: any, props: any) => {

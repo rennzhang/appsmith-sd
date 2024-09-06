@@ -7,12 +7,13 @@ import { SelectWidgetProps } from "../Form/SelectWidget/widget";
 export function getDefaultValueOptions(widget: WidgetProps) {
   console.log("getDefaultValueOptions", widget);
   let sourceData = get(widget, `${EVAL_VALUE_PATH}.options`);
+  let fieldNames = widget.fieldNames || {};
   if (widget.type === "ANTD_PRO_TABLE_WIDGET") {
     sourceData = (widget?.__evaluation__?.evaluatedValues as any)
-      ?.orderedTableColumns?.[widget.editingColumnIndex]?.options||[];
-  }
-  const fieldNames = widget.primaryColumns[widget.editingColumnId].fieldNames || {};
+      ?.orderedTableColumns?.[widget.editingColumnIndex]?.options || [];
 
+    fieldNames = widget.primaryColumns[widget.editingColumnId].fieldNames || {};
+  }
   let parsedValue: Record<string, any>[] | undefined = sourceData;
 
   if (isString(sourceData)) {
@@ -166,7 +167,7 @@ export function defaultOptionValueValidation(
       : parsed;
     const valueIndex = _.findIndex(
       options,
-      (option) => option.value === parsedValue,
+      (option:any) => option.value === parsedValue,
     );
 
     if (valueIndex === -1) {

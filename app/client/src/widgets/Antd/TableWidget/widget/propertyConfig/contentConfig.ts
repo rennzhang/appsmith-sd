@@ -141,7 +141,58 @@ export default [
         controlType: "PRIMARY_COLUMNS_DROPDOWN",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
+        validation: {
+          type: ValidationTypes.TEXT,
+        },
+      },
+    ],
+  },
+    {
+    // 操作栏配置
+    sectionName: "操作栏配置",
+    children: [
+      // 操作栏宽度
+      {
+        helpText: "操作栏宽度",
+        propertyName: "actionWidth",
+        label: "操作栏宽度",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        defaultValue: 120,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: {
+            min: 0,
+          },
+        },
+      },
+
+      {
+        helpText: "操作栏按钮配置",
+        propertyName: "columnActions",
+        controlType: "MENU_ITEMS",
+        label: "操作栏按钮",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        createButtonText: "添加按钮",
+        presetLabel: "Action",
+        panelConfig: ActionPanelConfig,
+        defaultProperties: {
+          buttonColor: Colors.AZURE_RADIANCE,
+          columnType: ColumnTypes.BUTTON,
+          iconName: "",
+          btnIconName: "add",
+          menuIconName: "more",
+          showButton: true,
+          isDisabled: false,
+          buttonVariant: ButtonVariantTypes.TERTIARY,
+          menuVariant: ButtonVariantTypes.TERTIARY,
+          buttonLabel: "动作",
+          tooltip: "提示",
+          iconAlign: "left",
+          menuTooltip: "",
+        },
       },
     ],
   },
@@ -614,53 +665,5 @@ export default [
       },
     ],
   },
-  {
-    // 操作栏配置
-    sectionName: "操作栏配置",
-    children: [
-      // 操作栏宽度
-      {
-        helpText: "操作栏宽度",
-        propertyName: "actionWidth",
-        label: "操作栏宽度",
-        controlType: "INPUT_TEXT",
-        isBindProperty: true,
-        defaultValue: 120,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.NUMBER,
-          params: {
-            min: 0,
-          },
-        },
-      },
 
-      {
-        helpText: "操作栏按钮配置",
-        propertyName: "columnActions",
-        controlType: "MENU_ITEMS",
-        label: "操作栏按钮",
-        isBindProperty: false,
-        isTriggerProperty: false,
-        createButtonText: "添加按钮",
-        presetLabel: "Action",
-        panelConfig: ActionPanelConfig,
-        defaultProperties: {
-          buttonColor: Colors.AZURE_RADIANCE,
-          columnType: ColumnTypes.BUTTON,
-          iconName: "",
-          btnIconName: "add",
-          menuIconName: "more",
-          showButton: true,
-          isDisabled: false,
-          buttonVariant: ButtonVariantTypes.TERTIARY,
-          menuVariant: ButtonVariantTypes.TERTIARY,
-          buttonLabel: "动作",
-          tooltip: "提示",
-          iconAlign: "left",
-          menuTooltip: "",
-        },
-      },
-    ],
-  },
 ] as PropertyPaneConfig[];

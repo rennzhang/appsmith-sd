@@ -20,6 +20,7 @@ import type { Row } from "react-table";
 import { ProTableProps } from "@ant-design/pro-components";
 
 export interface AntdTableProps {
+  inlineEditingSaveOption?:  InlineEditingSaveOptions
   expandRowByClick?: boolean;
   onExpand: (expanded: boolean, record: any) => void;
   childrenColumnName: string;

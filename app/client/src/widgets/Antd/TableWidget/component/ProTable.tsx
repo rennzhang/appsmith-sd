@@ -12,13 +12,18 @@ import { Colors } from "constants/Colors";
 
 import type { CompactMode, ReactTableColumnProps } from "./Constants";
 import type { AntdTableProps } from "../constants";
-import { ColumnTypes, type ButtonAction } from "../constants";
+import {
+  ColumnTypes,
+  type ButtonAction,
+  InlineEditingSaveOptions,
+} from "../constants";
 import ButtonComponent from "widgets/Antd/ButtonWidget/component";
 import { Alignment } from "@blueprintjs/core";
 import { Icon } from "@blueprintjs/core";
 // ColumnStateType
 import type { ColumnStateType } from "@ant-design/pro-table/es/typing";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
+import { type } from "@testing-library/user-event/dist/type";
 
 // import request from "umi-request";
 
@@ -48,6 +53,14 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
       });
 
       return [
+        <a
+          key="editable"
+          onClick={() => {
+            action?.startEditable?.(record.id);
+          }}
+        >
+          行编辑
+        </a>,
         ...Object.values(sortedButtons).map((button) => {
           return button.columnType == ColumnTypes.MENU_BUTTON ? (
             <TableDropdown
@@ -189,6 +202,7 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
         const columnType = column.columnProperties.columnType;
         const proColumn: ProColumns<Record<string, any>> = {
           ...column,
+          editable: () => column.columnProperties.isCellEditable,
           fixed: column.sticky || false,
           hideInTable: column.isHidden,
           title: column.Header,
@@ -200,8 +214,12 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
             options: column.columnProperties.options?.map((option: any) => {
               // fieldNames
               return {
-                label: option[column.columnProperties.fieldNames?.label||""] ||option.label,
-                value: option[column.columnProperties.fieldNames?.value || ""] || option.value,
+                label:
+                  option[column.columnProperties.fieldNames?.label || ""] ||
+                  option.label,
+                value:
+                  option[column.columnProperties.fieldNames?.value || ""] ||
+                  option.value,
                 ...option,
               };
             }),
@@ -251,6 +269,14 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
     };
   }, [props.widgetId]);
 
+  const editableMemo = useMemo((): ProTableProps<any, any>["editable"] => {
+    if (props.inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL) {
+      return {
+        type: "multiple",
+      };
+    }
+    return undefined;
+  }, [props.inlineEditingSaveOption]);
   return (
     <div className="overflow-auto" ref={scrollBarRef}>
       <ProTable<any>
@@ -260,9 +286,7 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
         columnsState={columnsState}
         dataSource={dataSource}
         dateFormatter="string"
-        editable={{
-          type: "multiple",
-        }}
+        editable={editableMemo}
         expandable={{
           childrenColumnName: props.childrenColumnName,
           onExpand: props.onExpand,
