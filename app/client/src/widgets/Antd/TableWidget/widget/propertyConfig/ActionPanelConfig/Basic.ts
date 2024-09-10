@@ -47,7 +47,7 @@ export default {
         updateThemeStylesheetsInColumns,
         updateMenuItemsSource,
       ]),
-      dependencies: ["columnActions", "childStylesheet"],
+      dependencies: ["columnActions", "childStylesheet","editingActions"],
       isBindProperty: true,
       isTriggerProperty: false,
     },
@@ -60,7 +60,7 @@ export default {
       },
 
       updateHook: updateIconAlignment,
-      dependencies: ["columnActions", "columnType"],
+      dependencies: ["columnActions", "columnType","editingActions"],
       controlType: "ICON_SELECT",
       customJSControl: "TABLE_COMPUTE_VALUE",
       defaultIconName: "",
@@ -81,7 +81,7 @@ export default {
       },
 
       updateHook: updateIconAlignment,
-      dependencies: ["columnActions", "columnType"],
+      dependencies: ["columnActions", "columnType","editingActions"],
       controlType: "ICON_SELECT",
       customJSControl: "TABLE_COMPUTE_VALUE",
       defaultIconName: "",
@@ -107,7 +107,7 @@ export default {
         return hideByColumnType(props, propertyPath, [ColumnTypes.ICON_BUTTON]);
       },
       updateHook: updateIconAlignment,
-      dependencies: ["columnActions", "columnType"],
+      dependencies: ["columnActions", "columnType","editingActions"],
       controlType: "ICON_SELECT",
       customJSControl: "TABLE_COMPUTE_VALUE",
       defaultIconName: "add",
@@ -134,7 +134,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);
       },
-      dependencies: ["columnActions"],
+      dependencies: ["columnActions","editingActions"],
       isBindProperty: true,
       isTriggerProperty: false,
     },
@@ -147,7 +147,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
       },
-      dependencies: ["columnActions"],
+      dependencies: ["columnActions","editingActions"],
       isBindProperty: true,
       isTriggerProperty: false,
     },
@@ -160,7 +160,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
-      dependencies: ["columnActions"],
+      dependencies: ["columnActions","editingActions"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
       },
@@ -171,6 +171,20 @@ export default {
       label: "提示",
       controlType: "INPUT_TEXT",
       placeholderText: "提交表单",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+      dependencies: ["columnActions"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);
+      },
+    },
+    {
+      helpText: "点击按钮时二次确认提示",
+      propertyName: "popconfirmMessage",
+      label: "确认提示",
+      controlType: "INPUT_TEXT",
+      placeholderText: "确认操作吗？",
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },

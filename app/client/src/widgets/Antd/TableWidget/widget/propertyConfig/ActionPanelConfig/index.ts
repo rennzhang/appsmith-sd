@@ -8,7 +8,7 @@ export default {
   editableTitle: true,
   titlePropertyName: "label",
   panelIdPropertyName: "id",
-  dependencies: ["columnActions"],
+  dependencies: ["columnActions","editingActions"],
   updateHook: (props: any, propertyPath: string, propertyValue: string) => {
     return [
       {
@@ -37,7 +37,7 @@ export default {
               type: ValidationTypes.BOOLEAN,
             },
           },
-          dependencies: ["columnActions", "columnOrder"],
+          dependencies: ["columnActions", "columnOrder","editingActions"],
         },
         {
           propertyName: "isDisabled",
@@ -55,7 +55,7 @@ export default {
               type: ValidationTypes.BOOLEAN,
             },
           },
-          dependencies: ["columnActions", "columnOrder"],
+          dependencies: ["columnActions", "columnOrder","editingActions"],
           hidden: (props: TableWidgetProps, propertyPath: string) => {
             return !hideByColumnType(props, propertyPath, [
               ColumnTypes.MENU_BUTTON,
@@ -95,7 +95,7 @@ export default {
               ColumnTypes.MENU_BUTTON,
             ]);
           },
-          dependencies: ["columnActions", "columnType"],
+          dependencies: ["columnActions", "columnType","editingActions"],
           validation: {
             type: ValidationTypes.TEXT,
             params: {
@@ -138,7 +138,7 @@ export default {
           defaultValue: "LEFT",
           isJSConvertible: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
-          dependencies: ["columnActions"],
+          dependencies: ["columnActions","editingActions"],
           isBindProperty: true,
           validation: {
             type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
@@ -183,7 +183,7 @@ export default {
           defaultValue: "CENTER",
           isJSConvertible: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
-          dependencies: ["columnActions"],
+          dependencies: ["columnActions","editingActions"],
           isBindProperty: true,
           validation: {
             type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
@@ -218,7 +218,7 @@ export default {
           helpText: "设置按钮颜色",
           isJSConvertible: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
-          dependencies: ["columnActions"],
+          dependencies: ["columnActions","editingActions"],
           isBindProperty: true,
           validation: {
             type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
@@ -238,7 +238,7 @@ export default {
           controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
           isJSConvertible: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
-          dependencies: ["columnActions"],
+          dependencies: ["columnActions","editingActions"],
           isBindProperty: true,
           validation: {
             type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,

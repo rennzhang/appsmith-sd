@@ -44,6 +44,7 @@ export interface ColumnMenuSubOptionProps {
 
 interface ReactTableComponentProps extends AntdTableProps {
   columnActions: ButtonAction[];
+  editingActions: ButtonAction[];
   queryData: Record<string, any>;
   widgetId: string;
   widgetName: string;
@@ -311,6 +312,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
+    // editingActions
+    equal(prev.editingActions, next.editingActions) &&
     // enableSearchFormValidation
     prev.enableSearchFormValidation === next.enableSearchFormValidation &&
     equal(prev.columns, next.columns) &&

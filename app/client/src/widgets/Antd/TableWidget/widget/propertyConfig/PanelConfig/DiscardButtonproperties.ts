@@ -7,7 +7,7 @@ import { ButtonVariantTypes } from "components/constants";
 import { ICON_NAMES } from "widgets/constants";
 
 export default {
-  sectionName: "丢弃按钮",
+  sectionName: "取消按钮",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
     return hideByColumnType(
       props,
@@ -24,7 +24,7 @@ export default {
         {
           propertyName: "discardActionLabel",
           label: "文本",
-          helpText: "Sets the label text of the button",
+          helpText: "设置取消按钮文本",
           controlType: "TABLE_COMPUTE_VALUE",
           dependencies: ["primaryColumns"],
           isBindProperty: true,

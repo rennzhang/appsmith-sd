@@ -621,7 +621,7 @@ export const getEditActionColumnProperties = () => ({
   saveIconAlign: "left",
   discardIconAlign: "left",
   saveActionLabel: "保存",
-  discardActionLabel: "丢弃",
+  discardActionLabel: "取消",
   saveButtonColor: Colors.GREEN,
   discardButtonColor: Colors.GREEN,
 });

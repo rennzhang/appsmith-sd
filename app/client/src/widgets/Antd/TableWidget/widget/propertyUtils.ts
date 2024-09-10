@@ -278,7 +278,7 @@ export const updateInlineEditingOptionDropdownVisibilityHook = (
       if (!editActionsColumn) {
         propertiesToUpdate = [
           ...propertiesToUpdate,
-          ...createEditActionColumn(props),
+          // ...createEditActionColumn(props),
         ];
       }
     } else {
@@ -533,9 +533,9 @@ export const updateInlineEditingSaveOptionHook = (
       props.primaryColumns,
     ).some((column) => column.id !== columnId && column.isEditable);
 
-    if (isAtleastOneEditableColumnPresent) {
-      return createEditActionColumn(props);
-    }
+    // if (isAtleastOneEditableColumnPresent) {
+    //   return createEditActionColumn(props);
+    // }
   }
 };
 

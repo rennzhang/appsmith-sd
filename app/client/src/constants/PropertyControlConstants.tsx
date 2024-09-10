@@ -100,8 +100,11 @@ export type PropertyPaneControlConfig = {
     isToggleDisabled: boolean,
     triggerFlag?: boolean,
   ) => boolean;
+  isHideDelete?: boolean;
+  isHideToggleVisibility?: boolean;
   hideSetting?: boolean;
   createButtonText?: string;
+  isHideAddButton?: boolean;
   defaultValue?: any;
   presetLabel?: string;
   placeholderText?: string;

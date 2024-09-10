@@ -158,7 +158,7 @@ export default [
         label: "操作栏宽度",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
-        defaultValue: 120,
+        defaultValue: 140,
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.NUMBER,
@@ -167,7 +167,39 @@ export default [
           },
         },
       },
-
+      {
+        helpText: "行更新模式编辑状态下的按钮配置",
+        propertyName: "editingActions",
+        controlType: "MENU_ITEMS",
+        label: "编辑状态按钮",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        panelConfig: ActionPanelConfig,
+        // isHideDelete: true,
+        isHideToggleVisibility: true,
+        isHideAddButton: true,
+        defaultProperties: {
+          buttonColor: Colors.AZURE_RADIANCE,
+          columnType: ColumnTypes.BUTTON,
+          iconName: "",
+          btnIconName: "add",
+          menuIconName: "more",
+          showButton: true,
+          isDisabled: false,
+          buttonVariant: ButtonVariantTypes.TERTIARY,
+          menuVariant: ButtonVariantTypes.TERTIARY,
+          buttonLabel: "动作",
+          tooltip: "提示",
+          iconAlign: "left",
+          menuTooltip: "",
+        },
+        dependencies: ["inlineEditingSaveOption"],
+        hidden: (props: TableWidgetProps) => {
+          return (
+            props.inlineEditingSaveOption == InlineEditingSaveOptions.CUSTOM
+          );
+        },
+      },
       {
         helpText: "操作栏按钮配置",
         propertyName: "columnActions",
@@ -178,6 +210,7 @@ export default [
         createButtonText: "添加按钮",
         presetLabel: "Action",
         panelConfig: ActionPanelConfig,
+        isHideToggleVisibility: true,
         defaultProperties: {
           buttonColor: Colors.AZURE_RADIANCE,
           columnType: ColumnTypes.BUTTON,

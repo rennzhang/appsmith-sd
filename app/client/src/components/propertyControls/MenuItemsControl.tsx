@@ -86,8 +86,9 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
             DraggableListCard({
               ...props,
               hideSetting: this.props.hideSetting,
-              isDelete: true,
+              isDelete: !this.props.isHideDelete,
               placeholder: this.props.placeholderText || "Menu item label",
+              toggleVisibility:!this.props.isHideToggleVisibility ? this.toggleVisibility : undefined,
             })
           }
           toggleVisibility={this.toggleVisibility}
@@ -96,14 +97,14 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           updateOption={this.updateOption}
         />
 
-        <Button
+        {!this.props.isHideAddButton && <Button
           className="self-end t--add-menu-item-btn"
           kind="tertiary"
           onClick={this.addOption}
           startIcon="plus"
         >
           {this.props.createButtonText || "新建菜单项"}
-        </Button>
+        </Button>}
       </div>
     );
   }

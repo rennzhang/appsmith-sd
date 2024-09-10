@@ -54,14 +54,6 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
       });
 
       return [
-        <a
-          key="editable"
-          onClick={() => {
-            action?.startEditable?.(record.id);
-          }}
-        >
-          行编辑
-        </a>,
         ...Object.values(sortedButtons).map((button) => {
           return button.columnType == ColumnTypes.MENU_BUTTON ? (
             <TableDropdown
@@ -133,7 +125,8 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
               />
             </TableDropdown>
           ) : (
-            <ButtonComponent
+              <ButtonComponent
+              popconfirmMessage={button.popconfirmMessage}
               buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
               buttonSize="sm"
               buttonVariant={"TERTIARY"}
@@ -142,14 +135,17 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
                 controlHeight: 22,
               }}
               iconAlign={button.iconAlign}
-              iconName={
-                button.columnType == ColumnTypes.BUTTON
-                  ? button.iconName
-                  : button.btnIconName
-              }
               isDisabled={button.isDisabled}
               key={button.id}
               onClick={() => {
+                if (button.id === "edit") {
+                  if (
+                    props.inlineEditingSaveOption ===
+                    InlineEditingSaveOptions.ROW_LEVEL
+                  ) {
+                    action?.startEditable?.(record.id);
+                  }
+                }
                 props.columnActionClick(button.onBtnClick, record, recordIndex);
               }}
               placement="CENTER"
@@ -157,6 +153,11 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
                 button.columnType == ColumnTypes.ICON_BUTTON
                   ? ""
                   : button.buttonLabel
+              }
+              iconName={
+                button.columnType == ColumnTypes.BUTTON
+                  ? button.iconName
+                  : button.btnIconName
               }
               tooltip={button.tooltip}
               widgetId={button.widgetId}
@@ -446,12 +447,98 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
 
   const editableMemo = useMemo((): ProTableProps<any, any>["editable"] => {
     if (props.inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL) {
+      const sortedButtons = Object.values(props.editingActions)
+        .sort((a, b) => a.index - b.index)
+        .filter((c) => c.showButton);
+
+      const saveButton = sortedButtons.find((b) => b.id === "save")!;
+      const cancelButton = sortedButtons.find((b) => b.id === "cancel")!;
+      const deleteButton = sortedButtons.find((b) => b.id === "delete")!;
       return {
         type: "multiple",
+        deletePopconfirmMessage: "确定删除吗？",
+        saveText: (
+          <ButtonComponent
+            widgetId={saveButton.widgetId}
+            buttonColor={saveButton.buttonColor || Colors.AZURE_RADIANCE}
+            buttonSize="sm"
+            buttonVariant="TERTIARY"
+            configToken={{ paddingInline: 0, controlHeight: 22 }}
+            iconAlign={saveButton.iconAlign}
+            text={
+              saveButton.columnType == ColumnTypes.ICON_BUTTON
+                ? ""
+                : saveButton.buttonLabel
+            }
+            iconName={
+              saveButton.columnType == ColumnTypes.BUTTON
+                ? saveButton.iconName
+                : saveButton.btnIconName
+            }
+          />
+        ),
+        cancelText: (
+          <ButtonComponent
+            widgetId={cancelButton.widgetId}
+            buttonColor={cancelButton.buttonColor || Colors.AZURE_RADIANCE}
+            buttonSize="sm"
+            buttonVariant="TERTIARY"
+            configToken={{ paddingInline: 0, controlHeight: 22 }}
+            iconAlign={cancelButton.iconAlign}
+            text={
+              cancelButton.columnType == ColumnTypes.ICON_BUTTON
+                ? ""
+                : cancelButton.buttonLabel
+            }
+            iconName={
+              cancelButton.columnType == ColumnTypes.BUTTON
+                ? cancelButton.iconName
+                : cancelButton.btnIconName
+            }
+          />
+        ),
+        deleteText: (
+          <ButtonComponent
+            widgetId={deleteButton.widgetId}
+            buttonColor={deleteButton.buttonColor || Colors.AZURE_RADIANCE}
+            buttonSize="sm"
+            buttonVariant="TERTIARY"
+            configToken={{ paddingInline: 0, controlHeight: 22 }}
+            iconAlign={deleteButton.iconAlign}
+            text={
+              deleteButton.columnType == ColumnTypes.ICON_BUTTON
+                ? ""
+                : deleteButton.buttonLabel
+            }
+            iconName={
+              deleteButton.columnType == ColumnTypes.BUTTON
+                ? deleteButton.iconName
+                : deleteButton.btnIconName
+            }
+          />
+        ),
+        onSave: async (key, row, originRow, newLine) => {
+          if (saveButton) {
+            await props.columnActionClick(saveButton.onBtnClick, row, 0);
+          }
+          // 这里可以添加默认的保存逻辑
+        },
+        onCancel: async (key, row, originRow, newLine) => {
+          if (cancelButton) {
+            await props.columnActionClick(cancelButton.onBtnClick, row, 0);
+          }
+          // 这里可以添加默认的取消逻辑
+        },
+        onDelete: async (key, row) => {
+          if (deleteButton) {
+            await props.columnActionClick(deleteButton.onBtnClick, row, 0);
+          }
+          // 这里可以添加默认的删除逻辑
+        },
       };
     }
     return undefined;
-  }, [props.inlineEditingSaveOption]);
+  }, [props.inlineEditingSaveOption, props.editingActions]);
   return (
     <div className="overflow-auto" ref={scrollBarRef}>
       <ProTable<any>
@@ -608,7 +695,6 @@ export default React.forwardRef((props: AntdTableProps, scrollBarRef: any) => {
         //   </Button>,
         // ]}
       />
-
     </div>
   );
 });

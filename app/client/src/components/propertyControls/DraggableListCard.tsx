@@ -21,6 +21,7 @@ type RenderComponentProps = {
   focusedIndex?: number | null | undefined;
   index: number;
   item: {
+    isHideDelete: boolean;
     label: string;
     isDerived?: boolean;
     isVisible?: boolean;
@@ -195,7 +196,7 @@ export function DraggableListCard(props: RenderComponentProps) {
   };
 
   const hideSetting = props.hideSetting;
-  const showDelete = !!item.isDerived || isDelete;
+  const showDelete = !!item.isDerived || (isDelete && !item.isHideDelete);
   return (
     <ItemWrapper className={item.isDuplicateLabel ? "has-duplicate-label" : ""}>
       {item?.isDragDisabled ? (

@@ -181,40 +181,40 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       });
     }
 
-    if (queryConfig.update) {
-      let editAction = {};
+    // if (queryConfig.update) {
+    //   let editAction = {};
 
-      if (
-        !Object.values(widget.primaryColumns).some(
-          (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
-        )
-      ) {
-        editAction = Object.values(createEditActionColumn(widget)).reduce(
-          (
-            prev: Record<string, unknown>,
-            curr: {
-              propertyPath: string;
-              propertyValue: unknown;
-              isDynamicPropertyPath?: boolean;
-            },
-          ) => {
-            prev[curr.propertyPath] = curr.propertyValue;
+    //   if (
+    //     !Object.values(widget.primaryColumns).some(
+    //       (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
+    //     )
+    //   ) {
+    //     editAction = Object.values(createEditActionColumn(widget)).reduce(
+    //       (
+    //         prev: Record<string, unknown>,
+    //         curr: {
+    //           propertyPath: string;
+    //           propertyValue: unknown;
+    //           isDynamicPropertyPath?: boolean;
+    //         },
+    //       ) => {
+    //         prev[curr.propertyPath] = curr.propertyValue;
 
-            if (curr.isDynamicPropertyPath) {
-              dynamicPropertyPathList.push({ key: curr.propertyPath });
-            }
+    //         if (curr.isDynamicPropertyPath) {
+    //           dynamicPropertyPathList.push({ key: curr.propertyPath });
+    //         }
 
-            return prev;
-          },
-          {},
-        );
-      }
+    //         return prev;
+    //       },
+    //       {},
+    //     );
+    //   }
 
-      modify = merge(modify, {
-        ...editAction,
-        [`primaryColumns.EditActions1.onSave`]: queryConfig.update.run,
-      });
-    }
+    //   modify = merge(modify, {
+    //     ...editAction,
+    //     [`primaryColumns.EditActions1.onSave`]: queryConfig.update.run,
+    //   });
+    // }
 
     if (queryConfig.total_record) {
       modify = merge(modify, {

@@ -34,6 +34,7 @@ import { ProTableProps } from "@ant-design/pro-components";
 //   SWITCH = "switch",
 // }
 export interface AntdTableProps {
+
   enableSearchFormValidation: boolean;
   inlineEditingSaveOption?:  InlineEditingSaveOptions
   expandRowByClick?: boolean;
@@ -49,6 +50,7 @@ export interface AntdTableProps {
     index: number,
   ) => void;
   columnActions: ButtonAction[];
+  editingActions: ButtonAction[];
   compactMode?: CompactMode;
   queryData: Record<string, any>;
   tableData: Record<string, unknown>[];
@@ -137,6 +139,7 @@ export interface AntdTableProps {
 }
 
 export interface ButtonAction {
+  popconfirmMessage: string;
   btnIconName: IconName;
   iconName: IconName;
   iconAlign: Alignment;

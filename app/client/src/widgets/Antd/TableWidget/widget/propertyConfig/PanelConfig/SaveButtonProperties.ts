@@ -24,7 +24,7 @@ export default {
         {
           propertyName: "saveActionLabel",
           label: "文本",
-          helpText: "Sets the label text of the button",
+          helpText: "设置保存按钮文本",
           controlType: "TABLE_COMPUTE_VALUE",
           dependencies: ["primaryColumns"],
           isBindProperty: true,
