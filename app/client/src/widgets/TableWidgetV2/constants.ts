@@ -139,6 +139,14 @@ export enum ColumnTypes {
   EDIT_ACTIONS = "editActions",
   CHECKBOX = "checkbox",
   SWITCH = "switch",
+  PASSWORD = "password",
+  MONY = "money",
+  RADIO = "radio",
+  // color
+  COLOR = "color",
+  // textarea
+  TEXTAREA = "textarea",
+  DIGIT = "digit",
 }
 
 export enum ReadOnlyColumnTypes {

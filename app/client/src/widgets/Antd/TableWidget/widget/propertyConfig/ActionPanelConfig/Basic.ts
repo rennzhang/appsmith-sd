@@ -429,11 +429,12 @@ export default {
                 helpText: "设置菜单项文本颜色",
                 label: "文本颜色",
                 controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
-                customJSControl: "TABLE_COMPUTE_VALUE",
                 isJSConvertible: true,
                 isBindProperty: true,
                 isTriggerProperty: false,
                 dependencies: ["columnActions"],
+                customJSControl: "TABLE_COMPUTE_VALUE",
+
                 validation: {
                   type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                   params: {

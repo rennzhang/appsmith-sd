@@ -11,7 +11,11 @@ import {
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
 
-class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
+class PrimaryColumnDropdownControl extends BaseControl<
+  ControlProps & {
+    filterUniqueValueKey?: boolean;
+  }
+> {
   containerRef = React.createRef<HTMLDivElement>();
 
   componentDidMount() {
@@ -39,12 +43,47 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
       e.stopPropagation();
     }
   };
+  findUniqueValueKeys = (ary: any[] = []) => {
+    try {
+      const valueKeys: Record<string, any> = {};
+      if (ary.length === 0 || !ary) {
+        return [];
+      }
+      (ary || [])?.forEach((obj) => {
+        for (const [key, value] of Object.entries(obj)) {
+          if (typeof value === "object") return;
+          const v = JSON.stringify(value) || "";
+          valueKeys[v] = valueKeys[v] === undefined ? key : null;
+        }
+      });
+
+      return [...new Set(Object.values(valueKeys).filter(Boolean))];
+    } catch (error) {
+      return [];
+    }
+  };
+
+  setDefaultValue = (props: any, options: any[]) => {
+    if (this.props.defaultValue) {
+      if (typeof this.props.defaultValue === "string") {
+        this.onItemSelect(this.props.defaultValue);
+      } else if (typeof this.props.defaultValue === "function") {
+        this.onItemSelect(
+          this.props.defaultValue({
+            ...props,
+            options,
+          }),
+        );
+      }
+    }
+  };
 
   render() {
     // Get columns from widget properties
     const columns: Record<string, ColumnProperties> =
       this.props.widgetProperties.primaryColumns;
-    const options: any[] = [];
+
+    let options: any[] = [];
 
     for (const i in columns) {
       options.push({
@@ -54,9 +93,23 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
       });
     }
 
+    if (this.props.filterUniqueValueKey) {
+      options = this.findUniqueValueKeys(
+        this.props.widgetProperties?.__evaluation__?.evaluatedValues
+          ?.tableData || [],
+      ).map((key) => ({
+        label: key,
+        id: key,
+        value: key,
+      }));
+    }
     const selected: SegmentedControlOption = options.find(
       (option) => option.value === this.props.propertyValue,
     );
+
+    if (this.props.defaultValue && !selected) {
+      this.setDefaultValue(this.props, options);
+    }
 
     return (
       <div className="w-full h-full" ref={this.containerRef}>

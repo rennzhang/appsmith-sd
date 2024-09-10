@@ -18,25 +18,15 @@ import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
 import type { Row } from "react-table";
 import { ProTableProps } from "@ant-design/pro-components";
-// export enum ColumnTypes {
-//   TEXT = "text",
-//   URL = "url",
-//   NUMBER = "digit",
-//   IMAGE = "image",
-//   VIDEO = "video",
-//   DATE = "date",
-//   BUTTON = "button",
-//   ICON_BUTTON = "iconButton",
-//   MENU_BUTTON = "menuButton",
-//   SELECT = "select",
-//   EDIT_ACTIONS = "editActions",
-//   CHECKBOX = "checkbox",
-//   SWITCH = "switch",
-// }
-export interface AntdTableProps {
+import type { SizeType } from "antd/es/config-provider/SizeContext";
 
+export interface AntdTableProps {
+  tableBackground: string;
+  headerBorderRadius: string;
+  cardBorderedSearch: boolean;
+  cardBorderedTable: boolean;
   enableSearchFormValidation: boolean;
-  inlineEditingSaveOption?:  InlineEditingSaveOptions
+  inlineEditingSaveOption?: InlineEditingSaveOptions;
   expandRowByClick?: boolean;
   onExpand: (expanded: boolean, record: any) => void;
   childrenColumnName: string;
@@ -51,7 +41,8 @@ export interface AntdTableProps {
   ) => void;
   columnActions: ButtonAction[];
   editingActions: ButtonAction[];
-  compactMode?: CompactMode;
+  textSize?: number;
+  compactMode?: SizeType;
   queryData: Record<string, any>;
   tableData: Record<string, unknown>[];
   width: number;
@@ -313,8 +304,6 @@ export enum ColumnTypes {
   COLOR = "color",
   // textarea
   TEXTAREA = "textarea",
-
-
 }
 
 export enum ReadOnlyColumnTypes {
@@ -328,7 +317,6 @@ export enum ReadOnlyColumnTypes {
   SWITCH = "switch",
   SELECT = "select",
   PASSWORD = "password",
-
 }
 
 export const ActionColumnTypes = [

@@ -308,7 +308,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         isAddRowInProgress: "bool",
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
-        columns: generateTypeDef(widget.tableColumns||widget.columns),
+        columns: generateTypeDef(widget.tableColumns || widget.columns),
       };
 
       return config;
@@ -349,6 +349,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getStylesheetConfig(): Stylesheet {
     return {
+      headerBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
@@ -422,8 +423,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       renderMode,
     );
     console.log("getTableColumns columns", columns);
-
-
 
     // this.batchUpdateWidgetProperty({
     //   modify: {

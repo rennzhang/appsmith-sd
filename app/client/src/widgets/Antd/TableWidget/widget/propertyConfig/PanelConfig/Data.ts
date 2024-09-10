@@ -1,6 +1,9 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes, DateInputFormat } from "widgets/TableWidgetV2/constants";
+import {
+  ColumnTypes,
+  DateInputFormat,
+} from "widgets/Antd/TableWidget/constants";
 import { get } from "lodash";
 import {
   getBasePropertyPath,
@@ -28,6 +31,23 @@ export default {
           label: "文本",
           value: ColumnTypes.TEXT,
         },
+
+        {
+          label: "数字",
+          value: ColumnTypes.NUMBER,
+        },
+        {
+          label: "日期",
+          value: ColumnTypes.DATE,
+        },
+        {
+          label: "选择器",
+          value: ColumnTypes.SELECT,
+        },
+        {
+          label: "开关",
+          value: ColumnTypes.SWITCH,
+        },
         // TEXTAREA
         {
           label: "文本区域",
@@ -47,23 +67,6 @@ export default {
         {
           label: "颜色",
           value: ColumnTypes.COLOR,
-        },
-
-        {
-          label: "数字",
-          value: ColumnTypes.NUMBER,
-        },
-        {
-          label: "日期",
-          value: ColumnTypes.DATE,
-        },
-        {
-          label: "选择器",
-          value: ColumnTypes.SELECT,
-        },
-        {
-          label: "开关",
-          value: ColumnTypes.SWITCH,
         },
         {
           label: "按钮",

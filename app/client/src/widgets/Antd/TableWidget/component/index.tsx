@@ -19,6 +19,7 @@ import type {
 } from "../constants";
 import { ColumnTypes } from "../constants";
 import { useCallback } from "react";
+import type { SizeType } from "antd/es/config-provider/SizeContext";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -43,6 +44,8 @@ export interface ColumnMenuSubOptionProps {
 }
 
 interface ReactTableComponentProps extends AntdTableProps {
+  cardBorderedSearch: boolean;
+  cardBorderedTable: boolean;
   columnActions: ButtonAction[];
   editingActions: ButtonAction[];
   queryData: Record<string, any>;
@@ -84,7 +87,7 @@ interface ReactTableComponentProps extends AntdTableProps {
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   columns: ReactTableColumnProps[];
-  compactMode?: CompactMode;
+  compactMode?: SizeType;
   isVisibleSearch?: boolean;
   isVisibleFilters?: boolean;
   isVisibleDownload?: boolean;
@@ -312,6 +315,13 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
+    prev.headerBorderRadius === next.headerBorderRadius &&
+    prev.tableBackground === next.tableBackground &&
+    // cardBorderedSearch
+    prev.cardBorderedSearch === next.cardBorderedSearch &&
+    // cardBorderedTable
+    prev.cardBorderedTable === next.cardBorderedTable &&
+    prev.textSize === next.textSize &&
     // editingActions
     equal(prev.editingActions, next.editingActions) &&
     // enableSearchFormValidation

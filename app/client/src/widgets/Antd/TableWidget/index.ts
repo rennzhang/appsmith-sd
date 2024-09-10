@@ -23,6 +23,10 @@ export const CONFIG = {
   needsMeta: true,
   needsHeightForContent: true,
   defaults: {
+    rightColumn: 64,
+    rows: 48,
+    columns: 64,
+    width: 456,
     editingActions: {
       save: {
         columnType: ColumnTypes.BUTTON,
@@ -101,18 +105,19 @@ export const CONFIG = {
         onBtnClick: "{{showAlert('请先配置删除按钮的动作', 'warning');}}",
       },
     },
+    headerBorderRadius: 0,
+    // borderRadius: 0,
     isVisibleSearchForm: true,
     actionWidth: 130,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
-    rows: 28,
+
     canFreezeColumn: true,
     animateLoading: true,
     isVisibleDensity: true,
     isVisibleCellSetting: true,
     isVisibleRefresh: true,
     columnUpdatedAt: Date.now(),
-    columns: 34,
     defaultSelectedRowIndex: 0,
     defaultSelectedRowIndices: [0],
     label: "数据",

@@ -134,13 +134,25 @@ export default [
         updateHook: updateInlineEditingSaveOptionHook,
       },
       {
-        helpText: "数据主键值唯一，用于表格的 selectedRows 和 triggeredRows",
+        helpText:
+          "数据主键值唯一，用于表格的 selectedRows 和 triggeredRows、行内编辑等功能",
         propertyName: "primaryColumnId",
-        dependencies: ["primaryColumns"],
+        dependencies: ["tableData", "primaryColumns"],
+        evaluatedDependencies: ["tableData", "primaryColumns"],
         label: "主键列",
         controlType: "PRIMARY_COLUMNS_DROPDOWN",
         isBindProperty: true,
         isTriggerProperty: false,
+        filterUniqueValueKey: true,
+        defaultValue: (props: TableWidgetProps) => {
+          return (
+            props.options?.find((opt: any) =>
+              opt?.label?.toLowerCase()?.includes("id"),
+            )?.value ||
+            props.options?.[0]?.value ||
+            ""
+          );
+        },
         validation: {
           type: ValidationTypes.TEXT,
         },

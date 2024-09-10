@@ -11,21 +11,22 @@ export default [
         label: "默认行高",
         controlType: "ICON_TABS",
         fullWidth: true,
-        defaultValue: "DEFAULT",
+        defaultValue: "middle",
         isBindProperty: true,
         isTriggerProperty: false,
         options: [
           {
-            label: "矮",
-            value: "SHORT",
+            label: "宽松",
+            value: "large",
           },
+
           {
             label: "默认",
-            value: "DEFAULT",
+            value: "middle",
           },
           {
-            label: "高",
-            value: "TALL",
+            label: "紧凑",
+            value: "small",
           },
         ],
       },
@@ -161,17 +162,49 @@ export default [
   {
     sectionName: "颜色配置",
     children: [
+      // 表格背景颜色
       {
-        propertyName: "cellBackground",
-        label: "单元格背景颜色",
-        helpText: "Changes the background color of the cell",
-        controlType: "COLOR_PICKER",
+        propertyName: "tableBackground",
+        label: "表格背景颜色",
+        helpText: "表格背景颜色",
+        controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns"],
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
+        customJSControl: "TABLE_COMPUTE_VALUE",
+        validation: {
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
+      },
+      {
+        propertyName: "cellBackground",
+        label: "单元格背景颜色",
+        helpText: "单元格背景颜色",
+        controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
+        updateHook: updateColumnStyles,
+        dependencies: ["primaryColumns"],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        customJSControl: "TABLE_COMPUTE_VALUE",
+
+        validation: {
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              regex: /^(?![<|{{]).+/,
+            },
+          },
+        },
       },
       {
         propertyName: "accentColor",
@@ -200,28 +233,36 @@ export default [
   {
     sectionName: "轮廓样式",
     children: [
+      // cardBorderedSearch antd protable 的功能
       {
-        propertyName: "variant",
-        helpText: "选择单元格边框样式",
-        label: "单元格边框",
-        controlType: "DROP_DOWN",
-        defaultValue: "DEFAULT",
+        propertyName: "cardBorderedSearch",
+        helpText: "是否显示搜索表单卡片边框",
+        label: "表单卡片边框",
+        controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,
-        options: [
-          {
-            label: "默认",
-            value: "DEFAULT",
-          },
-          {
-            label: "无边框",
-            value: "VARIANT2",
-          },
-          {
-            label: "水平边框",
-            value: "VARIANT3",
-          },
-        ],
+        defaultValue: false,
+      },
+      // cardBorderedTable
+      {
+        propertyName: "cardBorderedTable",
+        helpText: "是否显示搜索表单卡片边框",
+        label: "表单卡片边框",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: false,
+      },
+      // headerBorderRadius
+      {
+        propertyName: "headerBorderRadius",
+        label: "表头圆角",
+        helpText: "表头圆角样式",
+        controlType: "BORDER_RADIUS_OPTIONS",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         propertyName: "borderRadius",
