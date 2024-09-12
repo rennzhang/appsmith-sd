@@ -1,0 +1,441 @@
+import { useMemo } from "react";
+import { TableDropdown, type ProColumns } from "@ant-design/pro-components";
+import type { TableColumnProps } from "widgets/Antd/TableWidget/component/Constants";
+import type { Rule } from "antd/es/form";
+import type { ColumnStateType } from "@ant-design/pro-table/es/typing";
+import { Alignment } from "@blueprintjs/core";
+import IconRenderer from "widgets/Antd/Components/IconRenderer";
+import ButtonComponent from "widgets/Antd/ButtonWidget/component";
+import type { AntdTableProps, ButtonAction } from "../../constants";
+import { ColumnTypes, InlineEditingSaveOptions } from "../../constants";
+import { Colors } from "constants/Colors";
+
+const getRules = (column: TableColumnProps) => {
+  const { columnProperties } = column;
+  const { validation } = columnProperties;
+  const rules: Rule[] = [];
+
+  const getErrorMessage = (defaultMessage: string) =>
+    validation?.errorMessage || defaultMessage;
+
+  // 通用的必填规则
+  if (validation?.isColumnEditableCellRequired) {
+    rules.push({
+      required: true,
+      message: getErrorMessage(`${columnProperties.label}是必填项`),
+    });
+  }
+
+  // 根据不同的 columnType 添加特定的规则
+  switch (columnProperties.columnType) {
+    case "text":
+    case "password":
+    case "textarea":
+      rules.push({
+        type: "string",
+        min: validation?.min,
+        max: validation?.max,
+        message: `${columnProperties.label}的长度必须在${
+          validation?.min || 0
+        }到${validation?.max || "+∞"}之间`,
+      });
+      break;
+
+    case "digit":
+    case "percent":
+    case "second":
+      rules.push({
+        type: "number",
+        min: validation?.min,
+        max: validation?.max,
+        message: `${columnProperties.label}必须在${validation?.min || "-∞"}到${
+          validation?.max || "+∞"
+        }之间`,
+      });
+      break;
+
+    case "money":
+      rules.push({
+        pattern: /^\d+(\.\d{1,2})?$/,
+        message: `请输入有效的金额`,
+      });
+      break;
+
+    case "date":
+    case "dateWeek":
+    case "dateMonth":
+    case "dateQuarter":
+    case "dateYear":
+    case "dateTime":
+    case "time":
+      rules.push({
+        type: "date",
+        message: `请输入有效的${columnProperties.label}`,
+      });
+      break;
+
+    case "dateRange":
+    case "dateTimeRange":
+    case "timeRange":
+      rules.push({
+        type: "array",
+        message: `请选择有效的${columnProperties.label}`,
+      });
+      break;
+
+    case "select":
+    case "cascader":
+    case "treeSelect":
+      // 这些类型通常由组件本身处理验证，但我们可以添加自定义验证如果需要
+      break;
+
+    case "checkbox":
+    case "radio":
+    case "switch":
+      // 这些类型通常不需要额外的验证规则
+      break;
+
+    case "rate":
+      rules.push({
+        type: "number",
+        min: 0,
+        max: 5, // 假设最大值为5，可以根据实际情况调整
+        message: `请选择有效的评分`,
+      });
+      break;
+
+    case "slider":
+      rules.push({
+        type: "number",
+        min: validation?.min,
+        max: validation?.max,
+        message: `${columnProperties.label}必须在${validation?.min || 0}到${
+          validation?.max || 100
+        }之间`,
+      });
+      break;
+
+    case "image":
+      // 可以添加文件类型验证如果需要
+      break;
+
+    case "color":
+      rules.push({
+        pattern: /^#([0-9A-F]{3}){1,2}$/i,
+        message: `请输入有效的颜色值`,
+      });
+      break;
+
+    case "code":
+    case "jsonCode":
+      // 这些类型可能需要特定的验证逻辑，这里只提供基本的必填控制
+      break;
+
+    // 对于其他不常见或复杂的类型，我们只提供基本的必填控制
+    default:
+      // 基本的必填控制已经在函数开始处添加，这里不需要额外操作
+      break;
+  }
+
+  // 如果提供了正则表达式，添加正则验证
+  if (validation?.regex) {
+    rules.push({
+      pattern: new RegExp(validation?.regex),
+      message: getErrorMessage(`${columnProperties.label}不符合指定格式`),
+    });
+  }
+
+  // 如果外部验证失败，添加自定义验证器
+  if (validation?.isEditableCellValid === false) {
+    rules.push({
+      validator: () =>
+        Promise.reject(
+          new Error(getErrorMessage(`${columnProperties.label}不符合验证规则`)),
+        ),
+    });
+  }
+
+  return rules;
+};
+
+const getValueEnum = (column: TableColumnProps) => {
+  const { columnProperties } = column;
+  const { fieldNames, options } = columnProperties;
+
+  // 如果不需要显示筛选或没有选项，则返回 undefined
+  if (!options || options.length === 0) return undefined;
+
+  const valueEnum: Record<string, any> = {};
+  options.forEach((option: any) => {
+    const value = option[fieldNames?.value || "value"];
+    const label = option[fieldNames?.label || "label"];
+    if (value !== undefined && label !== undefined) {
+      valueEnum[value] = {
+        text: label,
+        ...option,
+      };
+    }
+  });
+
+  console.log("表格 getValueEnum valueEnum", valueEnum);
+  return valueEnum;
+};
+
+const getActionColumn = (props: AntdTableProps): ProColumns => {
+  console.group("表格 getActionColumn");
+  console.log("props", props);
+  console.groupEnd();
+
+  const sortedButtons = Object.values(props.columnActions)
+    .sort((a, b) => a.index - b.index)
+    .filter((c) => c.showButton);
+
+  const renderMenuButton = (
+    button: ButtonAction,
+    record: any,
+    recordIndex: number,
+    action: any,
+  ) => (
+    <TableDropdown
+      key="actionGroup"
+      menus={Object.values(button.menuItems || {})
+        .filter((c) => c.isVisible)
+        ?.map((c) => ({
+          disabled: c.isDisabled,
+          key: c.id,
+          name: renderMenuItemContent(c, props, record, recordIndex),
+        }))}
+      style={{ color: button.buttonColor }}
+    >
+      <ButtonComponent
+        buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
+        buttonSize="sm"
+        buttonVariant="TERTIARY"
+        configToken={{ paddingInline: 0, controlHeight: 22 }}
+        iconAlign={button.iconAlign}
+        iconName={button.menuIconName}
+        iconSize={14}
+        isDisabled={button.isDisabled}
+        key={button.id}
+        placement="CENTER"
+        text={button.menuButtonLabel}
+        tooltip={button.menuTooltip}
+        widgetId={button.widgetId}
+      />
+    </TableDropdown>
+  );
+
+  const renderActionButton = (
+    button: any,
+    record: any,
+    recordIndex: number,
+    action: any,
+  ) => (
+    <ButtonComponent
+      buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
+      buttonSize="sm"
+      buttonVariant="TERTIARY"
+      configToken={{ paddingInline: 0, controlHeight: 22 }}
+      iconAlign={button.iconAlign}
+      iconName={
+        button.columnType === ColumnTypes.BUTTON
+          ? button.iconName
+          : button.btnIconName
+      }
+      isDisabled={button.isDisabled}
+      key={button.id}
+      onClick={() =>
+        handleButtonClick(button, props, record, recordIndex, action)
+      }
+      placement="CENTER"
+      popconfirmMessage={button.popconfirmMessage}
+      text={
+        button.columnType === ColumnTypes.ICON_BUTTON ? "" : button.buttonLabel
+      }
+      tooltip={button.tooltip}
+      widgetId={button.widgetId}
+    />
+  );
+
+  return {
+    title: "操作",
+    valueType: "option",
+    key: "operation",
+    fixed: "right",
+    width: props.actionWidth || 120,
+    render: (text, record, recordIndex, action, ...rest) => {
+      console.log("antd 表格 operation", {
+        text,
+        record,
+        recordIndex,
+        action,
+        rest,
+      });
+
+      return sortedButtons.map((button) =>
+        button.columnType === ColumnTypes.MENU_BUTTON
+          ? renderMenuButton(button, record, recordIndex, action)
+          : renderActionButton(button, record, recordIndex, action),
+      );
+    },
+  };
+};
+
+const renderMenuItemContent = (
+  menuItem: any,
+  props: any,
+  record: any,
+  recordIndex: number,
+) => (
+  <div
+    className="inline-flex justify-center items-center"
+    style={{
+      color: menuItem.textColor,
+      backgroundColor: menuItem.backgroundColor,
+    }}
+  >
+    {menuItem.iconAlign !== Alignment.RIGHT && menuItem.iconName && (
+      <IconRenderer
+        className="mr-1"
+        color={menuItem.iconColor || "currentColor"}
+        icon={menuItem.iconName}
+        size={14}
+      />
+    )}
+    <span
+      onClick={() =>
+        props.columnActionClick(menuItem.onClick, record, recordIndex)
+      }
+    >
+      {menuItem.label}
+    </span>
+    {menuItem.iconAlign === Alignment.RIGHT && menuItem.iconName && (
+      <IconRenderer
+        className="ml-1"
+        color={menuItem.iconColor || "currentColor"}
+        icon={menuItem.iconName}
+        size={14}
+      />
+    )}
+  </div>
+);
+
+const handleButtonClick = (
+  button: any,
+  props: AntdTableProps,
+  record: any,
+  recordIndex: number,
+  action: any,
+) => {
+  const { inlineEditingSaveOption, primaryColumns } = props;
+  const existEditableColumn = Object.values(primaryColumns).find(
+    (column) => column.isCellEditable,
+  );
+  console.log("handleButtonClick", {
+    button,
+    props,
+    record,
+    recordIndex,
+    action,
+    inlineEditingSaveOption,
+    existEditableColumn,
+  });
+
+  if (
+    button.id === "edit" &&
+    inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL &&
+    existEditableColumn
+  ) {
+    action?.startEditable?.(record.id);
+  }
+  props.columnActionClick(button.onBtnClick, record, recordIndex);
+};
+
+export const useColumnState = (
+  props: AntdTableProps,
+  setter: {
+    setInitialQueryData: (data: Record<string, any>) => void;
+  },
+) => {
+  const { setInitialQueryData } = setter;
+  const initialQueryData: Record<string, any> = {};
+
+  const tableColumns = useMemo(() => {
+    const renderColumns = props.columns.filter((column) => {
+      return column.alias !== "actions" && column.alias !== "children";
+    });
+    const transColumns =
+      renderColumns?.map((column: TableColumnProps, i: number) => {
+        initialQueryData[column.id] = "";
+        const columnType = column.columnProperties.columnType;
+        const proColumn: ProColumns<Record<string, any>> = {
+          ...column,
+          editable: () => column.columnProperties.isCellEditable,
+          fixed: column.sticky || false,
+          hideInTable: column.isHidden,
+          title: column.Header,
+          ellipsis: !column.columnProperties.allowCellWrapping,
+          dataIndex: column.id,
+          valueType: columnType,
+          formItemProps: {
+            rules: getRules(column),
+          },
+          valueEnum: getValueEnum(column),
+          fieldProps: {
+            ...column.columnProperties,
+            options: column.columnProperties.options?.map((option: any) => {
+              return {
+                label:
+                  option[column.columnProperties.fieldNames?.label || ""] ||
+                  option.label,
+                value:
+                  option[column.columnProperties.fieldNames?.value || ""] ||
+                  option.value,
+                ...option,
+              };
+            }),
+          },
+          copyable: column.columnProperties.isCellCopyable,
+          filters: column.columnProperties.isVisibleCellFilters,
+          onFilter: true,
+          hideInSearch: !(
+            props.isVisibleSearch && column.columnProperties.isVisibleCellSearch
+          ),
+        };
+        delete (proColumn as any).sticky;
+        return proColumn;
+      }) || [];
+    setInitialQueryData(initialQueryData);
+    props?.onQueryDataChange(initialQueryData, true);
+
+    return transColumns;
+  }, [props.columns]);
+
+  const columnsState = useMemo((): ColumnStateType => {
+    return {
+      persistenceKey: "pro-table-singe-demos_" + props.widgetId,
+      persistenceType: "localStorage",
+      defaultValue: {
+        option: {
+          fixed: "right",
+          disable: true,
+        },
+      },
+      onChange(value) {
+        console.log("value: ", value);
+      },
+    };
+  }, [props.widgetId]);
+
+  const actionColumn = useMemo(
+    () => getActionColumn(props),
+    [props.columnActions, props.actionWidth, props.primaryColumns],
+  );
+
+  return {
+    columnsState,
+    actionColumn,
+    tableColumns,
+    initialQueryData,
+  };
+};

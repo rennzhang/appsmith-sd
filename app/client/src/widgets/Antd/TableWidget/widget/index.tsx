@@ -1129,6 +1129,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
+          defaultPageSize={this.props.defaultPageSize}
           delimiter={delimiter}
           disableDrag={this.toggleDrag}
           disabledAddNewRowSave={this.hasInvalidColumnCell()}
@@ -1164,7 +1165,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onQueryDataChange={this.handleQueryDataChange}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
-          pageSize={this.props.defaultPageSize}
+          pageSize={this.props.pageSize}
           prevPageClick={this.handlePrevPageClick}
           primaryColumnId={this.props.primaryColumnId}
           queryData={this.props.queryData}
@@ -1189,6 +1190,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           triggerRowSelection={this.props.triggerRowSelection}
           unSelectAllRow={this.unSelectAllRow}
           updatePageNo={this.updatePageNumber}
+          updatePageSize={this.updatePageSize}
           variant={this.props.variant}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
@@ -1555,6 +1557,28 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
       }
     }
+  };
+  updatePageSize = (_pageSize: number) => {
+    const { commitBatchMetaUpdates, pageSize, pushBatchMetaUpdates } =
+      this.props;
+
+    console.log("Antd 表格 updatePageSize", _pageSize, pageSize);
+
+    if (pageSize === _pageSize) {
+      return;
+    }
+    pushBatchMetaUpdates("pageSize", _pageSize, {
+      triggerPropertyName: "onPageSizeChange",
+      dynamicString: this.props.onPageSizeChange,
+      event: {
+        type: EventType.ON_PAGE_SIZE_CHANGE,
+      },
+    });
+
+    if (this.props.onPageSizeChange) {
+      this.pushResetSelectedRowIndexUpdates();
+    }
+    commitBatchMetaUpdates();
   };
 
   updatePageNumber = (pageNo: number, event?: EventType) => {

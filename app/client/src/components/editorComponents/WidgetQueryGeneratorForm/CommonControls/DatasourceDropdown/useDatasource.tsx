@@ -398,6 +398,7 @@ export function useDatasource(searchText: string) {
         </ImageWrapper>
       ),
       onSelect: function (value?: string, valueOption?: DropdownOptionType) {
+
         addBinding(valueOption?.value, false);
 
         updateConfig({

@@ -83,6 +83,7 @@ function DatasourceDropdown() {
     queryOptions,
     selected,
   } = useDatasource(searchText);
+  console.log(" queryOptions", queryOptions);
 
   const [open, setOpen] = useState(false);
 

@@ -1,212 +1,15 @@
-import React, { useEffect } from "react";
-import Table from "./Table";
-import type {
-  AddNewRowActions,
-  CompactMode,
-  ReactTableColumnProps,
-  ReactTableFilter,
-  StickyType,
-} from "./Constants";
-import type { Row } from "react-table";
-
-import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { useCallback, memo } from "react";
+import AntdProTable from "./Table";
 import equal from "fast-deep-equal/es6";
-import type {
-  AntdTableProps,
-  ButtonAction,
-  EditableCell,
-  TableVariant,
-} from "../constants";
-import { ColumnTypes } from "../constants";
-import { useCallback } from "react";
-import type { SizeType } from "antd/es/config-provider/SizeContext";
-
-export interface ColumnMenuOptionProps {
-  content: string | JSX.Element;
-  closeOnClick?: boolean;
-  isSelected?: boolean;
-  editColumnName?: boolean;
-  columnAccessor?: string;
-  id?: string;
-  category?: boolean;
-  options?: ColumnMenuSubOptionProps[];
-  onClick?: (columnIndex: number, isSelected: boolean) => void;
-}
-
-export interface ColumnMenuSubOptionProps {
-  content: string | JSX.Element;
-  isSelected?: boolean;
-  closeOnClick?: boolean;
-  onClick?: (columnIndex: number) => void;
-  id?: string;
-  category?: boolean;
-  isHeader?: boolean;
-}
+import type { AntdTableProps } from "../constants";
 
 interface ReactTableComponentProps extends AntdTableProps {
-  cardBorderedSearch: boolean;
-  cardBorderedTable: boolean;
-  columnActions: ButtonAction[];
-  editingActions: ButtonAction[];
-  queryData: Record<string, any>;
-  widgetId: string;
-  widgetName: string;
-  searchKey: string;
-  isDisabled?: boolean;
-  isVisible?: boolean;
-  isLoading: boolean;
-  editMode: boolean;
-  editableCell: EditableCell;
-  width: number;
-  height: number;
-  pageSize: number;
-  totalRecordsCount?: number;
-  tableData: Array<Record<string, unknown>>;
-  disableDrag: (disable: boolean) => void;
-  onBulkEditDiscard: () => void;
-  onBulkEditSave: () => void;
-  onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
-  selectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
-  unSelectAllRow: (pageData: Row<Record<string, unknown>>[]) => void;
-  updatePageNo: (pageNo: number, event?: EventType) => void;
-  sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  nextPageClick: () => void;
-  prevPageClick: () => void;
-  updatePageNumber: () => void;
-  pageNo: number;
-  serverSidePaginationEnabled: boolean;
-  selectedRowIndex: number;
-  selectedRowIndices: number[];
-  multiRowSelection?: boolean;
-  hiddenColumns?: string[];
-  triggerRowSelection: boolean;
-  columnWidthMap?: { [key: string]: number };
-  handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
-  handleReorderColumn: (columnOrder: string[]) => void;
-  searchTableData: (searchKey: any) => void;
-  filters?: ReactTableFilter[];
-  applyFilter: (filters: ReactTableFilter[]) => void;
-  columns: ReactTableColumnProps[];
-  compactMode?: SizeType;
-  isVisibleSearch?: boolean;
-  isVisibleFilters?: boolean;
-  isVisibleDownload?: boolean;
-  isVisibleDensity?: boolean;
-  isVisibleFullScreen?: boolean;
-  isVisibleRefresh?: boolean;
-  isVisibleCellSetting?: boolean;
-  isVisiblePagination?: boolean;
-  delimiter: string;
-  isSortable?: boolean;
-  accentColor: string;
-  borderRadius: string;
-  boxShadow: string;
-  borderColor?: string;
-  borderWidth?: number;
-  variant?: TableVariant;
-  isEditableCellsValid?: Record<string, boolean>;
-  primaryColumnId?: string;
-  isAddRowInProgress: boolean;
-  allowAddNewRow: boolean;
-  onAddNewRow: () => void;
-
   allowRowSelection: boolean;
-  allowSorting: boolean;
-  disabledAddNewRowSave: boolean;
-  canFreezeColumn?: boolean;
-  showConnectDataOverlay: boolean;
-  onConnectData: () => void;
-  onQueryDataChange: (queryData: Record<string, unknown>) => void;
+  onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
-  const {
-    allowAddNewRow,
-    allowRowSelection,
-    allowSorting,
-    applyFilter,
-    borderColor,
-    borderWidth,
-    canFreezeColumn,
-    columnActions,
-    columns,
-    columnWidthMap,
-    compactMode,
-    delimiter,
-    disabledAddNewRowSave,
-    disableDrag,
-    editableCell,
-    editMode,
-    filters,
-    handleColumnFreeze,
-    handleReorderColumn,
-    handleResizeColumn,
-    height,
-    isAddRowInProgress,
-    isLoading,
-    isSortable,
-    isVisibleCellSetting,
-    isVisibleDensity,
-    isVisibleDownload,
-    isVisibleFilters,
-    isVisibleFullScreen,
-    isVisiblePagination,
-    isVisibleRefresh,
-    isVisibleSearch,
-    multiRowSelection,
-    nextPageClick,
-    onAddNewRow,
-    onAddNewRowAction,
-    onBulkEditDiscard,
-    onBulkEditSave,
-    onConnectData,
-    onRowClick,
-    pageNo,
-    pageSize,
-    prevPageClick,
-    primaryColumnId,
-    queryData,
-    searchKey,
-    searchTableData,
-    selectAllRow,
-    selectedRowIndex,
-    selectedRowIndices,
-    serverSidePaginationEnabled,
-    showConnectDataOverlay,
-    sortTableColumn: _sortTableColumn,
-    tableData,
-    totalRecordsCount,
-    triggerRowSelection,
-    unSelectAllRow,
-    updatePageNo,
-    updatePageNumber,
-    variant,
-    widgetId,
-    widgetName,
-    width,
-  } = props;
-
-  console.log("ReactTableComponent -> columns", columns);
-
-  const sortTableColumn = useCallback(
-    (columnIndex: number, asc: boolean) => {
-      if (allowSorting) {
-        if (columnIndex === -1) {
-          _sortTableColumn("", asc);
-        } else {
-          const column = columns[columnIndex];
-          const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
-          if (
-            columnType !== ColumnTypes.IMAGE &&
-            columnType !== ColumnTypes.VIDEO
-          ) {
-            _sortTableColumn(column.alias, asc);
-          }
-        }
-      }
-    },
-    [_sortTableColumn, allowSorting, columns],
-  );
+  const { allowRowSelection, onRowClick } = props;
 
   const selectTableRow = useCallback(
     (row: { original: Record<string, unknown>; index: number }) => {
@@ -217,179 +20,78 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     [allowRowSelection, onRowClick],
   );
 
-  const toggleAllRowSelect = useCallback(
-    (isSelect: boolean, pageData: Row<Record<string, unknown>>[]) => {
-      if (allowRowSelection) {
-        if (isSelect) {
-          selectAllRow(pageData);
-        } else {
-          unSelectAllRow(pageData);
-        }
-      }
-    },
-    [allowRowSelection, selectAllRow, unSelectAllRow],
-  );
-
-  const memoziedDisableDrag = useCallback(
-    () => disableDrag(true),
-    [disableDrag],
-  );
-  const memoziedEnableDrag = useCallback(
-    () => disableDrag(false),
-    [disableDrag],
-  );
-
-  console.group("Antd 表格 Table Index 222");
-  console.log(" this.props", props);
-  console.groupEnd();
-  return (
-    <Table
-      {...props}
-      accentColor={props.accentColor}
-      allowAddNewRow={allowAddNewRow}
-      applyFilter={applyFilter}
-      borderColor={borderColor}
-      borderRadius={props.borderRadius}
-      borderWidth={borderWidth}
-      boxShadow={props.boxShadow}
-      canFreezeColumn={canFreezeColumn}
-      columnActions={columnActions}
-      columnWidthMap={columnWidthMap}
-      columns={columns}
-      compactMode={compactMode}
-      data={tableData}
-      delimiter={delimiter}
-      disableDrag={memoziedDisableDrag}
-      disabledAddNewRowSave={disabledAddNewRowSave}
-      editMode={editMode}
-      editableCell={editableCell}
-      enableDrag={memoziedEnableDrag}
-      filters={filters}
-      handleColumnFreeze={handleColumnFreeze}
-      handleReorderColumn={handleReorderColumn}
-      handleResizeColumn={handleResizeColumn}
-      height={height}
-      isAddRowInProgress={isAddRowInProgress}
-      isLoading={isLoading}
-      isSortable={isSortable}
-      isVisibleCellSetting={isVisibleCellSetting}
-      isVisibleDensity={isVisibleDensity}
-      isVisibleDownload={isVisibleDownload}
-      isVisibleFilters={isVisibleFilters}
-      isVisibleFullScreen={isVisibleFullScreen}
-      isVisiblePagination={isVisiblePagination}
-      isVisibleRefresh={isVisibleRefresh}
-      isVisibleSearch={isVisibleSearch}
-      multiRowSelection={multiRowSelection}
-      nextPageClick={nextPageClick}
-      onAddNewRow={onAddNewRow}
-      onAddNewRowAction={onAddNewRowAction}
-      onBulkEditDiscard={onBulkEditDiscard}
-      onBulkEditSave={onBulkEditSave}
-      onConnectData={onConnectData}
-      onQueryDataChange={props.onQueryDataChange}
-      pageNo={pageNo}
-      pageSize={pageSize || 1}
-      prevPageClick={prevPageClick}
-      primaryColumnId={primaryColumnId}
-      queryData={queryData}
-      searchKey={searchKey}
-      searchTableData={searchTableData}
-      selectTableRow={selectTableRow}
-      selectedRowIndex={selectedRowIndex}
-      selectedRowIndices={selectedRowIndices}
-      serverSidePaginationEnabled={serverSidePaginationEnabled}
-      showConnectDataOverlay={showConnectDataOverlay}
-      sortTableColumn={sortTableColumn}
-      toggleAllRowSelect={toggleAllRowSelect}
-      totalRecordsCount={totalRecordsCount}
-      triggerRowSelection={triggerRowSelection}
-      updatePageNo={updatePageNo}
-      variant={variant}
-      widgetId={widgetId}
-      widgetName={widgetName}
-      width={width}
-    />
-  );
+  return <AntdProTable {...props} selectTableRow={selectTableRow} />;
 }
 
-export default React.memo(ReactTableComponent, (prev, next) => {
-  return (
-    prev.headerBorderRadius === next.headerBorderRadius &&
-    prev.tableBackground === next.tableBackground &&
-    // cardBorderedSearch
-    prev.cardBorderedSearch === next.cardBorderedSearch &&
-    // cardBorderedTable
-    prev.cardBorderedTable === next.cardBorderedTable &&
-    prev.textSize === next.textSize &&
-    // editingActions
-    equal(prev.editingActions, next.editingActions) &&
-    // enableSearchFormValidation
-    prev.enableSearchFormValidation === next.enableSearchFormValidation &&
-    equal(prev.columns, next.columns) &&
-    equal(prev.queryData, next.queryData) &&
-    prev.expandRowByClick === next.expandRowByClick &&
-    prev.childrenColumnName === next.childrenColumnName &&
-    prev.actionWidth === next.actionWidth &&
-    equal(prev.columnActions, next.columnActions) &&
-    prev.applyFilter === next.applyFilter &&
-    prev.compactMode === next.compactMode &&
-    prev.delimiter === next.delimiter &&
-    prev.disableDrag === next.disableDrag &&
-    prev.editMode === next.editMode &&
-    prev.isSortable === next.isSortable &&
-    prev.filters === next.filters &&
-    prev.handleReorderColumn === next.handleReorderColumn &&
-    prev.handleResizeColumn === next.handleResizeColumn &&
-    prev.height === next.height &&
-    prev.isLoading === next.isLoading &&
-    prev.isVisibleDownload === next.isVisibleDownload &&
-    prev.isVisibleFilters === next.isVisibleFilters &&
-    prev.isVisiblePagination === next.isVisiblePagination &&
-    prev.isVisibleSearch === next.isVisibleSearch &&
-    prev.isVisibleRefresh === next.isVisibleRefresh &&
-    prev.isVisibleFullScreen === next.isVisibleFullScreen &&
-    prev.isVisibleDensity === next.isVisibleDensity &&
-    prev.isVisibleCellSetting === next.isVisibleCellSetting &&
-    prev.nextPageClick === next.nextPageClick &&
-    prev.onRowClick === next.onRowClick &&
-    prev.pageNo === next.pageNo &&
-    prev.pageSize === next.pageSize &&
-    prev.prevPageClick === next.prevPageClick &&
-    prev.searchKey === next.searchKey &&
-    prev.searchTableData === next.searchTableData &&
-    prev.selectedRowIndex === next.selectedRowIndex &&
-    prev.selectedRowIndices === next.selectedRowIndices &&
-    prev.serverSidePaginationEnabled === next.serverSidePaginationEnabled &&
-    prev.sortTableColumn === next.sortTableColumn &&
-    prev.totalRecordsCount === next.totalRecordsCount &&
-    prev.triggerRowSelection === next.triggerRowSelection &&
-    prev.updatePageNo === next.updatePageNo &&
-    prev.widgetId === next.widgetId &&
-    prev.widgetName === next.widgetName &&
-    prev.width === next.width &&
-    prev.borderRadius === next.borderRadius &&
-    prev.boxShadow === next.boxShadow &&
-    prev.borderWidth === next.borderWidth &&
-    prev.borderColor === next.borderColor &&
-    prev.accentColor === next.accentColor &&
-    //shallow equal possible
-    equal(prev.columnWidthMap, next.columnWidthMap) &&
-    //static reference
-    prev.tableData === next.tableData &&
-    // Using JSON stringify becuase isEqual doesnt work with functions,
-    // and we are not changing the columns manually.
-    prev.columns === next.columns &&
-    equal(prev.editableCell, next.editableCell) &&
-    prev.variant === next.variant &&
-    prev.primaryColumnId === next.primaryColumnId &&
-    equal(prev.isEditableCellsValid, next.isEditableCellsValid) &&
-    prev.isAddRowInProgress === next.isAddRowInProgress &&
-    prev.allowAddNewRow === next.allowAddNewRow &&
-    prev.allowRowSelection === next.allowRowSelection &&
-    prev.allowSorting === next.allowSorting &&
-    prev.disabledAddNewRowSave === next.disabledAddNewRowSave &&
-    prev.canFreezeColumn === next.canFreezeColumn &&
-    prev.showConnectDataOverlay === next.showConnectDataOverlay
-  );
-});
+function arePropsEqual(
+  prevProps: ReactTableComponentProps,
+  nextProps: ReactTableComponentProps,
+) {
+  // 比较关键属性
+  const keyProps: (keyof ReactTableComponentProps)[] = [
+    "hideOnSinglePage",
+    "paginationSize",
+    "showSizeChanger",
+    "showQuickJumper",
+    "simplePagination",
+    "paginationDisabled",
+    "showSizeChanger",
+    "defaultPageSize",
+    "headerBorderRadius",
+    "tableBackground",
+    "cardBorderedSearch",
+    "cardBorderedTable",
+    "textSize",
+    "enableSearchFormValidation",
+    "expandRowByClick",
+    "childrenColumnName",
+    "actionWidth",
+    "compactMode",
+    "delimiter",
+    "editMode",
+    "isSortable",
+    "height",
+    "isLoading",
+    "pageNo",
+    "pageSize",
+    "serverSidePaginationEnabled",
+    "totalRecordsCount",
+    "triggerRowSelection",
+    "width",
+    "borderRadius",
+    "boxShadow",
+    "borderWidth",
+    "borderColor",
+    "accentColor",
+    "variant",
+    "primaryColumnId",
+    "isAddRowInProgress",
+    "allowAddNewRow",
+    "allowRowSelection",
+    "disabledAddNewRowSave",
+    "canFreezeColumn",
+    "showConnectDataOverlay",
+    "editingActions",
+    "columns",
+    "queryData",
+    "columnActions",
+    "filters",
+    "columnWidthMap",
+    "tableData",
+    "editableCell",
+    "isEditableCellsValid",
+    // "primaryColumns",
+  ];
+
+  for (const prop of keyProps) {
+    if (typeof prevProps[prop] === "object") {
+      if (!equal(prevProps[prop], nextProps[prop])) return false;
+    } else {
+      if (prevProps[prop] !== nextProps[prop]) return false;
+    }
+  }
+
+  return true;
+}
+
+export default memo(ReactTableComponent, arePropsEqual);

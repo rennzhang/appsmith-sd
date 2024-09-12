@@ -64,7 +64,7 @@ export default [
       {
         helpText: "表格数据列定义",
         propertyName: "primaryColumns",
-        controlType: "PRIMARY_COLUMNS_V2",
+        controlType: "PRIMARY_COLUMNS_ANTD",
         label: "数据列",
         updateHook: composePropertyUpdateHook([
           updateColumnOrderHook,
@@ -302,10 +302,22 @@ export default [
         hidden: (props: TableWidgetProps) => !props.serverSidePaginationEnabled,
         dependencies: ["serverSidePaginationEnabled"],
       },
+      // disabled
       {
-        helpText: "表格换页时触发",
+        propertyName: "paginationDisabled",
+        helpText: "是否禁用分页器",
+        label: "禁用分页器",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
+        helpText:
+          "当表格查询相关内容变更时触发，如分页、表单参数、查询按钮、重置按钮等等",
         propertyName: "onPageChange",
-        label: "onPageChange",
+        label: "onQuery",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,

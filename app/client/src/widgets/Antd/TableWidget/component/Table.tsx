@@ -1,37 +1,20 @@
-import React, { useEffect, useMemo, useRef } from "react";
-import { reduce } from "lodash";
-import type { Row as ReactTableRowType } from "react-table";
-import {
-  useTable,
-  usePagination,
-  useBlockLayout,
-  useResizeColumns,
-  useRowSelect,
-} from "react-table";
-import { useSticky } from "react-table-sticky";
 import { TableWrapper } from "./TableStyledWrappers";
-import type {
-  ReactTableColumnProps,
-  ReactTableFilter,
-  CompactMode,
-  AddNewRowActions,
-  StickyType,
-} from "./Constants";
+import type { ReactTableColumnProps, StickyType } from "./Constants";
 import { Colors } from "constants/Colors";
-import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type {
-  AntdTableProps,
-  ButtonAction,
-  EditableCell,
-  TableVariant,
-} from "../constants";
 import type SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
 import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
 import fastdom from "fastdom";
 import { ConnectDataOverlay } from "./ConnectDataOverlay";
-import Protable from "./ProTable";
+import type { ActionType } from "@ant-design/pro-components";
+import { ProTable } from "@ant-design/pro-components";
+import { ConfigProvider, Space, Table } from "antd";
+import { useEffect, useRef, useState } from "react";
+import React from "react";
+import type { AntdTableProps } from "../constants";
+// ColumnStateType
+import { useEditableState, useColumnState, useTableQuery } from "./hooks";
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 
 const PopoverStyles = createGlobalStyle<{
@@ -51,152 +34,16 @@ const PopoverStyles = createGlobalStyle<{
     }
 `;
 
-const defaultColumn = {
-  minWidth: 30,
-  width: 150,
-};
+export function ProTableComponent(props: AntdTableProps) {
+  const { showConnectDataOverlay } = props;
+  const actionRef = useRef<ActionType>();
+  const scrollBarRef = useRef<any>(null);
 
-export type HeaderComponentProps = {
-  enableDrag: () => void;
-  disableDrag: () => void;
-  multiRowSelection?: boolean;
-  handleAllRowSelectClick: (
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-  ) => void;
-  handleReorderColumn: (columnOrder: string[]) => void;
-  columnOrder?: string[];
-  accentColor: string;
-  borderRadius: string;
-  headerGroups: any;
-  canFreezeColumn?: boolean;
-  editMode: boolean;
-  handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
-  isResizingColumn: React.MutableRefObject<boolean>;
-  isSortable?: boolean;
-  sortTableColumn: (columnIndex: number, asc: boolean) => void;
-  columns: ReactTableColumnProps[];
-  width: number;
-  subPage: ReactTableRowType<Record<string, unknown>>[];
-  prepareRow: any;
-  headerWidth?: number;
-  rowSelectionState: 0 | 1 | 2 | null;
-  widgetId: string;
-};
-
-const emptyArr: any = [];
-
-export function Table(props: AntdTableProps) {
-  const isResizingColumn = React.useRef(false);
-  const handleResizeColumn = (columnWidths: Record<string, number>) => {
-    const columnWidthMap = {
-      ...props.columnWidthMap,
-      ...columnWidths,
-    };
-    for (const i in columnWidthMap) {
-      if (columnWidthMap[i] < 60) {
-        columnWidthMap[i] = 60;
-      } else if (columnWidthMap[i] === undefined) {
-        const columnCounts = props.columns.filter(
-          (column) => !column.isHidden,
-        ).length;
-        columnWidthMap[i] = props.width / columnCounts;
-      }
-    }
-    props.handleResizeColumn(columnWidthMap);
-  };
-  const {
-    columns,
-    data,
-    multiRowSelection,
-    showConnectDataOverlay,
-    toggleAllRowSelect,
-  } = props;
-  console.log("Table -> props", props, columns, data);
-
-
-  const tableHeadercolumns = React.useMemo(
-    () =>
-      columns.filter((column: ReactTableColumnProps) => {
-        return column.alias !== "actions" && column.alias!=="children";
-      }),
-    [columns],
-  );
-
-  const pageCount =
-    props.serverSidePaginationEnabled && props.totalRecordsCount
-      ? Math.ceil(props.totalRecordsCount / props.pageSize)
-      : Math.ceil(props.data.length / props.pageSize);
-  const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
-  const { page, pageOptions, prepareRow, state, totalColumnsWidth } = useTable(
-    {
-      //columns and data needs to be memoised as per useTable specs
-      columns,
-      data,
-      defaultColumn,
-      initialState: {
-        pageIndex: currentPageIndex,
-        pageSize: props.pageSize,
-      },
-      manualPagination: true,
-      pageCount,
-    },
-    useBlockLayout,
-    useResizeColumns,
-    usePagination,
-    useRowSelect,
-    useSticky,
-  );
-  //Set isResizingColumn as true when column is resizing using table state
-  if (state.columnResizing.isResizingColumn) {
-    isResizingColumn.current = true;
-  } else {
-    // We are updating column size since the drag is complete when we are changing value of isResizing from true to false
-    if (isResizingColumn.current) {
-      //clear timeout logic
-      //update isResizingColumn in next event loop so that dragEnd event does not trigger click event.
-      setTimeout(function () {
-        isResizingColumn.current = false;
-        handleResizeColumn(state.columnResizing.columnWidths);
-      }, 0);
-    }
-  }
-  let startIndex = currentPageIndex * props.pageSize;
-  let endIndex = startIndex + props.pageSize;
-  if (props.serverSidePaginationEnabled) {
-    startIndex = 0;
-    endIndex = props.data.length;
-  }
-  const subPage = useMemo(
-    () => page.slice(startIndex, endIndex),
-    [page, startIndex, endIndex],
-  );
-  const selectedRowIndices = props.selectedRowIndices || emptyArr;
-  const scrollBarRef = useRef<SimpleBar | null>(null);
-  const rowSelectionState = React.useMemo(() => {
-    // return : 0; no row selected | 1; all row selected | 2: some rows selected
-    if (!multiRowSelection) return null;
-    const selectedRowCount = reduce(
-      page,
-      (count, row) => {
-        return selectedRowIndices.includes(row.index) ? count + 1 : count;
-      },
-      0,
-    );
-    const result =
-      selectedRowCount === 0 ? 0 : selectedRowCount === page.length ? 1 : 2;
-    return result;
-  }, [multiRowSelection, page, selectedRowIndices]);
   const isHeaderVisible =
     props.isVisibleSearch ||
     props.isVisibleFilters ||
     props.isVisibleDownload ||
     props.allowAddNewRow;
-
-  const shouldUseVirtual =
-    props.serverSidePaginationEnabled &&
-    !props.columns.some(
-      (column) => !!column.columnProperties.allowCellWrapping,
-    );
 
   useEffect(() => {
     if (props.isAddRowInProgress) {
@@ -208,8 +55,37 @@ export function Table(props: AntdTableProps) {
     }
   }, [props.isAddRowInProgress]);
 
-  console.group("Antd 表格 Table Index 333");
-  console.log(" this.props", props);
+  // queryData
+  const [selectedRowKeys, setSelectedRowKeys] = React.useState<React.Key[]>([]);
+  // 抽离查询相关逻辑
+  const {
+    form,
+    habdleReset,
+    handleRequest,
+    pagination,
+    queryData,
+    setInitialQueryData,
+    setQueryData,
+  } = useTableQuery(props);
+
+  useEffect(() => {
+    const keys: any[] = [];
+    props.selectedRowIndices?.map((index) => {
+      const record = props.tableData[index];
+      record && keys.push(record?.[props.primaryColumnId || ""]);
+    });
+    setSelectedRowKeys(keys);
+  }, [props.selectedRowIndices, props.tableData]);
+
+  const { actionColumn, columnsState, tableColumns } = useColumnState(props, {
+    setInitialQueryData,
+  });
+
+  const editableMemo = useEditableState(props);
+
+  console.group("Antd 表格 Table Protable  333");
+  console.log("表格 props", props);
+  console.log("表格 tableColumns", tableColumns);
   console.groupEnd();
   return (
     <>
@@ -228,7 +104,6 @@ export function Table(props: AntdTableProps) {
         id={`table${props.widgetId}`}
         isAddRowInProgress={props.isAddRowInProgress}
         isHeaderVisible={isHeaderVisible}
-        isResizingColumn={isResizingColumn.current}
         multiRowSelection={props.multiRowSelection}
         triggerRowSelection={props.triggerRowSelection}
         variant={props.variant}
@@ -239,69 +114,134 @@ export function Table(props: AntdTableProps) {
           widgetId={props.widgetId}
         />
         {
-          <Protable
-            {...props}
-            accentColor={props.accentColor}
-            allowAddNewRow={props.allowAddNewRow}
-            borderRadius={props.borderRadius}
-            boxShadow={props.boxShadow}
-            canFreezeColumn={props.canFreezeColumn}
-            columnActions={props.columnActions}
-            columns={tableHeadercolumns}
-            compactMode={props.compactMode}
-            delimiter={props.delimiter}
-            disableAddNewRow={!!props.editableCell.column}
-            disableDrag={props.disableDrag}
-            disabledAddNewRowSave={props.disabledAddNewRowSave}
-            editMode={props.editMode}
-            enableDrag={props.enableDrag}
-            handleReorderColumn={props.handleReorderColumn}
-            height={props.height}
-            isAddRowInProgress={props.isAddRowInProgress}
-            isLoading={props.isLoading}
-            isSortable={props.isSortable}
-            isVisibleCellSetting={props.isVisibleCellSetting}
-            isVisibleDensity={props.isVisibleDensity}
-            isVisibleFilters={props.isVisibleFilters}
-            isVisibleFullScreen={props.isVisibleFullScreen}
-            isVisiblePagination={props.isVisiblePagination}
-            isVisibleRefresh={props.isVisibleRefresh}
-            isVisibleSearch={props.isVisibleSearch}
-            multiRowSelection={props?.multiRowSelection}
-            nextPageClick={props.nextPageClick}
-            onAddNewRow={props.onAddNewRow}
-            onAddNewRowAction={props.onAddNewRowAction}
-            onQueryDataChange={props.onQueryDataChange}
-            pageCount={pageCount}
-            pageNo={props.pageNo}
-            pageOptions={pageOptions}
-            pageSize={props.pageSize}
-            prepareRow={prepareRow}
-            prevPageClick={props.prevPageClick}
-            primaryColumnId={props.primaryColumnId}
-            queryData={props.queryData}
-            ref={scrollBarRef}
-            rowSelectionState={rowSelectionState}
-            selectTableRow={props.selectTableRow}
-            selectedRowIndex={props.selectedRowIndex}
-            selectedRowIndices={props.selectedRowIndices}
-            serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-            sortTableColumn={props.sortTableColumn}
-            subPage={subPage}
-            tableColumns={columns}
-            tableData={data}
-            totalColumnsWidth={totalColumnsWidth}
-            totalRecordsCount={props.totalRecordsCount}
-            updatePageNo={props.updatePageNo}
-            useVirtual={shouldUseVirtual}
-            widgetId={props.widgetId}
-            widgetName={props.widgetName}
-            width={props.width}
-          />
+          <div className="overflow-auto" ref={scrollBarRef}>
+            <ConfigProvider
+              theme={{
+                components: {
+                  Table: {
+                    borderRadius:
+                      (props.borderRadius as unknown as number) || 0,
+                    fontSize: (props.textSize as unknown as number) || 0,
+                    // colorBgContainer: props.tableBackground,
+                    headerBorderRadius:
+                      (props.headerBorderRadius as unknown as number) || 0,
+                  },
+                },
+              }}
+            >
+              <ProTable
+                actionRef={actionRef}
+                cardBordered={{
+                  search: props.cardBorderedSearch,
+                  table: props.cardBorderedTable,
+                }}
+                columns={[...tableColumns, actionColumn]}
+                columnsState={columnsState}
+                dataSource={props.tableData}
+                dateFormatter="string"
+                defaultSize={props.compactMode}
+                editable={editableMemo}
+                expandable={{
+                  childrenColumnName: props.childrenColumnName,
+                  onExpand: props.onExpand,
+                  expandRowByClick: props.expandRowByClick,
+                }}
+                form={form}
+                loading={props.isLoading}
+                onReset={habdleReset}
+                options={{
+                  reload: props.isVisibleRefresh,
+                  fullScreen: props.isVisibleFullScreen,
+                  density: props.isVisibleDensity,
+                  setting: props.isVisibleCellSetting
+                    ? {
+                        listsHeight: 400,
+                      }
+                    : false,
+                }}
+                pagination={pagination}
+                request={handleRequest}
+                rowKey={(record: any) => record[props.primaryColumnId || ""]}
+                rowSelection={
+                  props.multiRowSelection
+                    ? {
+                        // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
+                        // 注释该行则默认不显示下拉选项
+                        selections: [
+                          Table.SELECTION_ALL,
+                          Table.SELECTION_INVERT,
+                        ],
+                        selectedRowKeys: selectedRowKeys,
+                        // defaultSelectedRowKeys: defaultSelectedRowKeys,
+
+                        onChange: (selectedRowKeys, selectedRows) => {
+                          console.log(
+                            "selectedRowKeys: ",
+                            selectedRowKeys,
+                            "selectedRows: ",
+                            selectedRows,
+                          );
+                          setSelectedRowKeys(selectedRowKeys);
+                        },
+                      }
+                    : false
+                }
+                scroll={{ x: "100%" }}
+                search={
+                  props?.isVisibleSearch
+                    ? {
+                        labelWidth: "auto",
+                      }
+                    : false
+                }
+                style={{ width: "100%" }}
+                tableAlertOptionRender={() => {
+                  return (
+                    <Space size={16}>
+                      <a>批量删除</a>
+                      <a>导出数据</a>
+                    </Space>
+                  );
+                }}
+                tableAlertRender={({
+                  onCleanSelected,
+                  selectedRowKeys,
+                  selectedRows,
+                }) => {
+                  console.log(selectedRowKeys, selectedRows);
+                  return (
+                    <Space size={24}>
+                      <span>
+                        已选 {selectedRowKeys.length} 项
+                        <a
+                          onClick={onCleanSelected}
+                          style={{ marginInlineStart: 8 }}
+                        >
+                          取消选择
+                        </a>
+                      </span>
+                    </Space>
+                  );
+                }}
+                // toolBarRender={() => [
+                //   <Button
+                //     icon={<PlusOutlined />}
+                //     key="button"
+                //     onClick={() => {
+                //       actionRef.current?.reload();
+                //     }}
+                //     type="primary"
+                //   >
+                //     新建
+                //   </Button>,
+                // ]}
+              />
+            </ConfigProvider>
+          </div>
         }
       </TableWrapper>
     </>
   );
 }
 
-export default Table;
+export default ProTableComponent;

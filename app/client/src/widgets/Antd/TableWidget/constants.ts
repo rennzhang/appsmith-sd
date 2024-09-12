@@ -19,9 +19,19 @@ import type { ButtonVariant } from "components/constants";
 import type { Row } from "react-table";
 import { ProTableProps } from "@ant-design/pro-components";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
+import type { TablePaginationConfig } from "antd";
 
 export interface AntdTableProps {
+  hideOnSinglePage: boolean;
+  paginationSize: "default" | "small";
+  showQuickJumper: boolean;
+  simplePagination: boolean;
+  paginationDisabled: boolean;
+  isEditableCellsValid: Record<string, boolean>;
+  primaryColumns: Record<string, ColumnProperties>;
   tableBackground: string;
+  defaultPageSize: number;
+  showSizeChanger: boolean;
   headerBorderRadius: string;
   cardBorderedSearch: boolean;
   cardBorderedTable: boolean;
@@ -64,7 +74,6 @@ export interface AntdTableProps {
   ) => void;
   // editableCell: EditableCell;
   applyFilter: (filters: ReactTableFilter[]) => void;
-  sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
@@ -73,6 +82,8 @@ export interface AntdTableProps {
     index: number;
   }) => void;
   pageNo: number;
+  virtual: boolean;
+  updatePageSize: (pageSize: number) => void;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   multiRowSelection?: boolean;
   isSortable?: boolean;

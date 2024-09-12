@@ -17,7 +17,7 @@ import type {
 import type { ColumnTypes } from "../constants";
 import type { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
-import { ProFieldValueType } from "@ant-design/pro-components";
+import type { ProFieldValueType } from "@ant-design/pro-components";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -262,7 +262,7 @@ export interface ColumnBaseProperties {
   id: string;
   originalId: string;
   label?: string;
-  columnType: ProFieldValueType;
+  columnType: ProFieldValueType | ColumnTypes.EDIT_ACTIONS;
   isVisible: boolean;
   isDisabled?: boolean;
   index: number;

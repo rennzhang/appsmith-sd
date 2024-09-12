@@ -14,7 +14,6 @@ export const TableWrapper = styled.div<{
   boxShadow?: string;
   borderColor?: string;
   borderWidth?: number;
-  isResizingColumn?: boolean;
   variant?: TableVariant;
   isAddRowInProgress: boolean;
   multiRowSelection?: boolean;

@@ -205,7 +205,7 @@ export function getDefaultColumnProperties(
     alias: id,
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: VerticalAlignmentTypes.CENTER,
-    columnType: columnType as any || ColumnTypes.TEXT,
+    columnType: (columnType as any) || ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
     textSize: "0.875rem",
     fontStyle: FontStyleTypes.REGULAR,
@@ -523,6 +523,12 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.CHECKBOX,
   ColumnTypes.SWITCH,
   ColumnTypes.DATE,
+  ColumnTypes.NUMBER,
+  ColumnTypes.PASSWORD,
+  ColumnTypes.MONY,
+  ColumnTypes.RADIO,
+  ColumnTypes.COLOR,
+  ColumnTypes.TEXTAREA,
 ];
 
 export function isColumnTypeEditable(columnType: string) {
@@ -1092,10 +1098,7 @@ export const getSelectOptions = (
   columnProperties: ColumnProperties,
 ) => {
   if (isNewRow) {
-    if (
-
-      columnProperties?.selectOptions
-    ) {
+    if (columnProperties?.selectOptions) {
       // Use select options from the first row
       return getArrayPropertyValue(columnProperties.selectOptions, 0);
     } else {

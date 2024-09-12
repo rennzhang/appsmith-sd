@@ -32,6 +32,78 @@ export default [
       },
     ],
   },
+  // 分页器
+  {
+    sectionName: "分页器",
+    children: [
+      // size
+      {
+        helpText: "选择分页器大小",
+        propertyName: "paginationSize",
+        label: "分页器大小",
+        controlType: "ICON_TABS",
+        fullWidth: true,
+        defaultValue: "default",
+        options: [
+          {
+            label: "默认",
+            value: "default",
+          },
+          {
+            label: "小",
+            value: "small",
+          },
+        ],
+      },
+      // hideOnSinglePage
+      {
+        helpText: "是否在单页时隐藏分页器",
+        propertyName: "hideOnSinglePage",
+        label: "隐藏单页",
+        controlType: "SWITCH",
+        defaultValue: false,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      // showTitle
+      {
+        helpText: "是否启用快速跳转至某页功能",
+        propertyName: "showQuickJumper",
+        label: "快速跳转",
+        controlType: "SWITCH",
+        defaultValue: false,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      // simple
+      {
+        helpText: "是否启用简单模式",
+        propertyName: "simplePagination",
+        label: "简单模式",
+        controlType: "SWITCH",
+        defaultValue: false,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      // showSizeChanger
+      {
+        helpText: "是否展示 pageSize 切换器",
+        propertyName: "showSizeChanger",
+        label: "显示切换器",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+    ],
+  },
+  // 文本样式
   {
     sectionName: "文本样式",
     children: [

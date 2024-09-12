@@ -184,18 +184,11 @@ export const updateColumnOrderHook = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: any,
-  ...rest: any
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
   const propertiesToUpdate: Array<{
     propertyPath: string;
     propertyValue: any;
   }> = [];
-  console.log("updateColumnOrderHook ", {
-    props,
-    propertyPath,
-    propertyValue,
-    rest,
-  });
 
   if (props && propertyValue && /^primaryColumns\.\w+$/.test(propertyPath)) {
     const newColumnOrder = [...(props.columnOrder || [])];
@@ -751,11 +744,12 @@ export const updateSelectSource = (
   if (propertyValue === ColumnTypes.SELECT && !selectSource?.legnth) {
     // Sets the default value for selectSource to static when
     // selecting the select column type for the first time
-    const selectOptions = (
-      (props.__evaluation__?.evaluatedValues?.orderedTableColumns as any[])?.[
-        props.editingColumnIndex
-      ] as { computedValue: any[] }
-    )?.computedValue?.map((c) => ({ label: String(c), value: c })) || [];
+    const selectOptions =
+      (
+        (props.__evaluation__?.evaluatedValues?.orderedTableColumns as any[])?.[
+          props.editingColumnIndex
+        ] as { computedValue: any[] }
+      )?.computedValue?.map((c) => ({ label: String(c), value: c })) || [];
     propertiesToUpdate.push({
       propertyPath: `${baseProperty}.options`,
       propertyValue: selectOptions,
@@ -825,7 +819,6 @@ export function selectColumnOptionsValidation(
   props: TableWidgetProps,
   _?: any,
 ) {
-
   let _isValid = true,
     _parsed,
     _message = "";
@@ -1055,12 +1048,31 @@ export const tableDataValidation = (
       ],
     };
   }
-
-  if (!_.isString(value) && !Array.isArray(value)) {
-    return invalidResponse;
+  let parsed = value;
+  if (!Array.isArray(parsed) && typeof parsed == "object") {
+    // 查找parsed对象中为数组的属性
+    const arrayProperties = Object.keys(parsed).filter((key) =>
+      Array.isArray(parsed[key as keyof typeof parsed]),
+    );
+    if (arrayProperties?.length) {
+      // 优先使用属性名中包含 data records 字符的数组
+      const suggestKey = arrayProperties.find(
+        (key) =>
+          key?.toLowerCase?.()?.includes("data") ||
+          key?.toLowerCase?.()?.includes("records"),
+      );
+      if (suggestKey) {
+        parsed = parsed[suggestKey as keyof typeof parsed];
+      } else {
+        // 如果找不到包含 data records 字符的数组，则使用第一个数组
+        parsed = parsed[arrayProperties[0] as keyof typeof parsed];
+      }
+    }
   }
 
-  let parsed = value;
+  if (!_.isString(parsed) && !Array.isArray(parsed)) {
+    return invalidResponse;
+  }
 
   if (_.isString(value)) {
     try {
