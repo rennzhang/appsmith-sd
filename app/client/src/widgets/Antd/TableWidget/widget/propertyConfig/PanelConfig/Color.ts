@@ -59,7 +59,7 @@ export default {
     {
       propertyName: "cellBackground",
       label: "单元格背景",
-      helpText: "Changes the background color of the cell",
+      helpText: "设置单元格背景颜色",
       controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
       isJSConvertible: true,
       customJSControl: "TABLE_COMPUTE_VALUE",

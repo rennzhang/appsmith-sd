@@ -624,6 +624,20 @@ export default [
   {
     sectionName: "属性",
     children: [
+      // virtual
+      {
+        helpText: "是否为虚拟列表，开启此配置后，表格单元格将开启自动换行",
+        propertyName: "isVirtual",
+        defaultValue: false,
+        isJSConvertible: true,
+        label: "虚拟列表",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
       {
         helpText: "控制组件的显示/隐藏",
         propertyName: "isVisible",

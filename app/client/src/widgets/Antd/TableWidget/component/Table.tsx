@@ -85,6 +85,7 @@ export function ProTableComponent(props: AntdTableProps) {
 
   console.group("Antd 表格 Table Protable  333");
   console.log("表格 props", props);
+  console.log("primaryColumns", props.primaryColumns);
   console.log("表格 tableColumns", tableColumns);
   console.groupEnd();
   return (
@@ -186,7 +187,7 @@ export function ProTableComponent(props: AntdTableProps) {
                       }
                     : false
                 }
-                scroll={{ x: "100%" }}
+                scroll={{ x: "100%", y: 400 }}
                 search={
                   props?.isVisibleSearch
                     ? {
@@ -203,6 +204,7 @@ export function ProTableComponent(props: AntdTableProps) {
                     </Space>
                   );
                 }}
+                virtual={props.isVirtual}
                 tableAlertRender={({
                   onCleanSelected,
                   selectedRowKeys,

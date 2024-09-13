@@ -729,7 +729,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   componentDidMount() {
-    const { canFreezeColumn, renderMode, tableData } = this.props;
+    const { canFreezeColumn, defaultPageSize, renderMode, tableData } =
+      this.props;
+
+    this.updatePageSize(defaultPageSize);
 
     if (_.isArray(tableData) && !!tableData.length) {
       const newPrimaryColumns = this.createTablePrimaryColumns();
@@ -748,6 +751,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: TableWidgetProps) {
     const {
+      defaultPageSize,
       defaultSelectedRowIndex,
       defaultSelectedRowIndices,
       pageNo,
@@ -756,6 +760,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       serverSidePaginationEnabled,
       totalRecordsCount,
     } = this.props;
+    // defaultPageSize
+    if (defaultPageSize !== prevProps.defaultPageSize) {
+      this.updatePageSize(defaultPageSize);
+    }
 
     // Bail out if tableData is a string. This signifies an error in evaluations
     if (isString(this.props.tableData)) {
@@ -1160,6 +1168,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onAddNewRowAction={this.handleAddNewRowAction}
           onBulkEditDiscard={this.onBulkEditDiscard}
           onBulkEditSave={this.onBulkEditSave}
+          onCheckChange={this.onCheckChange}
           onConnectData={this.onConnectData}
           onExpand={this.onExpand}
           onQueryDataChange={this.handleQueryDataChange}
@@ -1436,6 +1445,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const { filteredTableData = [], pushBatchMetaUpdates } = this.props;
 
     const currentRow = row || filteredTableData[rowIndex];
+    console.log("pushOnColumnEvent", {
+      action,
+      additionalData,
+      eventType,
+      onComplete,
+      row,
+      rowIndex,
+      triggerPropertyName,
+    });
     pushBatchMetaUpdates(
       "triggeredRowIndex",
       currentRow?.[ORIGINAL_INDEX_KEY],
@@ -2068,6 +2086,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     originalIndex: number,
     rowIndex: number,
   ) => {
+    console.log("表格onCheckChange", {
+      column,
+      row,
+      value,
+      alias,
+      originalIndex,
+      rowIndex,
+    });
+
     if (this.props.isAddRowInProgress) {
       this.updateNewRowValues(alias, value, value);
     } else {
@@ -2081,7 +2108,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       //cannot batch this update because we are not sure if it action is truthy or not
       this.onColumnEvent({
         rowIndex,
-        action: column.onCheckChange,
+        action: column.columnProperties.onCheckChange,
         triggerPropertyName: "onCheckChange",
         eventType: EventType.ON_CHECK_CHANGE,
         row: {

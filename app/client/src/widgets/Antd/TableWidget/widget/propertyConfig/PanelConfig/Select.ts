@@ -5,70 +5,41 @@ import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import {
   getBasePropertyPath,
   hideByColumnType,
+  showByColumnType,
   selectColumnOptionsValidation,
 } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { SelectValidator } from "widgets/Antd/tools";
 import { EvaluationSubstitutionType } from "entities/DataTree/types";
-import { getDefaultValueDropdownPropConfig, getFieldNamesPropConfig } from "widgets/Antd/Form/CONST/DEFAULT_CONFIG";
+import {
+  getDefaultValueDropdownPropConfig,
+  getFieldNamesPropConfig,
+} from "widgets/Antd/Form/CONST/DEFAULT_CONFIG";
 
-
-const dependencies=[
+const dependencies = [
   "tableData",
   "primaryColumns",
   "filteredTableData",
   "editingColumnId",
   "editingColumnIndex",
   "orderedTableColumns",
-]
+];
 export default {
-  sectionName: "选择器配置",
+  sectionName: "选项配置",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
-    return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT], true);
+    return hideByColumnType(
+      props,
+      propertyPath,
+      [ColumnTypes.SELECT, ColumnTypes.CHECKBOX],
+      true,
+    );
   },
   children: [
-    {
-      propertyName: "isVisibleCellFilters",
-      label: "启用列筛选",
-      helpText: "启用列筛选",
-      defaultValue: true,
-      controlType: "SWITCH",
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-      // // dependencies: ["primaryColumns", "columnType"],
-      // hidden: (props: TableWidgetProps, propertyPath: string) => {
-      //   // console.log(
-      //   //   "showCellValueEnum",
-      //   //   props,
-      //   //   propertyPath,
-      //   //   props?.primaryColumns?.[props?.editingColumnId || ""],
-      //   //   props?.primaryColumns?.[props?.editingColumnId || ""]?.options
-      //   //     ?.length,
-      //   //   (props?.primaryColumns?.[props?.editingColumnId || ""]?.options
-      //   //     ?.length || 0) <= 0,
-      //   // );
-      //   return (
-      //     (props?.primaryColumns?.[props?.editingColumnId || ""]?.options
-      //       ?.length || 0) <= 0
-      //   );
-      // },
-    },
     {
       propertyName: "options",
       helpText: "可供选择的选项列表",
       label: "选项数据",
       controlType: "OPTION_INPUT",
-      // controlType: "DROP_DOWN",
-      // controlType: "INPUT_TEXT",
-      // inputType: "AUTOCOMPLETE",
       placeholderText: "请输入选项数据",
       isJSConvertible: true,
       isBindProperty: true,
@@ -87,9 +58,6 @@ export default {
       isTriggerProperty: false,
       dependencies,
       evaluatedDependencies: dependencies,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT]);
-      },
     },
     getDefaultValueDropdownPropConfig({
       dependencies: dependencies,
@@ -97,65 +65,18 @@ export default {
     }),
     getFieldNamesPropConfig("label", {
       validation: {
-        dependentPaths: dependencies
+        dependentPaths: dependencies,
       },
       dependencies: dependencies,
       evaluatedDependencies: dependencies,
     }),
     getFieldNamesPropConfig("value", {
       validation: {
-        dependentPaths: dependencies
+        dependentPaths: dependencies,
       },
       dependencies: dependencies,
       evaluatedDependencies: dependencies,
     }),
-    // {
-    //   helpText: "自定义字段名, 用于自定义选项的label和value",
-    //   propertyName: "fieldNames",
-    //   label: "自定义字段名",
-    //   controlType: "INPUT_TEXT",
-    //   dependencies: ["primaryColumns"],
-
-    //   defaultValue: {
-    //     label: "label",
-    //     value: "value",
-    //   },
-    //   isJSConvertible: false,
-    //   isBindProperty: true,
-    //   isTriggerProperty: false,
-    //   validation: {
-    //     type: ValidationTypes.OBJECT,
-    //     params: {
-    //       required: true,
-    //       allowedKeys: [
-    //         {
-    //           name: "label",
-    //           type: ValidationTypes.TEXT,
-    //           params: {
-    //             default: "label",
-    //             required: true,
-    //           },
-    //         },
-    //         {
-    //           name: "value",
-    //           type: ValidationTypes.TEXT,
-    //           params: {
-    //             default: "value",
-    //             required: true,
-    //           },
-    //         },
-    //         {
-    //           name: "options",
-    //           type: ValidationTypes.TEXT,
-    //           params: {
-    //             default: "options",
-    //             required: false,
-    //           },
-    //         },
-    //       ],
-    //     },
-    //   },
-    // },
     {
       helpText: "设置占位文本",
       propertyName: "placeholder",
@@ -166,6 +87,9 @@ export default {
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
       dependencies: ["primaryColumns"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT]);
+      },
     },
     {
       propertyName: "mode",
@@ -183,6 +107,9 @@ export default {
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
       dependencies: ["primaryColumns"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT]);
+      },
     },
     {
       propertyName: "disabled",

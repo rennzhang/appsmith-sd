@@ -337,6 +337,7 @@ export interface ColumnProperties
     DateColumnProperties,
     ColumnEditabilityProperties,
     EditActionColumnProperties {
+  columnWidth?: number;
   isVisibleCellFilters: boolean;
   isCellCopyable: boolean;
   options?: DropdownOption[];

@@ -11,10 +11,8 @@ import { isColumnTypeEditable } from "../../utilities";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
 import { StickyType } from "widgets/TableWidgetV2/component/Constants";
-import {
-  TableWidgetProps,
-  ColumnTypes,
-} from "widgets/Antd/TableWidget/constants";
+import type { TableWidgetProps } from "widgets/Antd/TableWidget/constants";
+import { ColumnTypes } from "widgets/Antd/TableWidget/constants";
 
 export default {
   sectionName: "属性",
@@ -73,40 +71,40 @@ export default {
       },
     },
     // isVisibleCellFilters
-    // {
-    //   propertyName: "isVisibleCellFilters",
-    //   label: "启用列筛选",
-    //   helpText: "启用列筛选",
-    //   defaultValue: true,
-    //   controlType: "SWITCH",
-    //   customJSControl: "TABLE_COMPUTE_VALUE",
-    //   isJSConvertible: true,
-    //   isBindProperty: true,
-    //   isTriggerProperty: false,
-    //   validation: {
-    //     type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-    //     params: {
-    //       type: ValidationTypes.BOOLEAN,
-    //     },
-    //   },
-    //   // dependencies: ["primaryColumns", "columnType"],
-    //   hidden: (props: TableWidgetProps, propertyPath: string) => {
-    //     // console.log(
-    //     //   "showCellValueEnum",
-    //     //   props,
-    //     //   propertyPath,
-    //     //   props?.primaryColumns?.[props?.editingColumnId || ""],
-    //     //   props?.primaryColumns?.[props?.editingColumnId || ""]?.options
-    //     //     ?.length,
-    //     //   (props?.primaryColumns?.[props?.editingColumnId || ""]?.options
-    //     //     ?.length || 0) <= 0,
-    //     // );
-    //     return (
-    //       (props?.primaryColumns?.[props?.editingColumnId || ""]?.options
-    //         ?.length || 0) <= 0
-    //     );
-    //   },
-    // },
+    {
+      propertyName: "isVisibleCellFilters",
+      label: "启用列筛选",
+      helpText: "启用列筛选",
+      defaultValue: true,
+      controlType: "SWITCH",
+      customJSControl: "TABLE_COMPUTE_VALUE",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      // dependencies: ["primaryColumns", "columnType"],
+      // hidden: (props: TableWidgetProps, propertyPath: string) => {
+      //   // console.log(
+      //   //   "showCellValueEnum",
+      //   //   props,
+      //   //   propertyPath,
+      //   //   props?.primaryColumns?.[props?.editingColumnId || ""],
+      //   //   props?.primaryColumns?.[props?.editingColumnId || ""]?.options
+      //   //     ?.length,
+      //   //   (props?.primaryColumns?.[props?.editingColumnId || ""]?.options
+      //   //     ?.length || 0) <= 0,
+      //   // );
+      //   return (
+      //     (props?.primaryColumns?.[props?.editingColumnId || ""]?.options
+      //       ?.length || 0) <= 0
+      //   );
+      // },
+    },
 
     {
       propertyName: "isDisabled",

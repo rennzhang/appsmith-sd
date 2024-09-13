@@ -529,6 +529,8 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.RADIO,
   ColumnTypes.COLOR,
   ColumnTypes.TEXTAREA,
+  ColumnTypes.INDEX,
+  ColumnTypes.INDEX_BORDER,
 ];
 
 export function isColumnTypeEditable(columnType: string) {
@@ -752,7 +754,7 @@ export const getColumnType = (
     case "number":
       return ColumnTypes.NUMBER;
     case "boolean":
-      return ColumnTypes.CHECKBOX;
+      return ColumnTypes.SWITCH;
     case "string":
       return dateFormatOptions.some(({ value: format }) =>
         moment(columnValue as string, format, true).isValid(),

@@ -182,7 +182,7 @@ export default {
     },
     {
       propertyName: "allowCellWrapping",
-      dependencies: ["primaryColumns", "columnType"],
+      dependencies: ["primaryColumns", "columnType", "isVirtual"],
       label: "单元格换行",
       helpText: "允许单元格内容换行",
       defaultValue: true,
@@ -191,6 +191,7 @@ export default {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
+
       validation: {
         type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
@@ -198,6 +199,10 @@ export default {
         },
       },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
+        // isVirtual
+        if (props.isVirtual) {
+          return true;
+        }
         return hideByColumnType(props, propertyPath, [
           ColumnTypes.TEXT,
           ColumnTypes.NUMBER,

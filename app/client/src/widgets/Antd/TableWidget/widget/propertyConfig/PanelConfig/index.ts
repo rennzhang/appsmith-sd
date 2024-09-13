@@ -17,6 +17,7 @@ import Select from "./Select";
 import TextFormatting from "./TextFormatting";
 import Validations from "./Validation";
 import DateProperties from "./DateProperties";
+import ColumnStyleControl from "./ColumnStyleControl";
 
 export default {
   editableTitle: true,
@@ -39,6 +40,7 @@ export default {
     Icon,
     Alignment,
     TextFormatting,
+    ColumnStyleControl,
     Color,
     saveButtonStyleConfig,
     discardButtonStyleConfig,

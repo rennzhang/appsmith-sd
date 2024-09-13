@@ -11,7 +11,14 @@ import {
 export default {
   sectionName: "事件",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
-    if (showByColumnType(props, propertyPath, [ColumnTypes.IMAGE], true)) {
+    if (
+      showByColumnType(
+        props,
+        propertyPath,
+        [ColumnTypes.IMAGE, ColumnTypes.SWITCH],
+        true,
+      )
+    ) {
       return false;
     } else {
       const columnType = get(props, `${propertyPath}.columnType`, "");
@@ -21,7 +28,6 @@ export default {
           columnType === ColumnTypes.TEXT ||
           columnType === ColumnTypes.NUMBER ||
           columnType === ColumnTypes.CHECKBOX ||
-          columnType === ColumnTypes.SWITCH ||
           columnType === ColumnTypes.SELECT ||
           columnType === ColumnTypes.DATE
         ) || !isEditable
@@ -84,7 +90,7 @@ export default {
     {
       propertyName: "onCheckChange",
       label: "onChange",
-      helpText: "when the check state is changed",
+      helpText: "当开关状态改变时触发",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.SWITCH]);
@@ -97,7 +103,7 @@ export default {
     {
       propertyName: "onCheckChange",
       label: "onCheckChange",
-      helpText: "when the check state is changed",
+      helpText: "当复选框状态改变时触发",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.CHECKBOX]);

@@ -22,6 +22,15 @@ import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
 
 export interface AntdTableProps {
+  onCheckChange: (
+    column: any,
+    row: Record<string, unknown>,
+    value: boolean,
+    alias: string,
+    originalIndex: number,
+    rowIndex: number,
+  ) => void;
+  isVirtual: boolean;
   hideOnSinglePage: boolean;
   paginationSize: "default" | "small";
   showQuickJumper: boolean;
@@ -64,6 +73,12 @@ export interface AntdTableProps {
   isLoading: boolean;
   columnWidthMap?: { [key: string]: number };
   columns: ReactTableColumnProps[];
+  filteredTableData: Array<
+    Record<string, unknown> & {
+      __originalIndex__: number;
+      __primaryKey__: string;
+    }
+  >;
   data: Array<Record<string, unknown>>;
   filters?: ReactTableFilter[];
   totalRecordsCount?: number;
@@ -315,6 +330,15 @@ export enum ColumnTypes {
   COLOR = "color",
   // textarea
   TEXTAREA = "textarea",
+  INDEX = "index",
+  INDEX_BORDER = "indexBorder",
+  // PROGRESS = "progress",
+  // CODE = "code",
+  // JSON_CODE = "jsonCode",
+  // CASCADER = "cascader",
+  // TREE_SELECT = "treeSelect",
+  // SEGMENTED = "segmented",
+  // GROUP = "group",
 }
 
 export enum ReadOnlyColumnTypes {

@@ -717,6 +717,35 @@ export const hideIfMenuItemsSourceDataIsFalsy = (
 
   return !sourceData;
 };
+
+export const updateColumnProperties = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: unknown,
+): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
+  const propertiesToUpdate: Array<{
+    propertyPath: string;
+    propertyValue: unknown;
+  }> = [];
+  // isVisibleCellFilters 在置顶类型下，默认是true
+  const supportFilterColumnTypes = [
+    ColumnTypes.SELECT,
+    ColumnTypes.MENU_BUTTON,
+    ColumnTypes.RADIO,
+    ColumnTypes.CHECKBOX,
+    ColumnTypes.SWITCH,
+  ];
+  const baseProperty = getBasePropertyPath(propertyPath);
+
+  propertiesToUpdate.push({
+    propertyPath: `${baseProperty}.isVisibleCellFilters`,
+    propertyValue: supportFilterColumnTypes.includes(
+      propertyValue as ColumnTypes,
+    ),
+  });
+
+  return propertiesToUpdate;
+};
 // updateSelectSource
 export const updateSelectSource = (
   props: TableWidgetProps,
@@ -727,21 +756,16 @@ export const updateSelectSource = (
     propertyPath: string;
     propertyValue: unknown;
   }> = [];
-  const opts = [
-    {
-      propertyPath: "primaryColumns.action.selectSource",
-      propertyValue: "static",
-    },
-    {
-      propertyPath: "primaryColumns.action.selectSource",
-      propertyValue: "dynamic",
-    },
-  ];
 
   const baseProperty = getBasePropertyPath(propertyPath);
   const selectSource = get(props, `${baseProperty}.options`);
 
-  if (propertyValue === ColumnTypes.SELECT && !selectSource?.legnth) {
+  if (
+    [ColumnTypes.SELECT, ColumnTypes.CHECKBOX].includes(
+      propertyValue as ColumnTypes,
+    ) &&
+    !selectSource?.legnth
+  ) {
     // Sets the default value for selectSource to static when
     // selecting the select column type for the first time
     const selectOptions =

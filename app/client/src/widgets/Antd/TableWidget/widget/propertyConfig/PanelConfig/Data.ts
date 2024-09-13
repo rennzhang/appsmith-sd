@@ -10,6 +10,7 @@ import {
   hideByColumnType,
   showByColumnType,
   uniqueColumnAliasValidation,
+  updateColumnProperties,
   updateMenuItemsSource,
   updateNumberColumnTypeTextAlignment,
   updateSelectSource,
@@ -31,14 +32,18 @@ export default {
           label: "文本",
           value: ColumnTypes.TEXT,
         },
-
+        // index
+        {
+          label: "索引",
+          value: ColumnTypes.INDEX,
+        },
+        {
+          label: "索引带边框",
+          value: ColumnTypes.INDEX_BORDER,
+        },
         {
           label: "数字",
           value: ColumnTypes.NUMBER,
-        },
-        {
-          label: "日期",
-          value: ColumnTypes.DATE,
         },
         {
           label: "选择器",
@@ -48,6 +53,40 @@ export default {
           label: "开关",
           value: ColumnTypes.SWITCH,
         },
+        // dateRange
+        // {
+        //   label: "日期范围",
+        //   value: ColumnTypes.DATE_RANGE,
+        // },
+        {
+          label: "日期",
+          value: ColumnTypes.DATE,
+        },
+        // {
+        //   label: "时间范围",
+        //   value: ColumnTypes.TIME_RANGE,
+        // },
+        // {
+        //   label: "时间",
+        //   value: ColumnTypes.TIME,
+        // },
+        // {
+        //   label: "周",
+        //   value: ColumnTypes.DATE_WEEK,
+        // },
+        // {
+        //   label: "月",
+        //   value: ColumnTypes.DATE_MONTH,
+        // },
+        // {
+        //   label: "季度",
+        //   value: ColumnTypes.DATE_QUARTER,
+        // },
+        // {
+        //   label: "年",
+        //   value: ColumnTypes.DATE_YEAR,
+        // },
+
         // TEXTAREA
         {
           label: "文本区域",
@@ -73,9 +112,49 @@ export default {
           value: ColumnTypes.BUTTON,
         },
         {
-          label: "勾选",
+          label: "复选框",
           value: ColumnTypes.CHECKBOX,
         },
+        {
+          label: "单选框",
+          value: ColumnTypes.RADIO,
+        },
+        // {
+        //   label: "单选框按钮",
+        //   value: ColumnTypes.RADIO_BUTTON,
+        // },
+        // {
+        //   label: "百分比",
+        //   value: ColumnTypes.PERCENT,
+        // },
+        // {
+        //   label: "进度条",
+        //   value: ColumnTypes.PROGRESS,
+        // },
+        // {
+        //   label: "代码输入框",
+        //   value: ColumnTypes.CODE,
+        // },
+        // {
+        //   label: "JSON 代码输入框",
+        //   value: ColumnTypes.JSON_CODE,
+        // },
+        // {
+        //   label: "级联选择",
+        //   value: ColumnTypes.CASCADE,
+        // },
+        // {
+        //   label: "树形选择",
+        //   value: ColumnTypes.TREE_SELECT,
+        // },
+        // {
+        //   label: "颜色选择器",
+        //   value: ColumnTypes.COLOR,
+        // },
+        // {
+        //   label: "分段器",
+        //   value: ColumnTypes.SEGMENTED,
+        // },
 
         {
           label: "图标按钮",
@@ -104,6 +183,7 @@ export default {
         updateThemeStylesheetsInColumns,
         updateMenuItemsSource,
         updateSelectSource,
+        updateColumnProperties,
       ]),
       dependencies: [
         "primaryColumns",

@@ -29,6 +29,13 @@ function arePropsEqual(
 ) {
   // 比较关键属性
   const keyProps: (keyof ReactTableComponentProps)[] = [
+    "onCheckChange",
+    "isVisibleCellSetting",
+    "isVisibleRefresh",
+    "isVisibleFullScreen",
+    "isVisibleSearch",
+    "isVirtual",
+    "multiRowSelection",
     "hideOnSinglePage",
     "paginationSize",
     "showSizeChanger",

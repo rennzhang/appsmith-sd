@@ -202,7 +202,7 @@ export default {
         tableSizes.TABLE_HEADER_HEIGHT -
         tableSizes.COLUMN_HEADER_HEIGHT) /
       tableSizes.ROW_HEIGHT;
-
+    return pageSize;
     return pageSize % 1 > 0.3 ? Math.ceil(pageSize) : Math.floor(pageSize);
   },
   //

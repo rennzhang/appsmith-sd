@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import type { ProFieldValueType } from "@ant-design/pro-components";
 import { TableDropdown, type ProColumns } from "@ant-design/pro-components";
 import type { TableColumnProps } from "widgets/Antd/TableWidget/component/Constants";
 import type { Rule } from "antd/es/form";
@@ -9,6 +10,7 @@ import ButtonComponent from "widgets/Antd/ButtonWidget/component";
 import type { AntdTableProps, ButtonAction } from "../../constants";
 import { ColumnTypes, InlineEditingSaveOptions } from "../../constants";
 import { Colors } from "constants/Colors";
+import { Switch } from "antd";
 
 const getRules = (column: TableColumnProps) => {
   const { columnProperties } = column;
@@ -351,6 +353,42 @@ const handleButtonClick = (
   props.columnActionClick(button.onBtnClick, record, recordIndex);
 };
 
+const getColumnRender = (
+  column: TableColumnProps,
+  props: AntdTableProps,
+): ProColumns["render"] => {
+  return (dom, record, index, action, schema) => {
+    console.log("antd table column render", {
+      dom,
+      record,
+      index,
+      action,
+      schema,
+    });
+    const valueType = schema.valueType;
+    switch (valueType) {
+      case ColumnTypes.SWITCH:
+        return (
+          <Switch
+            checked={record[column.id]}
+            onChange={(checked) => {
+              props.onCheckChange(
+                column,
+                record,
+                checked,
+                column.alias,
+                props.filteredTableData[index]?.__originalIndex__,
+                index,
+              );
+            }}
+          />
+        );
+      default:
+        return dom;
+    }
+  };
+};
+
 export const useColumnState = (
   props: AntdTableProps,
   setter: {
@@ -367,15 +405,21 @@ export const useColumnState = (
     const transColumns =
       renderColumns?.map((column: TableColumnProps, i: number) => {
         initialQueryData[column.id] = "";
-        const columnType = column.columnProperties.columnType;
-        const proColumn: ProColumns<Record<string, any>> = {
+        const columnType = column.columnProperties
+          .columnType as ProFieldValueType;
+        const proColumn: ProColumns<Record<string, any>> &
+          Partial<TableColumnProps> = {
           ...column,
+
+          width: column.columnProperties.columnWidth || 120,
           editable: () => column.columnProperties.isCellEditable,
           fixed: column.sticky || false,
           hideInTable: column.isHidden,
+          render: getColumnRender(column, props),
           title: column.Header,
-          ellipsis: !column.columnProperties.allowCellWrapping,
           dataIndex: column.id,
+          ellipsis:
+            !props.isVirtual && !column.columnProperties.allowCellWrapping,
           valueType: columnType,
           formItemProps: {
             rules: getRules(column),
@@ -402,14 +446,14 @@ export const useColumnState = (
             props.isVisibleSearch && column.columnProperties.isVisibleCellSearch
           ),
         };
-        delete (proColumn as any).sticky;
+        delete proColumn.sticky;
         return proColumn;
       }) || [];
     setInitialQueryData(initialQueryData);
     props?.onQueryDataChange(initialQueryData, true);
 
     return transColumns;
-  }, [props.columns]);
+  }, [props.columns, props.isVirtual]);
 
   const columnsState = useMemo((): ColumnStateType => {
     return {
