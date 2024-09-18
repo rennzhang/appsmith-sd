@@ -21,6 +21,8 @@ import ColumnActionSelectorControl from "components/propertyControls/ColumnActio
 import PrimaryColumnsControl from "components/propertyControls/PrimaryColumnsControl";
 import type { PrimaryColumnDropdownControlProps } from "components/propertyControls/PrimaryColumnDropdownControl";
 import PrimaryColumnDropdownControl from "components/propertyControls/PrimaryColumnDropdownControl";
+import type { PrimaryColumnExpandKeysDropdownControlProps } from "components/propertyControls/PrimaryColumnExpandKeysDropdownControl";
+import PrimaryColumnExpandKeysDropdownControl from "components/propertyControls/PrimaryColumnExpandKeysDropdownControl";
 import type { ColorPickerControlProps } from "components/propertyControls/ColorPickerControl";
 import ColorPickerControl from "components/propertyControls/ColorPickerControl";
 import type { PrimaryColumnColorPickerControlProps } from "components/propertyControls/PrimaryColumnColorPickerControl";
@@ -97,6 +99,7 @@ export const PropertyControls = {
   PrimaryColumnsControlV2,
   PrimaryColumnsControlAntd,
   PrimaryColumnDropdownControl,
+  PrimaryColumnExpandKeysDropdownControl,
   IconTabsControl,
   ButtonTabControl,
   ComputeTablePropertyControl,

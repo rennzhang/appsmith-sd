@@ -81,6 +81,19 @@ export const useEditableState = (props: AntdTableProps) => {
             );
           }
         },
+        onChange: (key, row) => {
+          console.log("表格 editable onChange: ", key, row);
+        },
+        onValuesChange: (record, dataSource) => {
+          console.log("表格 editable onValuesChange: ", record, dataSource);
+          requestAnimationFrame(() => {
+            props.handleEditableValuesChange({
+              originalIndex: record.__originalIndex__,
+              record: record,
+              rowIndex: record.rowIndex,
+            });
+          });
+        },
       };
     }
     return undefined;

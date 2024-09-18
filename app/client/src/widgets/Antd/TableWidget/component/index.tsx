@@ -2,25 +2,14 @@ import { useCallback, memo } from "react";
 import AntdProTable from "./Table";
 import equal from "fast-deep-equal/es6";
 import type { AntdTableProps } from "../constants";
+import DragSortTable from "./DragSortTable";
 
 interface ReactTableComponentProps extends AntdTableProps {
   allowRowSelection: boolean;
-  onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
-  const { allowRowSelection, onRowClick } = props;
-
-  const selectTableRow = useCallback(
-    (row: { original: Record<string, unknown>; index: number }) => {
-      if (allowRowSelection) {
-        onRowClick(row.original, row.index);
-      }
-    },
-    [allowRowSelection, onRowClick],
-  );
-
-  return <AntdProTable {...props} selectTableRow={selectTableRow} />;
+  return <AntdProTable {...props} />;
 }
 
 function arePropsEqual(
@@ -29,6 +18,10 @@ function arePropsEqual(
 ) {
   // 比较关键属性
   const keyProps: (keyof ReactTableComponentProps)[] = [
+    "defaultExpandedRowKeys",
+    "expandedKeys",
+    "onExpandedRowsChange",
+    "onRowClick",
     "onCheckChange",
     "isVisibleCellSetting",
     "isVisibleRefresh",
@@ -87,6 +80,8 @@ function arePropsEqual(
     "tableData",
     "editableCell",
     "isEditableCellsValid",
+    "handleEditableValuesChange",
+    "onCellTextChange",
     // "primaryColumns",
   ];
 
@@ -102,3 +97,5 @@ function arePropsEqual(
 }
 
 export default memo(ReactTableComponent, arePropsEqual);
+
+// export default DragSortTable;

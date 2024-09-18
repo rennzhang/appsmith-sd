@@ -20,6 +20,7 @@ import {
   DEFAULT_COLUMN_WIDTH,
   TABLE_COLUMN_ORDER_KEY,
   ORIGINAL_INDEX_KEY,
+  DEFAULT_DATE_FORMAT,
 } from "../constants";
 import { SelectColumnOptionsValidations } from "./propertyUtils";
 import type { TableWidgetProps } from "../constants";
@@ -181,6 +182,7 @@ export function escapeString(str: string) {
   });
 }
 
+// 默认列属性
 export function getDefaultColumnProperties(
   id: string,
   sanitizedId: string,
@@ -197,6 +199,8 @@ export function getDefaultColumnProperties(
       options: "options",
       children: "children",
     },
+    inputFormat: DEFAULT_DATE_FORMAT,
+    outputFormat: DEFAULT_DATE_FORMAT,
     allowCellWrapping: false,
     index: index,
     width: DEFAULT_COLUMN_WIDTH,

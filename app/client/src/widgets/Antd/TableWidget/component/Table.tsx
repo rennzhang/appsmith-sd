@@ -8,7 +8,11 @@ import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
 import fastdom from "fastdom";
 import { ConnectDataOverlay } from "./ConnectDataOverlay";
 import type { ActionType } from "@ant-design/pro-components";
-import { ProTable } from "@ant-design/pro-components";
+import {
+  DragSortTable,
+  EditableProTable,
+  ProTable,
+} from "@ant-design/pro-components";
 import { ConfigProvider, Space, Table } from "antd";
 import { useEffect, useRef, useState } from "react";
 import React from "react";
@@ -130,26 +134,52 @@ export function ProTableComponent(props: AntdTableProps) {
                 },
               }}
             >
-              <ProTable
+              <DragSortTable
                 actionRef={actionRef}
                 cardBordered={{
                   search: props.cardBorderedSearch,
                   table: props.cardBorderedTable,
                 }}
-                columns={[...tableColumns, actionColumn]}
+                columns={[
+                  // {
+                  //   title: "排序",
+                  //   dataIndex: "sort",
+                  //   width: 60,
+                  //   className: "drag-visible",
+                  // },
+                  ...tableColumns,
+                  actionColumn,
+                ]}
                 columnsState={columnsState}
                 dataSource={props.tableData}
                 dateFormatter="string"
-                defaultSize={props.compactMode}
-                editable={editableMemo}
                 expandable={{
+                  defaultExpandAllRows: props.defaultExpandAllRows,
+                  defaultExpandedRowKeys: props.defaultExpandedRowKeys,
+                  expandedRowKeys: props.expandedKeys,
                   childrenColumnName: props.childrenColumnName,
                   onExpand: props.onExpand,
                   expandRowByClick: props.expandRowByClick,
+                  onExpandedRowsChange: props.onExpandedRowsChange,
                 }}
                 form={form}
-                loading={props.isLoading}
                 onReset={habdleReset}
+                onRow={(record, index) => {
+                  return {
+                    onClick: (e) => {
+                      console.log("antd table onRow onClick", {
+                        record,
+                        index,
+                        e,
+                      });
+                      props.onRowClick(record, index || -1);
+                    },
+                  };
+                }}
+                loading={props.isLoading}
+                // onDragSortEnd={() => {
+                //   console.log("表格 onDragSortEnd: ");
+                // }}
                 options={{
                   reload: props.isVisibleRefresh,
                   fullScreen: props.isVisibleFullScreen,
@@ -205,6 +235,9 @@ export function ProTableComponent(props: AntdTableProps) {
                   );
                 }}
                 virtual={props.isVirtual}
+                defaultSize={props.compactMode}
+                // dragSortKey="sort"
+                editable={editableMemo}
                 tableAlertRender={({
                   onCleanSelected,
                   selectedRowKeys,

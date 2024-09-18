@@ -3,6 +3,7 @@ import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import {
   ColumnTypes,
   DateInputFormat,
+  DEFAULT_DATE_FORMAT,
 } from "widgets/Antd/TableWidget/constants";
 import { get } from "lodash";
 import {
@@ -381,7 +382,7 @@ export default {
           value: "MM/DD/YY",
         },
       ],
-      defaultValue: "YYYY-MM-DD HH:mm",
+      defaultValue: DEFAULT_DATE_FORMAT,
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -427,7 +428,7 @@ export default {
     {
       propertyName: "outputFormat",
       label: "展示日期格式",
-      helpText: "Date format to be shown to users",
+      helpText: "设置日期的展示格式",
       controlType: "DROP_DOWN",
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
@@ -513,7 +514,7 @@ export default {
           value: "MM/DD/YY",
         },
       ],
-      defaultValue: "YYYY-MM-DD HH:mm",
+      defaultValue: DEFAULT_DATE_FORMAT,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");

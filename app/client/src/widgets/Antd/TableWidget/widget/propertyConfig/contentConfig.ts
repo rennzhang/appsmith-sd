@@ -180,39 +180,6 @@ export default [
         },
       },
       {
-        helpText: "行更新模式编辑状态下的按钮配置",
-        propertyName: "editingActions",
-        controlType: "MENU_ITEMS",
-        label: "编辑状态按钮",
-        isBindProperty: false,
-        isTriggerProperty: false,
-        panelConfig: ActionPanelConfig,
-        // isHideDelete: true,
-        isHideToggleVisibility: true,
-        isHideAddButton: true,
-        defaultProperties: {
-          buttonColor: Colors.AZURE_RADIANCE,
-          columnType: ColumnTypes.BUTTON,
-          iconName: "",
-          btnIconName: "add",
-          menuIconName: "more",
-          showButton: true,
-          isDisabled: false,
-          buttonVariant: ButtonVariantTypes.TERTIARY,
-          menuVariant: ButtonVariantTypes.TERTIARY,
-          buttonLabel: "动作",
-          tooltip: "提示",
-          iconAlign: "left",
-          menuTooltip: "",
-        },
-        dependencies: ["inlineEditingSaveOption"],
-        hidden: (props: TableWidgetProps) => {
-          return (
-            props.inlineEditingSaveOption == InlineEditingSaveOptions.CUSTOM
-          );
-        },
-      },
-      {
         helpText: "操作栏按钮配置",
         propertyName: "columnActions",
         controlType: "MENU_ITEMS",
@@ -238,6 +205,51 @@ export default [
           iconAlign: "left",
           menuTooltip: "",
         },
+      },
+    ],
+  },
+  // 编辑行配置
+  {
+    sectionName: "行编辑配置",
+    hidden: (props: TableWidgetProps) => {
+      return props.inlineEditingSaveOption == InlineEditingSaveOptions.CUSTOM;
+    },
+    children: [
+      {
+        helpText: "行编辑状态下的操作列按钮配置",
+        propertyName: "editingActions",
+        controlType: "MENU_ITEMS",
+        label: "编辑状态操作列按钮",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        panelConfig: ActionPanelConfig,
+        isHideToggleVisibility: true,
+        isHideAddButton: true,
+        defaultProperties: {
+          buttonColor: Colors.AZURE_RADIANCE,
+          columnType: ColumnTypes.BUTTON,
+          iconName: "",
+          btnIconName: "add",
+          menuIconName: "more",
+          showButton: true,
+          isDisabled: false,
+          buttonVariant: ButtonVariantTypes.TERTIARY,
+          menuVariant: ButtonVariantTypes.TERTIARY,
+          buttonLabel: "动作",
+          tooltip: "提示",
+          iconAlign: "left",
+          menuTooltip: "",
+        },
+        dependencies: ["inlineEditingSaveOption"],
+      },
+      {
+        helpText: "行内编辑模式下，单元格值改变时触发",
+        propertyName: "onRowValueChange",
+        label: "onRowValueChange",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
       },
     ],
   },
@@ -491,6 +503,37 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+      },
+      // defaultExpandAllRows
+      {
+        helpText: "是否默认展开所有行",
+        propertyName: "defaultExpandAllRows",
+        label: "默认展开所有行",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: false,
+        isTriggerProperty: false,
+        defaultValue: false,
+      },
+      // defaultExpandedRowKeys
+      {
+        helpText: "默认展开的行键数组",
+        propertyName: "defaultExpandedRowKeys",
+        label: "默认展开行",
+        controlType: "TABLE_EXPAND_KEYS_DROPDOWN",
+        placeholderText: "[0]",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.ARRAY,
+        },
+
+        hidden: (props: TableWidgetProps) => {
+          return props.defaultExpandAllRows;
+        },
+        dependencies: ["defaultExpandAllRows", "tableData", "primaryColumnId"],
+        evaluatedDependencies: ["tableData", "primaryColumnId"],
       },
       // expandRowByClick
       {
@@ -747,6 +790,21 @@ export default [
         validation: {
           type: ValidationTypes.BOOLEAN,
         },
+      },
+    ],
+  },
+  // 行配置
+  {
+    sectionName: "行配置",
+    children: [
+      {
+        helpText: "行点击事件",
+        propertyName: "onRowClick",
+        label: "行点击事件",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
       },
     ],
   },

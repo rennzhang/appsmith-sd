@@ -17,7 +17,10 @@ export const transformDataPureFn = (
 ): tableData => {
   if (isArray(tableData)) {
     return tableData.map((row, rowIndex) => {
-      const newRow: { [key: string]: any } = {};
+      const newRow: { [key: string]: any } = {
+        __originalIndex__: row.__originalIndex__,
+        __primaryKey__: row.__primaryKey__,
+      };
 
       columns.forEach((column) => {
         const { alias } = column;

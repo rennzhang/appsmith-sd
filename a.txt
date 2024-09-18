@@ -1,0 +1,22 @@
+张韧-20240913工作日报：
+
+1. 优化 Antd 表格组件功能
+   - 实现行内编辑模式下任意单元格值改变时触发 onRowValueChange 事件
+   - 新增【行点击事件】配置项，支持 onRowClick 事件处理
+   - 添加【默认展开所有行】配置项，可一键展开所有行
+   - 新增【默认展开行】配置项，支持指定默认展开的行
+
+2. 改进表格列配置
+   - 分离操作栏按钮和编辑状态下的操作列按钮配置，提高灵活性
+   - 优化日期列的输入和输出格式设置，默认使用 "YYYY-MM-DD HH:mm" 格式
+
+3. 增强表格数据处理能力
+   - 实现 handleEditableValuesChange 方法，用于统一处理行内编辑时的数据变更
+   - 优化 transformDataPureFn 函数，保留原始索引和主键信息，便于数据追踪和更新
+
+4. 重构表格组件渲染逻辑
+   - 使用 DragSortTable 替换原有的 ProTable，为未来可能的拖拽排序功能做准备
+   - 优化 useColumnState 和 useEditableState hooks，提升性能和可维护性
+   - 删除了表格的 currentRecord 属性，全部统一使用 triggerRow 属性
+   - 修正了 triggerRow 在一些情况下数据不正确的问题
+

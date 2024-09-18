@@ -1,3 +1,4 @@
+import type { Key } from "react";
 import { lazy, Suspense } from "react";
 import log from "loglevel";
 import memoizeOne from "memoize-one";
@@ -286,7 +287,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         selectedRows: generateTypeDef(widget.selectedRows, extraDefsToDefine),
         selectedRowIndices: generateTypeDef(widget.selectedRowIndices),
         triggeredRow: generateTypeDef(widget.triggeredRow),
-        currentRecord: generateTypeDef(widget.currentRecord),
+        // currentRecord: generateTypeDef(widget.currentRecord),
         updatedRow: generateTypeDef(widget.updatedRow),
         selectedRowIndex: "number",
         tableData: generateTypeDef(widget.tableData, extraDefsToDefine),
@@ -309,6 +310,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
         columns: generateTypeDef(widget.tableColumns || widget.columns),
+        expandedKeys: "array",
       };
 
       return config;
@@ -400,6 +402,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         setData: {
           path: "tableData",
           type: "object",
+        },
+        setExpandedKeys: {
+          path: "expandedKeys",
+          type: "array",
         },
       },
     };
@@ -764,6 +770,18 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (defaultPageSize !== prevProps.defaultPageSize) {
       this.updatePageSize(defaultPageSize);
     }
+    // defaultExpandedRowKeys
+    if (
+      !equal(
+        prevProps.defaultExpandedRowKeys,
+        this.props.defaultExpandedRowKeys,
+      )
+    ) {
+      this.updateWidgetProperty(
+        "defaultExpandedRowKeys",
+        this.props.defaultExpandedRowKeys,
+      );
+    }
 
     // Bail out if tableData is a string. This signifies an error in evaluations
     if (isString(this.props.tableData)) {
@@ -1030,31 +1048,48 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return { componentHeight, componentWidth };
   };
 
-  updateCurrentRecord = (currentRecord: Record<string, unknown>) => {
-    console.log("Antd 表格 updateCurrentRecord", currentRecord);
+  // updateCurrentRecord = (currentRecord: Record<string, unknown>) => {
+  //   console.log("Antd 表格 updateCurrentRecord", currentRecord);
 
-    this.updateWidgetProperty("currentRecord", currentRecord);
+  //   this.updateWidgetProperty("currentRecord", currentRecord);
+  // };
+
+  onExpandedRowsChange = (expandedKeys: readonly Key[]) => {
+    console.log("Antd 表格 onExpandedRowsChange", expandedKeys);
+    this.updateWidgetProperty("expandedKeys", expandedKeys);
   };
 
   onExpand = (expanded: boolean, record: any) => {
-    const config: ExecuteTriggerPayload = {
-      triggerPropertyName: "onExpand",
-      dynamicString: this.props.onExpand,
-      event: {
-        type: EventType.ON_CLICK,
+    // const config: ExecuteTriggerPayload = {
+    //   triggerPropertyName: "onExpand",
+    //   dynamicString: this.props.onExpand,
+    //   event: {
+    //     type: EventType.ON_CLICK,
+    //   },
+    // };
+
+    // config.globalContext = {
+    //   expanded,
+    //   currentRecord: record,
+    // };
+
+    // // this.updateWidgetProperty("currentRecord", record);
+
+    // // this.updateCurrentRecord(record);
+
+    // super.executeAction(config);
+    this.onColumnEvent({
+      rowIndex: record.__originalIndex__,
+      action: this.props.onExpand,
+      triggerPropertyName: "triggeredRowIndex",
+      eventType: EventType.ON_CLICK,
+      row: {
+        ...record,
       },
-    };
-
-    config.globalContext = {
-      expanded,
-      currentRecord: record,
-    };
-
-    this.updateWidgetProperty("currentRecord", record);
-
-    this.updateCurrentRecord(record);
-
-    super.executeAction(config);
+      additionalData: {
+        expanded,
+      },
+    });
   };
 
   columnActionClick = (
@@ -1062,23 +1097,31 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     record: Record<string, any>,
     index: number,
   ) => {
-    if (onClick) {
-      const config: ExecuteTriggerPayload = {
-        triggerPropertyName: "onClick",
-        dynamicString: onClick,
-        event: {
-          type: EventType.ON_CLICK,
-        },
-      };
+    // if (onClick) {
+    //   const config: ExecuteTriggerPayload = {
+    //     triggerPropertyName: "onClick",
+    //     dynamicString: onClick,
+    //     event: {
+    //       type: EventType.ON_CLICK,
+    //     },
+    //   };
 
-      config.globalContext = {
-        currentRecord: record,
-        currentIndex: index,
-      };
-      this.updateCurrentRecord(record);
+    //   config.globalContext = {
+    //     currentRecord: record,
+    //     currentIndex: index,
+    //   };
+    //   this.updateCurrentRecord(record);
 
-      super.executeAction(config);
-    }
+    // }
+    this.onColumnEvent({
+      rowIndex: record.__originalIndex__,
+      action: "",
+      triggerPropertyName: "triggeredRowIndex",
+      eventType: EventType.ON_CLICK,
+      row: {
+        ...record,
+      },
+    });
   };
 
   getFinalTableData = () => {
@@ -1145,6 +1188,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           editableCell={this.props.editableCell}
           filters={this.props.filters}
           handleColumnFreeze={this.handleColumnFreeze}
+          handleEditableValuesChange={this.handleEditableValuesChange}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
@@ -1168,6 +1212,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onAddNewRowAction={this.handleAddNewRowAction}
           onBulkEditDiscard={this.onBulkEditDiscard}
           onBulkEditSave={this.onBulkEditSave}
+          onCellTextChange={this.onCellTextChange}
           onCheckChange={this.onCheckChange}
           onConnectData={this.onConnectData}
           onExpand={this.onExpand}
@@ -1468,6 +1513,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       },
     );
   };
+
+  // 更新triggeredRowIndex
+  updateTriggeredRowIndex = (rowIndex: number) => {
+    this.props.updateWidgetMetaProperty("triggeredRowIndex", rowIndex);
+  };
   /*
    * Function to handle customColumn button type click interactions
    */
@@ -1494,6 +1544,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       });
       commitBatchMetaUpdates();
     } else {
+      this.updateTriggeredRowIndex(rowIndex);
       onComplete();
     }
   };
@@ -1524,7 +1575,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const { multiRowSelection, selectedRowIndex, selectedRowIndices } =
       this.props;
     // no need to batch actions here because it a time only one will execute
-
+    this.props.updateWidgetMetaProperty("triggeredRowIndex", selectedIndex);
     if (multiRowSelection) {
       let indices: Array<number>;
 
@@ -2077,7 +2128,51 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
     commitBatchMetaUpdates();
   };
+  handleEditableValuesChange = (data: {
+    record: Record<string, unknown>;
+    dataSource: Record<string, unknown>[];
+    originalIndex: number;
+    rowIndex?: number;
+  }) => {
+    const { originalIndex, record, rowIndex } = data;
+    const { commitBatchMetaUpdates } = this.props;
+    // if (this.props.isAddRowInProgress) {
+    //   this.updateNewRowValues(alias, value, value);
+    // }
+    const originalRecord = this.props.filteredTableData[originalIndex];
 
+    function findSimpleChanges(
+      objA: Record<string, unknown>,
+      objB: Record<string, unknown>,
+    ) {
+      return _.pickBy(objB, (value, key) => {
+        if (typeof value !== "object" && typeof objA[key] !== "object") {
+          return !_.isEqual(value, objA?.[key]);
+        }
+        return false;
+      });
+    }
+
+    // lodash 取出修改的内容
+    const diffRecord = findSimpleChanges(originalRecord, record);
+    console.log("diffRecord", diffRecord);
+    // return;
+    this.pushTransientTableDataActionsUpdates({
+      [ORIGINAL_INDEX_KEY]: originalIndex,
+      ...diffRecord,
+    });
+    commitBatchMetaUpdates();
+
+    this.onColumnEvent({
+      rowIndex: originalIndex,
+      action: this.props.onRowValueChange,
+      triggerPropertyName: "onRowValueChange",
+      eventType: EventType.ON_ROW_VALUE_CHANGE,
+      row: {
+        ...record,
+      },
+    });
+  };
   onCheckChange = (
     column: any,
     row: Record<string, unknown>,

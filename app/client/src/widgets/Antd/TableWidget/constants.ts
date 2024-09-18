@@ -17,11 +17,25 @@ import type { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
 import type { Row } from "react-table";
+import type { Key } from "@ant-design/pro-components";
 import { ProTableProps } from "@ant-design/pro-components";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
 
 export interface AntdTableProps {
+  defaultExpandAllRows: boolean;
+  defaultExpandedRowKeys: readonly Key[];
+  expandedKeys: readonly Key[];
+  onCellTextChange: (
+    value: EditableCell["value"],
+    inputValue: string,
+    alias: string,
+  ) => void;
+  handleEditableValuesChange: (data: {
+    originalIndex: number;
+    record: Record<string, unknown>;
+    rowIndex?: number;
+  }) => void;
   onCheckChange: (
     column: any,
     row: Record<string, unknown>,
@@ -30,6 +44,7 @@ export interface AntdTableProps {
     originalIndex: number,
     rowIndex: number,
   ) => void;
+  onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   isVirtual: boolean;
   hideOnSinglePage: boolean;
   paginationSize: "default" | "small";
@@ -47,6 +62,7 @@ export interface AntdTableProps {
   enableSearchFormValidation: boolean;
   inlineEditingSaveOption?: InlineEditingSaveOptions;
   expandRowByClick?: boolean;
+  onExpandedRowsChange: (expandedKeys: readonly Key[]) => void;
   onExpand: (expanded: boolean, record: any) => void;
   childrenColumnName: string;
   isActionFixed?: boolean;
@@ -424,3 +440,5 @@ export const defaultEditableCell = {
 };
 
 export const DEFAULT_COLUMN_NAME = "Table Column";
+
+export const DEFAULT_DATE_FORMAT = "YYYY-MM-DD HH:mm";

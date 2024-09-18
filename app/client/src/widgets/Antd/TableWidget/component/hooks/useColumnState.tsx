@@ -11,6 +11,7 @@ import type { AntdTableProps, ButtonAction } from "../../constants";
 import { ColumnTypes, InlineEditingSaveOptions } from "../../constants";
 import { Colors } from "constants/Colors";
 import { Switch } from "antd";
+import type { FieldProps } from "components/editorComponents/ActionCreator/types";
 
 const getRules = (column: TableColumnProps) => {
   const { columnProperties } = column;
@@ -389,6 +390,28 @@ const getColumnRender = (
   };
 };
 
+const getFieldProps = (column: TableColumnProps) => {
+  const fieldProps: ProColumns<Record<string, any>>["fieldProps"] = {
+    ...column.columnProperties,
+    options: column.columnProperties.options?.map((option: any) => {
+      return {
+        label:
+          option[column.columnProperties.fieldNames?.label || ""] ||
+          option.label,
+        value:
+          option[column.columnProperties.fieldNames?.value || ""] ||
+          option.value,
+        ...option,
+      };
+    }),
+  };
+
+  if (column.columnProperties.columnType === ColumnTypes.DATE) {
+    fieldProps.format = column.columnProperties.outputFormat;
+  }
+  return fieldProps;
+};
+
 export const useColumnState = (
   props: AntdTableProps,
   setter: {
@@ -410,7 +433,6 @@ export const useColumnState = (
         const proColumn: ProColumns<Record<string, any>> &
           Partial<TableColumnProps> = {
           ...column,
-
           width: column.columnProperties.columnWidth || 120,
           editable: () => column.columnProperties.isCellEditable,
           fixed: column.sticky || false,
@@ -425,20 +447,7 @@ export const useColumnState = (
             rules: getRules(column),
           },
           valueEnum: getValueEnum(column),
-          fieldProps: {
-            ...column.columnProperties,
-            options: column.columnProperties.options?.map((option: any) => {
-              return {
-                label:
-                  option[column.columnProperties.fieldNames?.label || ""] ||
-                  option.label,
-                value:
-                  option[column.columnProperties.fieldNames?.value || ""] ||
-                  option.value,
-                ...option,
-              };
-            }),
-          },
+          fieldProps: getFieldProps(column),
           copyable: column.columnProperties.isCellCopyable,
           filters: column.columnProperties.isVisibleCellFilters,
           onFilter: true,
@@ -453,7 +462,7 @@ export const useColumnState = (
     props?.onQueryDataChange(initialQueryData, true);
 
     return transColumns;
-  }, [props.columns, props.isVirtual]);
+  }, [props.columns, props.isVirtual, props.onRowClick]);
 
   const columnsState = useMemo((): ColumnStateType => {
     return {
@@ -466,7 +475,7 @@ export const useColumnState = (
         },
       },
       onChange(value) {
-        console.log("value: ", value);
+        console.log("表格columnsState change: ", value);
       },
     };
   }, [props.widgetId]);

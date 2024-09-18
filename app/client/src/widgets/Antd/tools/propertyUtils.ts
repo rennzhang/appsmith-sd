@@ -1,16 +1,18 @@
-import { ValidationResponse } from "constants/WidgetValidation";
+import type { ValidationResponse } from "constants/WidgetValidation";
 import { get, isString, isArray, uniq, isPlainObject } from "lodash";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
-import { WidgetProps } from "widgets/BaseWidget";
-import { SelectWidgetProps } from "../Form/SelectWidget/widget";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { SelectWidgetProps } from "../Form/SelectWidget/widget";
 
 export function getDefaultValueOptions(widget: WidgetProps) {
   console.log("getDefaultValueOptions", widget);
   let sourceData = get(widget, `${EVAL_VALUE_PATH}.options`);
   let fieldNames = widget.fieldNames || {};
   if (widget.type === "ANTD_PRO_TABLE_WIDGET") {
-    sourceData = (widget?.__evaluation__?.evaluatedValues as any)
-      ?.orderedTableColumns?.[widget.editingColumnIndex]?.options || [];
+    sourceData =
+      (widget?.__evaluation__?.evaluatedValues as any)?.orderedTableColumns?.[
+        widget.editingColumnIndex
+      ]?.options || [];
 
     fieldNames = widget.primaryColumns[widget.editingColumnId].fieldNames || {};
   }
@@ -33,7 +35,7 @@ export function getDefaultValueOptions(widget: WidgetProps) {
       label: d,
       value: d,
     };
-  })
+  });
 }
 
 export function getLabelValueKeyOptions(widget: WidgetProps) {
@@ -41,8 +43,10 @@ export function getLabelValueKeyOptions(widget: WidgetProps) {
 
   let sourceData = get(widget, `${EVAL_VALUE_PATH}.options`);
   if (widget.type === "ANTD_PRO_TABLE_WIDGET") {
-    sourceData = (widget?.__evaluation__?.evaluatedValues as any)
-      ?.orderedTableColumns?.[widget.editingColumnIndex]?.options||[];
+    sourceData =
+      (widget?.__evaluation__?.evaluatedValues as any)?.orderedTableColumns?.[
+        widget.editingColumnIndex
+      ]?.options || [];
   }
   const fieldNames = widget.fieldNames || {};
 
@@ -55,7 +59,7 @@ export function getLabelValueKeyOptions(widget: WidgetProps) {
   }
 
   if (isArray(parsedValue)) {
-    let result = uniq(
+    const result = uniq(
       parsedValue.reduce((keys, obj) => {
         if (isPlainObject(obj)) {
           Object.entries(obj).forEach(([key, value]) => {
@@ -167,7 +171,7 @@ export function defaultOptionValueValidation(
       : parsed;
     const valueIndex = _.findIndex(
       options,
-      (option:any) => option.value === parsedValue,
+      (option: any) => option.value === parsedValue,
     );
 
     if (valueIndex === -1) {

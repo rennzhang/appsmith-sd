@@ -55,6 +55,7 @@ export interface APIRequest {
 }
 
 export enum EventType {
+  ON_ROW_VALUE_CHANGE = "ON_ROW_VALUE_CHANGE",
   ON_QUERY_CHANGE = "ON_QUERY_CHANGE",
   ON_ECHART_EVENT = "ON_ECHART_EVENT",
   ON_RESET = "ON_RESET",
