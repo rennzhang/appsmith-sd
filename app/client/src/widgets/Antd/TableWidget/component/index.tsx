@@ -18,6 +18,11 @@ function arePropsEqual(
 ) {
   // 比较关键属性
   const keyProps: (keyof ReactTableComponentProps)[] = [
+    "addNewRowText",
+    "defaultNewRow",
+    "addNewRowPosition",
+    "editableKeys",
+    "editableIndices",
     "defaultExpandedRowKeys",
     "expandedKeys",
     "onExpandedRowsChange",
@@ -81,6 +86,7 @@ function arePropsEqual(
     "editableCell",
     "isEditableCellsValid",
     "handleEditableValuesChange",
+    "handleEditableRowChange",
     "onCellTextChange",
     // "primaryColumns",
   ];

@@ -23,6 +23,19 @@ import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
 
 export interface AntdTableProps {
+  addNewRowText: string;
+  defaultNewRow: Record<string, unknown>;
+  handleAddNewRowAction: (
+    type: AddNewRowActions,
+    row: Record<string, unknown>,
+    onActionComplete: () => void,
+  ) => void;
+  addNewRowPosition: "top" | "bottom";
+  handleAddNewRow: (id: string | number) => void;
+  editType: "single" | "multiple";
+  editableKeys: Key[];
+  editableRecords: Record<string, unknown>[];
+  editableIndices: readonly number[];
   defaultExpandAllRows: boolean;
   defaultExpandedRowKeys: readonly Key[];
   expandedKeys: readonly Key[];
@@ -31,6 +44,10 @@ export interface AntdTableProps {
     inputValue: string,
     alias: string,
   ) => void;
+  handleEditableRowChange: (data: {
+    editableKeys: React.Key[];
+    editableRecords: Record<string, unknown>[];
+  }) => void;
   handleEditableValuesChange: (data: {
     originalIndex: number;
     record: Record<string, unknown>;
@@ -69,10 +86,9 @@ export interface AntdTableProps {
   actionWidth?: number;
   editableCell: EditableCell;
   variant?: TableVariant;
-  columnActionClick: (
+  handleRowActionClick: (
     onClick: string | undefined,
     record: Record<string, any>,
-    index: number,
   ) => void;
   columnActions: ButtonAction[];
   editingActions: ButtonAction[];

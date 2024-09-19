@@ -110,6 +110,7 @@ export type PropertyPaneControlConfig = {
   placeholderText?: string;
   defaultProperties?: Record<string, any>;
   isMultiSelect?: boolean;
+  singleArray?: boolean;
 };
 
 // 属性校验参数

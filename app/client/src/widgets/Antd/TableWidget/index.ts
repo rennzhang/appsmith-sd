@@ -22,7 +22,14 @@ export const CONFIG = {
   tags: [WIDGET_TAGS.ANTD],
   needsMeta: true,
   needsHeightForContent: true,
+
   defaults: {
+    addNewRowText: "新增一行",
+    allowAddNewRow: false,
+    addNewRowPosition: "bottom",
+    editableIndices: [],
+    editableKeys: [],
+    editType: "multiple",
     rightColumn: 64,
     rows: 48,
     columns: 64,
@@ -133,7 +140,6 @@ export const CONFIG = {
     horizontalAlignment: "LEFT",
     verticalAlignment: "CENTER",
     totalRecordsCount: 0,
-    defaultPageSize: 10,
     dynamicPropertyPathList: [],
     borderColor: Colors.GREY_5,
     borderWidth: "1",

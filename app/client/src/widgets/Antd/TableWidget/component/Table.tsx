@@ -13,12 +13,18 @@ import {
   EditableProTable,
   ProTable,
 } from "@ant-design/pro-components";
-import { ConfigProvider, Space, Table } from "antd";
+import { Button, ConfigProvider, Space, Table } from "antd";
 import { useEffect, useRef, useState } from "react";
 import React from "react";
 import type { AntdTableProps } from "../constants";
+import { PlusOutlined } from "@ant-design/icons";
 // ColumnStateType
-import { useEditableState, useColumnState, useTableQuery } from "./hooks";
+import {
+  useEditableState,
+  useColumnState,
+  useTableQuery,
+  useNewRowState,
+} from "./hooks";
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 
 const PopoverStyles = createGlobalStyle<{
@@ -40,7 +46,7 @@ const PopoverStyles = createGlobalStyle<{
 
 export function ProTableComponent(props: AntdTableProps) {
   const { showConnectDataOverlay } = props;
-  const actionRef = useRef<ActionType>();
+  const actionRef = useRef<ActionType | null>(null);
   const scrollBarRef = useRef<any>(null);
 
   const isHeaderVisible =
@@ -49,16 +55,23 @@ export function ProTableComponent(props: AntdTableProps) {
     props.isVisibleDownload ||
     props.allowAddNewRow;
 
-  useEffect(() => {
-    if (props.isAddRowInProgress) {
-      fastdom.mutate(() => {
-        if (scrollBarRef && scrollBarRef?.current) {
-          scrollBarRef.current.getScrollElement().scrollTop = 0;
-        }
-      });
-    }
-  }, [props.isAddRowInProgress]);
+  // useEffect(() => {
+  //   if (props.isAddRowInProgress) {
+  //     fastdom.mutate(() => {
+  //       console.log("scrollBarRef", scrollBarRef);
 
+  //       if (
+  //         scrollBarRef &&
+  //         scrollBarRef?.current &&
+  //         scrollBarRef.current?.getScrollElement()
+  //       ) {
+  //         scrollBarRef.current.getScrollElement().scrollTop = 0;
+  //       }
+  //     });
+  //   }
+  // }, [props.isAddRowInProgress]);
+
+  const { addNewRowBtn } = useNewRowState(props, actionRef);
   // queryData
   const [selectedRowKeys, setSelectedRowKeys] = React.useState<React.Key[]>([]);
   // 抽离查询相关逻辑
@@ -110,6 +123,7 @@ export function ProTableComponent(props: AntdTableProps) {
         isAddRowInProgress={props.isAddRowInProgress}
         isHeaderVisible={isHeaderVisible}
         multiRowSelection={props.multiRowSelection}
+        ref={scrollBarRef}
         triggerRowSelection={props.triggerRowSelection}
         variant={props.variant}
         width={props.width}
@@ -119,7 +133,7 @@ export function ProTableComponent(props: AntdTableProps) {
           widgetId={props.widgetId}
         />
         {
-          <div className="overflow-auto" ref={scrollBarRef}>
+          <div className="overflow-auto">
             <ConfigProvider
               theme={{
                 components: {
@@ -234,10 +248,6 @@ export function ProTableComponent(props: AntdTableProps) {
                     </Space>
                   );
                 }}
-                virtual={props.isVirtual}
-                defaultSize={props.compactMode}
-                // dragSortKey="sort"
-                editable={editableMemo}
                 tableAlertRender={({
                   onCleanSelected,
                   selectedRowKeys,
@@ -258,18 +268,23 @@ export function ProTableComponent(props: AntdTableProps) {
                     </Space>
                   );
                 }}
-                // toolBarRender={() => [
-                //   <Button
-                //     icon={<PlusOutlined />}
-                //     key="button"
-                //     onClick={() => {
-                //       actionRef.current?.reload();
-                //     }}
-                //     type="primary"
-                //   >
-                //     新建
-                //   </Button>,
-                // ]}
+                toolBarRender={() => [
+                  addNewRowBtn,
+                  <Button
+                    icon={<PlusOutlined />}
+                    key="button"
+                    onClick={() => {
+                      actionRef.current?.reload();
+                    }}
+                    type="primary"
+                  >
+                    新建
+                  </Button>,
+                ]}
+                virtual={props.isVirtual}
+                defaultSize={props.compactMode}
+                // dragSortKey="sort"
+                editable={editableMemo}
               />
             </ConfigProvider>
           </div>

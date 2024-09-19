@@ -242,6 +242,82 @@ export default [
         },
         dependencies: ["inlineEditingSaveOption"],
       },
+      // editType
+      {
+        helpText: "行内编辑模式",
+        propertyName: "editType",
+        label: "编辑模式",
+        controlType: "ICON_TABS",
+        defaultValue: "multiple",
+        options: [
+          {
+            label: "多行编辑",
+            value: "multiple",
+          },
+          {
+            label: "单行编辑",
+            value: "single",
+          },
+        ],
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      // 默认编辑行
+      {
+        helpText: "默认编辑行的 key",
+        propertyName: "defaultEditableKeys",
+        label: "默认编辑行",
+        controlType: "TABLE_PRIMARY_KEYS_DROPDOWN",
+        isMultiSelect: (props: TableWidgetProps) => {
+          return props.widgetProperties.editType === "multiple";
+        },
+        singleArray: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.UNION,
+          params: {
+            types: [
+              {
+                type: ValidationTypes.UNION,
+                params: {
+                  types: [
+                    {
+                      type: ValidationTypes.TEXT,
+                    },
+                    {
+                      type: ValidationTypes.NUMBER,
+                    },
+                  ],
+                },
+              },
+              {
+                type: ValidationTypes.ARRAY,
+                params: {
+                  children: {
+                    type: ValidationTypes.UNION,
+                    params: {
+                      types: [
+                        {
+                          type: ValidationTypes.TEXT,
+                        },
+                        {
+                          type: ValidationTypes.NUMBER,
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+        hidden: (props: TableWidgetProps) => {
+          return props.defaultExpandAllRows;
+        },
+        dependencies: ["tableData", "primaryColumnId", "editType"],
+        evaluatedDependencies: ["tableData", "primaryColumnId", "editType"],
+      },
       {
         helpText: "行内编辑模式下，单元格值改变时触发",
         propertyName: "onRowValueChange",
@@ -250,6 +326,124 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+      },
+    ],
+  },
+  {
+    sectionName: "新增行数据",
+    children: [
+      {
+        propertyName: "allowAddNewRow",
+        helpText: "显示新增一行按钮",
+        isJSConvertible: true,
+        label: "允许新增一行",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      // 按钮文本
+      {
+        propertyName: "addNewRowText",
+        helpText: "新增行按钮文本",
+        label: "新增行按钮文本",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        dependencies: ["allowAddNewRow"],
+        defaultValue: "新增一行",
+        validation: {
+          type: ValidationTypes.TEXT,
+        },
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow;
+        },
+      },
+      // position
+      {
+        propertyName: "addNewRowPosition",
+        helpText: "控制新增行在表格中的位置",
+        label: "新增行位置",
+        controlType: "ICON_TABS",
+        defaultValue: "bottom",
+        options: [
+          {
+            label: "顶部",
+            value: "top",
+          },
+          {
+            label: "底部",
+            value: "bottom",
+          },
+        ],
+        isBindProperty: true,
+        isTriggerProperty: false,
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow;
+        },
+        dependencies: ["allowAddNewRow"],
+      },
+      {
+        propertyName: "onAddNewRowSave",
+        helpText: "点击新增行保存按钮时触发",
+        label: "onSave",
+        controlType: "ACTION_SELECTOR",
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow;
+        },
+        dependencies: ["allowAddNewRow", "primaryColumns"],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: (props: TableWidgetProps) => {
+          const newRow: Record<string, unknown> = {};
+
+          if (props.primaryColumns) {
+            Object.values(props.primaryColumns)
+              .filter((column) => !column.isDerived)
+              .forEach((column) => {
+                newRow[column.alias] = "";
+              });
+          }
+
+          return {
+            newRow,
+          };
+        },
+      },
+      {
+        propertyName: "onAddNewRowDiscard",
+        helpText: "点击新增行丢弃按钮时触发",
+        label: "onDiscard",
+        controlType: "ACTION_SELECTOR",
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow;
+        },
+        dependencies: ["allowAddNewRow"],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
+      {
+        propertyName: "defaultNewRow",
+        helpText: "默认新增行数据",
+        label: "默认行数据",
+        controlType: "INPUT_TEXT",
+        dependencies: ["allowAddNewRow"],
+        placeholderText: "请输入默认行数据",
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow;
+        },
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.OBJECT,
+          params: {
+            default: {},
+          },
+        },
       },
     ],
   },
@@ -520,7 +714,7 @@ export default [
         helpText: "默认展开的行键数组",
         propertyName: "defaultExpandedRowKeys",
         label: "默认展开行",
-        controlType: "TABLE_EXPAND_KEYS_DROPDOWN",
+        controlType: "TABLE_PRIMARY_KEYS_DROPDOWN",
         placeholderText: "[0]",
         isJSConvertible: true,
         isBindProperty: true,
@@ -588,82 +782,7 @@ export default [
       },
     ],
   },
-  {
-    sectionName: "新增行数据",
-    children: [
-      {
-        propertyName: "allowAddNewRow",
-        helpText: "显示新增一行按钮",
-        isJSConvertible: true,
-        label: "允许新增一行",
-        controlType: "SWITCH",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-      {
-        propertyName: "onAddNewRowSave",
-        helpText: "点击新增行保存按钮时触发",
-        label: "onSave",
-        controlType: "ACTION_SELECTOR",
-        hidden: (props: TableWidgetProps) => {
-          return !props.allowAddNewRow;
-        },
-        dependencies: ["allowAddNewRow", "primaryColumns"],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-        additionalAutoComplete: (props: TableWidgetProps) => {
-          const newRow: Record<string, unknown> = {};
 
-          if (props.primaryColumns) {
-            Object.values(props.primaryColumns)
-              .filter((column) => !column.isDerived)
-              .forEach((column) => {
-                newRow[column.alias] = "";
-              });
-          }
-
-          return {
-            newRow,
-          };
-        },
-      },
-      {
-        propertyName: "onAddNewRowDiscard",
-        helpText: "点击新增行丢弃按钮时触发",
-        label: "onDiscard",
-        controlType: "ACTION_SELECTOR",
-        hidden: (props: TableWidgetProps) => {
-          return !props.allowAddNewRow;
-        },
-        dependencies: ["allowAddNewRow"],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-      },
-      {
-        propertyName: "defaultNewRow",
-        helpText: "默认新增行数据",
-        label: "默认行数据",
-        controlType: "INPUT_TEXT",
-        dependencies: ["allowAddNewRow"],
-        hidden: (props: TableWidgetProps) => {
-          return !props.allowAddNewRow;
-        },
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.OBJECT,
-          params: {
-            default: {},
-          },
-        },
-      },
-    ],
-  },
   {
     sectionName: "属性",
     children: [

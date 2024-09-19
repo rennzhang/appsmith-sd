@@ -6,7 +6,7 @@ import type { DSEventDetail } from "design-system-old";
 import { DS_EVENT, DSEventTypes } from "design-system-old";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 
-class PrimaryColumnExpandKeysDropdownControl extends BaseControl<ControlProps> {
+class PrimaryColumnKeysDropdownControl extends BaseControl<ControlProps> {
   containerRef = React.createRef<HTMLDivElement>();
 
   componentDidMount() {
@@ -34,12 +34,12 @@ class PrimaryColumnExpandKeysDropdownControl extends BaseControl<ControlProps> {
     }
   };
 
-  setDefaultValue = (props: any, options: any[]) => {
+  setDefaultValue = (props: any, options: any[], isMultiSelect?: boolean) => {
     if (this.props.defaultValue) {
       if (typeof this.props.defaultValue === "string") {
-        this.onExpandKeySelect(this.props.defaultValue);
+        this.onKeySelect(this.props.defaultValue);
       } else if (typeof this.props.defaultValue === "function") {
-        this.onExpandKeySelect(
+        this.onKeySelect(
           this.props.defaultValue({
             ...props,
             options,
@@ -48,12 +48,32 @@ class PrimaryColumnExpandKeysDropdownControl extends BaseControl<ControlProps> {
       }
     }
   };
+
+  getIsMultiSelect = () => {
+    let _isMultiSelect = this.props.isMultiSelect;
+    if (typeof this.props.isMultiSelect === "function") {
+      _isMultiSelect = (this.props.isMultiSelect as any)?.({
+        ...this.props,
+      });
+    }
+    if (_isMultiSelect && !Array.isArray(this.props.propertyValue)) {
+      this.updateProperty(this.props.propertyName, []);
+    } else if (
+      !_isMultiSelect &&
+      Array.isArray(this.props.propertyValue) &&
+      this.props.propertyValue.length > 1
+    ) {
+      this.updateProperty(this.props.propertyName, undefined);
+    }
+    return _isMultiSelect;
+  };
   render() {
     const { widgetProperties } = this.props;
     const evaluatedValues = widgetProperties?.__evaluation__?.evaluatedValues;
     const tableData = evaluatedValues?.tableData || [];
     const primaryColumnId = evaluatedValues?.primaryColumnId;
 
+    const isMultiSelect = this.getIsMultiSelect();
     const options: any[] = [];
     for (const row of tableData) {
       options.push({
@@ -63,28 +83,35 @@ class PrimaryColumnExpandKeysDropdownControl extends BaseControl<ControlProps> {
       });
     }
 
-    const selectedExpandKeys = Array.isArray(this.props.propertyValue)
-      ? this.props.propertyValue
-      : [];
+    const selectedKeys = isMultiSelect
+      ? Array.isArray(this.props.propertyValue)
+        ? this.props.propertyValue
+        : []
+      : Array.isArray(this.props.propertyValue)
+      ? this.props.propertyValue[0]
+      : this.props.propertyValue;
 
-    if (this.props.defaultValue && !selectedExpandKeys) {
-      this.setDefaultValue(this.props, options);
+    if (this.props.defaultValue && !selectedKeys) {
+      this.setDefaultValue(this.props, options, isMultiSelect);
     }
 
-    console.log("TABLE_EXPAND_KEYS_DROPDOWN", this.props, {
+    console.log("TABLE_PRIMARY_KEYS_DROPDOWN", this.props, {
       options,
       tableData,
       primaryColumnId,
+      isMultiSelect,
     });
 
     return (
       <div className="w-full h-full" ref={this.containerRef}>
         <Select
-          isMultiSelect
-          onDeselect={this.onExpandKeyDeselect}
-          onSelect={this.onExpandKeySelect}
-          placeholder="请选择要展开的行"
-          value={selectedExpandKeys}
+          isMultiSelect={isMultiSelect}
+          onDeselect={this.onKeyDeselect}
+          onSelect={(value) =>
+            this.onKeySelect(value, isMultiSelect, this.props.singleArray)
+          }
+          placeholder="请选择行"
+          value={selectedKeys}
         >
           {options.map((option) => (
             <Option key={option.id} value={option.value}>
@@ -96,15 +123,26 @@ class PrimaryColumnExpandKeysDropdownControl extends BaseControl<ControlProps> {
     );
   }
 
-  onExpandKeySelect = (value: string): void => {
+  onKeySelect = (
+    value: string,
+    isMultiSelect?: boolean,
+    singleArray?: boolean,
+  ): void => {
     const currentExpandKeys = Array.isArray(this.props.propertyValue)
       ? this.props.propertyValue
       : [];
-    const newExpandKeys = [...currentExpandKeys, value];
-    this.updateProperty(this.props.propertyName, newExpandKeys);
+    if (isMultiSelect) {
+      const newExpandKeys = [...currentExpandKeys, value];
+      this.updateProperty(this.props.propertyName, newExpandKeys);
+    } else {
+      this.updateProperty(
+        this.props.propertyName,
+        singleArray ? [value] : value,
+      );
+    }
   };
 
-  onExpandKeyDeselect = (value: string): void => {
+  onKeyDeselect = (value: string): void => {
     const currentExpandKeys = Array.isArray(this.props.propertyValue)
       ? this.props.propertyValue
       : [];
@@ -112,11 +150,11 @@ class PrimaryColumnExpandKeysDropdownControl extends BaseControl<ControlProps> {
     this.updateProperty(this.props.propertyName, newExpandKeys);
   };
   static getControlType() {
-    return "TABLE_EXPAND_KEYS_DROPDOWN";
+    return "TABLE_PRIMARY_KEYS_DROPDOWN";
   }
 }
 export interface PrimaryColumnExpandKeysDropdownControlProps
   extends ControlProps {
   propertyValue: string;
 }
-export default PrimaryColumnExpandKeysDropdownControl;
+export default PrimaryColumnKeysDropdownControl;

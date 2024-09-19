@@ -1,9 +1,11 @@
+import type { Key } from "react";
 import { useMemo } from "react";
 import type { ProTableProps } from "@ant-design/pro-components";
 import type { AntdTableProps, ButtonAction } from "../../constants";
 import { InlineEditingSaveOptions, ColumnTypes } from "../../constants";
 import ButtonComponent from "widgets/Antd/ButtonWidget/component";
 import { Colors } from "constants/Colors";
+import { AddNewRowActions } from "../Constants";
 
 const createButtonComponent = (
   buttonConfig: ButtonAction,
@@ -34,6 +36,17 @@ const getButtonConfigs = (buttons: ButtonAction[], id: string): ButtonAction =>
 
 export const useEditableState = (props: AntdTableProps) => {
   return useMemo((): ProTableProps<any, any>["editable"] => {
+    const { editType, tableData } = props;
+    const _editableKeys = props.editableKeys;
+    const editableIndices = props.editableIndices;
+    // 优先使用editableKeys，其次使用editableIndices，editableIndices需要计算出对应的key
+    const keys =
+      _editableKeys?.length > 0
+        ? _editableKeys
+        : editableIndices?.map(
+            (index) => tableData[index]?.[props.primaryColumnId || ""],
+          );
+
     if (props.inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL) {
       const sortedButtons = Object.values(props.editingActions)
         .sort((a, b) => a.index - b.index)
@@ -44,7 +57,8 @@ export const useEditableState = (props: AntdTableProps) => {
       const deleteButtonConfig = getButtonConfigs(sortedButtons, "delete");
 
       return {
-        type: "multiple",
+        type: editType || "multiple",
+        editableKeys: keys as Key[],
         deletePopconfirmMessage: "确定删除吗？",
         saveText: createButtonComponent(
           saveButtonConfig,
@@ -58,34 +72,73 @@ export const useEditableState = (props: AntdTableProps) => {
           deleteButtonConfig,
           Colors.AZURE_RADIANCE,
         ),
-        onSave: async (key, row) => {
+        onSave: async (key, row, originRow, newLineConfig) => {
+          console.log("Antd 表格 onSave: ", {
+            key,
+            row,
+            originRow,
+            newLineConfig,
+          });
+
           if (saveButtonConfig) {
-            await props.columnActionClick(saveButtonConfig.onBtnClick, row, 0);
+            if (newLineConfig) {
+              return props.handleAddNewRowAction(
+                AddNewRowActions.SAVE,
+                originRow,
+
+                () => {
+                  return "";
+                },
+              );
+            }
+            await props.handleRowActionClick(
+              saveButtonConfig.onBtnClick,
+              originRow,
+            );
           }
         },
-        onCancel: async (key, row) => {
+        onCancel: async (key, row, originRow, newLineConfig) => {
+          console.log("Antd 表格 onCancel: ", {
+            key,
+            row,
+            originRow,
+            newLineConfig,
+          });
           if (cancelButtonConfig) {
-            await props.columnActionClick(
+            if (newLineConfig) {
+              return props.handleAddNewRowAction(
+                AddNewRowActions.DISCARD,
+                originRow,
+
+                () => {
+                  return "";
+                },
+              );
+            }
+            await props.handleRowActionClick(
               cancelButtonConfig.onBtnClick,
-              row,
-              0,
+              originRow,
             );
           }
         },
         onDelete: async (key, row) => {
           if (deleteButtonConfig) {
-            await props.columnActionClick(
+            await props.handleRowActionClick(
               deleteButtonConfig.onBtnClick,
               row,
-              0,
             );
           }
         },
         onChange: (key, row) => {
           console.log("表格 editable onChange: ", key, row);
+          props.handleEditableRowChange({
+            editableKeys: key,
+            editableRecords: row,
+          });
         },
         onValuesChange: (record, dataSource) => {
           console.log("表格 editable onValuesChange: ", record, dataSource);
+          if (!record) return;
           requestAnimationFrame(() => {
             props.handleEditableValuesChange({
               originalIndex: record.__originalIndex__,
@@ -98,8 +151,12 @@ export const useEditableState = (props: AntdTableProps) => {
     }
     return undefined;
   }, [
+    props.tableData,
     props.inlineEditingSaveOption,
     props.editingActions,
-    props.columnActionClick,
+    props.editableKeys,
+    props.editableIndices,
+    props.handleRowActionClick,
+    props.primaryColumnId,
   ]);
 };

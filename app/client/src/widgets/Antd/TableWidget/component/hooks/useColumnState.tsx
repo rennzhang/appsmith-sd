@@ -307,7 +307,7 @@ const renderMenuItemContent = (
     )}
     <span
       onClick={() =>
-        props.columnActionClick(menuItem.onClick, record, recordIndex)
+        props.handleRowActionClick(menuItem.onClick, record, recordIndex)
       }
     >
       {menuItem.label}
@@ -351,7 +351,7 @@ const handleButtonClick = (
   ) {
     action?.startEditable?.(record.id);
   }
-  props.columnActionClick(button.onBtnClick, record, recordIndex);
+  props.handleRowActionClick(button.onBtnClick, record, recordIndex);
 };
 
 const getColumnRender = (
