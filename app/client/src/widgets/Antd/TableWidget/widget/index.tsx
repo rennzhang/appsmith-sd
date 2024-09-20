@@ -257,6 +257,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndices: undefined,
       editableIndices: undefined,
       editableKeys: undefined,
+      expandedKeys: undefined,
       searchText: undefined,
       triggeredRowIndex: 0,
       filters: [],
@@ -348,6 +349,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndices: "defaultSelectedRowIndices",
       editableIndices: "defaultEditableIndices",
       editableKeys: "defaultEditableKeys",
+      expandedKeys: "defaultExpandedRowKeys",
     };
   }
 
@@ -413,10 +415,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           path: "expandedKeys",
           type: "array",
         },
-        setEditableIndices: {
-          path: "editableIndices",
-          type: "array",
-        },
+        // setEditableIndices: {
+        //   path: "editableIndices",
+        //   type: "array",
+        // },
         setEditableKeys: {
           path: "editableKeys",
           type: "array",
@@ -796,7 +798,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       )
     ) {
       this.updateWidgetProperty(
-        "defaultExpandedRowKeys",
+        "expandedKeys",
         this.props.defaultExpandedRowKeys,
       );
     }
@@ -1078,11 +1080,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   // };
 
   onExpandedRowsChange = (expandedKeys: readonly Key[]) => {
+    // const { commitBatchMetaUpdates } = this.props;
     console.log("Antd 表格 onExpandedRowsChange", expandedKeys);
-    this.updateWidgetProperty("expandedKeys", expandedKeys);
+    this.props.updateWidgetMetaProperty("expandedKeys", expandedKeys);
+
+    // commitBatchMetaUpdates();
   };
 
   onExpand = (expanded: boolean, record: any) => {
+    console.log("Antd 表格 onExpand", expanded, record);
+
     // const config: ExecuteTriggerPayload = {
     //   triggerPropertyName: "onExpand",
     //   dynamicString: this.props.onExpand,
@@ -1208,6 +1215,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onCheckChange={this.onCheckChange}
           onConnectData={this.onConnectData}
           onExpand={this.onExpand}
+          onExpandedRowsChange={this.onExpandedRowsChange}
           onQueryDataChange={this.handleQueryDataChange}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
@@ -1620,6 +1628,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       } else {
         this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
       }
+    }
+
+    if (this.props.onRowClick) {
+      this.onColumnEvent({
+        rowIndex: selectedIndex,
+        action: this.props.onRowClick,
+        triggerPropertyName: "onRowClick",
+        eventType: EventType.ON_ROW_SELECTED,
+      });
     }
   };
   updatePageSize = (_pageSize: number) => {

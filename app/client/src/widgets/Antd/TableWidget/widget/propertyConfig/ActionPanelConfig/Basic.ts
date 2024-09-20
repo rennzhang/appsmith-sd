@@ -1,7 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { TableWidgetProps } from "../../../constants";
+import { ColumnTypes, type TableWidgetProps } from "../../../constants";
 
-import { ColumnTypes, ICON_NAMES } from "widgets/TableWidgetV2/constants";
 import {
   hideByColumnType,
   hideByMenuItemsSource,
@@ -12,7 +11,10 @@ import {
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
 import { IconNames } from "@blueprintjs/icons";
-import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+import {
+  ICON_NAMES,
+  MenuItemsSource,
+} from "widgets/MenuButtonWidget/constants";
 import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
@@ -22,8 +24,7 @@ export default {
     {
       propertyName: "columnType",
       label: "按钮类型",
-      helpText:
-        "设置按钮类型，文本按钮、图标按钮、菜单按钮",
+      helpText: "设置按钮类型，文本按钮、图标按钮、菜单按钮",
       controlType: "DROP_DOWN",
       options: [
         {
@@ -47,7 +48,7 @@ export default {
         updateThemeStylesheetsInColumns,
         updateMenuItemsSource,
       ]),
-      dependencies: ["columnActions", "childStylesheet","editingActions"],
+      dependencies: ["columnActions", "childStylesheet", "editingActions"],
       isBindProperty: true,
       isTriggerProperty: false,
     },
@@ -60,7 +61,7 @@ export default {
       },
 
       updateHook: updateIconAlignment,
-      dependencies: ["columnActions", "columnType","editingActions"],
+      dependencies: ["columnActions", "columnType", "editingActions"],
       controlType: "ICON_SELECT",
       customJSControl: "TABLE_COMPUTE_VALUE",
       defaultIconName: "",
@@ -81,7 +82,7 @@ export default {
       },
 
       updateHook: updateIconAlignment,
-      dependencies: ["columnActions", "columnType","editingActions"],
+      dependencies: ["columnActions", "columnType", "editingActions"],
       controlType: "ICON_SELECT",
       customJSControl: "TABLE_COMPUTE_VALUE",
       defaultIconName: "",
@@ -107,7 +108,7 @@ export default {
         return hideByColumnType(props, propertyPath, [ColumnTypes.ICON_BUTTON]);
       },
       updateHook: updateIconAlignment,
-      dependencies: ["columnActions", "columnType","editingActions"],
+      dependencies: ["columnActions", "columnType", "editingActions"],
       controlType: "ICON_SELECT",
       customJSControl: "TABLE_COMPUTE_VALUE",
       defaultIconName: "add",
@@ -134,7 +135,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);
       },
-      dependencies: ["columnActions","editingActions"],
+      dependencies: ["columnActions", "editingActions"],
       isBindProperty: true,
       isTriggerProperty: false,
     },
@@ -147,7 +148,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
       },
-      dependencies: ["columnActions","editingActions"],
+      dependencies: ["columnActions", "editingActions"],
       isBindProperty: true,
       isTriggerProperty: false,
     },
@@ -160,7 +161,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
-      dependencies: ["columnActions","editingActions"],
+      dependencies: ["columnActions", "editingActions"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
       },

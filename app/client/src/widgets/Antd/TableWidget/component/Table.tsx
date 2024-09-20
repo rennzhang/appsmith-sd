@@ -1,29 +1,21 @@
 import { TableWrapper } from "./TableStyledWrappers";
-import type { ReactTableColumnProps, StickyType } from "./Constants";
 import { Colors } from "constants/Colors";
-import type SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
 import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
-import fastdom from "fastdom";
 import { ConnectDataOverlay } from "./ConnectDataOverlay";
 import type { ActionType } from "@ant-design/pro-components";
-import {
-  DragSortTable,
-  EditableProTable,
-  ProTable,
-} from "@ant-design/pro-components";
-import { Button, ConfigProvider, Space, Table } from "antd";
-import { useEffect, useRef, useState } from "react";
+import { DragSortTable } from "@ant-design/pro-components";
+import { ConfigProvider, Space, Table } from "antd";
+import { useEffect, useRef } from "react";
 import React from "react";
 import type { AntdTableProps } from "../constants";
-import { PlusOutlined } from "@ant-design/icons";
 // ColumnStateType
 import {
   useEditableState,
   useColumnState,
   useTableQuery,
-  useNewRowState,
+  useExpandState,
 } from "./hooks";
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 
@@ -98,12 +90,16 @@ export function ProTableComponent(props: AntdTableProps) {
     setInitialQueryData,
   });
 
+  const { expandable } = useExpandState(props);
+
   const { addNewRowBtn, editable } = useEditableState(props, actionRef);
 
-  console.group("Antd 表格 Table Protable  333");
+  console.group("Antd 表格 Table Protable  222");
   console.log("表格 props", props);
   console.log("primaryColumns", props.primaryColumns);
   console.log("表格 tableColumns", tableColumns);
+  console.log(` expandable`, expandable);
+  console.log(` expandedKeys`, expandable.expandedRowKeys);
   console.groupEnd();
   return (
     <>
@@ -167,15 +163,7 @@ export function ProTableComponent(props: AntdTableProps) {
                 columnsState={columnsState}
                 dataSource={props.tableData}
                 dateFormatter="string"
-                expandable={{
-                  defaultExpandAllRows: props.defaultExpandAllRows,
-                  defaultExpandedRowKeys: props.defaultExpandedRowKeys,
-                  expandedRowKeys: props.expandedKeys,
-                  childrenColumnName: props.childrenColumnName,
-                  onExpand: props.onExpand,
-                  expandRowByClick: props.expandRowByClick,
-                  onExpandedRowsChange: props.onExpandedRowsChange,
-                }}
+                expandable={expandable}
                 form={form}
                 onReset={habdleReset}
                 onRow={(record, index) => {
@@ -231,7 +219,7 @@ export function ProTableComponent(props: AntdTableProps) {
                       }
                     : false
                 }
-                scroll={{ x: "100%", y: 400 }}
+                // scroll={{ x: "100%", y: 400 }}
                 search={
                   props?.isVisibleSearch
                     ? {

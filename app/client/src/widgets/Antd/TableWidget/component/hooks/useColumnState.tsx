@@ -380,7 +380,8 @@ const getColumnRender = (
       schema,
     });
     const valueType = schema.valueType;
-    switch (valueType) {
+    const value = record[column.id];
+    switch (valueType as ProFieldValueType & ColumnTypes) {
       case ColumnTypes.SWITCH:
         return (
           <Switch
@@ -396,6 +397,12 @@ const getColumnRender = (
               );
             }}
           />
+        );
+      case ColumnTypes.URL:
+        return (
+          <a href={value} rel="noreferrer" target="_blank">
+            {column.columnProperties.displayText || value}
+          </a>
         );
       default:
         return dom;

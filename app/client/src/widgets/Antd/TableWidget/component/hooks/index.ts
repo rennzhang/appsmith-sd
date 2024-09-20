@@ -3,5 +3,5 @@ export { useColumnState } from "./useColumnState";
 // useTableQuery
 export { useTableQuery } from "./useTableQuery";
 
-// useNewRowState
-export { useNewRowState } from "./useNewRowState";
+// useExpandState
+export { useExpandState } from "./useExpandState";

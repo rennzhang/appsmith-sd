@@ -1,6 +1,10 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes, DateInputFormat } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/Antd/TableWidget/constants";
+import {
+  ColumnTypes,
+  DateInputFormat,
+} from "widgets/Antd/TableWidget/constants";
+
 import { get } from "lodash";
 import {
   getBasePropertyPath,
@@ -25,10 +29,6 @@ export default {
       controlType: "DROP_DOWN",
       options: [
         {
-          label: "按钮",
-          value: ColumnTypes.BUTTON,
-        },
-        {
           label: "勾选",
           value: ColumnTypes.CHECKBOX,
         },
@@ -36,17 +36,10 @@ export default {
           label: "日期",
           value: ColumnTypes.DATE,
         },
-        {
-          label: "图标按钮",
-          value: ColumnTypes.ICON_BUTTON,
-        },
+
         {
           label: "图片",
           value: ColumnTypes.IMAGE,
-        },
-        {
-          label: "菜单按钮",
-          value: ColumnTypes.MENU_BUTTON,
         },
         {
           label: "数字",
@@ -208,6 +201,8 @@ export default {
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
           ColumnTypes.DATE,
+          ColumnTypes.IMAGE,
+          ColumnTypes.VIDEO,
         ]);
       },
     },
@@ -261,13 +256,6 @@ export default {
         },
       },
       dependencies: ["primaryColumns", "columnOrder"],
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.ICON_BUTTON,
-          ColumnTypes.MENU_BUTTON,
-          ColumnTypes.BUTTON,
-        ]);
-      },
     },
     {
       propertyName: "isCompact",
@@ -285,9 +273,6 @@ export default {
       },
       isTriggerProperty: false,
       dependencies: ["primaryColumns", "columnOrder"],
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
-      },
     },
     {
       propertyName: "inputFormat",

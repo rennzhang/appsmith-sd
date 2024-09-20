@@ -534,6 +534,7 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.INDEX,
   ColumnTypes.INDEX_BORDER,
   ColumnTypes.IMAGE,
+  ColumnTypes.URL,
 ];
 
 export function isColumnTypeEditable(columnType: string) {

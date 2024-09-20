@@ -1,10 +1,11 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import {
-  ColumnTypes,
   DateInputFormat,
   DEFAULT_DATE_FORMAT,
 } from "widgets/Antd/TableWidget/constants";
+import type { TableWidgetProps } from "widgets/Antd/TableWidget/constants";
+import { ColumnTypes } from "widgets/Antd/TableWidget/constants";
+
 import { get } from "lodash";
 import {
   getBasePropertyPath,
@@ -108,10 +109,10 @@ export default {
           label: "颜色",
           value: ColumnTypes.COLOR,
         },
-        {
-          label: "按钮",
-          value: ColumnTypes.BUTTON,
-        },
+        // {
+        //   label: "按钮",
+        //   value: ColumnTypes.BUTTON,
+        // },
         {
           label: "复选框",
           value: ColumnTypes.CHECKBOX,
@@ -157,18 +158,18 @@ export default {
         //   value: ColumnTypes.SEGMENTED,
         // },
 
-        {
-          label: "图标按钮",
-          value: ColumnTypes.ICON_BUTTON,
-        },
+        // {
+        //   label: "图标按钮",
+        //   value: ColumnTypes.ICON_BUTTON,
+        // },
         {
           label: "图片",
           value: ColumnTypes.IMAGE,
         },
-        {
-          label: "菜单按钮",
-          value: ColumnTypes.MENU_BUTTON,
-        },
+        // {
+        //   label: "菜单按钮",
+        //   value: ColumnTypes.MENU_BUTTON,
+        // },
 
         {
           label: "URL",

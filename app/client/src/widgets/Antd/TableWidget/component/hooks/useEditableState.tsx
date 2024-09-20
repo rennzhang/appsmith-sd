@@ -1,6 +1,6 @@
-import type { Key } from "react";
-import { useEffect, useMemo, useState } from "react";
-import type { ProTableProps } from "@ant-design/pro-components";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import type { Key, ReactNode } from "react";
+import type { ProTableProps, ActionType } from "@ant-design/pro-components";
 import type { AntdTableProps, ButtonAction } from "../../constants";
 import { InlineEditingSaveOptions, ColumnTypes } from "../../constants";
 import ButtonComponent from "widgets/Antd/ButtonWidget/component";
@@ -8,48 +8,60 @@ import { Colors } from "constants/Colors";
 import { AddNewRowActions } from "../Constants";
 import { Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import type { ActionType } from "@ant-design/pro-components";
-const createButtonComponent = (
-  buttonConfig: ButtonAction,
-  defaultColor: string,
-) => (
-  <ButtonComponent
-    buttonColor={buttonConfig.buttonColor || defaultColor}
-    buttonSize="sm"
-    buttonVariant="TERTIARY"
-    configToken={{ paddingInline: 0, controlHeight: 22 }}
-    iconAlign={buttonConfig.iconAlign}
-    iconName={
-      buttonConfig.columnType === ColumnTypes.BUTTON
-        ? buttonConfig.iconName
-        : buttonConfig.btnIconName
-    }
-    text={
-      buttonConfig.columnType === ColumnTypes.ICON_BUTTON
-        ? ""
-        : buttonConfig.buttonLabel
-    }
-    widgetId={buttonConfig.widgetId}
-  />
+
+const ButtonComponentWrapper = React.memo(
+  ({
+    buttonConfig,
+    defaultColor,
+  }: {
+    buttonConfig: ButtonAction;
+    defaultColor: string;
+  }) => (
+    <ButtonComponent
+      buttonColor={buttonConfig.buttonColor || defaultColor}
+      buttonSize="sm"
+      buttonVariant="TERTIARY"
+      configToken={{ paddingInline: 0, controlHeight: 22 }}
+      iconAlign={buttonConfig.iconAlign}
+      iconName={
+        buttonConfig.columnType === ColumnTypes.BUTTON
+          ? buttonConfig.iconName
+          : buttonConfig.btnIconName
+      }
+      text={
+        buttonConfig.columnType === ColumnTypes.ICON_BUTTON
+          ? ""
+          : buttonConfig.buttonLabel
+      }
+      widgetId={buttonConfig.widgetId}
+    />
+  ),
 );
 
-const getButtonConfigs = (buttons: ButtonAction[], id: string): ButtonAction =>
-  buttons.find((b) => b.id === id) as ButtonAction;
+const getButtonConfigs = (
+  buttons: ButtonAction[],
+  id: string,
+): ButtonAction | undefined => buttons.find((b) => b.id === id);
 
 export const useEditableState = (
   props: AntdTableProps,
   actionRef: React.RefObject<ActionType>,
 ) => {
-  const [_editableKeys, setEditableKeys] = useState<Key[]>([]);
-  useEffect(() => {
-    const { editableIndices, tableData } = props;
+  const [editableKeys, setEditableKeys] = useState<Key[]>([]);
 
-    // 优先使用editableKeys，其次使用editableIndices，editableIndices需要计算出对应的key
+  useEffect(() => {
+    const {
+      editableIndices,
+      editableKeys: propsEditableKeys,
+      primaryColumnId,
+      tableData,
+    } = props;
+
     const keys =
-      props.editableKeys?.length > 0
-        ? props.editableKeys
+      propsEditableKeys?.length > 0
+        ? propsEditableKeys
         : editableIndices?.map(
-            (index) => tableData[index]?.[props.primaryColumnId || ""],
+            (index) => tableData[index]?.[primaryColumnId || ""],
           );
 
     setEditableKeys(keys as Key[]);
@@ -59,35 +71,55 @@ export const useEditableState = (
     props.tableData,
     props.primaryColumnId,
   ]);
-  const addNewRowBtn = props.allowAddNewRow ? (
-    <Button
-      icon={<PlusOutlined />}
-      key="button"
-      onClick={() => {
-        const newId = Date.now();
-        props.handleAddNewRow(newId);
-        actionRef.current?.addEditRecord(
-          {
-            id: newId,
-            ...(props.defaultNewRow || {}),
-            // 其他默认字段
-          },
-          {
-            newRecordType: "dataSource",
-            position: props.addNewRowPosition,
-          },
-        );
-      }}
-      type="primary"
-    >
-      {props.addNewRowText || "新增"}
-    </Button>
-  ) : null;
-  const editable = useMemo((): ProTableProps<any, any>["editable"] => {
-    const { editType, tableData } = props;
 
-    if (props.inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL) {
-      const sortedButtons = Object.values(props.editingActions)
+  const handleAddNewRow = useCallback(() => {
+    const newId = Date.now();
+    props.handleAddNewRow(newId);
+    actionRef.current?.addEditRecord(
+      {
+        id: newId,
+        ...(props.defaultNewRow || {}),
+      },
+      {
+        newRecordType: "dataSource",
+        position: props.addNewRowPosition,
+      },
+    );
+  }, [
+    props.handleAddNewRow,
+    props.defaultNewRow,
+    props.addNewRowPosition,
+    actionRef,
+  ]);
+
+  const addNewRowBtn = useMemo<ReactNode>(
+    () =>
+      props.allowAddNewRow ? (
+        <Button
+          icon={<PlusOutlined />}
+          key="button"
+          onClick={handleAddNewRow}
+          type="primary"
+        >
+          {props.addNewRowText || "新增"}
+        </Button>
+      ) : null,
+    [props.allowAddNewRow, props.addNewRowText, handleAddNewRow],
+  );
+
+  const editable = useMemo((): ProTableProps<any, any>["editable"] => {
+    const {
+      editingActions,
+      editType,
+      handleAddNewRowAction,
+      handleEditableRowChange,
+      handleEditableValuesChange,
+      handleRowActionClick,
+      inlineEditingSaveOption,
+    } = props;
+
+    if (inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL) {
+      const sortedButtons = Object.values(editingActions)
         .sort((a, b) => a.index - b.index)
         .filter((c) => c.showButton);
 
@@ -97,19 +129,25 @@ export const useEditableState = (
 
       return {
         type: editType || "multiple",
-        editableKeys: _editableKeys,
+        editableKeys,
         deletePopconfirmMessage: "确定删除吗？",
-        saveText: createButtonComponent(
-          saveButtonConfig,
-          Colors.AZURE_RADIANCE,
+        saveText: saveButtonConfig && (
+          <ButtonComponentWrapper
+            buttonConfig={saveButtonConfig}
+            defaultColor={Colors.AZURE_RADIANCE}
+          />
         ),
-        cancelText: createButtonComponent(
-          cancelButtonConfig,
-          Colors.AZURE_RADIANCE,
+        cancelText: cancelButtonConfig && (
+          <ButtonComponentWrapper
+            buttonConfig={cancelButtonConfig}
+            defaultColor={Colors.AZURE_RADIANCE}
+          />
         ),
-        deleteText: createButtonComponent(
-          deleteButtonConfig,
-          Colors.AZURE_RADIANCE,
+        deleteText: deleteButtonConfig && (
+          <ButtonComponentWrapper
+            buttonConfig={deleteButtonConfig}
+            defaultColor={Colors.AZURE_RADIANCE}
+          />
         ),
         onSave: async (key, row, originRow, newLineConfig) => {
           console.log("Antd 表格 onSave: ", {
@@ -118,22 +156,15 @@ export const useEditableState = (
             originRow,
             newLineConfig,
           });
-
           if (saveButtonConfig) {
             if (newLineConfig) {
-              return props.handleAddNewRowAction(
+              return handleAddNewRowAction(
                 AddNewRowActions.SAVE,
                 originRow,
-
-                () => {
-                  return "";
-                },
+                () => "",
               );
             }
-            await props.handleRowActionClick(
-              saveButtonConfig.onBtnClick,
-              originRow,
-            );
+            await handleRowActionClick(saveButtonConfig.onBtnClick, originRow);
           }
         },
         onCancel: async (key, row, originRow, newLineConfig) => {
@@ -145,16 +176,13 @@ export const useEditableState = (
           });
           if (cancelButtonConfig) {
             if (newLineConfig) {
-              return props.handleAddNewRowAction(
+              return handleAddNewRowAction(
                 AddNewRowActions.DISCARD,
                 originRow,
-
-                () => {
-                  return "";
-                },
+                () => "",
               );
             }
-            await props.handleRowActionClick(
+            await handleRowActionClick(
               cancelButtonConfig.onBtnClick,
               originRow,
             );
@@ -162,26 +190,19 @@ export const useEditableState = (
         },
         onDelete: async (key, row) => {
           if (deleteButtonConfig) {
-            await props.handleRowActionClick(
-              deleteButtonConfig.onBtnClick,
-              row,
-            );
+            await handleRowActionClick(deleteButtonConfig.onBtnClick, row);
           }
         },
         onChange: (key, row) => {
           console.log("表格 editable onChange: ", key, row);
           setEditableKeys(key);
-          props.handleEditableRowChange({
-            editableKeys: key,
-            editableRecords: row,
-          });
+          handleEditableRowChange({ editableKeys: key, editableRecords: row });
         },
         onValuesChange: (record, dataSource) => {
           console.log("表格 editable onValuesChange: ", record, dataSource);
           if (!record) return;
-          // setDataSource(dataSource);
           requestAnimationFrame(() => {
-            props.handleEditableValuesChange({
+            handleEditableValuesChange({
               originalIndex: record.__originalIndex__,
               record: record,
               rowIndex: record.rowIndex,
@@ -191,15 +212,7 @@ export const useEditableState = (
       };
     }
     return undefined;
-  }, [
-    props.tableData,
-    props.inlineEditingSaveOption,
-    props.editingActions,
-    props.editableKeys,
-    props.editableIndices,
-    props.handleRowActionClick,
-    props.primaryColumnId,
-  ]);
+  }, [props, editableKeys]);
 
   return {
     editable,

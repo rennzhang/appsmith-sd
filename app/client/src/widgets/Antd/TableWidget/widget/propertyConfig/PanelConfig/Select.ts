@@ -1,20 +1,14 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { get } from "lodash";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+
 import {
-  getBasePropertyPath,
   hideByColumnType,
-  showByColumnType,
-  selectColumnOptionsValidation,
 } from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { SelectValidator } from "widgets/Antd/tools";
-import { EvaluationSubstitutionType } from "entities/DataTree/types";
 import {
   getDefaultValueDropdownPropConfig,
   getFieldNamesPropConfig,
 } from "widgets/Antd/Form/CONST/DEFAULT_CONFIG";
+import type { TableWidgetProps } from "widgets/Antd/TableWidget/constants";
+import { ColumnTypes } from "widgets/Antd/TableWidget/constants";
 
 const dependencies = [
   "tableData",

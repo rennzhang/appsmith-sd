@@ -24,6 +24,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { getCurrentAppPositioningType } from "./editorSelectors";
+import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -83,7 +84,7 @@ export const getWidgetPropsForPropertyPane = createSelector(
   },
   (
     widget: WidgetProps | undefined,
-    appPositioningType,
+    appPositioningType: AppPositioningTypes,
     evaluatedValue: any,
   ): WidgetProps | undefined => {
     if (!widget) return undefined;
@@ -235,7 +236,7 @@ export const getWidgetPropsForPropertyName = (
       if (dependencies.includes("googleMapsApiKey")) {
         widgetProperties.googleMapsApiKey = googleMapsApiKey;
       }
-
+      console.log(` evaluatedWidget11111`, evaluatedWidget);
       widgetProperties[EVALUATION_PATH] = populateEvaluatedWidgetProperties(
         evaluatedWidget,
         propertyName,

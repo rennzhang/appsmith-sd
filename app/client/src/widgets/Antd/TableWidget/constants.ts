@@ -35,10 +35,10 @@ export interface AntdTableProps {
   editType: "single" | "multiple";
   editableKeys: Key[];
   editableRecords: Record<string, unknown>[];
-  editableIndices: readonly number[];
+  editableIndices: number[];
   defaultExpandAllRows: boolean;
-  defaultExpandedRowKeys: readonly Key[];
-  expandedKeys: readonly Key[];
+  defaultExpandedRowKeys: Key[];
+  expandedKeys: Key[];
   onCellTextChange: (
     value: EditableCell["value"],
     inputValue: string,
@@ -79,7 +79,7 @@ export interface AntdTableProps {
   enableSearchFormValidation: boolean;
   inlineEditingSaveOption?: InlineEditingSaveOptions;
   expandRowByClick?: boolean;
-  onExpandedRowsChange: (expandedKeys: readonly Key[]) => void;
+  onExpandedRowsChange: (expandedKeys: Key[]) => void;
   onExpand: (expanded: boolean, record: any) => void;
   childrenColumnName: string;
   isActionFixed?: boolean;
@@ -343,7 +343,7 @@ export const COLUMN_MIN_WIDTH = 60;
 export const TABLE_COLUMN_ORDER_KEY = "tableWidgetColumnOrder";
 
 export enum ColumnTypes {
-  TEXT = "text",
+  TEXT = "input",
   URL = "url",
   NUMBER = "digit",
   IMAGE = "image",
@@ -375,7 +375,7 @@ export enum ColumnTypes {
 }
 
 export enum ReadOnlyColumnTypes {
-  TEXT = "text",
+  TEXT = "inpu",
   URL = "url",
   NUMBER = "number",
   // IMAGE = "image",

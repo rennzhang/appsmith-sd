@@ -159,7 +159,10 @@ export function childrenKeyValidation(
   __?: any,
   path?: string,
 ): ValidationResponse {
-  const _value = value;
+  let _value = value || props[path || ""];
+  if (props.type === "ANTD_PRO_TABLE_WIDGET") {
+    _value = _.get(props, path || "");
+  }
   let sourceData: any = [];
 
   let parsedValue: any[] | undefined;
@@ -262,7 +265,10 @@ export function labelKeyValidation(
   __: any,
   path?: string,
 ) {
-  const _value = value || props[path || ""];
+  let _value = value || props[path || ""];
+  if (props.type === "ANTD_PRO_TABLE_WIDGET") {
+    _value = _.get(props, path || "");
+  }
   /*
    * Validation rules
    *  1. Can be a string.
@@ -326,7 +332,10 @@ export function valueKeyValidation(
   __?: any,
   path?: string,
 ) {
-  const _value = value || props[path || ""];
+  let _value = value || props[path || ""];
+  if (props.type === "ANTD_PRO_TABLE_WIDGET") {
+    _value = _.get(props, path || "");
+  }
 
   console.log("valueKeyValidation", { value, _value, props, path });
   /*
@@ -343,7 +352,7 @@ export function valueKeyValidation(
       messages: [
         {
           name: "ValidationError",
-          message: `值的类型必须是字符串或字符串、数字、布尔值的数组`,
+          message: `值的类型必须是字符串或数字`,
         },
       ],
     };
@@ -352,7 +361,7 @@ export function valueKeyValidation(
   let options: unknown[] = [];
 
   if (_.isString(_value)) {
-    let sourceData = _.isArray(props.options) ? props.options : [];
+    let sourceData: any[] = _.isArray(props.options) ? props.options : [];
     if (props.type === "ANTD_PRO_TABLE_WIDGET") {
       sourceData =
         props.orderedTableColumns?.[props.editingColumnIndex]?.options || [];

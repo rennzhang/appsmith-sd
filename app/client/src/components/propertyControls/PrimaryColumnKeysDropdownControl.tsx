@@ -51,6 +51,8 @@ class PrimaryColumnKeysDropdownControl extends BaseControl<ControlProps> {
 
   getIsMultiSelect = () => {
     let _isMultiSelect = this.props.isMultiSelect;
+    if (_isMultiSelect === undefined) return true;
+
     if (typeof this.props.isMultiSelect === "function") {
       _isMultiSelect = (this.props.isMultiSelect as any)?.({
         ...this.props,

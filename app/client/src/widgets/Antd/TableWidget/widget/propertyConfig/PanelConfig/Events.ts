@@ -1,5 +1,6 @@
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/Antd/TableWidget/constants";
+import { ColumnTypes } from "widgets/Antd/TableWidget/constants";
+
 import { get } from "lodash";
 import {
   getBasePropertyPath,
