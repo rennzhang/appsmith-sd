@@ -35,6 +35,9 @@ import { Icon } from "@blueprintjs/core";
 import { cloneDeep } from "lodash";
 
 export interface TreeSelectComponentProps {
+  valueKey: string;
+  labelKey: string;
+  childrenKey: string;
   widgetName: string;
   disabled?: boolean;
   loading?: boolean;
@@ -62,7 +65,6 @@ export interface TreeSelectComponentProps {
   renderMode?: RenderMode;
   options?: SelectProps["options"];
   required?: boolean;
-  fieldNames?: SelectProps["fieldNames"];
   mode?: SelectProps["mode"];
   errorMessage: string;
   defaultExpandAll?: boolean;
@@ -90,7 +92,6 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     defaultValue,
     disabled,
     errorMessage,
-    fieldNames,
     filterText,
     isDynamicHeightEnabled,
     isValid,
@@ -157,12 +158,12 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
 
   const fieldNamesValue = useMemo(() => {
     const defaultFieldNames = {
-      value: "value",
-      label: "label",
-      children: "children",
+      value: props.valueKey || "value",
+      label: props.labelKey || "label",
+      children: props.childrenKey || "children",
     };
-    return Object.assign({}, defaultFieldNames, fieldNames||{});
-  }, [fieldNames]);
+    return defaultFieldNames;
+  }, [props.valueKey, props.labelKey, props.childrenKey]);
 
   const handleFilter: SelectProps["filterOption"] = (inputValue, node) => {
     const labelName = fieldNamesValue.label as string;
@@ -213,6 +214,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     console.log("onChange", selectedKeysValue);
     console.log(" value", value);
     console.log(" label", label);
+
     console.groupEnd();
 
     changeExtraInfo = {
@@ -226,8 +228,9 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     props.handleSearch?.(val || "");
   };
 
-  console.group("Antd 选择器组件");
-  console.log("Antd 选择器组件 props", props);
+  console.group("Antd 树选择器组件");
+  console.log("Antd 树选择器组件 props", props);
+  console.log("Antd 树选择器组件 fieldNamesValue", fieldNamesValue);
   console.groupEnd();
   return (
     <AntdFormItemContainer
@@ -264,7 +267,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
         >
           <Select
             allowClear={allowClear}
-            defaultValue={defaultValue||undefined}
+            defaultValue={defaultValue || undefined}
             disabled={disabled}
             fieldNames={fieldNamesValue}
             filterOption={handleFilter}

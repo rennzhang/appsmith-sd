@@ -99,11 +99,6 @@ export const CONFIG = {
     labelTextSize: "0.875rem",
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
-    fieldNames: {
-      label: "label",
-      value: "value",
-      children: "children",
-    },
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

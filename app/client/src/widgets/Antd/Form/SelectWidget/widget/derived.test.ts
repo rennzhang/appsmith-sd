@@ -131,49 +131,5 @@ describe("Derived property - TreeSelect Widget", () => {
   //   });
   // });
 
-  describe("#getCheckedLabels", () => {
-    it("selectedOptionLabel should have a value if defaultValue(String) is in option", () => {
-      const selectedOptionLabel = derivedProperty.getCheckedLabels(
-        {
-          selectedValue: "GREEN",
 
-          checkedLabels: "GREEN",
-          flattenedOptions,
-        },
-        null,
-        _,
-      );
-
-      expect(selectedOptionLabel).toBe("Green");
-    });
-    it("selectedOptionLabel should have a value if defaultValue(Number) is in option", () => {
-      const selectedOptionLabel = derivedProperty.getCheckedLabels(
-        {
-          selectedValue: 0,
-
-          checkedLabels: 0,
-          flattenedOptions,
-        },
-        null,
-        _,
-      );
-
-      expect(selectedOptionLabel).toBe("0");
-    });
-
-    it("selectedOptionLabel should not have a value if defaultValue(string) is not in option", () => {
-      const selectedOptionLabel = derivedProperty.getCheckedLabels(
-        {
-          selectedValue: "",
-
-          checkedLabels: "YELLOW",
-          flattenedOptions,
-        },
-        null,
-        _,
-      );
-
-      expect(selectedOptionLabel).toBe("");
-    });
-  });
 });

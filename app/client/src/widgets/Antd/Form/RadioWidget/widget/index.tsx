@@ -23,7 +23,10 @@ import type { WidgetState, WidgetProps } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { getDefaultValueDropdownPropConfig, getFieldNamesPropConfig } from "../../CONST/DEFAULT_CONFIG";
+import {
+  getDefaultValueDropdownPropConfig,
+  getFieldNamesPropConfig,
+} from "../../CONST/DEFAULT_CONFIG";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -488,7 +491,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     return (
       <RadioGroupComponent
         {...this.props}
-        fieldNames={this.props.fieldNames}
         accentColor={this.props.accentColor}
         alignment={alignment}
         animateLoading={animateLoading}
@@ -548,6 +550,9 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 }
 
 export interface RadioGroupWidgetProps extends WidgetProps {
+  valueKey: string;
+  labelKey: string;
+  childrenKey: string;
   options: RadioOption[];
   onSelectionChange: string;
   defaultValue: string;

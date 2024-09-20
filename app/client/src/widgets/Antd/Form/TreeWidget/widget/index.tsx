@@ -28,7 +28,10 @@ import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
-import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
+import {
+  DEFAULT_STYLE_PANEL_CONFIG,
+  getFieldNamesPropConfig,
+} from "../../CONST/DEFAULT_CONFIG";
 import type { Def } from "tern";
 
 function getTypeDefOfTreeSelectInfo(isCheck?: boolean): string | Def {
@@ -109,9 +112,9 @@ function optionValidation(
   props: any,
   _: any,
 ): ValidationResponse {
-  const labelField = props.fieldNames?.title || "title";
-  const valueField = props.fieldNames?.key || "key";
-  const childrenField = props.fieldNames?.children || "children";
+  const labelField = props.titleKey || "title";
+  const valueField = props.valueKey || "key";
+  const childrenField = props.childrenKey || "children";
   const validateTreeStr = `
   return function validateTree(tree) {
     if (!Array.isArray(tree)) return false;
@@ -235,8 +238,9 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
                   autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
+              dependentPaths: ["labelKey", "valueKey", "childrenKey"],
             },
-            dependencies: ["fieldNames"],
+            dependencies: ["labelKey", "valueKey", "childrenKey"],
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
@@ -276,52 +280,56 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
               },
             },
           },
-          {
-            helpText: "自定义字段名",
-            propertyName: "fieldNames",
-            label: "自定义字段名",
-            controlType: "INPUT_TEXT",
-            defaultValue: {
-              title: "title",
-              key: "key",
-              children: "children",
-            },
-            isJSConvertible: false,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.OBJECT,
-              params: {
-                required: true,
-                allowedKeys: [
-                  {
-                    name: "title",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "title",
-                      required: true,
-                    },
-                  },
-                  {
-                    name: "key",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "key",
-                      required: true,
-                    },
-                  },
-                  {
-                    name: "children",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "children",
-                      required: true,
-                    },
-                  },
-                ],
-              },
-            },
-          },
+
+          getFieldNamesPropConfig("label"),
+          getFieldNamesPropConfig("value"),
+          getFieldNamesPropConfig("children"),
+          // {
+          //   helpText: "自定义字段名",
+          //   propertyName: "fieldNames",
+          //   label: "自定义字段名",
+          //   controlType: "INPUT_TEXT",
+          //   defaultValue: {
+          //     title: "title",
+          //     key: "key",
+          //     children: "children",
+          //   },
+          //   isJSConvertible: false,
+          //   isBindProperty: true,
+          //   isTriggerProperty: false,
+          //   validation: {
+          //     type: ValidationTypes.OBJECT,
+          //     params: {
+          //       required: true,
+          //       allowedKeys: [
+          //         {
+          //           name: "title",
+          //           type: ValidationTypes.TEXT,
+          //           params: {
+          //             default: "title",
+          //             required: true,
+          //           },
+          //         },
+          //         {
+          //           name: "key",
+          //           type: ValidationTypes.TEXT,
+          //           params: {
+          //             default: "key",
+          //             required: true,
+          //           },
+          //         },
+          //         {
+          //           name: "children",
+          //           type: ValidationTypes.TEXT,
+          //           params: {
+          //             default: "children",
+          //             required: true,
+          //           },
+          //         },
+          //       ],
+          //     },
+          //   },
+          // },
         ],
       },
       {
@@ -854,7 +862,6 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
         }
         disabled={this.props.isDisabled ?? false}
         errorMessage={this.props.errorMessage}
-        fieldNames={this.props.fieldNames}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isMultiple={this.props.isMultiple}
         isSearchable={this.props.isSearchable}
@@ -877,8 +884,8 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
     );
   }
   getFlattenedOptions = () => {
-    const valueName = this.props.fieldNames?.title ?? "title";
-    const labelName = this.props.fieldNames?.key ?? "key";
+    const valueName = this.props.valueKey ?? "title";
+    const labelName = this.props.labelKey ?? "key";
 
     const flat = (array?: any[]) => {
       if (!array) return [];
@@ -894,8 +901,8 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
     return flat(this.props.options);
   };
   getLabels = (keys?: Key[]) => {
-    const valueName = this.props.fieldNames?.title ?? "title";
-    const labelName = this.props.fieldNames?.key ?? "key";
+    const valueName = this.props.valueKey ?? "title";
+    const labelName = this.props.labelKey ?? "key";
     const options = this.getFlattenedOptions();
     if (Array.isArray(keys) && keys.length) {
       const labels = keys?.map((value) => {

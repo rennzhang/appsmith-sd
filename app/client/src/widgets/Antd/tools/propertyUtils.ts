@@ -5,16 +5,19 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { SelectWidgetProps } from "../Form/SelectWidget/widget";
 
 export function getDefaultValueOptions(widget: WidgetProps) {
-  console.log("getDefaultValueOptions", widget);
   let sourceData = get(widget, `${EVAL_VALUE_PATH}.options`);
-  let fieldNames = widget.fieldNames || {};
+  let labelKey = widget.labelKey || "label";
+  let valueKey = widget.valueKey || "value";
   if (widget.type === "ANTD_PRO_TABLE_WIDGET") {
     sourceData =
       (widget?.__evaluation__?.evaluatedValues as any)?.orderedTableColumns?.[
         widget.editingColumnIndex
       ]?.options || [];
 
-    fieldNames = widget.primaryColumns[widget.editingColumnId].fieldNames || {};
+    labelKey =
+      widget.primaryColumns[widget.editingColumnId].labelKey || "label";
+    valueKey =
+      widget.primaryColumns[widget.editingColumnId].valueKey || "value";
   }
   let parsedValue: Record<string, any>[] | undefined = sourceData;
 
@@ -27,8 +30,8 @@ export function getDefaultValueOptions(widget: WidgetProps) {
   return (parsedValue as any[])?.map((d: any) => {
     if (isPlainObject(d)) {
       return {
-        label: d[fieldNames.label],
-        value: d[fieldNames.value],
+        label: d[labelKey],
+        value: d[valueKey],
       };
     }
     return {
@@ -48,7 +51,6 @@ export function getLabelValueKeyOptions(widget: WidgetProps) {
         widget.editingColumnIndex
       ]?.options || [];
   }
-  const fieldNames = widget.fieldNames || {};
 
   let parsedValue: Record<string, unknown> | undefined = sourceData;
 
@@ -63,8 +65,10 @@ export function getLabelValueKeyOptions(widget: WidgetProps) {
       parsedValue.reduce((keys, obj) => {
         if (isPlainObject(obj)) {
           Object.entries(obj).forEach(([key, value]) => {
-            const isChildrenKey = "children" in fieldNames;
             const valueIsArray = Array.isArray(value);
+
+            const isChildrenKey =
+              "childrenKey" in widget || widget.propertyName === "childrenKey";
             if (isChildrenKey && valueIsArray) {
               keys.push(key);
             } else if (!isChildrenKey && !valueIsArray) {

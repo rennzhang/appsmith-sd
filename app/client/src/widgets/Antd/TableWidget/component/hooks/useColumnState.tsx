@@ -163,15 +163,25 @@ const getRules = (column: TableColumnProps) => {
 
 const getValueEnum = (column: TableColumnProps) => {
   const { columnProperties } = column;
-  const { fieldNames, options } = columnProperties;
-
+  const {
+    computedValue = [],
+    labelKey,
+    options,
+    valueKey,
+  } = columnProperties || {};
+  let _options = options || [];
   // 如果不需要显示筛选或没有选项，则返回 undefined
-  if (!options || options.length === 0) return undefined;
+  if (!options || options.length === 0) {
+    _options = (computedValue || [])?.map((c) => ({
+      label: String(c),
+      value: c,
+    }));
+  }
 
   const valueEnum: Record<string, any> = {};
-  options.forEach((option: any) => {
-    const value = option[fieldNames?.value || "value"];
-    const label = option[fieldNames?.label || "label"];
+  _options.forEach((option: any) => {
+    const value = option[valueKey || "value"] || option.value;
+    const label = option[labelKey || "label"] || option.label;
     if (value !== undefined && label !== undefined) {
       valueEnum[value] = {
         text: label,
@@ -344,14 +354,17 @@ const handleButtonClick = (
     existEditableColumn,
   });
 
-  if (
-    button.id === "edit" &&
-    inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL &&
-    existEditableColumn
-  ) {
+  const isInlineEditing =
+    inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL;
+
+  if (button.id === "edit" && isInlineEditing && existEditableColumn) {
     action?.startEditable?.(record.id);
   }
-  props.handleRowActionClick(button.onBtnClick, record, recordIndex);
+  props.handleRowActionClick(
+    button.onBtnClick,
+    record,
+    isInlineEditing && !!existEditableColumn,
+  );
 };
 
 const getColumnRender = (
@@ -393,19 +406,32 @@ const getColumnRender = (
 const getFieldProps = (column: TableColumnProps) => {
   const fieldProps: ProColumns<Record<string, any>>["fieldProps"] = {
     ...column.columnProperties,
+    fieldNames: {
+      label: column.columnProperties.labelKey || "label",
+      value: column.columnProperties.valueKey || "value",
+      children: column.columnProperties.childrenKey || "children",
+      key: column.columnProperties.valueKey || "key",
+      title: column.columnProperties.labelKey || "label",
+    },
     options: column.columnProperties.options?.map((option: any) => {
       return {
-        label:
-          option[column.columnProperties.fieldNames?.label || ""] ||
-          option.label,
-        value:
-          option[column.columnProperties.fieldNames?.value || ""] ||
-          option.value,
+        label: option[column.columnProperties.labelKey || ""] || option.label,
+        value: option[column.columnProperties.valueKey || ""] || option.value,
         ...option,
       };
     }),
   };
 
+  switch (column.columnProperties.columnType) {
+    case ColumnTypes.DATE:
+      fieldProps.format = column.columnProperties.outputFormat;
+      break;
+    // case ColumnTypes.IMAGE:
+    //   fieldProps.src
+    //   break;
+    default:
+      break;
+  }
   if (column.columnProperties.columnType === ColumnTypes.DATE) {
     fieldProps.format = column.columnProperties.outputFormat;
   }
@@ -482,7 +508,13 @@ export const useColumnState = (
 
   const actionColumn = useMemo(
     () => getActionColumn(props),
-    [props.columnActions, props.actionWidth, props.primaryColumns],
+    [
+      props.columnActions,
+      props.actionWidth,
+      props.primaryColumns,
+      props.columns,
+      props.inlineEditingSaveOption,
+    ],
   );
 
   return {

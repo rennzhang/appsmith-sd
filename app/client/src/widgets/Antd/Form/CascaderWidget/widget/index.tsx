@@ -28,7 +28,10 @@ import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
-import { DEFAULT_STYLE_PANEL_CONFIG, getFieldNamesPropConfig } from "../../CONST/DEFAULT_CONFIG";
+import {
+  DEFAULT_STYLE_PANEL_CONFIG,
+  getFieldNamesPropConfig,
+} from "../../CONST/DEFAULT_CONFIG";
 
 function defaultValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -46,77 +49,6 @@ function defaultValueValidation(value: unknown): ValidationResponse {
   return { isValid: true, parsed: value };
 }
 
-function optionValidation(
-  value: unknown,
-  props: any,
-  _: any,
-): ValidationResponse {
-  const labelField = props.fieldNames?.label || "label";
-  const valueField = props.fieldNames?.value || "value";
-  const childrenField = props.fieldNames?.children || "children";
-  const validateTreeStr = `
-  return function validateTree(tree) {
-    if (!Array.isArray(tree)) return false;
-
-    for (let node of tree) {
-      if (typeof node !== 'object' || node === null ||
-          !('${valueField}' in node) || !('${labelField}' in node)) {
-        return false;
-      }
-
-      if (node.${childrenField} && !validateTree(node.${childrenField})) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-`;
-
-  // 使用 new Function 重新生成 validateTree 函数
-  const validateTree = new Function(validateTreeStr)();
-  let options = value;
-  const invalidResponse = {
-    isValid: false,
-    parsed: [],
-    messages: [
-      {
-        name: "TypeError",
-        message: "This value does not evaluate to type Array",
-      },
-    ],
-  };
-
-  try {
-    if (_.isString(options)) {
-      options = JSON.parse(options as string);
-    }
-
-    if (Array.isArray(options)) {
-      const isValid = validateTree(options);
-      let message = { name: "", message: "" };
-
-      if (!isValid) {
-        message = {
-          name: "TypeError",
-          message:
-            `Each option must be an object with '${labelField}' and '${valueField}' fields. ` +
-            `The '${childrenField}' field must be an array of objects with '${labelField}' and '${valueField}' fields.`,
-        };
-      }
-
-      return {
-        isValid,
-        parsed: isValid ? options : [],
-        messages: [message],
-      };
-    } else {
-      return invalidResponse;
-    }
-  } catch (e) {
-    return invalidResponse;
-  }
-}
 class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
     return [
@@ -133,17 +65,11 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.FUNCTION,
+              type: ValidationTypes.OBJECT_ARRAY,
               params: {
-                fn: optionValidation,
-                expected: {
-                  type: "value",
-                  example: `[{ "label": "label1", "value": "value1", "children": [{ "label": "label2", "value": "value2" }] }]`,
-                  autocompleteDataType: AutocompleteDataType.ARRAY,
-                },
+                default: [],
               },
             },
-            dependencies: ["fieldNames"],
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
@@ -455,7 +381,7 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneStyleConfig() {
-    return mergeWidgetConfig([],DEFAULT_STYLE_PANEL_CONFIG);
+    return mergeWidgetConfig([], DEFAULT_STYLE_PANEL_CONFIG);
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -539,7 +465,6 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
         }
         disabled={this.props.isDisabled ?? false}
         errorMessage={this.props.errorMessage}
-        fieldNames={this.props.fieldNames}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isFilterable
         dropdownStyle={{
@@ -640,6 +565,9 @@ export interface DropdownOption {
 }
 
 export interface CascaderWidgetProps extends WidgetProps {
+  valueKey: string;
+  labelKey: string;
+  childrenKey: string;
   placeholderText?: string;
   selectedIndex?: number;
   options?: DropdownOption[];

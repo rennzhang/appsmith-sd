@@ -72,7 +72,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
     const options =
       typeof this.props.options === "function"
-        ? this.props.options(this.props.widgetProperties)
+        ? this.props.options({
+            ...this.props,
+            ...this.props.widgetProperties,
+          }) || []
         : this.props?.options || [];
 
     if (this.props.defaultValue) {
@@ -105,9 +108,14 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           ? this.props.evaluatedValue
           : this.props.propertyValue;
 
+      console.log("DropDownControl render computedValue", computedValue);
+
       selected = options.find(
         (option) => option.value === computedValue,
       )?.value;
+      if (!this.props.parentPropertyValue && selected) {
+        this.onSelect(selected as string);
+      }
 
       if (this.props.alwaysShowSelected && !selected) {
         selected = computedValue;
@@ -121,10 +129,19 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
     const errorMessage = errors?.[errors.length - 1]?.errorMessage?.message;
 
+    console.log(
+      "DropDownControl render",
+      this.props.defaultValue,
+      options,
+      selected,
+      defaultSelected,
+      this.props,
+    );
+
     return (
       <div className="w-full h-full" ref={this.containerRef}>
         <Select
-          defaultValue={defaultSelected}
+          // defaultValue={defaultSelected}
           isMultiSelect={isMultiSelect}
           isValid={!errors.length}
           onDeselect={this.onDeselect}
@@ -205,6 +222,12 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       } else {
         selectedValue = value;
       }
+
+      console.log(
+        ` DropDownControl onSelect`,
+        this.props.propertyName,
+        selectedValue,
+      );
       this.updateProperty(this.props.propertyName, selectedValue);
     }
   };

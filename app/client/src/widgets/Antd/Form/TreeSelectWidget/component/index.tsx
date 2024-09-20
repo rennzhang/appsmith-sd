@@ -36,6 +36,9 @@ import { cloneDeep } from "lodash";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
 
 export interface TreeSelectComponentProps {
+  valueKey: string;
+  labelKey: string;
+  childrenKey: string;
   widgetName: string;
   disabled?: boolean;
   loading?: boolean;
@@ -63,7 +66,6 @@ export interface TreeSelectComponentProps {
   renderMode?: RenderMode;
   options?: TreeSelectProps["treeData"];
   required?: boolean;
-  fieldNames?: TreeSelectProps["fieldNames"];
   isMultiple?: boolean;
   errorMessage: string;
   defaultExpandAll?: boolean;
@@ -96,7 +98,6 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     defaultValue,
     disabled,
     errorMessage,
-    fieldNames,
     filterText,
     iconName,
     isDynamicHeightEnabled,
@@ -169,13 +170,14 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
 
   const fieldNamesValue = useMemo(() => {
     const defaultFieldNames = {
-      value: "value",
-      label: "label",
-      children: "children",
+      value: props.valueKey || "value",
+      label: props.labelKey || "label",
+      children: props.childrenKey || "children",
+      key: props.valueKey || "value",
+      title: props.labelKey || "label",
     };
-
-    return Object.assign({}, defaultFieldNames, fieldNames||{});
-  }, [fieldNames]);
+    return defaultFieldNames;
+  }, [props.valueKey, props.labelKey, props.childrenKey]);
 
   const handleFilter: TreeSelectProps["filterTreeNode"] = (
     inputValue,
@@ -252,7 +254,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
   };
 
   console.group("Antd 树选择组件");
-  console.log(" fieldNamesValue",fieldNamesValue)
+  console.log(" fieldNamesValue", fieldNamesValue);
   console.log("Antd 树选择组件 props", props);
   console.groupEnd();
   return (

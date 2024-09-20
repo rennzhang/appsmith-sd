@@ -13,12 +13,14 @@ import {
 import {
   getLabelValueKeyOptions,
   labelKeyValidation,
+  valueKeyValidation,
   getLabelValueAdditionalAutocompleteData,
   getDefaultValueOptions,
   SelectValidator,
+  childrenKeyValidation,
 } from "widgets/Antd/tools";
 import { PropertyControlType } from "components/propertyControls";
-import {
+import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
@@ -41,6 +43,10 @@ export const DEFAULT_CONFIG = {
     },
   },
   defaults: {
+    labelKey: "label",
+    valueKey: "value",
+    optionsKey: "options",
+    childrenKey: "children",
     labelTextSize: "0.875rem",
     dynamicHeight: DynamicHeight.AUTO_HEIGHT,
     errorMessage: "必填字段",
@@ -63,12 +69,6 @@ export const DEFAULT_CONFIG = {
     resetOnSubmit: true,
     animateLoading: false,
     controlSize: "middle",
-    fieldNames: {
-      value: "value",
-      label: "label",
-      options: "options",
-      children: "children",
-    },
   },
 };
 
@@ -398,23 +398,46 @@ export const getFieldNamesPropConfig = (
   const typeConfigMap = {
     value: {
       helpText: "选择或设置来自源数据的字段作为数值",
-      propertyName: "fieldNames.value",
+      propertyName: "valueKey",
       label: "Value Key",
+      defaultValue: "value",
+      validation: {
+        params: {
+          fnString: valueKeyValidation.toString(),
+        },
+      },
     },
     label: {
       helpText: "选择或设置来自源数据的字段作为显示标签",
-      propertyName: "fieldNames.label",
+      propertyName: "labelKey",
       label: "Label Key",
+      placeholderText: "label",
+      defaultValue: "label",
+      validation: {
+        params: {
+          fnString: labelKeyValidation.toString(),
+        },
+      },
     },
     options: {
       helpText: "选择或设置来自源数据的字段作为选项",
-      propertyName: "fieldNames.options",
+      propertyName: "optionsKey",
       label: "Options Key",
+      placeholderText: "options",
+      defaultValue: "options",
     },
     children: {
       helpText: "选择或设置来自源数据的字段作为子选项",
-      propertyName: "fieldNames.children",
+      propertyName: "childrenKey",
       label: "Children Key",
+      placeholderText: "children",
+      defaultValue: "children",
+      validation: {
+        params: {
+          fnString: childrenKeyValidation.toString(),
+        },
+        dependentPaths: ["options", "labelKey", "valueKey"],
+      },
     },
   };
   // 深度合并
@@ -423,7 +446,7 @@ export const getFieldNamesPropConfig = (
       helpText: "选择或设置来自源数据的字段作为显示标签",
       propertyName: "valueKey",
       label: "Value Key",
-      dropdownUsePropertyValue: true,
+      // dropdownUsePropertyValue: true,
       controlType: "DROP_DOWN",
       customJSControl: "WRAPPED_CODE_EDITOR",
       controlConfig: {
@@ -437,12 +460,12 @@ export const getFieldNamesPropConfig = (
       isTriggerProperty: false,
       isJSConvertible: true,
       evaluatedDependencies: ["options"],
+      dependentPaths: ["options"],
       options: getLabelValueKeyOptions,
       alwaysShowSelected: true,
       validation: {
         type: ValidationTypes.FUNCTION,
         params: {
-          fnString: labelKeyValidation.toString(),
           expected: {
             type: "String",
             example: `value`,

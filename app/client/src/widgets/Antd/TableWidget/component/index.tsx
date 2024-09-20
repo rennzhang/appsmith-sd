@@ -3,6 +3,7 @@ import AntdProTable from "./Table";
 import equal from "fast-deep-equal/es6";
 import type { AntdTableProps } from "../constants";
 import DragSortTable from "./DragSortTable";
+import EditTableDemo from "./EditTableDemo";
 
 interface ReactTableComponentProps extends AntdTableProps {
   allowRowSelection: boolean;
@@ -88,6 +89,7 @@ function arePropsEqual(
     "handleEditableValuesChange",
     "handleEditableRowChange",
     "onCellTextChange",
+    "inlineEditingSaveOption",
     // "primaryColumns",
   ];
 
@@ -105,3 +107,4 @@ function arePropsEqual(
 export default memo(ReactTableComponent, arePropsEqual);
 
 // export default DragSortTable;
+// export default EditTableDemo;

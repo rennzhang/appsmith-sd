@@ -9,8 +9,8 @@ export default {
 
   //
   getFlattenedOptions: (props, moment, _) => {
-    const valueName = props.fieldNames?.title ?? "title";
-    const labelName = props.fieldNames?.key ?? "key";
+    const valueName = props.valueKey ?? "key";
+    const labelName = props.titleKey ?? "title";
 
     const flat = (array) => {
       let result = [];
@@ -24,21 +24,4 @@ export default {
     };
     return flat(props.options);
   },
-
-  getCheckedLabels: (props, moment, _) => {
-    const valueName = props.fieldNames?.title ?? "title";
-    const labelName = props.fieldNames?.key ?? "key";
-    const options = props.flattenedOptions || [];
-    // const options = this.getFlattenedOptions();
-    if (Array.isArray(keys) && keys.length) {
-      const labels = keys?.map((value) => {
-        return options?.find((option) => option[valueName] === value)?.[
-          labelName
-        ];
-      });
-      return labels;
-    }
-    return [];
-  },
-  //
 };

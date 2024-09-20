@@ -4,6 +4,7 @@ type ValidationMessage = {
 };
 import type { ValidationResponse } from "constants/WidgetValidation";
 
+import type { LoDashStatic } from "lodash";
 import _ from "lodash";
 export function validationNumberOrUndefined(value: any, props: any, _?: any) {
   if (_?.isNil(value) || value === "")
@@ -26,112 +27,7 @@ export function validationNumberOrUndefined(value: any, props: any, _?: any) {
     messages: [{ name: "", message: "" }],
   };
 }
-export function selectOptionsCustomValidation(
-  options: any,
-  props: any,
-  _: any,
-): ValidationResponse {
-  const labelField = props.fieldNames?.label || "label";
-  const valueField = props.fieldNames?.value || "value";
-  const optionsField = props.fieldNames?.options || "options";
 
-  const validateOptions = (opts: any[]): ValidationResponse => {
-    const uniqueValues = new Set();
-    let valueType = "";
-    let isValid = true;
-    let message = { name: "", message: "" };
-
-    const checkOption = (option: any, index: number) => {
-      const label = option[labelField];
-      const value = option[valueField];
-      const subOptions = option[optionsField];
-
-      if (subOptions) {
-        return validateOptions(subOptions);
-      }
-
-      if (!valueType) {
-        valueType = typeof value;
-      }
-
-      if (uniqueValues.has(value)) {
-        isValid = false;
-        message = {
-          name: "ValidationError",
-          message: `路径:${valueField} 必须唯一。发现重复值`,
-        };
-        return false;
-      }
-      uniqueValues.add(value);
-
-      if (
-        _.isNil(label) ||
-        label === "" ||
-        (typeof label !== "string" && typeof label !== "number")
-      ) {
-        isValid = false;
-        message = {
-          name: "ValidationError",
-          message: `索引 ${index} 处的条目无效。键 ${labelField} 的值无效：此值不是字符串或数字类型`,
-        };
-        return false;
-      }
-
-      if (_.isNil(value) || typeof value !== valueType) {
-        isValid = false;
-        message = {
-          name: "TypeError",
-          message: "选项中所有 value 属性必须具有相同的类型",
-        };
-        return false;
-      }
-
-      return true;
-    };
-
-    for (let i = 0; i < opts.length; i++) {
-      if (!checkOption(opts[i], i)) {
-        return {
-          isValid,
-          parsed: [],
-          messages: [message],
-        };
-      }
-    }
-
-    return {
-      isValid,
-      parsed: opts,
-      messages: [message],
-    };
-  };
-
-  const invalidResponse = {
-    isValid: false,
-    parsed: [],
-    messages: [
-      {
-        name: "TypeError",
-        message:
-          '此值不符合 Array<{ "label": "string", "value": "string" | number }> 类型',
-      },
-    ],
-  };
-
-  try {
-    if (_.isString(options)) {
-      options = JSON.parse(options);
-    }
-
-    if (Array.isArray(options)) {
-      return validateOptions(options);
-    } else {
-      return invalidResponse;
-    }
-  } catch (e) {
-    return invalidResponse;
-  }
-}
 export function defaultValueValidation(
   _value: any,
   props: any,
@@ -256,163 +152,284 @@ const dateDefaultValueValidation = (value: any, props: any) => {
         ],
   };
 };
-export function labelKeyValidation1(
+export function childrenKeyValidation(
   value: unknown,
   props: any,
   _?: any,
   __?: any,
   path?: string,
 ): ValidationResponse {
-  try {
-    console.log("labelKeyValidation", { value, props, path });
+  const _value = value;
+  let sourceData: any = [];
+
+  let parsedValue: any[] | undefined;
+  sourceData = props.options;
+  if (props.type === "ANTD_PRO_TABLE_WIDGET") {
+    sourceData =
+      props.orderedTableColumns?.[props.editingColumnIndex]?.options || [];
+  }
+  parsedValue = sourceData;
+  if (_.isString(sourceData)) {
+    try {
+      parsedValue = JSON.parse(sourceData);
+    } catch (e) {}
+  }
+
+  console.log("childrenKeyValidation", {
+    value,
+    parsedValue,
+    _value,
+    path,
+    props,
+  });
+
+  // children 必须是数组，判断parsedValue数据中children字段是否为数组
+  if (!_.isArray(parsedValue)) {
     return {
-      parsed: [],
-      isValid: true,
-      messages: [],
-    };
-  } catch (error) {
-    return {
-      parsed: [],
+      parsed: _value,
       isValid: false,
       messages: [
         {
           name: "ValidationError",
-          message: `value does not evaluate to type: string | Array<string>`,
+          message: `${path}: 源数据必须是数组`,
+        },
+      ],
+    };
+  }
+
+  let childrenIsValid = true;
+  parsedValue?.forEach((item) => {
+    if (item.hasOwnProperty("children") && !_.isArray(item.children)) {
+      childrenIsValid = false;
+    }
+  });
+
+  console.log("childrenKeyValidation childrenIsValid", {
+    childrenIsValid,
+    value,
+    props,
+  });
+
+  if (!childrenIsValid) {
+    return {
+      parsed: _value,
+      isValid: false,
+      messages: [
+        {
+          name: "ValidationError",
+          message: `${path}: children 字段必须是数组`,
+        },
+      ],
+    };
+  }
+
+  // 验证children数组中的每个元素是否都有label和value属性
+  const isValidChildren = parsedValue?.every((item) => {
+    if (item.hasOwnProperty("children")) {
+      return item.children.every(
+        (child: any) =>
+          child.hasOwnProperty(props.labelKey) &&
+          child.hasOwnProperty(props.valueKey),
+      );
+    }
+    return true;
+  });
+
+  if (!isValidChildren) {
+    return {
+      parsed: _value,
+      isValid: false,
+      messages: [
+        {
+          name: "ValidationError",
+          message: `${path}: children 数组中的每个元素都必须包含 label 和 value 属性`,
+        },
+      ],
+    };
+  }
+
+  return {
+    parsed: _value,
+    isValid: true,
+    messages: [],
+  };
+}
+
+export function labelKeyValidation(
+  value: unknown,
+  props: any,
+  _: LoDashStatic,
+  __: any,
+  path?: string,
+) {
+  const _value = value || props[path || ""];
+  /*
+   * Validation rules
+   *  1. Can be a string.
+   *  2. Can be an Array of string, number, boolean (only for option Value).
+   */
+  console.log("labelKeyValidation", { value, _value, props, path });
+
+  if (_value === "" || _.isNil(_value)) {
+    return {
+      parsed: "",
+      isValid: false,
+      messages: [
+        {
+          name: "ValidationError",
+          message: `值的类型必须是字符串或字符串数组`,
+        },
+      ],
+    };
+  }
+
+  if (_.isString(_value)) {
+    return {
+      parsed: _value,
+      isValid: true,
+      messages: [],
+    };
+  } else if (_.isArray(_value)) {
+    const errorIndex = _value.findIndex((d) => !_.isString(d));
+
+    return {
+      parsed: errorIndex === -1 ? _value : [],
+      isValid: errorIndex === -1,
+      messages:
+        errorIndex !== -1
+          ? [
+              {
+                name: "ValidationError",
+                message: `索引 ${errorIndex} 处的值无效。该值必须是字符串类型`,
+              },
+            ]
+          : [],
+    };
+  } else {
+    return {
+      parsed: "",
+      isValid: false,
+      messages: [
+        {
+          name: "ValidationError",
+          message: "值的类型必须是字符串或字符串数组",
         },
       ],
     };
   }
 }
-export function labelKeyValidation(
+
+export function valueKeyValidation(
   value: unknown,
   props: any,
-  _?: any,
+  _: LoDashStatic,
   __?: any,
   path?: string,
-): ValidationResponse {
-  const _value = value || _.get(props, path);
-  let sourceData: any = [];
+) {
+  const _value = value || props[path || ""];
 
-  let keys: any[] = [];
-  let parsedValue: any[] | undefined;
-  try {
-    sourceData = props.options;
+  console.log("valueKeyValidation", { value, _value, props, path });
+  /*
+   * Validation rules
+   *  1. Can be a string.
+   *  2. Can be an Array of string, number, boolean (only for option Value).
+   *  3. should be unique.
+   */
+
+  if (_value === "" || _.isNil(_value)) {
+    return {
+      parsed: "",
+      isValid: false,
+      messages: [
+        {
+          name: "ValidationError",
+          message: `值的类型必须是字符串或字符串、数字、布尔值的数组`,
+        },
+      ],
+    };
+  }
+
+  let options: unknown[] = [];
+
+  if (_.isString(_value)) {
+    let sourceData = _.isArray(props.options) ? props.options : [];
     if (props.type === "ANTD_PRO_TABLE_WIDGET") {
       sourceData =
         props.orderedTableColumns?.[props.editingColumnIndex]?.options || [];
     }
-    parsedValue = sourceData;
-    if (_.isString(sourceData)) {
-      try {
-        parsedValue = JSON.parse(sourceData);
-      } catch (e) {}
-    }
-    if (_.isArray(parsedValue)) {
-      keys = _.uniq(
-        parsedValue?.reduce((_keys, obj) => {
-          if (_.isPlainObject(obj)) {
-            Object.keys(obj).forEach((d) => keys.push(d));
-          }
 
-          return keys;
-        }, []),
-      ).map((d: unknown) => ({
-        label: d,
-        value: d,
-      }));
-    }
-    console.log("labelKeyValidation", {
-      parsedValue,
-      _value,
-      path,
-      props,
-      keys,
-    });
-    /*
-     * Validation rules
-     *  1. Can be a string.
-     *  2. Can be an Array of string, number, boolean (only for option Value).
-     */
+    const keys = sourceData.reduce((keys, curr) => {
+      Object.keys(curr).forEach((d) => keys.add(d));
 
-    if (_value === "" || _.isNil(_value)) {
+      return keys;
+    }, new Set());
+
+    if (!keys.has(_value)) {
       return {
-        parsed: "",
+        parsed: _value,
         isValid: false,
         messages: [
           {
             name: "ValidationError",
-            message: `${path}: 值必须是字符串`,
+            message: `值键必须存在于源数据中`,
           },
         ],
       };
     }
 
-    if (!keys.find((key) => key.label === _value)) {
+    options = sourceData.map((d: Record<string, unknown>) => d[_value]);
+  } else if (_.isArray(_value)) {
+    const errorIndex = _value.findIndex(
+      (d) =>
+        !(_.isString(d) || (_.isNumber(d) && !_.isNaN(d)) || _.isBoolean(d)),
+    );
+
+    if (errorIndex !== -1) {
       return {
-        parsed: "",
+        parsed: [],
         isValid: false,
         messages: [
           {
             name: "ValidationError",
-            message: `${path}: 值必须是源数据的键值之一`,
+            message: `索引 ${errorIndex} 处的值无效。该值必须是字符串、数字或布尔类型`,
           },
         ],
       };
+    } else {
+      options = _value;
     }
-    // children 必须是数组，判断parsedValue数据中children字段是否为数组
-
-    if (path?.includes("children")) {
-      let childrenIsValid = true;
-      parsedValue?.forEach((item) => {
-        if (item.hasOwnProperty("children") && !Array.isArray(item.children)) {
-          childrenIsValid = false;
-        }
-      });
-      console.log("labelKeyValidation childrenIsValid", {
-        childrenIsValid,
-        value,
-        props,
-        keys,
-      });
-
-      if (!childrenIsValid) {
-        return {
-          parsed: _value,
-          isValid: false,
-          messages: [
-            {
-              name: "ValidationError",
-              message: `${path}: children 字段必须是数组`,
-            },
-          ],
-        };
-      }
-    }
-  } catch (error) {
-    // 添加错误处理
-    console.error("labelKeyValidation 错误:", error);
+  } else {
+    return {
+      parsed: "",
+      isValid: false,
+      messages: [
+        {
+          name: "ValidationError",
+          message: "值的类型必须是字符串或字符串、数字、布尔值的数组",
+        },
+      ],
+    };
   }
 
-  const isValid = parsedValue?.every(
+  const isValid = options.every(
     (d: unknown, i: number, arr: unknown[]) => arr.indexOf(d) === i,
   );
 
   return {
     parsed: _value,
-    isValid: !!isValid,
+    isValid: isValid,
     messages: isValid
       ? []
       : [
           {
             name: "ValidationError",
-            message: `${path}: 发现重复值，值必须唯一`,
+            message: "发现重复值，值必须唯一",
           },
         ],
   };
 }
 
 export const SelectValidator = {
-  optionsCustomValidation: selectOptionsCustomValidation,
   defaultValueValidation,
 };
 

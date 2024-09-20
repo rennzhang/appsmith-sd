@@ -16,12 +16,9 @@ import {
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import BaseInputWidget from "widgets/BaseInputWidget";
-import { isNil, isNumber, merge, toString } from "lodash";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { isNil, isNumber, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
-import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import {
   InputTypes,
@@ -36,18 +33,9 @@ import {
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { EvaluationSubstitutionType } from "entities/DataTree/types";
-import { optionsCustomValidation } from "widgets/RadioGroupWidget/widget";
 import { InputControlProperty } from "./childPanels/CompConfig";
 import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
-import { AntdLabelPosition } from "components/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import BaseWidget from "widgets/BaseWidget";
-import type { InputProps } from "antd";
-import type { FormItemInputProps } from "antd/lib/form/FormItemInput";
-import type { ProFormItemProps } from "@ant-design/pro-components";
-import { Alignment } from "@blueprintjs/core";
-import type { Intent, IconName, IRef } from "@blueprintjs/core";
 import type { AntdInputWidgetProps } from "../types";
 
 export function defaultValueValidation(
@@ -253,212 +241,227 @@ class AntdInputWidget<
   }
 
   static getPropertyPaneStyleConfig() {
-    return mergeWidgetConfig([
-      {
-        sectionName: "前缀后缀",
-        children: [
-          {
-            propertyName: "prefixType",
-            label: "前缀类型",
-            helpText: "设置输入框前缀附加内容类型",
-            controlType: "ICON_TABS",
-            options: [
-              { label: "无", value: "none" },
-              { label: "图标", value: "icon" },
-              { label: "文本", value: "text" },
-            ],
-            defaultValue: "none",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "prefixIcon",
-            label: "前缀图标",
-            helpText: "设置输入框前缀附加图标",
-            controlType: "ICON_SELECT",
-            showAntdIcon: true,
-            isBindProperty: false,
-            isTriggerProperty: false,
-            hidden: (props: AntdInputWidgetProps) => props.prefixType !== "icon",
-            dependencies: ["prefixType"],
-          },
-          {
-            propertyName: "prefixText",
-            label: "前缀文本",
-            helpText: "设置输入框前置附加文本",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入前缀文本",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            hidden: (props: AntdInputWidgetProps) => props.prefixType !== "text",
-            dependencies: ["prefixType"],
-          },
-          {
-            propertyName: "prefixColor",
-            label: "前缀内容颜色",
-            helpText: "设置输入框前置附加内容颜色",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            hidden: (props: AntdInputWidgetProps) => props.prefixType === "none",
-            dependencies: ["prefixType"],
-          },
-          {
-            propertyName: "suffixType",
-            label: "后缀类型",
-            helpText: "设置输入框后缀附加内容类型",
-            controlType: "ICON_TABS",
-            options: [
-              { label: "无", value: "none" },
-              { label: "图标", value: "icon" },
-              { label: "文本", value: "text" },
-            ],
-            defaultValue: "none",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "suffixIcon",
-            label: "后缀图标",
-            helpText: "设置输入框后缀附加图标",
-            controlType: "ICON_SELECT",
-            showAntdIcon: true,
-            isBindProperty: false,
-            isTriggerProperty: false,
-            hidden: (props: AntdInputWidgetProps) => props.suffixType !== "icon",
-            dependencies: ["suffixType"],
-          },
-          {
-            propertyName: "suffixText",
-            label: "后缀文本",
-            helpText: "设置输入框后缀附加文本",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入后缀文本",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            hidden: (props: AntdInputWidgetProps) => props.suffixType !== "text",
-            dependencies: ["suffixType"],
-          },
+    return mergeWidgetConfig(
+      [
+        {
+          sectionName: "前缀后缀",
+          children: [
+            {
+              propertyName: "prefixType",
+              label: "前缀类型",
+              helpText: "设置输入框前缀附加内容类型",
+              controlType: "ICON_TABS",
+              options: [
+                { label: "无", value: "none" },
+                { label: "图标", value: "icon" },
+                { label: "文本", value: "text" },
+              ],
+              defaultValue: "none",
+              isBindProperty: false,
+              isTriggerProperty: false,
+            },
+            {
+              propertyName: "prefixIcon",
+              label: "前缀图标",
+              helpText: "设置输入框前缀附加图标",
+              controlType: "ICON_SELECT",
+              showAntdIcon: true,
+              isBindProperty: false,
+              isTriggerProperty: false,
+              hidden: (props: AntdInputWidgetProps) =>
+                props.prefixType !== "icon",
+              dependencies: ["prefixType"],
+            },
+            {
+              propertyName: "prefixText",
+              label: "前缀文本",
+              helpText: "设置输入框前置附加文本",
+              controlType: "INPUT_TEXT",
+              placeholderText: "请输入前缀文本",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              hidden: (props: AntdInputWidgetProps) =>
+                props.prefixType !== "text",
+              dependencies: ["prefixType"],
+            },
+            {
+              propertyName: "prefixColor",
+              label: "前缀内容颜色",
+              helpText: "设置输入框前置附加内容颜色",
+              controlType: "COLOR_PICKER",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+              hidden: (props: AntdInputWidgetProps) =>
+                props.prefixType === "none",
+              dependencies: ["prefixType"],
+            },
+            {
+              propertyName: "suffixType",
+              label: "后缀类型",
+              helpText: "设置输入框后缀附加内容类型",
+              controlType: "ICON_TABS",
+              options: [
+                { label: "无", value: "none" },
+                { label: "图标", value: "icon" },
+                { label: "文本", value: "text" },
+              ],
+              defaultValue: "none",
+              isBindProperty: false,
+              isTriggerProperty: false,
+            },
+            {
+              propertyName: "suffixIcon",
+              label: "后缀图标",
+              helpText: "设置输入框后缀附加图标",
+              controlType: "ICON_SELECT",
+              showAntdIcon: true,
+              isBindProperty: false,
+              isTriggerProperty: false,
+              hidden: (props: AntdInputWidgetProps) =>
+                props.suffixType !== "icon",
+              dependencies: ["suffixType"],
+            },
+            {
+              propertyName: "suffixText",
+              label: "后缀文本",
+              helpText: "设置输入框后缀附加文本",
+              controlType: "INPUT_TEXT",
+              placeholderText: "请输入后缀文本",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              hidden: (props: AntdInputWidgetProps) =>
+                props.suffixType !== "text",
+              dependencies: ["suffixType"],
+            },
 
-          {
-            propertyName: "suffixColor",
-            label: "后缀内容颜色",
-            helpText: "设置输入框后缀附加内容颜色",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            hidden: (props: AntdInputWidgetProps) => props.suffixType === "none",
-            dependencies: ["suffixType"],
-          },
-        ],
-      },
-      {
-        sectionName: "附加内容配置",
-        children: [
-          {
-            propertyName: "addonBeforeType",
-            label: "前置内容类型",
-            helpText: "设置输入框前置附加内容类型",
-            controlType: "ICON_TABS",
-            options: [
-              { label: "无", value: "none" },
-              { label: "图标", value: "icon" },
-              { label: "文本", value: "text" },
-            ],
-            defaultValue: "none",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "addonBeforeIcon",
-            label: "前置图标",
-            helpText: "设置输入框前置附加图标",
-            controlType: "ICON_SELECT",
-            showAntdIcon: true,
-            isBindProperty: false,
-            isTriggerProperty: false,
-            hidden: (props: AntdInputWidgetProps) => props.addonBeforeType !== "icon",
-            dependencies: ["addonBeforeType"],
-          },
-          {
-            propertyName: "addonBeforeText",
-            label: "前置文本",
-            helpText: "设置输入框前置附加文本",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入前置文本",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            hidden: (props: AntdInputWidgetProps) => props.addonBeforeType !== "text",
-            dependencies: ["addonBeforeType"],
-          },
-          {
-            propertyName: "addonBeforeColor",
-            label: "前置内容颜色",
-            helpText: "设置输入框前置附加内容颜色",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            hidden: (props: AntdInputWidgetProps) => props.addonBeforeType === "none",
-            dependencies: ["addonBeforeType"],
-          },
-          {
-            propertyName: "addonAfterType",
-            label: "后置内容类型",
-            helpText: "设置输入框后置附加内容类型",
-            controlType: "ICON_TABS",
-            options: [
-              { label: "无", value: "none" },
-              { label: "图标", value: "icon" },
-              { label: "文本", value: "text" },
-            ],
-            defaultValue: "none",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "addonAfterIcon",
-            label: "后置图标",
-            showAntdIcon: true,
-            helpText: "设置输入框后置附加图标",
-            controlType: "ICON_SELECT",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            hidden: (props: AntdInputWidgetProps) => props.addonAfterType !== "icon",
-            dependencies: ["addonAfterType"],
-          },
-          {
-            propertyName: "addonAfterText",
-            label: "后置文本",
-            helpText: "设置输入框后置附加文本",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入后置文本",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            hidden: (props: AntdInputWidgetProps) => props.addonAfterType !== "text",
-            dependencies: ["addonAfterType"],
-          },
+            {
+              propertyName: "suffixColor",
+              label: "后缀内容颜色",
+              helpText: "设置输入框后缀附加内容颜色",
+              controlType: "COLOR_PICKER",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+              hidden: (props: AntdInputWidgetProps) =>
+                props.suffixType === "none",
+              dependencies: ["suffixType"],
+            },
+          ],
+        },
+        {
+          sectionName: "附加内容配置",
+          children: [
+            {
+              propertyName: "addonBeforeType",
+              label: "前置内容类型",
+              helpText: "设置输入框前置附加内容类型",
+              controlType: "ICON_TABS",
+              options: [
+                { label: "无", value: "none" },
+                { label: "图标", value: "icon" },
+                { label: "文本", value: "text" },
+              ],
+              defaultValue: "none",
+              isBindProperty: false,
+              isTriggerProperty: false,
+            },
+            {
+              propertyName: "addonBeforeIcon",
+              label: "前置图标",
+              helpText: "设置输入框前置附加图标",
+              controlType: "ICON_SELECT",
+              showAntdIcon: true,
+              isBindProperty: false,
+              isTriggerProperty: false,
+              hidden: (props: AntdInputWidgetProps) =>
+                props.addonBeforeType !== "icon",
+              dependencies: ["addonBeforeType"],
+            },
+            {
+              propertyName: "addonBeforeText",
+              label: "前置文本",
+              helpText: "设置输入框前置附加文本",
+              controlType: "INPUT_TEXT",
+              placeholderText: "请输入前置文本",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              hidden: (props: AntdInputWidgetProps) =>
+                props.addonBeforeType !== "text",
+              dependencies: ["addonBeforeType"],
+            },
+            {
+              propertyName: "addonBeforeColor",
+              label: "前置内容颜色",
+              helpText: "设置输入框前置附加内容颜色",
+              controlType: "COLOR_PICKER",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+              hidden: (props: AntdInputWidgetProps) =>
+                props.addonBeforeType === "none",
+              dependencies: ["addonBeforeType"],
+            },
+            {
+              propertyName: "addonAfterType",
+              label: "后置内容类型",
+              helpText: "设置输入框后置附加内容类型",
+              controlType: "ICON_TABS",
+              options: [
+                { label: "无", value: "none" },
+                { label: "图标", value: "icon" },
+                { label: "文本", value: "text" },
+              ],
+              defaultValue: "none",
+              isBindProperty: false,
+              isTriggerProperty: false,
+            },
+            {
+              propertyName: "addonAfterIcon",
+              label: "后置图标",
+              showAntdIcon: true,
+              helpText: "设置输入框后置附加图标",
+              controlType: "ICON_SELECT",
+              isBindProperty: false,
+              isTriggerProperty: false,
+              hidden: (props: AntdInputWidgetProps) =>
+                props.addonAfterType !== "icon",
+              dependencies: ["addonAfterType"],
+            },
+            {
+              propertyName: "addonAfterText",
+              label: "后置文本",
+              helpText: "设置输入框后置附加文本",
+              controlType: "INPUT_TEXT",
+              placeholderText: "请输入后置文本",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              hidden: (props: AntdInputWidgetProps) =>
+                props.addonAfterType !== "text",
+              dependencies: ["addonAfterType"],
+            },
 
-          {
-            propertyName: "addonAfterColor",
-            label: "后置内容颜色",
-            helpText: "设置输入框后置附加内容颜色",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            hidden: (props: AntdInputWidgetProps) => props.addonAfterType === "none",
-            dependencies: ["addonAfterType"],
-          },
-        ],
-      },
-    ], DEFAULT_STYLE_PANEL_CONFIG);
+            {
+              propertyName: "addonAfterColor",
+              label: "后置内容颜色",
+              helpText: "设置输入框后置附加内容颜色",
+              controlType: "COLOR_PICKER",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+              hidden: (props: AntdInputWidgetProps) =>
+                props.addonAfterType === "none",
+              dependencies: ["addonAfterType"],
+            },
+          ],
+        },
+      ],
+      DEFAULT_STYLE_PANEL_CONFIG,
+    );
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -616,8 +619,7 @@ class AntdInputWidget<
         type: EventType.ON_TEXT_CHANGE,
       },
     });
-
-  }
+  };
 
   onValueChange = (value: string) => {
     /*
@@ -758,6 +760,14 @@ class AntdInputWidget<
 
     return (
       <InputComponent
+        addonAfterColor={this.props.addonAfterColor}
+        addonAfterIcon={this.props.addonAfterIcon}
+        addonAfterText={this.props.addonAfterText}
+        addonAfterType={this.props.addonAfterType}
+        addonBeforeColor={this.props.addonBeforeColor}
+        addonBeforeIcon={this.props.addonBeforeIcon}
+        addonBeforeText={this.props.addonBeforeText}
+        addonBeforeType={this.props.addonBeforeType}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         compactMode={
@@ -785,36 +795,27 @@ class AntdInputWidget<
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
+        prefixColor={this.props.prefixColor}
+        prefixIcon={this.props.prefixIcon}
+        prefixText={this.props.prefixText}
+        prefixType={this.props.prefixType}
         regex={this.props.regex}
         required={this.props.isRequired}
         showError={!!this.props.isFocused}
         spellCheck={!!this.props.isSpellCheck}
         stepSize={1}
+        suffixColor={this.props.suffixColor}
+        suffixIcon={this.props.suffixIcon}
+        suffixText={this.props.suffixText}
+        suffixType={this.props.suffixType}
         tooltip={this.props.tooltip}
         value={value}
         accentColor={this.props.accentColor}
         // show label and Input side by side if true
         autoFocus={this.props.autoFocus}
-        prefixType={this.props.prefixType}
-        suffixType={this.props.suffixType}
-        prefixIcon={this.props.prefixIcon}
-        suffixIcon={this.props.suffixIcon}
-        prefixText={this.props.prefixText}
-        suffixText={this.props.suffixText}
-        prefixColor={this.props.prefixColor}
-        suffixColor={this.props.suffixColor}
-        addonBeforeType={this.props.addonBeforeType}
-        addonAfterType={this.props.addonAfterType}
-        addonBeforeIcon={this.props.addonBeforeIcon}
-        addonAfterIcon={this.props.addonAfterIcon}
-        addonBeforeText={this.props.addonBeforeText}
-        addonAfterText={this.props.addonAfterText}
-        addonBeforeColor={this.props.addonBeforeColor}
-        addonAfterColor={this.props.addonAfterColor}
         {...this.props}
         {...conditionalProps}
         onSearch={this.onSearch}
-
       />
     );
   }

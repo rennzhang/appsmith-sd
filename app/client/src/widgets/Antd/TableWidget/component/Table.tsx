@@ -71,7 +71,7 @@ export function ProTableComponent(props: AntdTableProps) {
   //   }
   // }, [props.isAddRowInProgress]);
 
-  const { addNewRowBtn } = useNewRowState(props, actionRef);
+  // const { addNewRowBtn } = useNewRowState(props, actionRef);
   // queryData
   const [selectedRowKeys, setSelectedRowKeys] = React.useState<React.Key[]>([]);
   // 抽离查询相关逻辑
@@ -98,7 +98,7 @@ export function ProTableComponent(props: AntdTableProps) {
     setInitialQueryData,
   });
 
-  const editableMemo = useEditableState(props);
+  const { addNewRowBtn, editable } = useEditableState(props, actionRef);
 
   console.group("Antd 表格 Table Protable  333");
   console.log("表格 props", props);
@@ -186,7 +186,7 @@ export function ProTableComponent(props: AntdTableProps) {
                         index,
                         e,
                       });
-                      props.onRowClick(record, index || -1);
+                      props.onRowClick(record, index ?? -1);
                     },
                   };
                 }}
@@ -270,21 +270,21 @@ export function ProTableComponent(props: AntdTableProps) {
                 }}
                 toolBarRender={() => [
                   addNewRowBtn,
-                  <Button
-                    icon={<PlusOutlined />}
-                    key="button"
-                    onClick={() => {
-                      actionRef.current?.reload();
-                    }}
-                    type="primary"
-                  >
-                    新建
-                  </Button>,
+                  // <Button
+                  //   icon={<PlusOutlined />}
+                  //   key="button"
+                  //   onClick={() => {
+                  //     actionRef.current?.reload();
+                  //   }}
+                  //   type="primary"
+                  // >
+                  //   新建
+                  // </Button>,
                 ]}
                 virtual={props.isVirtual}
                 defaultSize={props.compactMode}
                 // dragSortKey="sort"
-                editable={editableMemo}
+                editable={editable}
               />
             </ConfigProvider>
           </div>

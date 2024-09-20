@@ -31,7 +31,10 @@ import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
-import { DEFAULT_STYLE_PANEL_CONFIG, getFieldNamesPropConfig } from "../../CONST/DEFAULT_CONFIG";
+import {
+  DEFAULT_STYLE_PANEL_CONFIG,
+  getFieldNamesPropConfig,
+} from "../../CONST/DEFAULT_CONFIG";
 import type { Def } from "tern";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 
@@ -115,77 +118,6 @@ export function defaultValueValidation(
   }
 }
 
-function optionValidation(
-  value: unknown,
-  props: any,
-  _: any,
-): ValidationResponse {
-  const labelField = props.fieldNames?.label || "label";
-  const valueField = props.fieldNames?.value || "value";
-  const childrenField = props.fieldNames?.children || "children";
-  const validateTreeStr = `
-  return function validateTree(tree) {
-    if (!Array.isArray(tree)) return false;
-
-    for (let node of tree) {
-      if (typeof node !== 'object' || node === null ||
-          !('${valueField}' in node) || !('${labelField}' in node)) {
-        return false;
-      }
-
-      if (node.${childrenField} && !validateTree(node.${childrenField})) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-`;
-
-  // 使用 new Function 重新生成 validateTree 函数
-  const validateTree = new Function(validateTreeStr)();
-  let options = value;
-  const invalidResponse = {
-    isValid: false,
-    parsed: [],
-    messages: [
-      {
-        name: "TypeError",
-        message: "This value does not evaluate to type Array",
-      },
-    ],
-  };
-
-  try {
-    if (_.isString(options)) {
-      options = JSON.parse(options as string);
-    }
-
-    if (Array.isArray(options)) {
-      const isValid = validateTree(options);
-      let message = { name: "", message: "" };
-
-      if (!isValid) {
-        message = {
-          name: "TypeError",
-          message:
-            `Each option must be an object with '${labelField}' and '${valueField}' fields. ` +
-            `The '${childrenField}' field must be an array of objects with '${labelField}' and '${valueField}' fields.`,
-        };
-      }
-
-      return {
-        isValid,
-        parsed: isValid ? options : [],
-        messages: [message],
-      };
-    } else {
-      return invalidResponse;
-    }
-  } catch (e) {
-    return invalidResponse;
-  }
-}
 class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
     return [
@@ -240,24 +172,12 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            // validation: {
-            //   type: ValidationTypes.FUNCTION,
-            //   params: {
-            //     fn: optionValidation,
-            //     expected: {
-            //       type: "value",
-            //       example: `[{ "title": "title1", "value": "key1", "children": [{ "title": "title2", "value": "key2" }] }]`,
-            //       autocompleteDataType: AutocompleteDataType.ARRAY,
-            //     },
-            //   },
-            // },
             validation: {
               type: ValidationTypes.OBJECT_ARRAY,
               params: {
                 default: [],
               },
             },
-            dependencies: ["fieldNames"],
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
@@ -279,58 +199,11 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
                   autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
-
             },
           },
           getFieldNamesPropConfig("label"),
           getFieldNamesPropConfig("value"),
           getFieldNamesPropConfig("children"),
-          // {
-          //   helpText: "自定义字段名",
-          //   propertyName: "fieldNames",
-          //   label: "自定义字段名",
-          //   controlType: "INPUT_TEXT",
-          //   defaultValue: {
-          //     label: "label",
-          //     value: "value",
-          //     children: "children",
-          //   },
-          //   isJSConvertible: false,
-          //   isBindProperty: true,
-          //   isTriggerProperty: false,
-          //   validation: {
-          //     type: ValidationTypes.OBJECT,
-          //     params: {
-          //       required: true,
-          //       allowedKeys: [
-          //         {
-          //           name: "label",
-          //           type: ValidationTypes.TEXT,
-          //           params: {
-          //             default: "label",
-          //             required: true,
-          //           },
-          //         },
-          //         {
-          //           name: "value",
-          //           type: ValidationTypes.TEXT,
-          //           params: {
-          //             default: "value",
-          //             required: true,
-          //           },
-          //         },
-          //         {
-          //           name: "children",
-          //           type: ValidationTypes.TEXT,
-          //           params: {
-          //             default: "children",
-          //             required: true,
-          //           },
-          //         },
-          //       ],
-          //     },
-          //   },
-          // },
         ],
       },
       {
@@ -812,7 +685,6 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
         }
         disabled={this.props.isDisabled ?? false}
         errorMessage={this.props.errorMessage}
-        fieldNames={this.props.fieldNames}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isMultiple={this.props.isMultiple}
         isValid={!isInvalid}
@@ -834,14 +706,19 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
     );
   }
   getFlattenedOptions = () => {
-    const valueName = this.props.fieldNames?.label ?? "label";
-    const labelName = this.props.fieldNames?.value ?? "value";
+    const valueName = this.props.valueKey ?? "value";
+    const labelName = this.props.labelKey ?? "label";
 
     const flat = (array?: any[]) => {
       if (!array) return [];
       let result: any[] = [];
       array.forEach((a) => {
-        result.push({ [valueName]: a[valueName], [labelName]: a[labelName] });
+        result.push({
+          [valueName]: a[valueName],
+          [labelName]: a[labelName],
+          label: a[labelName],
+          value: a[valueName],
+        });
         if (Array.isArray(a.children)) {
           result = result.concat(flat(a.children));
         }

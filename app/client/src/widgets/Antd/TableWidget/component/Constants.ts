@@ -269,7 +269,7 @@ export interface ColumnBaseProperties {
   enableFilter?: boolean;
   enableSort?: boolean;
   isDerived: boolean;
-  computedValue: string;
+  computedValue: string[];
   isCellVisible?: boolean;
   isVisibleCellSearch?: boolean;
   isAscOrder?: boolean;
@@ -341,11 +341,11 @@ export interface ColumnProperties
   isVisibleCellFilters: boolean;
   isCellCopyable: boolean;
   options?: DropdownOption[];
-  fieldNames?: {
-    label: string;
-    value: string;
-    children?: string;
-  };
+
+  labelKey?: string;
+  valueKey?: string;
+  optionsKey?: string;
+  childrenKey?: string;
   buttonLabel?: string;
   menuButtonLabel?: string;
   buttonColor?: string;

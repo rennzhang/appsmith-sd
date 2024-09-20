@@ -9,6 +9,7 @@ export default {
 
   //
   getFlattenedOptions: (props, moment, _) => {
+
     const flat = (array) => {
       let result = [];
       array.forEach((a) => {

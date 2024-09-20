@@ -89,6 +89,7 @@ export interface AntdTableProps {
   handleRowActionClick: (
     onClick: string | undefined,
     record: Record<string, any>,
+    isInlineEditing?: boolean,
   ) => void;
   columnActions: ButtonAction[];
   editingActions: ButtonAction[];
@@ -377,7 +378,7 @@ export enum ReadOnlyColumnTypes {
   TEXT = "text",
   URL = "url",
   NUMBER = "number",
-  IMAGE = "image",
+  // IMAGE = "image",
   VIDEO = "video",
   DATE = "date",
   CHECKBOX = "checkbox",

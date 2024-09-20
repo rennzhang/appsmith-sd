@@ -193,12 +193,10 @@ export function getDefaultColumnProperties(
 ): ColumnProperties {
   const columnProps = {
     options: [],
-    fieldNames: {
-      value: "value",
-      label: "label",
-      options: "options",
-      children: "children",
-    },
+    labelKey: "label",
+    valueKey: "value",
+    optionsKey: "options",
+    childrenKey: "children",
     inputFormat: DEFAULT_DATE_FORMAT,
     outputFormat: DEFAULT_DATE_FORMAT,
     allowCellWrapping: false,
@@ -220,7 +218,7 @@ export function getDefaultColumnProperties(
     isCellEditable: false,
     isEditable: false,
     isCellVisible: true,
-    isVisibleCellFilters: true,
+    isVisibleCellFilters: false,
     isCellCopyable: false,
     isVisibleCellSearch: true,
     isDerived: !!isDerived,
@@ -535,6 +533,7 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.TEXTAREA,
   ColumnTypes.INDEX,
   ColumnTypes.INDEX_BORDER,
+  ColumnTypes.IMAGE,
 ];
 
 export function isColumnTypeEditable(columnType: string) {

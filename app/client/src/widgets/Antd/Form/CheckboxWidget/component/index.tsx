@@ -10,11 +10,8 @@ import type {
   CheckboxGroupProps,
   CheckboxValueType,
 } from "antd/es/checkbox/Group";
-import {
-  ProFormItem,
-  ProFormItemProps,
-  ProFormRadio,
-} from "@ant-design/pro-components";
+import type { ProFormItemProps } from "@ant-design/pro-components";
+import { ProFormItem, ProFormRadio } from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { CheckboxProps } from "antd/lib";
 export interface RadioGroupContainerProps {
@@ -58,17 +55,17 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
     required,
     value,
     widgetName,
-    fieldNames
   } = props;
 
   const fieldNamesValue = useMemo(() => {
     const defaultFieldNames = {
-      value: "value",
-      label: "label",
-      children: "children",
+      value: props.valueKey || "value",
+      label: props.labelKey || "label",
+      children: props.childrenKey || "children",
     };
-    return Object.assign(defaultFieldNames, fieldNames||{});
-  }, [fieldNames]);
+    return defaultFieldNames;
+  }, [props.valueKey, props.labelKey, props.childrenKey]);
+
   const colLayoutMemo = useMemo(() => {
     if (labelPosition === AntdLabelPosition.Left) {
       return {
@@ -88,17 +85,23 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
 
   const CheckBoxComponent = useMemo(() => {
     return options.map((option) => {
-      const { value, label } = fieldNamesValue;
-      console.log("勾选组件 111111option", {option,value,fieldNamesValue,fieldNames,label},option[value],option[label]);
-
-
-
+      const { label, value } = fieldNamesValue;
+      console.log(
+        "勾选组件 111111option",
+        { option, value, fieldNamesValue, label },
+        option[value],
+        option[label],
+      );
 
       return (
-      <Checkbox key={option[fieldNamesValue.value]} value={option[fieldNamesValue.value]}>
-        {option[fieldNamesValue.label]}
-      </Checkbox>
-    )});
+        <Checkbox
+          key={option[fieldNamesValue.value]}
+          value={option[fieldNamesValue.value]}
+        >
+          {option[fieldNamesValue.label]}
+        </Checkbox>
+      );
+    });
   }, [options, fieldNamesValue]);
 
   return (
@@ -150,7 +153,10 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
 }
 
 export interface RadioGroupComponentProps extends ComponentProps {
-  options: {value: string, label: string, [key: string]: any}[];
+  valueKey: string;
+  labelKey: string;
+  childrenKey: string;
+  options: { value: string; label: string; [key: string]: any }[];
   onValueChange: (value: CheckboxValueType[]) => void;
   value: CheckboxProps["value"];
   disabled: boolean;
@@ -172,7 +178,6 @@ export interface RadioGroupComponentProps extends ComponentProps {
   accentColor: string;
   required?: boolean;
   animateLoading?: boolean;
-  fieldNames?: ProFormItemProps["fieldProps"];
 }
 
 export default CheckboxGroupComponent;

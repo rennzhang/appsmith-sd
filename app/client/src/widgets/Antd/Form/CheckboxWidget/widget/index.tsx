@@ -23,7 +23,10 @@ import BaseWidget from "widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { CheckboxValueType } from "antd/es/checkbox/Group";
-import { getDefaultValueDropdownPropConfig, getFieldNamesPropConfig } from "../../CONST/DEFAULT_CONFIG";
+import {
+  getDefaultValueDropdownPropConfig,
+  getFieldNamesPropConfig,
+} from "../../CONST/DEFAULT_CONFIG";
 class CheckBoxGroupWidget extends BaseWidget<
   CheckBoxGroupWidgetProps,
   WidgetState
@@ -80,7 +83,8 @@ class CheckBoxGroupWidget extends BaseWidget<
           getDefaultValueDropdownPropConfig({
             isMultiSelect: true,
             validation: {
-              type: ValidationTypes.ARRAY, params: {
+              type: ValidationTypes.ARRAY,
+              params: {
                 required: true,
               },
             },
@@ -535,6 +539,9 @@ class CheckBoxGroupWidget extends BaseWidget<
 }
 
 export interface CheckBoxGroupWidgetProps extends WidgetProps {
+  valueKey: string;
+  labelKey: string;
+  childrenKey: string;
   options: { value: string; label: string; [key: string]: any }[];
   onValueChange: string;
   defaultValue: CheckboxValueType[];

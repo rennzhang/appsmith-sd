@@ -766,14 +766,17 @@ export const updateSelectSource = (
     ) &&
     !selectSource?.legnth
   ) {
+    console.log("selectSource", props);
     // Sets the default value for selectSource to static when
     // selecting the select column type for the first time
-    const selectOptions =
+    const computedValue =
       (
         (props.__evaluation__?.evaluatedValues?.orderedTableColumns as any[])?.[
           props.editingColumnIndex
         ] as { computedValue: any[] }
-      )?.computedValue?.map((c) => ({ label: String(c), value: c })) || [];
+      )?.computedValue || [];
+    const selectOptions =
+      computedValue?.map((c) => ({ label: String(c), value: c })) || [];
     propertiesToUpdate.push({
       propertyPath: `${baseProperty}.options`,
       propertyValue: selectOptions,

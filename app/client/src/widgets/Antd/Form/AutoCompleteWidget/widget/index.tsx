@@ -36,7 +36,6 @@ import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/types";
-import { optionsCustomValidation } from "widgets/RadioGroupWidget/widget";
 import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
 import { InputControlProperty } from "../../InputWidget/widget/childPanels/CompConfig";
 import type { AntdInputWidgetProps } from "../../InputWidget/types";

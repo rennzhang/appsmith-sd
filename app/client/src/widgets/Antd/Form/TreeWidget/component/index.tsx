@@ -32,6 +32,9 @@ import { Icon } from "@blueprintjs/core";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
 
 export interface TreeComponentProps extends TreeProps {
+  valueKey: string;
+  labelKey: string;
+  childrenKey: string;
   widgetName: string;
   defaultCheckedKeys?: string[];
   disabled?: boolean;
@@ -60,7 +63,6 @@ export interface TreeComponentProps extends TreeProps {
   options?: TreeProps["treeData"];
   required?: boolean;
   isSearchable?: boolean;
-  fieldNames?: TreeProps["fieldNames"];
   checkedKeys?: TreeProps["checkedKeys"];
   isMultiple?: boolean;
   errorMessage: string;
@@ -83,7 +85,6 @@ function TreeComponent(props: TreeComponentProps): JSX.Element {
     defaultSelectedKeys,
     disabled,
     errorMessage,
-    fieldNames,
     filterText,
     height,
     iconName,
@@ -139,15 +140,15 @@ function TreeComponent(props: TreeComponentProps): JSX.Element {
 
   const fieldNamesValue = useMemo(() => {
     const defaultFieldNames = {
-      title: "label",
-      key: "value",
-      children: "children",
+      value: props.valueKey || "value",
+      label: props.labelKey || "label",
+      children: props.childrenKey || "children",
+      key: props.valueKey || "value",
+      title: props.labelKey || "label",
     };
-    if (fieldNames?.children && fieldNames?.title && fieldNames?.key) {
-      return fieldNames;
-    }
     return defaultFieldNames;
-  }, [fieldNames]);
+  }, [props.valueKey, props.labelKey, props.childrenKey]);
+
   const handleFilter = (inputValue: string, path: DefaultOptionType[]) =>
     path.some(
       (option) =>

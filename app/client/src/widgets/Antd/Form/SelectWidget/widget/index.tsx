@@ -29,7 +29,7 @@ import {
 } from "../../CONST/DEFAULT_CONFIG";
 import type { Def } from "tern";
 import { SelectValidator } from "widgets/Antd/tools";
-import {
+import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
@@ -143,17 +143,6 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                 },
               },
             },
-            // validation: {
-            //   type: ValidationTypes.FUNCTION,
-            //   params: {
-            //     fn: SelectValidator.optionsCustomValidation,
-            //     expected: {
-            //       type: 'Array<{ "label": "string", "value": "string" | number}>',
-            //       example: `[{"label": "One", "value": "one"}] | [{label: "One", options: [{label: "Two", value: "two"}]}]`,
-            //       autocompleteDataType: AutocompleteDataType.STRING,
-            //     },
-            //   },
-            // },
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
@@ -181,7 +170,7 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           getDefaultValueDropdownPropConfig({
             placeholderText: "请输入选项数据",
             dependencies: ["mode", "isMultiSelect"],
-            defaultValue:undefined,
+            defaultValue: undefined,
 
             // validation: {
             //   type: ValidationTypes.FUNCTION,
@@ -197,7 +186,7 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           }),
           getFieldNamesPropConfig("label"),
           getFieldNamesPropConfig("value"),
-          getFieldNamesPropConfig("options"),
+          // getFieldNamesPropConfig("options"),
         ],
       },
       {
@@ -676,7 +665,6 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         }
         disabled={this.props.isDisabled ?? false}
         errorMessage={this.props.errorMessage}
-        fieldNames={this.props.fieldNames}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isValid={!isInvalid}
         labelAlignment={this.props.labelAlignment}
@@ -699,8 +687,8 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     );
   }
   getFlattenedOptions = () => {
-    const valueName = this.props.fieldNames?.label ?? "label";
-    const labelName = this.props.fieldNames?.value ?? "value";
+    const valueName = this.props.valueKey ?? "value";
+    const labelName = this.props.labelKey ?? "label";
 
     const flat = (array?: any[]) => {
       if (!array) return [];
@@ -771,6 +759,9 @@ export interface DropdownOption {
 }
 
 export interface SelectWidgetProps extends WidgetProps {
+  valueKey: string;
+  labelKey: string;
+  childrenKey: string;
   placeholderText?: string;
   selectedIndex?: number;
   options?: SelectProps["options"];

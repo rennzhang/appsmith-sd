@@ -57,16 +57,16 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     required,
     value,
     widgetName,
-    fieldNames,
   } = props;
   const fieldNamesValue = useMemo(() => {
     const defaultFieldNames = {
-      value: "value",
-      label: "label",
-      children: "children",
+      value: props.valueKey || "value",
+      label: props.labelKey || "label",
+      children: props.childrenKey || "children",
     };
-    return Object.assign(defaultFieldNames, fieldNames || {});
-  }, [fieldNames]);
+    return defaultFieldNames;
+  }, [props.valueKey, props.labelKey, props.childrenKey]);
+
   const colLayoutMemo = useMemo(() => {
     if (labelPosition === AntdLabelPosition.Left) {
       return {
@@ -85,7 +85,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
 
   const RadioComponent = useMemo(() => {
     return options.map((option) => {
-      const { value, label } = fieldNamesValue;
+      const { label, value } = fieldNamesValue;
       return (
         <Radio key={option[value]} value={option[value]}>
           {option[label]}
@@ -154,11 +154,9 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
 }
 
 export interface RadioGroupComponentProps extends ComponentProps {
-  fieldNames: {
-    value: string;
-    label: string;
-    children: string;
-  };
+  valueKey: string;
+  labelKey: string;
+  childrenKey: string;
   radioButtonStyle?: boolean;
   options: RadioOption[];
   onRadioSelectionChange: (updatedOptionValue: string) => void;

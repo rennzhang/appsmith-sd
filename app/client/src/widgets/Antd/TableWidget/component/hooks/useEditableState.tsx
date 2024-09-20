@@ -1,12 +1,14 @@
 import type { Key } from "react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ProTableProps } from "@ant-design/pro-components";
 import type { AntdTableProps, ButtonAction } from "../../constants";
 import { InlineEditingSaveOptions, ColumnTypes } from "../../constants";
 import ButtonComponent from "widgets/Antd/ButtonWidget/component";
 import { Colors } from "constants/Colors";
 import { AddNewRowActions } from "../Constants";
-
+import { Button } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import type { ActionType } from "@ant-design/pro-components";
 const createButtonComponent = (
   buttonConfig: ButtonAction,
   defaultColor: string,
@@ -34,18 +36,55 @@ const createButtonComponent = (
 const getButtonConfigs = (buttons: ButtonAction[], id: string): ButtonAction =>
   buttons.find((b) => b.id === id) as ButtonAction;
 
-export const useEditableState = (props: AntdTableProps) => {
-  return useMemo((): ProTableProps<any, any>["editable"] => {
-    const { editType, tableData } = props;
-    const _editableKeys = props.editableKeys;
-    const editableIndices = props.editableIndices;
+export const useEditableState = (
+  props: AntdTableProps,
+  actionRef: React.RefObject<ActionType>,
+) => {
+  const [_editableKeys, setEditableKeys] = useState<Key[]>([]);
+  useEffect(() => {
+    const { editableIndices, tableData } = props;
+
     // 优先使用editableKeys，其次使用editableIndices，editableIndices需要计算出对应的key
     const keys =
-      _editableKeys?.length > 0
-        ? _editableKeys
+      props.editableKeys?.length > 0
+        ? props.editableKeys
         : editableIndices?.map(
             (index) => tableData[index]?.[props.primaryColumnId || ""],
           );
+
+    setEditableKeys(keys as Key[]);
+  }, [
+    props.editableKeys,
+    props.editableIndices,
+    props.tableData,
+    props.primaryColumnId,
+  ]);
+  const addNewRowBtn = props.allowAddNewRow ? (
+    <Button
+      icon={<PlusOutlined />}
+      key="button"
+      onClick={() => {
+        const newId = Date.now();
+        props.handleAddNewRow(newId);
+        actionRef.current?.addEditRecord(
+          {
+            id: newId,
+            ...(props.defaultNewRow || {}),
+            // 其他默认字段
+          },
+          {
+            newRecordType: "dataSource",
+            position: props.addNewRowPosition,
+          },
+        );
+      }}
+      type="primary"
+    >
+      {props.addNewRowText || "新增"}
+    </Button>
+  ) : null;
+  const editable = useMemo((): ProTableProps<any, any>["editable"] => {
+    const { editType, tableData } = props;
 
     if (props.inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL) {
       const sortedButtons = Object.values(props.editingActions)
@@ -58,7 +97,7 @@ export const useEditableState = (props: AntdTableProps) => {
 
       return {
         type: editType || "multiple",
-        editableKeys: keys as Key[],
+        editableKeys: _editableKeys,
         deletePopconfirmMessage: "确定删除吗？",
         saveText: createButtonComponent(
           saveButtonConfig,
@@ -131,6 +170,7 @@ export const useEditableState = (props: AntdTableProps) => {
         },
         onChange: (key, row) => {
           console.log("表格 editable onChange: ", key, row);
+          setEditableKeys(key);
           props.handleEditableRowChange({
             editableKeys: key,
             editableRecords: row,
@@ -139,6 +179,7 @@ export const useEditableState = (props: AntdTableProps) => {
         onValuesChange: (record, dataSource) => {
           console.log("表格 editable onValuesChange: ", record, dataSource);
           if (!record) return;
+          // setDataSource(dataSource);
           requestAnimationFrame(() => {
             props.handleEditableValuesChange({
               originalIndex: record.__originalIndex__,
@@ -159,4 +200,9 @@ export const useEditableState = (props: AntdTableProps) => {
     props.handleRowActionClick,
     props.primaryColumnId,
   ]);
+
+  return {
+    editable,
+    addNewRowBtn,
+  };
 };

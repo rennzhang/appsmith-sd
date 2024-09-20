@@ -19,9 +19,12 @@ import type { CascaderProps } from "antd";
 import { ConfigProvider, Cascader } from "antd";
 import type { InputStatus } from "antd/es/_util/statusUtils";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
-import { SizeType } from "antd/es/config-provider/SizeContext";
+import type { SizeType } from "antd/es/config-provider/SizeContext";
 
 export interface CascaderComponentProps {
+  valueKey: string;
+  labelKey: string;
+  childrenKey: string;
   widgetName: string;
   defaultValue?: string;
   allowClear?: boolean;
@@ -57,7 +60,6 @@ export interface CascaderComponentProps {
   isHoverExpand?: boolean;
   isSearchable?: boolean;
   status?: InputStatus;
-  fieldNames?: CascaderProps["fieldNames"];
   selectedOption?: CascaderProps["value"];
   isMultiple?: boolean;
   errorMessage: string;
@@ -78,7 +80,6 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     disabled,
     // expandAll,
     errorMessage,
-    fieldNames,
     filterText,
     isDynamicHeightEnabled,
     isFilterable,
@@ -145,12 +146,13 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
 
   const fieldNamesValue = useMemo(() => {
     const defaultFieldNames = {
-      value: "value",
-      label: "label",
-      children: "children",
+      value: props.valueKey || "value",
+      label: props.labelKey || "label",
+      children: props.childrenKey || "children",
     };
-    return Object.assign({}, defaultFieldNames, fieldNames||{});
-  }, [fieldNames]);
+    return defaultFieldNames;
+  }, [props.valueKey, props.labelKey, props.childrenKey]);
+
   const handleFilter = (inputValue: string, path: DefaultOptionType[]) =>
     path.some(
       (option) =>
