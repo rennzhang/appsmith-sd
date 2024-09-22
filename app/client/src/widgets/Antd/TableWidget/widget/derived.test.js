@@ -397,7 +397,7 @@ describe("Validates getFilteredTableData Properties", () => {
       },
     ];
 
-    let result = getFilteredTableData(input, moment, _);
+    const result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
@@ -414,7 +414,7 @@ describe("Validates getFilteredTableData Properties", () => {
 
     const expected = [];
 
-    let result = getFilteredTableData(input, moment, _);
+    const result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
@@ -572,7 +572,7 @@ describe("Validates getFilteredTableData Properties", () => {
       },
     ];
 
-    let result = getFilteredTableData(input, moment, _);
+    const result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
@@ -736,7 +736,7 @@ describe("Validates getFilteredTableData Properties", () => {
       },
     ];
 
-    let result = getFilteredTableData(input, moment, _);
+    const result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
@@ -900,7 +900,7 @@ describe("Validates getFilteredTableData Properties", () => {
       },
     ];
 
-    let result = getFilteredTableData(input, moment, _);
+    const result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
@@ -1050,7 +1050,7 @@ describe("Validates getFilteredTableData Properties", () => {
 
     const expected = [];
 
-    let result = getFilteredTableData(input, moment, _);
+    const result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
@@ -1133,7 +1133,7 @@ describe("Validates getFilteredTableData Properties", () => {
       },
     ];
 
-    let result = getProcessedTableData(input, moment, _);
+    const result = getProcessedTableData(input, moment, _);
 
     expect(result).toStrictEqual(expected);
   });
@@ -1155,7 +1155,7 @@ describe("Validates getFilteredTableData Properties", () => {
       { url: "A.COM", __originalIndex__: 0 },
     ];
 
-    let result = getFilteredTableData(input, moment, _);
+    const result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
@@ -1180,7 +1180,7 @@ describe("Validates getFilteredTableData Properties", () => {
 
     const expected = [{ url: "B.COM", __originalIndex__: 1 }];
 
-    let result = getFilteredTableData(input, moment, _);
+    const result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
 
@@ -1200,238 +1200,8 @@ describe("Validates getFilteredTableData Properties", () => {
 
     const expected = [{ url: "B.COM", __originalIndex__: 1 }];
 
-    let result = getFilteredTableData(input, moment, _);
+    const result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
-  });
-});
-
-describe("Validate getSelectedRow function", () => {
-  it("Multple row selection, with selected rows", () => {
-    const { getSelectedRow } = derivedProperty;
-    const input = {
-      multiRowSelection: true,
-      selectedRowIndices: [0, 1],
-      selectedRowIndex: 1,
-      processedTableData: [
-        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
-        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
-        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
-      ],
-    };
-    expect(getSelectedRow(input, moment, _)).toStrictEqual({
-      id: 234,
-      name: "Jane Doe",
-      extra: "Extra2",
-    });
-  });
-
-  it("Multple row selection, with no selected rows", () => {
-    const { getSelectedRow } = derivedProperty;
-    const input = {
-      multiRowSelection: true,
-      selectedRowIndices: [],
-      selectedRowIndex: 1,
-      processedTableData: [
-        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
-        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
-        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
-      ],
-    };
-    expect(getSelectedRow(input, moment, _)).toStrictEqual({
-      id: "",
-      name: "",
-      extra: "",
-    });
-  });
-
-  it("Single row selection, with selected row", () => {
-    const { getSelectedRow } = derivedProperty;
-    const input = {
-      multiRowSelection: false,
-      selectedRowIndices: [],
-      selectedRowIndex: 1,
-      processedTableData: [
-        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
-        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
-        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
-      ],
-    };
-    expect(getSelectedRow(input, moment, _)).toStrictEqual({
-      id: 234,
-      name: "Jane Doe",
-      extra: "Extra2",
-    });
-  });
-
-  it("Single row selection, without selected row", () => {
-    const { getSelectedRow } = derivedProperty;
-    const input = {
-      multiRowSelection: true,
-      selectedRowIndices: [],
-      selectedRowIndex: -1,
-      processedTableData: [
-        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
-        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
-        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
-      ],
-    };
-
-    expect(getSelectedRow(input, moment, _)).toStrictEqual({
-      id: "",
-      name: "",
-      extra: "",
-    });
-  });
-
-  it("Single row selection, with invalid indices", () => {
-    const { getSelectedRow } = derivedProperty;
-    const input = {
-      multiRowSelection: true,
-      selectedRowIndices: ["test"],
-      selectedRowIndex: -1,
-      processedTableData: [
-        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
-        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
-        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
-      ],
-    };
-
-    expect(getSelectedRow(input, moment, _)).toStrictEqual({
-      id: "",
-      name: "",
-      extra: "",
-    });
-  });
-  it("Single row selection, with indices undefined", () => {
-    const { getSelectedRow } = derivedProperty;
-    const input = {
-      multiRowSelection: true,
-      selectedRowIndices: undefined,
-      selectedRowIndex: -1,
-      processedTableData: [
-        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
-        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
-        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
-      ],
-    };
-
-    expect(getSelectedRow(input, moment, _)).toStrictEqual({
-      id: "",
-      name: "",
-      extra: "",
-    });
-  });
-  it("Single row selection, with invalid indices", () => {
-    const { getSelectedRow } = derivedProperty;
-    const input = {
-      multiRowSelection: true,
-      selectedRowIndices: [undefined],
-      selectedRowIndex: -1,
-      processedTableData: [
-        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
-        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
-        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
-      ],
-    };
-
-    expect(getSelectedRow(input, moment, _)).toStrictEqual({
-      id: "",
-      name: "",
-      extra: "",
-    });
-  });
-  it("Single row selection, with invalid indices", () => {
-    const { getSelectedRow } = derivedProperty;
-    const input = {
-      multiRowSelection: true,
-      selectedRowIndices: [null],
-      selectedRowIndex: -1,
-      processedTableData: [
-        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
-        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
-        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
-      ],
-    };
-
-    expect(getSelectedRow(input, moment, _)).toStrictEqual({
-      id: "",
-      name: "",
-      extra: "",
-    });
-  });
-  it("Single row selection, with invalid indices", () => {
-    const { getSelectedRow } = derivedProperty;
-    const input = {
-      multiRowSelection: true,
-      selectedRowIndices: ["1", "2"],
-      selectedRowIndex: -1,
-      processedTableData: [
-        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
-        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
-        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
-      ],
-    };
-
-    expect(getSelectedRow(input, moment, _)).toStrictEqual({
-      id: "",
-      name: "",
-      extra: "",
-    });
-  });
-  it("Single row selection, with invalid indices", () => {
-    const { getSelectedRow } = derivedProperty;
-    const input = {
-      multiRowSelection: true,
-      selectedRowIndices: "1",
-      selectedRowIndex: -1,
-      processedTableData: [
-        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
-        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
-        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
-      ],
-    };
-
-    expect(getSelectedRow(input, moment, _)).toStrictEqual({
-      id: "",
-      name: "",
-      extra: "",
-    });
-  });
-  it("Single row selection, with invalid indices", () => {
-    const { getSelectedRow } = derivedProperty;
-    const input = {
-      multiRowSelection: true,
-      selectedRowIndices: "test",
-      selectedRowIndex: -1,
-      processedTableData: [
-        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
-        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
-        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
-      ],
-    };
-
-    expect(getSelectedRow(input, moment, _)).toStrictEqual({
-      id: "",
-      name: "",
-      extra: "",
-    });
-  });
-
-  it("Single row selection should not have non data columns", () => {
-    const { getSelectedRow } = derivedProperty;
-    const input = {
-      multiRowSelection: false,
-      selectedRowIndices: [],
-      selectedRowIndex: 1,
-      processedTableData: sampleProcessedTableData,
-      primaryColumns: samplePrimaryColumns,
-    };
-
-    expect(getSelectedRow(input, moment, _)).toStrictEqual({
-      step: "#2",
-      task: "Create a query fetch_users with the Mock DB",
-      status: "--",
-    });
   });
 });
 
@@ -1545,7 +1315,7 @@ describe("Validate getSelectedRows function", () => {
     const { getSelectedRows } = derivedProperty;
     const input = {
       multiRowSelection: true,
-      selectedRowIndices: [1],
+      selectedRowKeys: [1],
       processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
@@ -1565,7 +1335,7 @@ describe("Validate getSelectedRows function", () => {
     const { getSelectedRows } = derivedProperty;
     const input = {
       multiRowSelection: true,
-      selectedRowIndices: [0, 1],
+      selectedRowKeys: [0, 1],
       processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
@@ -1589,7 +1359,7 @@ describe("Validate getSelectedRows function", () => {
   it("with invalid indices", () => {
     const { getSelectedRows } = derivedProperty;
     const input = {
-      selectedRowIndices: [0, "test"],
+      selectedRowKeys: [0, "test"],
       processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
@@ -1602,7 +1372,7 @@ describe("Validate getSelectedRows function", () => {
   it("with no indices", () => {
     const { getSelectedRows } = derivedProperty;
     const input = {
-      selectedRowIndices: [],
+      selectedRowKeys: [],
       processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
@@ -1616,7 +1386,7 @@ describe("Validate getSelectedRows function", () => {
     const { getSelectedRows } = derivedProperty;
     const input = {
       multiRowSelection: true,
-      selectedRowIndices: [1],
+      selectedRowKeys: [1],
       processedTableData: sampleProcessedTableData,
       primaryColumns: samplePrimaryColumns,
     };

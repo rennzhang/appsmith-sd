@@ -663,11 +663,11 @@ describe("selectRowIndices", () => {
         __primaryKey__: "2",
       },
     ];
-    const defaultSelectedRowIndices = [0];
+    const defaultSelectedRowKeys = [0];
     const result = getSelectRowIndices(
       oldTableData,
       newTableData,
-      defaultSelectedRowIndices,
+      defaultSelectedRowKeys,
       [],
       undefined,
     );
@@ -721,11 +721,11 @@ describe("selectRowIndices", () => {
         __primaryKey__: "2",
       },
     ];
-    const defaultSelectedRowIndices = undefined;
+    const defaultSelectedRowKeys = undefined;
     const result = getSelectRowIndices(
       oldTableData,
       newTableData,
-      defaultSelectedRowIndices,
+      defaultSelectedRowKeys,
       [],
       undefined,
     );
@@ -779,11 +779,11 @@ describe("selectRowIndices", () => {
         __primaryKey__: "#3",
       },
     ];
-    const defaultSelectedRowIndices = undefined;
+    const defaultSelectedRowKeys = undefined;
     const result = getSelectRowIndices(
       oldTableData,
       newTableData,
-      defaultSelectedRowIndices,
+      defaultSelectedRowKeys,
       [0],
       undefined,
     );
@@ -837,11 +837,11 @@ describe("selectRowIndices", () => {
         __primaryKey__: "#3",
       },
     ];
-    const defaultSelectedRowIndices = undefined;
+    const defaultSelectedRowKeys = undefined;
     const result = getSelectRowIndices(
       oldTableData,
       newTableData,
-      defaultSelectedRowIndices,
+      defaultSelectedRowKeys,
       [0],
       "step",
     );
@@ -895,11 +895,11 @@ describe("selectRowIndices", () => {
         __primaryKey__: "#1",
       },
     ];
-    const defaultSelectedRowIndices = undefined;
+    const defaultSelectedRowKeys = undefined;
     const result = getSelectRowIndices(
       oldTableData,
       newTableData,
-      defaultSelectedRowIndices,
+      defaultSelectedRowKeys,
       [0, 2],
       "step",
     );

@@ -16,6 +16,7 @@ import {
   useColumnState,
   useTableQuery,
   useExpandState,
+  useSelectionState,
 } from "./hooks";
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 
@@ -42,10 +43,7 @@ export function ProTableComponent(props: AntdTableProps) {
   const scrollBarRef = useRef<any>(null);
 
   const isHeaderVisible =
-    props.isVisibleSearch ||
-    props.isVisibleFilters ||
-    props.isVisibleDownload ||
-    props.allowAddNewRow;
+    props.isVisibleSearch || props.isVisibleDownload || props.allowAddNewRow;
 
   // useEffect(() => {
   //   if (props.isAddRowInProgress) {
@@ -65,7 +63,6 @@ export function ProTableComponent(props: AntdTableProps) {
 
   // const { addNewRowBtn } = useNewRowState(props, actionRef);
   // queryData
-  const [selectedRowKeys, setSelectedRowKeys] = React.useState<React.Key[]>([]);
   // 抽离查询相关逻辑
   const {
     form,
@@ -77,15 +74,6 @@ export function ProTableComponent(props: AntdTableProps) {
     setQueryData,
   } = useTableQuery(props);
 
-  useEffect(() => {
-    const keys: any[] = [];
-    props.selectedRowIndices?.map((index) => {
-      const record = props.tableData[index];
-      record && keys.push(record?.[props.primaryColumnId || ""]);
-    });
-    setSelectedRowKeys(keys);
-  }, [props.selectedRowIndices, props.tableData]);
-
   const { actionColumn, columnsState, tableColumns } = useColumnState(props, {
     setInitialQueryData,
   });
@@ -94,6 +82,7 @@ export function ProTableComponent(props: AntdTableProps) {
 
   const { addNewRowBtn, editable } = useEditableState(props, actionRef);
 
+  const { rowSelection } = useSelectionState(props);
   console.group("Antd 表格 Table Protable  222");
   console.log("表格 props", props);
   console.log("primaryColumns", props.primaryColumns);
@@ -195,38 +184,6 @@ export function ProTableComponent(props: AntdTableProps) {
                 pagination={pagination}
                 request={handleRequest}
                 rowKey={(record: any) => record[props.primaryColumnId || ""]}
-                rowSelection={
-                  props.multiRowSelection
-                    ? {
-                        // 自定义选择项参考: https://ant.design/components/table-cn/#components-table-demo-row-selection-custom
-                        // 注释该行则默认不显示下拉选项
-                        selections: [
-                          Table.SELECTION_ALL,
-                          Table.SELECTION_INVERT,
-                        ],
-                        selectedRowKeys: selectedRowKeys,
-                        // defaultSelectedRowKeys: defaultSelectedRowKeys,
-
-                        onChange: (selectedRowKeys, selectedRows) => {
-                          console.log(
-                            "selectedRowKeys: ",
-                            selectedRowKeys,
-                            "selectedRows: ",
-                            selectedRows,
-                          );
-                          setSelectedRowKeys(selectedRowKeys);
-                        },
-                      }
-                    : false
-                }
-                // scroll={{ x: "100%", y: 400 }}
-                search={
-                  props?.isVisibleSearch
-                    ? {
-                        labelWidth: "auto",
-                      }
-                    : false
-                }
                 style={{ width: "100%" }}
                 tableAlertOptionRender={() => {
                   return (
@@ -273,6 +230,15 @@ export function ProTableComponent(props: AntdTableProps) {
                 defaultSize={props.compactMode}
                 // dragSortKey="sort"
                 editable={editable}
+                rowSelection={rowSelection}
+                // scroll={{ x: "100%", y: 400 }}
+                search={
+                  props?.isVisibleSearch
+                    ? {
+                        labelWidth: "auto",
+                      }
+                    : false
+                }
               />
             </ConfigProvider>
           </div>

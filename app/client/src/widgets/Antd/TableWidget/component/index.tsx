@@ -19,13 +19,20 @@ function arePropsEqual(
 ) {
   // 比较关键属性
   const keyProps: (keyof ReactTableComponentProps)[] = [
+    // 行选择相关
+    "selectionColumnWidth",
+    "preserveSelectedRowKeys",
+    "hideSelectAll",
+    "selectedRows",
+    "selectedRowKeys",
+    "rowSelectionFixed",
+    "rowSelectionType",
     "addNewRowText",
     "defaultNewRow",
     "addNewRowPosition",
     "defaultExpandAllRows",
     "defaultExpandedRowKeys",
     "editableKeys",
-    "editableIndices",
     "expandedKeys",
     "isVisibleCellSetting",
     "isVisibleRefresh",

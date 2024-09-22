@@ -50,8 +50,6 @@ import {
   getDefaultColumnProperties,
   getDerivedColumns,
   getTableStyles,
-  getSelectRowIndex,
-  getSelectRowIndices,
   getColumnType,
   deleteLocalTableColumnOrderByWidgetId,
   getColumnOrderByWidgetIdFromLS,
@@ -253,9 +251,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return {
       queryData: {},
       pageNo: 1,
-      selectedRowIndex: undefined,
-      selectedRowIndices: undefined,
-      editableIndices: undefined,
+      selectedRowKeys: undefined,
       editableKeys: undefined,
       expandedKeys: undefined,
       searchText: undefined,
@@ -286,13 +282,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
         "!url": "https://docs.appsmith.com/widget-reference/table",
         queryData: generateTypeDef(widget.queryData, extraDefsToDefine),
-        selectedRow: generateTypeDef(widget.selectedRow, extraDefsToDefine),
         selectedRows: generateTypeDef(widget.selectedRows, extraDefsToDefine),
-        selectedRowIndices: generateTypeDef(widget.selectedRowIndices),
+        selectedRowKeys: generateTypeDef(widget.selectedRowKeys),
         triggeredRow: generateTypeDef(widget.triggeredRow),
         // currentRecord: generateTypeDef(widget.currentRecord),
         updatedRow: generateTypeDef(widget.updatedRow),
-        selectedRowIndex: "number",
         tableData: generateTypeDef(widget.tableData, extraDefsToDefine),
         pageNo: "number",
         pageSize: "number",
@@ -314,8 +308,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
         columns: generateTypeDef(widget.tableColumns || widget.columns),
         expandedKeys: "array",
-        editableIndices: "array",
         editableKeys: "array",
+        triggeredRowKey: generateTypeDef(widget.triggeredRowKey),
+        expandedRows: generateTypeDef(widget.expandedRows),
       };
 
       return config;
@@ -325,9 +320,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       queryData: `{{(()=>{${derivedProperties.getQueryData}})()}}`,
-      selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
       triggeredRow: `{{(()=>{${derivedProperties.getTriggeredRow}})()}}`,
-      selectedRows: `{{(()=>{${derivedProperties.getSelectedRows}})()}}`,
       pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
       triggerRowSelection: "{{!!this.onRowSelected}}",
       processedTableData: `{{(()=>{${derivedProperties.getProcessedTableData}})()}}`,
@@ -339,15 +332,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       pageOffset: `{{(()=>{${derivedProperties.getPageOffset}})()}}`,
       isEditableCellsValid: `{{(()=>{ ${derivedProperties.getEditableCellValidity}})()}}`,
       tableHeaders: `{{(()=>{${derivedProperties.getTableHeaders}})()}}`,
+      triggeredRowKey: `{{(()=>{${derivedProperties.getTriggeredRowKey}})()}}`,
+      expandedRows: `{{(()=>{${derivedProperties.getExpandedRows}})()}}`,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       searchText: "defaultSearchText",
-      selectedRowIndex: "defaultSelectedRowIndex",
-      selectedRowIndices: "defaultSelectedRowIndices",
-      editableIndices: "defaultEditableIndices",
+      selectedRowKeys: "defaultSelectedRowKeys",
       editableKeys: "defaultEditableKeys",
       expandedKeys: "defaultExpandedRowKeys",
     };
@@ -397,15 +390,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           path: "isVisible",
           type: "string",
         },
-        setSelectedRowIndex: {
-          path: "defaultSelectedRowIndex",
-          type: "number",
-          disabled: "return options.entity.multiRowSelection",
-        },
-        setSelectedRowIndices: {
-          path: "defaultSelectedRowIndices",
+        setSelectedRowKeys: {
+          path: "selectedRowKeys",
           type: "array",
-          disabled: "return !options.entity.multiRowSelection",
         },
         setData: {
           path: "tableData",
@@ -415,10 +402,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           path: "expandedKeys",
           type: "array",
         },
-        // setEditableIndices: {
-        //   path: "editableIndices",
-        //   type: "array",
-        // },
         setEditableKeys: {
           path: "editableKeys",
           type: "array",
@@ -774,8 +757,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   componentDidUpdate(prevProps: TableWidgetProps) {
     const {
       defaultPageSize,
-      defaultSelectedRowIndex,
-      defaultSelectedRowIndices,
+      defaultSelectedRowKeys,
       pageNo,
       pageSize,
       primaryColumns = {},
@@ -839,16 +821,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     // If the user has changed the tableData OR
     // The binding has returned a new value
     if (isTableDataModified) {
-      this.pushMetaRowDataUpdates(
-        prevProps.filteredTableData,
-        this.props.filteredTableData,
-      );
-      console.log(
-        "componentDidUpdate updateTriggeredRowIndex isTableDataModified",
-        -1,
-        isTableDataModified,
-      );
-
       pushBatchMetaUpdates("triggeredRowIndex", -1);
 
       const newColumnIds: string[] = getAllTableColumnKeys(
@@ -902,21 +874,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         }
       }
     }
-
-    /*
-     * When defaultSelectedRowIndex or defaultSelectedRowIndices
-     * is changed from property pane
-     */
-    if (
-      !equal(defaultSelectedRowIndex, prevProps.defaultSelectedRowIndex) ||
-      !equal(defaultSelectedRowIndices, prevProps.defaultSelectedRowIndices)
-    ) {
-      this.pushUpdateSelectedRowIndexUpdates();
+    // defaultSelectedRowKeys
+    if (!equal(defaultSelectedRowKeys, prevProps.defaultSelectedRowKeys)) {
+      pushBatchMetaUpdates("selectedRowKeys", defaultSelectedRowKeys);
     }
 
     this.pushResetPageNoUpdates(prevProps);
 
-    this.pushResetRowSelectionPropertiesUpdates(prevProps);
     commitBatchMetaUpdates();
   }
 
@@ -940,116 +904,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  pushResetRowSelectionPropertiesUpdates = (prevProps: TableWidgetProps) => {
-    const {
-      defaultSelectedRowIndex,
-      defaultSelectedRowIndices,
-      multiRowSelection,
-      pushBatchMetaUpdates,
-    } = this.props;
-
-    // reset selectedRowIndices and selectedRowIndex to defaults
-    if (multiRowSelection !== prevProps.multiRowSelection) {
-      if (multiRowSelection) {
-        if (
-          defaultSelectedRowIndices &&
-          _.isArray(defaultSelectedRowIndices) &&
-          defaultSelectedRowIndices.every((i) => _.isFinite(i))
-        ) {
-          pushBatchMetaUpdates("selectedRowIndices", defaultSelectedRowIndices);
-        }
-
-        pushBatchMetaUpdates("selectedRowIndex", -1);
-      } else {
-        if (!isNil(defaultSelectedRowIndex) && defaultSelectedRowIndex > -1) {
-          pushBatchMetaUpdates("selectedRowIndex", defaultSelectedRowIndex);
-        }
-
-        pushBatchMetaUpdates("selectedRowIndices", []);
-      }
-    }
-  };
-
-  /*
-   * Function to update selectedRowIndices & selectedRowIndex from
-   * defaultSelectedRowIndices & defaultSelectedRowIndex respectively
-   */
-  pushUpdateSelectedRowIndexUpdates = () => {
-    const {
-      defaultSelectedRowIndex,
-      defaultSelectedRowIndices,
-      multiRowSelection,
-      pushBatchMetaUpdates,
-    } = this.props;
-
-    if (multiRowSelection) {
-      pushBatchMetaUpdates("selectedRowIndices", defaultSelectedRowIndices);
-    } else {
-      pushBatchMetaUpdates("selectedRowIndex", defaultSelectedRowIndex);
-    }
-  };
-
-  /*
-   * Function to update selectedRow details when order of tableData changes
-   */
-  pushMetaRowDataUpdates = (
-    oldTableData: Array<Record<string, unknown>>,
-    newTableData: Array<Record<string, unknown>>,
-  ) => {
-    const {
-      defaultSelectedRowIndex,
-      defaultSelectedRowIndices,
-      multiRowSelection,
-      primaryColumnId,
-      pushBatchMetaUpdates,
-      selectedRowIndex,
-      selectedRowIndices,
-    } = this.props;
-
-    if (multiRowSelection) {
-      const indices = getSelectRowIndices(
-        oldTableData,
-        newTableData,
-        defaultSelectedRowIndices,
-        selectedRowIndices,
-        primaryColumnId,
-      );
-      pushBatchMetaUpdates("selectedRowIndices", indices);
-    } else {
-      const index = getSelectRowIndex(
-        oldTableData,
-        newTableData,
-        defaultSelectedRowIndex,
-        selectedRowIndex,
-        primaryColumnId,
-      );
-      pushBatchMetaUpdates("selectedRowIndex", index);
-    }
-  };
-
-  getSelectedRowIndices = () => {
-    const { multiRowSelection, selectedRowIndices } = this.props;
-
-    let indices: number[] | undefined;
-
-    if (multiRowSelection) {
-      if (_.isArray(selectedRowIndices)) {
-        indices = selectedRowIndices;
-      } else if (_.isNumber(selectedRowIndices)) {
-        indices = [selectedRowIndices];
-      } else {
-        indices = [0];
-      }
-    } else {
-      indices = undefined;
-    }
-    return indices;
-  };
-
   updateFilters = (filters: ReactTableFilter[]) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    this.pushResetSelectedRowIndexUpdates();
 
     pushBatchMetaUpdates("filters", filters);
 
@@ -1080,34 +936,21 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   // };
 
   onExpandedRowsChange = (expandedKeys: readonly Key[]) => {
-    // const { commitBatchMetaUpdates } = this.props;
+    const { commitBatchMetaUpdates } = this.props;
     console.log("Antd 表格 onExpandedRowsChange", expandedKeys);
     this.props.updateWidgetMetaProperty("expandedKeys", expandedKeys);
 
-    // commitBatchMetaUpdates();
+    commitBatchMetaUpdates();
+  };
+  updataTriggeredRowKey = (triggeredRowKey: string) => {
+    this.props.updateWidgetMetaProperty("triggeredRowKey", triggeredRowKey);
   };
 
   onExpand = (expanded: boolean, record: any) => {
     console.log("Antd 表格 onExpand", expanded, record);
-
-    // const config: ExecuteTriggerPayload = {
-    //   triggerPropertyName: "onExpand",
-    //   dynamicString: this.props.onExpand,
-    //   event: {
-    //     type: EventType.ON_CLICK,
-    //   },
-    // };
-
-    // config.globalContext = {
-    //   expanded,
-    //   currentRecord: record,
-    // };
-
-    // // this.updateWidgetProperty("currentRecord", record);
-
-    // // this.updateCurrentRecord(record);
-
     // super.executeAction(config);
+
+    this.updataTriggeredRowKey(record[this.props.primaryColumnId]);
     this.onColumnEvent({
       rowIndex: record.__originalIndex__,
       action: this.props.onExpand,
@@ -1135,12 +978,53 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return finalTableData;
   };
 
+  handleRowSelectionChange = (
+    selectedRowKeys: React.Key[],
+    selectedRows: any[],
+  ) => {
+    console.log(
+      "Antd 表格 handleRowSelectionChange",
+      selectedRowKeys,
+      selectedRows,
+    );
+    this.props.updateWidgetMetaProperty("selectedRowKeys", selectedRowKeys);
+    // 触发对应事件
+    this.props.updateWidgetMetaProperty("selectedRows", selectedRows, {
+      triggerPropertyName: "onSelectionChange",
+      dynamicString: this.props.onSelectionChange,
+      event: {
+        type: EventType.ON_SELECTION_CHANGE,
+      },
+    });
+  };
+  handleRowSelect = (record: any, selected: boolean, selectedRows: any[]) => {
+    console.log(
+      "Antd 表格 handleRowSelect",
+      record,
+      selected,
+      selectedRows,
+      this.props.onSelect,
+    );
+
+    this.onColumnEvent({
+      rowIndex: record.__originalIndex__,
+      action: this.props.onSelect,
+      triggerPropertyName: "onSelect",
+      eventType: EventType.ON_ROW_SELECTED,
+      row: {
+        ...record,
+      },
+      additionalData: {
+        selected,
+      },
+    });
+  };
+
   getPageView() {
     const {
       delimiter,
       filteredTableData = [],
       isVisibleDownload,
-      isVisibleFilters,
       isVisiblePagination,
       isVisibleSearch,
       pageSize,
@@ -1156,6 +1040,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     console.group("Antd 表格 Table Widget 111");
     console.log(" this.props", this.props);
     console.log("tableColumns", tableColumns);
+    console.log(` derivedProperties`, derivedProperties);
 
     console.groupEnd();
 
@@ -1165,7 +1050,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           {...this.props}
           accentColor={this.props.accentColor}
           allowAddNewRow={this.props.allowAddNewRow}
-          allowRowSelection={!this.props.isAddRowInProgress}
           allowSorting={!this.props.isAddRowInProgress}
           applyFilter={this.updateFilters}
           borderColor={this.props.borderColor}
@@ -1192,6 +1076,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
           handleRowActionClick={this.handleRowActionClick}
+          handleRowSelect={this.handleRowSelect}
+          handleRowSelectionChange={this.handleRowSelectionChange}
           height={componentHeight}
           isAddRowInProgress={this.props.isAddRowInProgress}
           isEditableCellsValid={this.props.isEditableCellsValid}
@@ -1200,7 +1086,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           isVisibleCellSetting={this.props.isVisibleCellSetting}
           isVisibleDensity={this.props.isVisibleDensity}
           isVisibleDownload={isVisibleDownload}
-          isVisibleFilters={isVisibleFilters}
           isVisibleFullScreen={this.props.isVisibleFullScreen}
           isVisiblePagination={isVisiblePagination}
           isVisibleRefresh={this.props.isVisibleRefresh}
@@ -1225,13 +1110,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           queryData={this.props.queryData}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
-          selectAllRow={this.handleAllRowSelect}
-          selectedRowIndex={
-            this.props.selectedRowIndex === undefined
-              ? -1
-              : this.props.selectedRowIndex
-          }
-          selectedRowIndices={this.getSelectedRowIndices()}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
           showConnectDataOverlay={
             primaryColumns &&
@@ -1408,8 +1286,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const columnId = this.getColumnIdByAlias(columnAccessor);
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
-    this.pushResetSelectedRowIndexUpdates(false);
-
     let sortOrderProps;
 
     if (columnId) {
@@ -1450,16 +1326,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       onSearchTextChanged,
       pushBatchMetaUpdates,
     } = this.props;
-
-    /*
-     * Clear rowSelection to avoid selecting filtered rows
-     * based on stale selection indices
-     */
-    if (multiRowSelection) {
-      pushBatchMetaUpdates("selectedRowIndices", []);
-    } else {
-      pushBatchMetaUpdates("selectedRowIndex", -1);
-    }
+    pushBatchMetaUpdates("selectedRowKeys", []);
 
     pushBatchMetaUpdates("pageNo", 1);
     this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
@@ -1559,76 +1426,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
-  handleAllRowSelect = (pageData: Record<string, unknown>[]) => {
-    if (this.props.multiRowSelection) {
-      const selectedRowIndices = pageData.map(
-        (row: Record<string, unknown>) => row.index,
-      );
-      //single action no need to batch
-      this.props.updateWidgetMetaProperty(
-        "selectedRowIndices",
-        selectedRowIndices,
-      );
-    }
-  };
-
   handleRowClick = (row: Record<string, unknown>, selectedIndex: number) => {
-    const { multiRowSelection, selectedRowIndex, selectedRowIndices } =
-      this.props;
     console.log("handleRowClick updateTriggeredRowIndex", selectedIndex);
 
     // no need to batch actions here because it a time only one will execute
     this.props.updateWidgetMetaProperty("triggeredRowIndex", selectedIndex);
-    if (multiRowSelection) {
-      let indices: Array<number>;
-
-      if (_.isArray(selectedRowIndices)) {
-        indices = [...selectedRowIndices];
-      } else {
-        indices = [];
-      }
-
-      /*
-       * Deselect if the index is already present
-       */
-      if (indices.includes(selectedIndex)) {
-        indices.splice(indices.indexOf(selectedIndex), 1);
-        this.props.updateWidgetMetaProperty("selectedRowIndices", indices);
-      } else {
-        /*
-         * select if the index is not present already
-         */
-        indices.push(selectedIndex);
-
-        this.props.updateWidgetMetaProperty("selectedRowIndices", indices, {
-          triggerPropertyName: "onRowSelected",
-          dynamicString: this.props.onRowSelected,
-          event: {
-            type: EventType.ON_ROW_SELECTED,
-          },
-        });
-      }
-    } else {
-      let index;
-
-      if (isNumber(selectedRowIndex)) {
-        index = selectedRowIndex;
-      } else {
-        index = -1;
-      }
-
-      if (index !== selectedIndex) {
-        this.props.updateWidgetMetaProperty("selectedRowIndex", selectedIndex, {
-          triggerPropertyName: "onRowSelected",
-          dynamicString: this.props.onRowSelected,
-          event: {
-            type: EventType.ON_ROW_SELECTED,
-          },
-        });
-      } else {
-        this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
-      }
-    }
 
     if (this.props.onRowClick) {
       this.onColumnEvent({
@@ -1655,10 +1457,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         type: EventType.ON_PAGE_SIZE_CHANGE,
       },
     });
-
-    if (this.props.onPageSizeChange) {
-      this.pushResetSelectedRowIndexUpdates();
-    }
     commitBatchMetaUpdates();
   };
 
@@ -1684,9 +1482,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       pushBatchMetaUpdates("pageNo", pageNo);
     }
 
-    if (this.props.onPageChange) {
-      this.pushResetSelectedRowIndexUpdates();
-    }
     commitBatchMetaUpdates();
   };
 
@@ -1732,9 +1527,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         },
       });
 
-      if (this.props.onPageChange) {
-        this.pushResetSelectedRowIndexUpdates();
-      }
       commitBatchMetaUpdates();
     }
   };
@@ -1752,37 +1544,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         type: EventType.ON_NEXT_PAGE,
       },
     });
-
-    if (this.props.onPageChange) {
-      this.pushResetSelectedRowIndexUpdates();
-    }
     commitBatchMetaUpdates();
   };
 
-  pushResetSelectedRowIndexUpdates = (skipDefault?: boolean) => {
-    const { pushBatchMetaUpdates } = this.props;
-
-    const {
-      defaultSelectedRowIndex,
-      defaultSelectedRowIndices,
-      multiRowSelection,
-    } = this.props;
-
-    if (multiRowSelection) {
-      pushBatchMetaUpdates(
-        "selectedRowIndices",
-        skipDefault ? [] : defaultSelectedRowIndices,
-      );
-    } else {
-      pushBatchMetaUpdates(
-        "selectedRowIndex",
-        skipDefault ? -1 : defaultSelectedRowIndex,
-      );
-    }
-  };
-
   unSelectAllRow = () => {
-    this.props.updateWidgetMetaProperty("selectedRowIndices", []);
+    this.props.updateWidgetMetaProperty("selectedRowKeys", []);
   };
 
   handlePrevPageClick = () => {
@@ -1798,10 +1564,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           type: EventType.ON_PREV_PAGE,
         },
       });
-
-      if (this.props.onPageChange) {
-        this.pushResetSelectedRowIndexUpdates();
-      }
     }
     commitBatchMetaUpdates();
   };
@@ -1925,88 +1687,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         });
       }
       commitBatchMetaUpdates();
-    }
-  };
-
-  toggleCellEditMode = (
-    enable: boolean,
-    rowIndex: number,
-    alias: string,
-    value: string | number,
-    onSubmit?: string,
-    action?: EditableCellActions,
-  ) => {
-    if (this.props.isAddRowInProgress) {
-      return;
-    }
-
-    if (enable) {
-      if (this.inlineEditTimer) {
-        clearTimeout(this.inlineEditTimer);
-      }
-      const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-      pushBatchMetaUpdates("editableCell", {
-        column: alias,
-        index: rowIndex,
-        value: value,
-        // To revert back to previous on discard
-        initialValue: value,
-        inputValue: value,
-      });
-      pushBatchMetaUpdates("columnEditableCellValue", {
-        ...this.props.columnEditableCellValue,
-        [alias]: value,
-      });
-
-      /*
-       * We need to clear the selectedRowIndex and selectedRowIndices
-       * if the rows are sorted, to avoid selectedRow jumping to
-       * different page.
-       */
-      if (this.props.sortOrder.column) {
-        if (this.props.multiRowSelection) {
-          pushBatchMetaUpdates("selectedRowIndices", []);
-        } else {
-          pushBatchMetaUpdates("selectedRowIndex", -1);
-        }
-      }
-      commitBatchMetaUpdates();
-    } else {
-      if (
-        this.isColumnCellValid(alias) &&
-        action === EditableCellActions.SAVE &&
-        value !== this.props.editableCell?.initialValue
-      ) {
-        const { commitBatchMetaUpdates } = this.props;
-
-        this.pushTransientTableDataActionsUpdates({
-          [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
-          [alias]: this.props.editableCell?.value,
-        });
-
-        if (onSubmit && this.props.editableCell?.column) {
-          //since onSubmit is truthy that makes action truthy as well, so we can push this event
-          this.pushOnColumnEvent({
-            rowIndex: rowIndex,
-            action: onSubmit,
-            triggerPropertyName: "onSubmit",
-            eventType: EventType.ON_SUBMIT,
-            row: {
-              ...this.props.filteredTableData[rowIndex],
-              [this.props.editableCell.column]: this.props.editableCell.value,
-            },
-          });
-        }
-        commitBatchMetaUpdates();
-
-        this.clearEditableCell();
-      } else if (
-        action === EditableCellActions.DISCARD ||
-        value === this.props.editableCell?.initialValue
-      ) {
-        this.clearEditableCell();
-      }
     }
   };
 
@@ -2145,15 +1825,36 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     editableRecords: Record<string, unknown>[];
   }) => {
     console.log("表格 handleEditableRowChange: ", data);
-    const editableIndices = data.editableRecords.map((record) => {
-      return record[ORIGINAL_INDEX_KEY];
-    });
-    this.props.updateWidgetMetaProperty("editableIndices", editableIndices);
     this.props.updateWidgetMetaProperty("editableKeys", data.editableKeys);
     this.props.updateWidgetMetaProperty(
       "editableRecords",
       data.editableRecords,
     );
+  };
+
+  // 需要处理树形数据情况
+  getRecordForKey = (key: React.Key, _rows?: Record<string, any>[]) => {
+    const { filteredTableData } = this.props;
+    const rows =
+      _rows || filteredTableData || this.props.processedTableData || [];
+    rows.forEach((item: Record<string, any>) => {
+      if (item[this.props.primaryColumnId] === key) {
+        return item;
+      }
+      if (
+        item[this.props.childrenColumnName] &&
+        Array.isArray(item[this.props.childrenColumnName])
+      ) {
+        const child = this.getRecordForKey(
+          key,
+          item[this.props.childrenColumnName],
+        );
+        if (child) {
+          return child;
+        }
+      }
+    });
+    return null;
   };
   handleEditableValuesChange = (data: {
     record: Record<string, unknown>;
@@ -2166,7 +1867,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     // if (this.props.isAddRowInProgress) {
     //   this.updateNewRowValues(alias, value, value);
     // }
-    const originalRecord = this.props.filteredTableData[originalIndex];
+    const originalRecord =
+      this.getRecordForKey(record[this.props.primaryColumnId] as string) || {};
 
     function findSimpleChanges(
       objA: Record<string, unknown>,
@@ -2188,6 +1890,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       [ORIGINAL_INDEX_KEY]: originalIndex,
       ...diffRecord,
     });
+    this.updataTriggeredRowKey(record[this.props.primaryColumnId] as string);
+
     commitBatchMetaUpdates();
 
     this.onColumnEvent({
@@ -2217,6 +1921,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       rowIndex,
     });
 
+    this.updataTriggeredRowKey(row[this.props.primaryColumnId] as string);
     if (this.props.isAddRowInProgress) {
       this.updateNewRowValues(alias, value, value);
     } else {
@@ -2245,8 +1950,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     record: Record<string, any>,
     isInlineEditing?: boolean,
   ) => {
-    // const { commitBatchMetaUpdates } = this.props;
-    // this.updateTriggeredRowIndex(record.__originalIndex__ as number);
     console.log(
       "Antd 表格 handleRowActionClick",
       onClick,
@@ -2254,15 +1957,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props,
       record.__originalIndex__,
     );
-    // this.onColumnEvent({
-    //   rowIndex: record.__originalIndex__,
-    //   action: isInlineEditing ? "" : onClick || "",
-    //   triggerPropertyName: "onClick",
-    //   eventType: EventType.ON_CLICK,
-    //   row: {
-    //     ...record,
-    //   },
-    // });
+
+    this.updataTriggeredRowKey(record[this.props.primaryColumnId]);
 
     this.onColumnEvent({
       rowIndex: record.__originalIndex__,
@@ -2300,8 +1996,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     //Since we're adding a newRowContent thats not part of tableData, the index changes
     // so we're resetting the row selection
-    pushBatchMetaUpdates("selectedRowIndex", -1);
-    pushBatchMetaUpdates("selectedRowIndices", []);
+    pushBatchMetaUpdates("selectedRowKeys", []);
     commitBatchMetaUpdates();
   };
 

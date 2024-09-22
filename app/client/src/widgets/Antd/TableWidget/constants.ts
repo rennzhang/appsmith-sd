@@ -23,6 +23,34 @@ import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
 
 export interface AntdTableProps {
+  selectionColumnWidth: number;
+  selectedRows: Record<string, any>[];
+  selectedRowKeys: React.Key[];
+  // 行选择相关
+  handleRowSelect: (
+    record: any,
+    selected: boolean,
+    selectedRows: any[],
+  ) => void;
+  handleRowSelectionChange: (
+    selectedRowKeys: React.Key[],
+    selectedRows: any[],
+  ) => void;
+  defaultSelectedRowKeys: number[];
+
+  allowRowSelection: boolean;
+  rowSelectionType: "checkbox" | "radio";
+  preserveSelectedRowKeys: boolean;
+  hideSelectAll: boolean;
+  rowSelectionFixed: boolean;
+  rowSelectionColumnWidth: number;
+  rowSelectionColumnTitle: string;
+  rowSelectionColumnAlign: "left" | "center" | "right";
+  rowSelectionColumnRender: (
+    value: any,
+    row: any,
+    index: number,
+  ) => React.ReactNode;
   addNewRowText: string;
   defaultNewRow: Record<string, unknown>;
   handleAddNewRowAction: (
@@ -35,7 +63,6 @@ export interface AntdTableProps {
   editType: "single" | "multiple";
   editableKeys: Key[];
   editableRecords: Record<string, unknown>[];
-  editableIndices: number[];
   defaultExpandAllRows: boolean;
   defaultExpandedRowKeys: Key[];
   expandedKeys: Key[];
@@ -139,7 +166,6 @@ export interface AntdTableProps {
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
   selectedRowIndex: number;
-  selectedRowIndices: number[];
   disableDrag: (disable: boolean) => void;
   enableDrag: () => void;
   toggleAllRowSelect: (
@@ -152,7 +178,6 @@ export interface AntdTableProps {
   // applyFilter: (filters: ReactTableFilter[]) => void;
   // compactMode?: CompactMode;
   isVisibleDownload?: boolean;
-  isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
   isVisibleDensity?: boolean;
@@ -274,8 +299,7 @@ export interface TableWidgetProps
   label: string;
   searchText: string;
   defaultSearchText: string;
-  defaultSelectedRowIndex?: number | string;
-  defaultSelectedRowIndices?: number[] | string;
+  defaultSelectedRowKeys?: number[] | string;
   tableData: Array<Record<string, unknown>>;
   onPageChange?: string;
   pageSize: number;
@@ -283,9 +307,10 @@ export interface TableWidgetProps
   onSearchTextChanged: string;
   onSort: string;
   selectedRowIndex?: number;
-  selectedRowIndices: number[];
+  selectedRowKeys: Key[];
   serverSidePaginationEnabled?: boolean;
   multiRowSelection?: boolean;
+  rowSelectionType: "checkbox" | "radio";
   // enableClientSideSearch?: boolean;
   hiddenColumns?: string[];
   columnOrder?: string[];
@@ -299,7 +324,7 @@ export interface TableWidgetProps
   filters?: ReactTableFilter[];
   compactMode?: CompactMode;
   isSortable?: boolean;
-  primaryColumnId?: string;
+  primaryColumnId: string;
   primaryColumns: Record<string, ColumnProperties>;
   derivedColumns: Record<string, ColumnProperties>;
   sortOrder: {

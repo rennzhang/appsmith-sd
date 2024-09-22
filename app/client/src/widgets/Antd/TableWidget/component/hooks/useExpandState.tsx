@@ -16,6 +16,7 @@ export function useExpandState(props: AntdTableProps) {
 
   const onExpand = useCallback(
     (expanded: boolean, record: any) => {
+      console.log("Antd 表格 useExpandState onExpand", expanded, record);
       props.onExpand?.(expanded, record);
     },
     [props.onExpand],
@@ -23,9 +24,14 @@ export function useExpandState(props: AntdTableProps) {
 
   const onExpandedRowsChange: ExpandableConfig<any>["onExpandedRowsChange"] =
     useCallback(
-      (expandedRows) => {
-        setExpandedKeys(expandedRows);
-        props.onExpandedRowsChange?.(expandedRows);
+      (expandedKeys) => {
+        console.log(
+          "Antd 表格 useExpandState onExpandedRowsChange",
+          expandedKeys,
+        );
+
+        setExpandedKeys(expandedKeys);
+        props.onExpandedRowsChange?.(expandedKeys);
       },
       [props.onExpandedRowsChange],
     );

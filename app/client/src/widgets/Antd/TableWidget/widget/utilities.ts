@@ -105,34 +105,6 @@ export const getSelectRowIndex = (
   return index;
 };
 
-export const getSelectRowIndices = (
-  prevTableData: TableData,
-  tableData: TableData,
-  defaultSelectedRowIndices: string | number | number[] | undefined,
-  selectedRowIndices: number[] | undefined,
-  primaryColumnId: string | undefined,
-) => {
-  let indices: number[];
-
-  if (primaryColumnId && _.isArray(selectedRowIndices)) {
-    indices = selectedRowIndices;
-  } else if (_.isArray(defaultSelectedRowIndices)) {
-    indices = defaultSelectedRowIndices;
-  } else {
-    indices = [];
-  }
-
-  if (primaryColumnId) {
-    return indices
-      .map((index: number) =>
-        getOriginalRowIndex(prevTableData, tableData, index, primaryColumnId),
-      )
-      .filter((index) => index !== -1);
-  } else {
-    return indices;
-  }
-};
-
 //TODO(Balaji): we shouldn't replace special characters
 export const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;

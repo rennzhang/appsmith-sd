@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
+  //
   getQueryData: (props, moment, _) => {
-    console.log("getQueryData props", props);
     return {
       pageNo: props.pageNo,
       pageSize: props.pageSize,
@@ -10,71 +10,45 @@ export default {
       searchKey: props.searchText,
     };
   },
-
-  getSelectedRow: (props, moment, _) => {
-    let index = -1;
-
-    /*
-     * If multiRowSelection is turned on, use the last index to
-     * populate the selectedRowIndex
-     */
-    if (props.multiRowSelection) {
-      if (
-        _.isArray(props.selectedRowIndices) &&
-        props.selectedRowIndices.length &&
-        props.selectedRowIndices.every((i) => _.isNumber(i))
-      ) {
-        index = props.selectedRowIndices[props.selectedRowIndices.length - 1];
-      } else if (_.isNumber(props.selectedRowIndices)) {
-        index = props.selectedRowIndices;
-      }
-    } else if (
-      !_.isNil(props.selectedRowIndex) &&
-      !_.isNaN(parseInt(props.selectedRowIndex))
-    ) {
-      index = parseInt(props.selectedRowIndex);
+  //
+  getExpandedRows: (props, moment, _) => {
+    const childrenColumnName = props.childrenColumnName || "children";
+    const rows = props.filteredTableData || props.processedTableData || [];
+    const expandedKeys = props.expandedKeys;
+    if (!expandedKeys || expandedKeys.length === 0) {
+      return [];
     }
 
+    const findExpandedRows = (data, keys, result = []) => {
+      if (!data || !Array.isArray(data)) {
+        return result;
+      }
+
+      data.forEach((item) => {
+        if (keys.includes(item[props.primaryColumnId])) {
+          result.push(item);
+        }
+
+        if (
+          item[childrenColumnName] &&
+          Array.isArray(item[childrenColumnName])
+        ) {
+          findExpandedRows(item[childrenColumnName], keys, result);
+        }
+      });
+
+      return result;
+    };
+    const expandedRows = findExpandedRows(rows, expandedKeys) || [];
+
+    return expandedRows;
+  },
+  //
+  getTriggeredRowKey: (props, moment, _) => {
+    const parsedTriggeredRowIndex = parseInt(props.triggeredRowIndex);
     const rows = props.filteredTableData || props.processedTableData || [];
 
-    const primaryColumns = props.primaryColumns;
-    const nonDataColumnTypes = [
-      "editActions",
-      "button",
-      "iconButton",
-      "menuButton",
-    ];
-    const nonDataColumnAliases = primaryColumns
-      ? Object.values(primaryColumns)
-          .filter((column) => nonDataColumnTypes.includes(column.columnType))
-          .map((column) => column.alias)
-      : [];
-
-    let selectedRow;
-
-    /*
-     * Note(Balaji): Need to include customColumn values in the selectedRow (select, rating)
-     * It should have updated values.
-     */
-    if (index > -1) {
-      selectedRow = { ...rows[index] };
-    } else {
-      /*
-       *  If index is not a valid, selectedRow should have
-       *  proper row structure with empty string values
-       */
-      selectedRow = {};
-      Object.keys(rows[0]).forEach((key) => {
-        selectedRow[key] = "";
-      });
-    }
-
-    const keysToBeOmitted = [
-      "__originalIndex__",
-      "__primaryKey__",
-      ...nonDataColumnAliases,
-    ];
-    return _.omit(selectedRow, keysToBeOmitted);
+    return rows[parsedTriggeredRowIndex][props.primaryColumnId];
   },
   //
   getTriggeredRow: (props, moment, _) => {

@@ -23,6 +23,7 @@ import type { PrimaryColumnDropdownControlProps } from "components/propertyContr
 import PrimaryColumnDropdownControl from "components/propertyControls/PrimaryColumnDropdownControl";
 import type { PrimaryColumnExpandKeysDropdownControlProps } from "components/propertyControls/PrimaryColumnKeysDropdownControl";
 import PrimaryColumnKeysDropdownControl from "components/propertyControls/PrimaryColumnKeysDropdownControl";
+import TableIndexDropdownControl from "components/propertyControls/TableIndexDropdownControl";
 import type { ColorPickerControlProps } from "components/propertyControls/ColorPickerControl";
 import ColorPickerControl from "components/propertyControls/ColorPickerControl";
 import type { PrimaryColumnColorPickerControlProps } from "components/propertyControls/PrimaryColumnColorPickerControl";
@@ -100,6 +101,7 @@ export const PropertyControls = {
   PrimaryColumnsControlAntd,
   PrimaryColumnDropdownControl,
   PrimaryColumnKeysDropdownControl,
+  TableIndexDropdownControl,
   IconTabsControl,
   ButtonTabControl,
   ComputeTablePropertyControl,

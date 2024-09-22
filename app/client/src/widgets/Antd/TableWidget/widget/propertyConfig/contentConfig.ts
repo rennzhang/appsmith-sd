@@ -557,7 +557,7 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
-      // 开启查询表单校验
+      // 开启查询表单���验
       {
         helpText: "是否启用查询表单校验",
         propertyName: "enableSearchFormValidation",
@@ -602,28 +602,48 @@ export default [
       //   hidden: (props: TableWidgetProps) => !props.isVisibleSearch,
       //   dependencies: ["isVisibleSearch"],
       // },
-      {
-        propertyName: "isVisibleFilters",
-        helpText: "是否显示过滤器",
-        label: "支持过滤",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        defaultValue: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-      },
     ],
   },
   {
     sectionName: "勾选行配置",
     children: [
+      // 是否允许勾选
       {
-        helpText: "默认选中行的序号数组",
-        propertyName: "defaultSelectedRowIndices",
-        label: "默认选中多行",
-        controlType: "INPUT_TEXT",
-        placeholderText: "[0]",
+        propertyName: "allowRowSelection",
+        label: "允许勾选",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      // 勾选类型 checkbox | radio
+      {
+        helpText: "勾选类型",
+        propertyName: "rowSelectionType",
+        label: "勾选类型",
+        controlType: "ICON_TABS",
+        defaultValue: "checkbox",
+        options: [
+          { label: "多选", value: "checkbox" },
+          { label: "单选", value: "radio" },
+        ],
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        hidden: (props: TableWidgetProps) => !props.allowRowSelection,
+        dependencies: ["allowRowSelection"],
+      },
+      // 默认选中行的键数组
+      {
+        helpText: "默认选中行的键数组",
+        propertyName: "defaultSelectedRowKeys",
+        label: "默认选中行",
+        controlType: "PRIMARY_KEYS_DROPDOWN",
+        isMultiSelect: (props: TableWidgetProps) => {
+          return props.rowSelectionType === "checkbox";
+        },
+        placeholderText: "[0, 1, 2]",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
@@ -632,54 +652,81 @@ export default [
             children: {
               type: ValidationTypes.NUMBER,
               params: {
-                min: -1,
-                default: -1,
+                default: [],
               },
             },
           },
         },
-        hidden: (props: TableWidgetProps) => {
-          return !props.multiRowSelection;
-        },
-        dependencies: ["multiRowSelection"],
+        hidden: (props: TableWidgetProps) => !props.allowRowSelection,
+        dependencies: [
+          "allowRowSelection",
+          "rowSelectionType",
+          "filteredTableData",
+          "primaryColumnId",
+        ],
+        evaluatedDependencies: ["filteredTableData", "primaryColumnId"],
       },
+
+      // 是否隐藏全选checkbox
       {
-        helpText: "默认选中行的序号",
-        propertyName: "defaultSelectedRowIndex",
-        label: "默认选中行",
-        controlType: "INPUT_TEXT",
-        defaultValue: 0,
+        propertyName: "hideSelectAll",
+        label: "隐藏全选",
+        helpText: "是否隐藏全选checkbox",
+        controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.NUMBER,
-          params: {
-            min: -1,
-            default: -1,
-          },
-        },
-        hidden: (props: TableWidgetProps) => {
-          return props.multiRowSelection;
-        },
-        dependencies: ["multiRowSelection"],
+        validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (props: TableWidgetProps) =>
+          !props.allowRowSelection || props.rowSelectionType === "radio",
+        dependencies: ["allowRowSelection", "rowSelectionType"],
       },
+      // 选择框是否固定在左侧
       {
-        propertyName: "multiRowSelection",
-        label: "支持多选",
-        helpText: "允许用户多选",
+        propertyName: "rowSelectionFixed",
+        label: "固定选择框",
+        helpText: "选择框是否固定在左侧",
         controlType: "SWITCH",
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
-        defaultValue: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (props: TableWidgetProps) => !props.allowRowSelection,
+        dependencies: ["allowRowSelection"],
       },
+      // selectionColumnWidth
       {
-        helpText: "选中行时触发",
-        propertyName: "onRowSelected",
-        label: "onRowSelected",
+        propertyName: "selectionColumnWidth",
+        label: "选择列宽度",
+        helpText: "选择列宽度",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        defaultValue: 60,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.NUMBER },
+      },
+      // onSelect
+      {
+        helpText: "表格行被选中时触发",
+        propertyName: "onSelect",
+        label: "onSelect",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+        hidden: (props: TableWidgetProps) => !props.allowRowSelection,
+        dependencies: ["allowRowSelection"],
+      },
+
+      // 选中行变化时触发
+      {
+        helpText: "表格选中行变化时触发",
+        propertyName: "onSelectionChange",
+        label: "onRowSelectionChange",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        hidden: (props: TableWidgetProps) => !props.allowRowSelection,
+        dependencies: ["allowRowSelection"],
       },
     ],
   },
@@ -801,18 +848,6 @@ export default [
         },
       },
       {
-        helpText: "控制组件的显示/隐藏",
-        propertyName: "isVisible",
-        isJSConvertible: true,
-        label: "是否显示",
-        controlType: "SWITCH",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-      {
         propertyName: "animateLoading",
         label: "加载时显示动画",
         controlType: "SWITCH",
@@ -833,32 +868,6 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
-      // {
-      //   propertyName: "canFreezeColumn",
-      //   helpText: "是否允许用户将表格列固定在表格的一侧",
-      //   label: "允许固定列",
-      //   controlType: "SWITCH",
-      //   defaultValue: true,
-      //   isJSConvertible: true,
-      //   isBindProperty: true,
-      //   isTriggerProperty: false,
-      //   validation: { type: ValidationTypes.BOOLEAN },
-      // },
-      // {
-      //   propertyName: "delimiter",
-      //   label: "CSV 分隔符",
-      //   controlType: "INPUT_TEXT",
-      //   placeholderText: "输入 CSV 分隔符",
-      //   helpText: "用于分隔 CSV 下载文件的字符",
-      //   isBindProperty: true,
-      //   isTriggerProperty: false,
-      //   defaultValue: ",",
-      //   validation: {
-      //     type: ValidationTypes.TEXT,
-      //   },
-      //   hidden: (props: TableWidgetProps) => !props.isVisibleDownload,
-      //   dependencies: ["isVisibleDownload"],
-      // },
     ],
   },
   // 查询表单配置

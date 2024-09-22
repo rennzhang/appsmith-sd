@@ -51,26 +51,15 @@ export const useEditableState = (
 
   useEffect(() => {
     const {
-      editableIndices,
       editableKeys: propsEditableKeys,
       primaryColumnId,
       tableData,
     } = props;
 
-    const keys =
-      propsEditableKeys?.length > 0
-        ? propsEditableKeys
-        : editableIndices?.map(
-            (index) => tableData[index]?.[primaryColumnId || ""],
-          );
+    const keys = propsEditableKeys?.length > 0 ? propsEditableKeys : [];
 
     setEditableKeys(keys as Key[]);
-  }, [
-    props.editableKeys,
-    props.editableIndices,
-    props.tableData,
-    props.primaryColumnId,
-  ]);
+  }, [props.editableKeys, props.tableData, props.primaryColumnId]);
 
   const handleAddNewRow = useCallback(() => {
     const newId = Date.now();
