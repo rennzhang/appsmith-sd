@@ -339,7 +339,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             label: "图标颜色",
             controlType: "COLOR_PICKER",
             validation: { type: ValidationTypes.TEXT },
-
           },
           // textColor
           {
@@ -376,6 +375,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isBindProperty: true,
             isJSConvertible: true,
             isTriggerProperty: false,
+            defaultValue: "none",
             validation: {
               type: ValidationTypes.TEXT,
             },
@@ -384,6 +384,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             propertyName: "boxShadow",
             label: "阴影",
             helpText: "组件轮廓投影",
+            defaultValue: "none",
             controlType: "BOX_SHADOW_OPTIONS",
             isJSConvertible: true,
             isBindProperty: true,

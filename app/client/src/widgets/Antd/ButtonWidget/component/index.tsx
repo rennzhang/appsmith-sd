@@ -117,12 +117,12 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
     buttonVariant,
     configToken,
     iconAlign,
+    iconColor,
     iconName,
     iconSize,
-    placement,
-    iconColor,
-    popconfirmMessage,
     onClick,
+    placement,
+    popconfirmMessage,
   } = props;
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -164,13 +164,15 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
           >
             {iconAlign !== Alignment.RIGHT && iconName && (
               <IconRenderer
-                color={iconColor}
                 className="mr-1"
+                color={iconColor}
                 icon={iconName}
                 size={iconSize}
               />
             )}
-            <span style={{ color: props.textColor }}>{props.text}</span>
+            {props.text && (
+              <span style={{ color: props.textColor }}>{props.text}</span>
+            )}
             {iconAlign === Alignment.RIGHT && iconName && (
               <IconRenderer
                 className="ml-1"
@@ -189,10 +191,10 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
     <Tooltip placement="top" title={props.tooltip}>
       {popconfirmMessage ? (
         <Popconfirm
-          title={popconfirmMessage}
-          onConfirm={onClick as () => void}
-          okText="确认"
           cancelText="取消"
+          okText="确认"
+          onConfirm={onClick as () => void}
+          title={popconfirmMessage}
         >
           {buttonContent}
         </Popconfirm>
