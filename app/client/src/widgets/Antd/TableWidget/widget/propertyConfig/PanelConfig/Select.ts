@@ -1,8 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 
-import {
-  hideByColumnType,
-} from "../../propertyUtils";
+import { hideByColumnType } from "../../propertyUtils";
 import {
   getDefaultValueDropdownPropConfig,
   getFieldNamesPropConfig,

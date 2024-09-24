@@ -1,6 +1,5 @@
 import { updateCustomColumnAliasOnLabelChange } from "../../propertyUtils";
 import Alignment from "./Alignment";
-import Basic from "./Basic";
 import BorderAndShadow from "./BorderAndShadow";
 import Color from "./Color";
 import Data from "./Data";
@@ -26,7 +25,6 @@ export default {
   dependencies: ["primaryColumns", "columnOrder"],
   contentChildren: [
     Data,
-    Basic,
     General,
     Validations,
     SaveButtonProperties,

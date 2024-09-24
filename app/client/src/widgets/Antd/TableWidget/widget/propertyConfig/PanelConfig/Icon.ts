@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes, ICON_NAMES } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/Antd/TableWidget/constants";
+import { ColumnTypes, ICON_NAMES } from "widgets/Antd/TableWidget/constants";
 import { hideByColumnType, updateIconAlignment } from "../../propertyUtils";
 
 export default {
