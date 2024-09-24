@@ -38,7 +38,11 @@ export default {
               fnString: textForEachRowValidation.toString(),
             },
           },
-          evaluatedDependencies: ["columnActions"],
+          evaluatedDependencies: [
+            "columnActions",
+            "rowSelectionActions",
+            "editingActions",
+          ],
         },
         {
           propertyName: "isVisible",
@@ -56,7 +60,11 @@ export default {
             },
           },
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["columnActions"],
+          evaluatedDependencies: [
+            "columnActions",
+            "rowSelectionActions",
+            "editingActions",
+          ],
         },
         {
           propertyName: "isDisabled",
@@ -74,7 +82,11 @@ export default {
             },
           },
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["columnActions"],
+          evaluatedDependencies: [
+            "columnActions",
+            "rowSelectionActions",
+            "editingActions",
+          ],
         },
       ],
     },
@@ -92,7 +104,11 @@ export default {
           isTriggerProperty: true,
           additionalAutoComplete:
             getSourceDataAndCaluclateKeysForEventAutoComplete,
-          evaluatedDependencies: ["columnActions"],
+          evaluatedDependencies: [
+            "columnActions",
+            "rowSelectionActions",
+            "editingActions",
+          ],
         },
       ],
     },
@@ -118,7 +134,11 @@ export default {
             },
           },
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["columnActions"],
+          evaluatedDependencies: [
+            "columnActions",
+            "rowSelectionActions",
+            "editingActions",
+          ],
         },
         {
           propertyName: "iconAlign",
@@ -149,7 +169,11 @@ export default {
             },
           },
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["columnActions"],
+          evaluatedDependencies: [
+            "columnActions",
+            "rowSelectionActions",
+            "editingActions",
+          ],
         },
       ],
     },
@@ -166,7 +190,11 @@ export default {
           isTriggerProperty: false,
           isJSConvertible: true,
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["columnActions"],
+          evaluatedDependencies: [
+            "columnActions",
+            "rowSelectionActions",
+            "editingActions",
+          ],
           validation: {
             type: ValidationTypes.FUNCTION,
             params: {
@@ -185,7 +213,11 @@ export default {
           isTriggerProperty: false,
           isJSConvertible: true,
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["columnActions"],
+          evaluatedDependencies: [
+            "columnActions",
+            "rowSelectionActions",
+            "editingActions",
+          ],
           validation: {
             type: ValidationTypes.FUNCTION,
             params: {
@@ -204,7 +236,11 @@ export default {
           isTriggerProperty: false,
           isJSConvertible: true,
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["columnActions"],
+          evaluatedDependencies: [
+            "columnActions",
+            "rowSelectionActions",
+            "editingActions",
+          ],
           validation: {
             type: ValidationTypes.FUNCTION,
             params: {

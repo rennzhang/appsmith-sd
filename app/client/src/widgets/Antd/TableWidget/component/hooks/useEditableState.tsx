@@ -8,6 +8,7 @@ import { Colors } from "constants/Colors";
 import { AddNewRowActions } from "../Constants";
 import { Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import { isEqual } from "lodash";
 
 const ButtonComponentWrapper = React.memo(
   ({
@@ -23,6 +24,7 @@ const ButtonComponentWrapper = React.memo(
       buttonVariant="TERTIARY"
       configToken={{ paddingInline: 0, controlHeight: 22 }}
       iconAlign={buttonConfig.iconAlign}
+      iconColor={buttonConfig.iconColor || defaultColor}
       iconName={
         buttonConfig.columnType === ColumnTypes.BUTTON
           ? buttonConfig.iconName
@@ -36,6 +38,11 @@ const ButtonComponentWrapper = React.memo(
       widgetId={buttonConfig.widgetId}
     />
   ),
+  (prevProps, nextProps) => {
+    console.log("prevProps", prevProps);
+    console.log("nextProps", nextProps);
+    return !isEqual(prevProps.buttonConfig, nextProps.buttonConfig);
+  },
 );
 
 const getButtonConfigs = (
@@ -192,7 +199,6 @@ export const useEditableState = (
           if (!record) return;
           requestAnimationFrame(() => {
             handleEditableValuesChange({
-              originalIndex: record.__originalIndex__,
               record: record,
               rowIndex: record.rowIndex,
             });

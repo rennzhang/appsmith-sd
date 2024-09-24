@@ -44,96 +44,41 @@ export default {
     return expandedRows;
   },
   //
-  getTriggeredRowKey: (props, moment, _) => {
-    const parsedTriggeredRowIndex = parseInt(props.triggeredRowIndex);
-    const rows = props.filteredTableData || props.processedTableData || [];
-
-    return rows[parsedTriggeredRowIndex][props.primaryColumnId];
-  },
-  //
   getTriggeredRow: (props, moment, _) => {
-    let index = -1;
-    const parsedTriggeredRowIndex = parseInt(props.triggeredRowIndex);
-
-    if (!_.isNaN(parsedTriggeredRowIndex)) {
-      index = parsedTriggeredRowIndex;
-    }
-
+    const childrenColumnName = props.childrenColumnName || "children";
     const rows = props.filteredTableData || props.processedTableData || [];
-    const primaryColumns = props.primaryColumns;
-    const nonDataColumnTypes = [
-      "editActions",
-      "button",
-      "iconButton",
-      "menuButton",
-    ];
-    const nonDataColumnAliases = primaryColumns
-      ? Object.values(primaryColumns)
-          .filter((column) => nonDataColumnTypes.includes(column.columnType))
-          .map((column) => column.alias)
-      : [];
-    let triggeredRow;
-
-    /*
-     * Note(Balaji): Need to include customColumn values in the triggeredRow (select, rating)
-     * It should have updated values.
-     */
-    if (index > -1) {
-      const row = rows.find((row) => row.__originalIndex__ === index);
-      triggeredRow = { ...row };
-    } else {
-      /*
-       *  If triggeredRowIndex is not a valid index, triggeredRow should
-       *  have proper row structure with empty string values
-       */
-      triggeredRow = {};
-      Object.keys(rows[0]).forEach((key) => {
-        triggeredRow[key] = "";
-      });
+    const triggeredRowKey = props.triggeredRowKey;
+    if (!triggeredRowKey) {
+      return undefined;
     }
 
-    const keysToBeOmitted = [
-      "__originalIndex__",
-      "__primaryKey__",
-      ...nonDataColumnAliases,
-    ];
-    return _.omit(triggeredRow, keysToBeOmitted);
+    const findRow = (data, key) => {
+      if (!data || !Array.isArray(data)) {
+        return undefined;
+      }
+
+      for (const item of data) {
+        if (item[props.primaryColumnId] === key) {
+          return item;
+        }
+        if (
+          item[childrenColumnName] &&
+          Array.isArray(item[childrenColumnName])
+        ) {
+          const foundInChildren = findRow(item[childrenColumnName], key);
+          if (foundInChildren) {
+            return foundInChildren;
+          }
+        }
+      }
+
+      return undefined;
+    };
+    const targetRow = findRow(rows, triggeredRowKey);
+
+    return targetRow;
   },
-  //
-  getSelectedRows: (props, moment, _) => {
-    if (!props.multiRowSelection) {
-      return [];
-    }
 
-    let indices = [];
-
-    if (
-      _.isArray(props.selectedRowIndices) &&
-      props.selectedRowIndices.every((i) => _.isNumber(i))
-    ) {
-      indices = props.selectedRowIndices;
-    }
-
-    const rows = props.filteredTableData || props.processedTableData || [];
-    const primaryColumns = props.primaryColumns;
-    const nonDataColumnTypes = [
-      "editActions",
-      "button",
-      "iconButton",
-      "menuButton",
-    ];
-    const nonDataColumnAliases = primaryColumns
-      ? Object.values(primaryColumns)
-          .filter((column) => nonDataColumnTypes.includes(column.columnType))
-          .map((column) => column.alias)
-      : [];
-    const keysToBeOmitted = [
-      "__originalIndex__",
-      "__primaryKey__",
-      ...nonDataColumnAliases,
-    ];
-    return indices.map((index) => _.omit(rows[index], keysToBeOmitted));
-  },
   //
   getPageSize: (props, moment, _) => {
     const TABLE_SIZES = {
@@ -181,24 +126,74 @@ export default {
   },
   //
   getProcessedTableData: (props, moment, _) => {
-    let data;
+    const processRow = (row, index, indexPath = []) => {
+      const childrenColumnName = props.childrenColumnName || "children";
+      const currentIndexPath = [...indexPath, index];
 
-    if (_.isArray(props.tableData)) {
-      /* Populate meta keys (__originalIndex__, __primaryKey__) and transient values */
-      data = props.tableData.map((row, index) => ({
+      const processedRow = {
         ...row,
         __originalIndex__: index,
+        __originalIndexPath__: currentIndexPath.join("."),
         __primaryKey__: props.primaryColumnId
           ? row[props.primaryColumnId]
           : undefined,
         ...props.transientTableData[index],
-      }));
+      };
+
+      if (Array.isArray(row[childrenColumnName])) {
+        processedRow[childrenColumnName] = row[childrenColumnName].map(
+          (childRow, childIndex) =>
+            processRow(childRow, childIndex, currentIndexPath),
+        );
+      }
+
+      return processedRow;
+    };
+
+    let data;
+
+    if (Array.isArray(props.tableData)) {
+      data = props.tableData.map((row, index) => processRow(row, index));
     } else {
       data = [];
     }
 
     return data;
   },
+  //
+  getProcessedTableData1: (props, moment, _) => {
+    const processRow = (row, index) => {
+      const childrenColumnName = props.childrenColumnName || "children";
+      const processedRow = {
+        ...row,
+        __originalIndex__: index,
+        __primaryKey__: props.primaryColumnId
+          ? row[props.primaryColumnId]
+          : undefined,
+        ...props.transientTableData[index],
+      };
+
+      if (_.isArray(row[childrenColumnName])) {
+        processedRow[childrenColumnName] = row[childrenColumnName].map(
+          (childRow, childIndex) => processRow(childRow, childIndex),
+        );
+      }
+
+      return processedRow;
+    };
+
+    let data;
+
+    if (_.isArray(props.tableData)) {
+      /* Populate meta keys (__originalIndex__, __primaryKey__) and transient values */
+      data = props.tableData.map((row, index) => processRow(row, index));
+    } else {
+      data = [];
+    }
+
+    return data;
+  },
+
   //
   getOrderedTableColumns: (props, moment, _) => {
     const columns = [];
@@ -565,32 +560,8 @@ export default {
   },
   //
   getUpdatedRow: (props, moment, _) => {
-    let index = -1;
-    const parsedUpdatedRowIndex = parseInt(props.updatedRowIndex);
-
-    if (!_.isNaN(parsedUpdatedRowIndex)) {
-      index = parsedUpdatedRowIndex;
-    }
-
-    const rows = props.filteredTableData || props.processedTableData || [];
     const primaryColumns = props.primaryColumns;
-    let updatedRow;
-
-    if (index > -1) {
-      const row = rows.find((row) => row.__originalIndex__ === index);
-      updatedRow = { ...row };
-    } else {
-      /*
-       *  If updatedRowIndex is not a valid index, updatedRow should
-       *  have proper row structure with empty string values
-       */
-      updatedRow = {};
-      if (rows && rows[0]) {
-        Object.keys(rows[0]).forEach((key) => {
-          updatedRow[key] = "";
-        });
-      }
-    }
+    const updatedRow = props.updatedRow || props.updatedRows[0];
 
     const nonDataColumnTypes = [
       "editActions",
@@ -630,70 +601,36 @@ export default {
       "__primaryKey__",
       ...nonDataColumnAliases,
     ];
-    /*
-     * case 1. If transientTableData is not empty, return aray of updated row.
-     * case 2. If transientTableData is empty, return empty array
-     *
-     * updated row structure
-     *  {
-     *    index: {{original index of the row}},
-     *    {{primary_column}}: {{primary_column_value}} // only if primary has been set
-     *    updatedFields: {
-     *      {{updated_column_1}}: {{updated_column_1_value}}
-     *    },
-     *    allFields: {
-     *      {{updated_column_1}}: {{updated_column_1_value}}
-     *      {{rest of the fields from the row}}
-     *    }
-     *  }
-     */
 
-    /* case 1 */
-    if (
-      props.transientTableData &&
-      !!Object.keys(props.transientTableData).length
-    ) {
-      const updatedRows = [];
-      const tableData = props.processedTableData || props.tableData;
-
-      /* updatedRows is not sorted by index */
-      Object.entries(props.transientTableData)
-        .filter((entry) => {
-          return (
-            !_.isNil(entry[0]) && !!entry[0] && _.isFinite(Number(entry[0]))
-          );
-        })
-        .forEach((entry) => {
-          const key = entry[0];
-          const value = entry[1];
-          const row = tableData.find(
-            (row) => row.__originalIndex__ === Number(key),
-          );
-
-          updatedRows.push({
-            index: Number(key),
-            [props.primaryColumnId]: row[props.primaryColumnId],
-            updatedFields: value,
-            allFields: _.omit(row, keysToBeOmitted) || {},
-          });
-        });
-
-      return updatedRows;
-    } else {
-      /* case 2 */
+    const childrenColumnName = props.childrenColumnName || "children";
+    const rows = props.filteredTableData || props.processedTableData || [];
+    const targetRowKeys = props.updatedRowKeys;
+    if (!targetRowKeys || targetRowKeys.length === 0) {
       return [];
     }
-  },
-  //
-  getUpdatedRowIndices: (props, moment, _) => {
-    /* should return the keys of the transientTableData */
-    if (props.transientTableData) {
-      return Object.keys(props.transientTableData).map((index) =>
-        Number(index),
-      );
-    } else {
-      return [];
-    }
+
+    const findTargetRows = (data, keys, result = []) => {
+      if (!data || !Array.isArray(data)) {
+        return result;
+      }
+
+      data.forEach((item) => {
+        if (keys.includes(item[props.primaryColumnId])) {
+          result.push(item);
+        }
+
+        if (
+          item[childrenColumnName] &&
+          Array.isArray(item[childrenColumnName])
+        ) {
+          findTargetRows(item[childrenColumnName], keys, result);
+        }
+      });
+
+      return result;
+    };
+    const targetRows = findTargetRows(rows, targetRowKeys) || [];
+    return targetRows;
   },
   //
   getPageOffset: (props, moment, _) => {

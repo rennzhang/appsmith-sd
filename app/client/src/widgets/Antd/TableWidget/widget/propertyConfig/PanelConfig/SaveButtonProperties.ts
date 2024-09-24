@@ -205,9 +205,6 @@ export const saveButtonStyleConfig = {
             type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
             params: {
               type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ICON_NAMES,
-              },
             },
           },
         },

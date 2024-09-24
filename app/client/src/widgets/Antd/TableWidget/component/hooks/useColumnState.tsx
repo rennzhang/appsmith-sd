@@ -226,6 +226,7 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
         buttonVariant="TERTIARY"
         configToken={{ paddingInline: 0, controlHeight: 22 }}
         iconAlign={button.iconAlign}
+        iconColor={button.iconColor}
         iconName={button.menuIconName}
         iconSize={14}
         isDisabled={button.isDisabled}
@@ -250,6 +251,7 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
       buttonVariant="TERTIARY"
       configToken={{ paddingInline: 0, controlHeight: 22 }}
       iconAlign={button.iconAlign}
+      iconColor={button.iconColor}
       iconName={
         button.columnType === ColumnTypes.BUTTON
           ? button.iconName
@@ -387,12 +389,11 @@ const getColumnRender = (
           <Switch
             checked={record[column.id]}
             onChange={(checked) => {
-              props.onCheckChange(
+              props.onSwitchValueChange(
                 column,
                 record,
                 checked,
                 column.alias,
-                props.filteredTableData[index]?.__originalIndex__,
                 index,
               );
             }}

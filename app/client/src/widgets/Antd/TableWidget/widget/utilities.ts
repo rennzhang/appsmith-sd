@@ -611,8 +611,8 @@ export const getEditActionColumnProperties = () => ({
 });
 
 export const getEditActionColumnDynamicProperties = (widgetName: string) => ({
-  isSaveDisabled: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
-  isDiscardDisabled: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
+  isSaveDisabled: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowKeys.includes(currentRow?.[${widgetName}.primaryColumnId])))}}`,
+  isDiscardDisabled: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowKeys.includes(currentRow?.[${widgetName}.primaryColumnId])))}}`,
 });
 
 export const createColumn = (props: TableWidgetProps, baseName: string) => {

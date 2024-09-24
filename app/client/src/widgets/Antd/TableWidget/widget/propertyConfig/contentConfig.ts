@@ -265,7 +265,7 @@ export default [
       // 默认编辑行
       {
         helpText: "默认编辑行的 key",
-        propertyName: "defaultEditableKeys",
+        propertyName: "defaultUpdatedKeys",
         label: "默认编辑行",
         controlType: "TABLE_PRIMARY_KEYS_DROPDOWN",
         isMultiSelect: (props: TableWidgetProps) => {
@@ -702,6 +702,35 @@ export default [
         defaultValue: 60,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.NUMBER },
+        hidden: (props: TableWidgetProps) => !props.allowRowSelection,
+        dependencies: ["allowRowSelection"],
+      },
+      {
+        helpText: "表格行选中操作按钮",
+        propertyName: "rowSelectionActions",
+        controlType: "MENU_ITEMS",
+        label: "行选中操作按钮",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        createButtonText: "添加按钮",
+        presetLabel: "Action",
+        panelConfig: ActionPanelConfig,
+        isHideToggleVisibility: true,
+        defaultProperties: {
+          buttonColor: Colors.AZURE_RADIANCE,
+          columnType: ColumnTypes.BUTTON,
+          iconName: "",
+          btnIconName: "add",
+          menuIconName: "more",
+          showButton: true,
+          isDisabled: false,
+          buttonVariant: ButtonVariantTypes.TERTIARY,
+          menuVariant: ButtonVariantTypes.TERTIARY,
+          buttonLabel: "动作",
+          tooltip: "提示",
+          iconAlign: "left",
+          menuTooltip: "",
+        },
       },
       // onSelect
       {

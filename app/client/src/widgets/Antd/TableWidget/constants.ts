@@ -23,6 +23,7 @@ import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
 
 export interface AntdTableProps {
+  rowSelectionActions: ButtonAction[];
   selectionColumnWidth: number;
   selectedRows: Record<string, any>[];
   selectedRowKeys: React.Key[];
@@ -76,16 +77,14 @@ export interface AntdTableProps {
     editableRecords: Record<string, unknown>[];
   }) => void;
   handleEditableValuesChange: (data: {
-    originalIndex: number;
     record: Record<string, unknown>;
     rowIndex?: number;
   }) => void;
-  onCheckChange: (
+  onSwitchValueChange: (
     column: any,
     row: Record<string, unknown>,
     value: boolean,
     alias: string,
-    originalIndex: number,
     rowIndex: number,
   ) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
@@ -214,6 +213,7 @@ export interface AntdTableProps {
 }
 
 export interface ButtonAction {
+  iconColor: string;
   popconfirmMessage: string;
   btnIconName: IconName;
   iconName: IconName;
@@ -367,6 +367,12 @@ export const COLUMN_MIN_WIDTH = 60;
 
 export const TABLE_COLUMN_ORDER_KEY = "tableWidgetColumnOrder";
 
+export const ORIGINAL_INDEX_PATH_KEY = "__originalIndexPath__";
+export enum ButtonTypes {
+  BUTTON = "button",
+  ICON_BUTTON = "iconButton",
+  MENU_BUTTON = "menuButton",
+}
 export enum ColumnTypes {
   TEXT = "input",
   URL = "url",
@@ -443,7 +449,8 @@ export type TransientDataPayload = {
 };
 
 export type OnColumnEventArgs = {
-  rowIndex: number;
+  // rowIndex: number;
+  rowKey?: string;
   action: string;
   onComplete?: () => void;
   triggerPropertyName: string;

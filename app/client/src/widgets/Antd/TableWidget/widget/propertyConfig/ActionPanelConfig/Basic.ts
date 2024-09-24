@@ -1,5 +1,9 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ColumnTypes, type TableWidgetProps } from "../../../constants";
+import {
+  ButtonTypes,
+  ColumnTypes,
+  type TableWidgetProps,
+} from "../../../constants";
 
 import {
   hideByColumnType,
@@ -26,23 +30,27 @@ export default {
       label: "按钮类型",
       helpText: "设置按钮类型，文本按钮、图标按钮、菜单按钮",
       controlType: "DROP_DOWN",
-      options: [
-        {
-          label: "文本按钮",
-          value: ColumnTypes.BUTTON,
-        },
+      options: (props: TableWidgetProps) => {
+        const options = [
+          {
+            label: "文本按钮",
+            value: ButtonTypes.BUTTON,
+          },
 
-        {
-          label: "图标按钮",
-          value: ColumnTypes.ICON_BUTTON,
-        },
-
-        {
-          label: "菜单按钮",
-          value: ColumnTypes.MENU_BUTTON,
-        },
-      ],
-      defaultValue: ColumnTypes.BUTTON,
+          {
+            label: "图标按钮",
+            value: ButtonTypes.ICON_BUTTON,
+          },
+        ];
+        if (!props.dataTreePath.includes("editingActions")) {
+          options.push({
+            label: "菜单按钮",
+            value: ButtonTypes.MENU_BUTTON,
+          });
+        }
+        return options;
+      },
+      defaultValue: ButtonTypes.BUTTON,
       updateHook: composePropertyUpdateHook([
         updateNumberColumnTypeTextAlignment,
         updateThemeStylesheetsInColumns,
@@ -93,10 +101,6 @@ export default {
         type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: ICON_NAMES,
-            default: null,
-          },
         },
       },
     },
@@ -119,10 +123,6 @@ export default {
         type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: ICON_NAMES,
-            default: IconNames.ADD,
-          },
         },
       },
     },
@@ -175,9 +175,15 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
-      dependencies: ["columnActions"],
+      dependencies: ["columnActions", "rowSelectionActions", "editingActions"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);
+        if (propertyPath.includes("editingActions")) {
+          return true;
+        }
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.BUTTON,
+          ColumnTypes.ICON_BUTTON,
+        ]);
       },
     },
     {
@@ -189,9 +195,15 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
-      dependencies: ["columnActions"],
+      dependencies: ["columnActions", "rowSelectionActions", "editingActions"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);
+        if (propertyPath.includes("editingActions")) {
+          return true;
+        }
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.BUTTON,
+          ColumnTypes.ICON_BUTTON,
+        ]);
       },
     },
     // {
@@ -311,12 +323,16 @@ export default {
           hideByMenuItemsSource(props, propertyPath, MenuItemsSource.DYNAMIC)
         );
       },
-      dependencies: ["columnActions"],
+      dependencies: ["columnActions", "rowSelectionActions", "editingActions"],
       panelConfig: {
         editableTitle: true,
         titlePropertyName: "label",
         panelIdPropertyName: "id",
-        dependencies: ["columnActions"],
+        dependencies: [
+          "columnActions",
+          "rowSelectionActions",
+          "editingActions",
+        ],
         contentChildren: [
           {
             sectionName: "属性",
@@ -330,7 +346,11 @@ export default {
                 isBindProperty: true,
                 isTriggerProperty: false,
                 validation: { type: ValidationTypes.TEXT },
-                dependencies: ["columnActions"],
+                dependencies: [
+                  "columnActions",
+                  "rowSelectionActions",
+                  "editingActions",
+                ],
               },
               {
                 helpText: "点击菜单项时触发",
@@ -340,7 +360,11 @@ export default {
                 isJSConvertible: true,
                 isBindProperty: true,
                 isTriggerProperty: true,
-                dependencies: ["columnActions"],
+                dependencies: [
+                  "columnActions",
+                  "rowSelectionActions",
+                  "editingActions",
+                ],
               },
             ],
           },
@@ -362,7 +386,11 @@ export default {
                     type: ValidationTypes.BOOLEAN,
                   },
                 },
-                dependencies: ["columnActions"],
+                dependencies: [
+                  "columnActions",
+                  "rowSelectionActions",
+                  "editingActions",
+                ],
               },
               {
                 propertyName: "isDisabled",
@@ -379,7 +407,11 @@ export default {
                     type: ValidationTypes.BOOLEAN,
                   },
                 },
-                dependencies: ["columnActions"],
+                dependencies: [
+                  "columnActions",
+                  "rowSelectionActions",
+                  "editingActions",
+                ],
               },
             ],
           },
@@ -396,7 +428,11 @@ export default {
                 isBindProperty: false,
                 isTriggerProperty: false,
                 validation: { type: ValidationTypes.TEXT },
-                dependencies: ["columnActions"],
+                dependencies: [
+                  "columnActions",
+                  "rowSelectionActions",
+                  "editingActions",
+                ],
               },
               {
                 propertyName: "iconAlign",
@@ -418,7 +454,11 @@ export default {
                 isBindProperty: false,
                 isTriggerProperty: false,
                 validation: { type: ValidationTypes.TEXT },
-                dependencies: ["columnActions"],
+                dependencies: [
+                  "columnActions",
+                  "rowSelectionActions",
+                  "editingActions",
+                ],
               },
             ],
           },
@@ -433,7 +473,11 @@ export default {
                 isJSConvertible: true,
                 isBindProperty: true,
                 isTriggerProperty: false,
-                dependencies: ["columnActions"],
+                dependencies: [
+                  "columnActions",
+                  "rowSelectionActions",
+                  "editingActions",
+                ],
                 customJSControl: "TABLE_COMPUTE_VALUE",
 
                 validation: {
@@ -455,7 +499,11 @@ export default {
                 isJSConvertible: true,
                 isBindProperty: true,
                 isTriggerProperty: false,
-                dependencies: ["columnActions"],
+                dependencies: [
+                  "columnActions",
+                  "rowSelectionActions",
+                  "editingActions",
+                ],
                 validation: {
                   type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                   params: {
@@ -473,7 +521,11 @@ export default {
                 controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
                 isBindProperty: false,
                 isTriggerProperty: false,
-                dependencies: ["columnActions"],
+                dependencies: [
+                  "columnActions",
+                  "rowSelectionActions",
+                  "editingActions",
+                ],
               },
             ],
           },
@@ -494,7 +546,7 @@ export default {
         ),
       }),
       isJSConvertible: true,
-      dependencies: ["columnActions"],
+      dependencies: ["columnActions", "rowSelectionActions", "editingActions"],
       isBindProperty: true,
       isTriggerProperty: true,
       hidden: (props: TableWidgetProps, propertyPath: string) => {

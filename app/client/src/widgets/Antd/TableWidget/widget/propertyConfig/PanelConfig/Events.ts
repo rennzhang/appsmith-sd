@@ -53,42 +53,6 @@ export default {
       isTriggerProperty: true,
     },
     {
-      propertyName: "onSubmit",
-      label: "onSubmit",
-      helpText: "when the user presses enter or clicks outside the input box",
-      controlType: "ACTION_SELECTOR",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        const baseProperty = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${baseProperty}.columnType`, "");
-        const isEditable = get(props, `${baseProperty}.isEditable`, "");
-        return (
-          !(
-            columnType === ColumnTypes.TEXT || columnType === ColumnTypes.NUMBER
-          ) || !isEditable
-        );
-      },
-      dependencies: ["primaryColumns", "inlineEditingSaveOption"],
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: true,
-    },
-    {
-      propertyName: "onOptionChange",
-      label: "onOptionChange",
-      helpText: "when user changes an option",
-      controlType: "ACTION_SELECTOR",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        const baseProperty = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${baseProperty}.columnType`, "");
-        const isEditable = get(props, `${baseProperty}.isEditable`, "");
-        return columnType !== ColumnTypes.SELECT || !isEditable;
-      },
-      dependencies: ["primaryColumns"],
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: true,
-    },
-    {
       propertyName: "onCheckChange",
       label: "onChange",
       helpText: "当开关状态改变时触发",

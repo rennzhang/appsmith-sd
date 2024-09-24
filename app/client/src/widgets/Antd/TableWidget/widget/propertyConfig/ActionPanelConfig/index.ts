@@ -1,14 +1,18 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+
 import { hideByColumnType } from "../../propertyUtils";
 import Basic from "./Basic";
-import type { TableWidgetProps } from "../../../constants";
-
+import {
+  ButtonTypes,
+  ColumnTypes,
+  type TableWidgetProps,
+} from "../../../constants";
+import ButtonWidget from "widgets/Antd/ButtonWidget/widget";
 export default {
   editableTitle: true,
   titlePropertyName: "label",
   panelIdPropertyName: "id",
-  dependencies: ["columnActions","editingActions"],
+  dependencies: ["columnActions", "editingActions"],
   updateHook: (props: any, propertyPath: string, propertyValue: string) => {
     return [
       {
@@ -37,7 +41,7 @@ export default {
               type: ValidationTypes.BOOLEAN,
             },
           },
-          dependencies: ["columnActions", "columnOrder","editingActions"],
+          dependencies: ["columnActions", "columnOrder", "editingActions"],
         },
         {
           propertyName: "isDisabled",
@@ -55,20 +59,28 @@ export default {
               type: ValidationTypes.BOOLEAN,
             },
           },
-          dependencies: ["columnActions", "columnOrder","editingActions"],
-          hidden: (props: TableWidgetProps, propertyPath: string) => {
-            return !hideByColumnType(props, propertyPath, [
-              ColumnTypes.MENU_BUTTON,
-            ]);
-          },
+          dependencies: ["columnActions", "columnOrder", "editingActions"],
         },
       ],
     },
   ],
+  // styleChildren: ButtonWidget.getPropertyPaneStyleConfig(),
   styleChildren: [
     // GeneralStyle,
     {
       sectionName: "图标",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        // if (propertyPath.includes("editingActions")) {
+        //   return true;
+        // }
+        console.log("图标props", props, propertyPath);
+
+        return hideByColumnType(props, propertyPath + ".columnType", [
+          ColumnTypes.BUTTON,
+          ColumnTypes.MENU_BUTTON,
+        ]);
+      },
+      dependencies: ["columnActions", "columnType", "editingActions"],
       children: [
         {
           propertyName: "iconAlign",
@@ -89,121 +101,12 @@ export default {
           ],
           isBindProperty: false,
           isTriggerProperty: false,
-          hidden: (props: TableWidgetProps, propertyPath: string) => {
-            return hideByColumnType(props, propertyPath, [
-              ColumnTypes.BUTTON,
-              ColumnTypes.MENU_BUTTON,
-            ]);
-          },
-          dependencies: ["columnActions", "columnType","editingActions"],
+          dependencies: ["columnActions", "columnType", "editingActions"],
           validation: {
             type: ValidationTypes.TEXT,
             params: {
               allowedValues: ["left", "right"],
             },
-          },
-        },
-      ],
-    },
-    {
-      sectionName: "Alignment",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(
-          props,
-          propertyPath,
-          [ColumnTypes.CHECKBOX, ColumnTypes.SWITCH],
-          true,
-        );
-      },
-      children: [
-        {
-          propertyName: "horizontalAlignment",
-          label: "水平对齐",
-          helpText: "设置水平对齐方式",
-          controlType: "ICON_TABS",
-          options: [
-            {
-              startIcon: "align-left",
-              value: "LEFT",
-            },
-            {
-              startIcon: "align-center",
-              value: "CENTER",
-            },
-            {
-              startIcon: "align-right",
-              value: "RIGHT",
-            },
-          ],
-          defaultValue: "LEFT",
-          isJSConvertible: true,
-          customJSControl: "TABLE_COMPUTE_VALUE",
-          dependencies: ["columnActions","editingActions"],
-          isBindProperty: true,
-          validation: {
-            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-            params: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["LEFT", "CENTER", "RIGHT"],
-              },
-            },
-          },
-          isTriggerProperty: false,
-          hidden: (props: TableWidgetProps, propertyPath: string) => {
-            return hideByColumnType(props, propertyPath, [
-              ColumnTypes.TEXT,
-              ColumnTypes.DATE,
-              ColumnTypes.NUMBER,
-              ColumnTypes.URL,
-              ColumnTypes.CHECKBOX,
-              ColumnTypes.SWITCH,
-            ]);
-          },
-        },
-        {
-          propertyName: "verticalAlignment",
-          label: "垂直对齐",
-          helpText: "设置垂直对齐方式",
-          controlType: "ICON_TABS",
-          options: [
-            {
-              startIcon: "vertical-align-top",
-              value: "TOP",
-            },
-            {
-              startIcon: "vertical-align-middle",
-              value: "CENTER",
-            },
-            {
-              startIcon: "vertical-align-bottom",
-              value: "BOTTOM",
-            },
-          ],
-          defaultValue: "CENTER",
-          isJSConvertible: true,
-          customJSControl: "TABLE_COMPUTE_VALUE",
-          dependencies: ["columnActions","editingActions"],
-          isBindProperty: true,
-          validation: {
-            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-            params: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["TOP", "CENTER", "BOTTOM"],
-              },
-            },
-          },
-          isTriggerProperty: false,
-          hidden: (props: TableWidgetProps, propertyPath: string) => {
-            return hideByColumnType(props, propertyPath, [
-              ColumnTypes.TEXT,
-              ColumnTypes.DATE,
-              ColumnTypes.NUMBER,
-              ColumnTypes.URL,
-              ColumnTypes.CHECKBOX,
-              ColumnTypes.SWITCH,
-            ]);
           },
         },
       ],
@@ -218,7 +121,7 @@ export default {
           helpText: "设置按钮颜色",
           isJSConvertible: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
-          dependencies: ["columnActions","editingActions"],
+          dependencies: ["columnActions", "editingActions"],
           isBindProperty: true,
           validation: {
             type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
@@ -230,15 +133,32 @@ export default {
             },
           },
           isTriggerProperty: false,
+          hidden: (props: TableWidgetProps, path: string) => {
+            return hideByColumnType(props, path, [
+              ColumnTypes.BUTTON,
+              ColumnTypes.MENU_BUTTON,
+            ]);
+          },
+        },
+        // 图标颜色
+        {
+          propertyName: "iconColor",
+          label: "图标颜色",
+          helpText: "设置按钮图标颜色",
+          controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
+          isJSConvertible: true,
+          customJSControl: "TABLE_COMPUTE_VALUE",
+          dependencies: ["columnActions", "editingActions"],
+          isBindProperty: true,
         },
         {
           propertyName: "textColor",
           label: "文本颜色",
-          helpText: "Controls the color of text in the column",
+          helpText: "按钮文本颜色",
           controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
           isJSConvertible: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
-          dependencies: ["columnActions","editingActions"],
+          dependencies: ["columnActions", "editingActions"],
           isBindProperty: true,
           validation: {
             type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
@@ -250,12 +170,10 @@ export default {
             },
           },
           isTriggerProperty: false,
-          hidden: (props: TableWidgetProps, propertyPath: string) => {
-            return hideByColumnType(props, propertyPath, [
-              ColumnTypes.TEXT,
-              ColumnTypes.DATE,
-              ColumnTypes.NUMBER,
-              ColumnTypes.URL,
+          hidden: (props: TableWidgetProps, path: string) => {
+            return hideByColumnType(props, path, [
+              ColumnTypes.BUTTON,
+              ColumnTypes.MENU_BUTTON,
             ]);
           },
         },
