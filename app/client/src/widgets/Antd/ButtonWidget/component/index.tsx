@@ -164,7 +164,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
           >
             {iconAlign !== Alignment.RIGHT && iconName && (
               <IconRenderer
-                className="mr-1"
+                className={props.text ? "mr-1" : ""}
                 color={iconColor}
                 icon={iconName}
                 size={iconSize}
@@ -175,7 +175,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
             )}
             {iconAlign === Alignment.RIGHT && iconName && (
               <IconRenderer
-                className="ml-1"
+                className={props.text ? "ml-1" : ""}
                 color={iconColor}
                 icon={iconName}
                 size={iconSize}

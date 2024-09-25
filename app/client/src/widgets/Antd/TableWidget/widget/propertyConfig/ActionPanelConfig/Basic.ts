@@ -56,7 +56,12 @@ export default {
         updateThemeStylesheetsInColumns,
         updateMenuItemsSource,
       ]),
-      dependencies: ["columnActions", "childStylesheet", "editingActions"],
+      dependencies: [
+        "columnActions",
+        "childStylesheet",
+        "editingActions",
+        "rowSelectionActions",
+      ],
       isBindProperty: true,
       isTriggerProperty: false,
     },
@@ -69,7 +74,12 @@ export default {
       },
 
       updateHook: updateIconAlignment,
-      dependencies: ["columnActions", "columnType", "editingActions"],
+      dependencies: [
+        "columnActions",
+        "columnType",
+        "editingActions",
+        "rowSelectionActions",
+      ],
       controlType: "ICON_SELECT",
       customJSControl: "TABLE_COMPUTE_VALUE",
       defaultIconName: "",
@@ -90,7 +100,12 @@ export default {
       },
 
       updateHook: updateIconAlignment,
-      dependencies: ["columnActions", "columnType", "editingActions"],
+      dependencies: [
+        "columnActions",
+        "columnType",
+        "editingActions",
+        "rowSelectionActions",
+      ],
       controlType: "ICON_SELECT",
       customJSControl: "TABLE_COMPUTE_VALUE",
       defaultIconName: "",
@@ -112,7 +127,12 @@ export default {
         return hideByColumnType(props, propertyPath, [ColumnTypes.ICON_BUTTON]);
       },
       updateHook: updateIconAlignment,
-      dependencies: ["columnActions", "columnType", "editingActions"],
+      dependencies: [
+        "columnActions",
+        "columnType",
+        "editingActions",
+        "rowSelectionActions",
+      ],
       controlType: "ICON_SELECT",
       customJSControl: "TABLE_COMPUTE_VALUE",
       defaultIconName: "add",
@@ -135,7 +155,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);
       },
-      dependencies: ["columnActions", "editingActions"],
+      dependencies: ["columnActions", "editingActions", "rowSelectionActions"],
       isBindProperty: true,
       isTriggerProperty: false,
     },
@@ -144,11 +164,12 @@ export default {
       label: "文本",
       helpText: "菜单按钮文本内容",
       placeholderText: "菜单按钮文本内容",
+      defaultValue: undefined,
       controlType: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
       },
-      dependencies: ["columnActions", "editingActions"],
+      dependencies: ["columnActions", "editingActions", "rowSelectionActions"],
       isBindProperty: true,
       isTriggerProperty: false,
     },
@@ -161,7 +182,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
-      dependencies: ["columnActions", "editingActions"],
+      dependencies: ["columnActions", "editingActions", "rowSelectionActions"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
       },
@@ -206,77 +227,6 @@ export default {
         ]);
       },
     },
-    // {
-    //   propertyName: "menuItemsSource",
-    //   helpText: "菜单配置",
-    //   label: "菜单项",
-    //   controlType: "ICON_TABS",
-    //   fullWidth: true,
-    //   defaultValue: MenuItemsSource.STATIC,
-    //   options: [
-    //     {
-    //       label: "静态",
-    //       value: MenuItemsSource.STATIC,
-    //     },
-    //     {
-    //       label: "动态",
-    //       value: MenuItemsSource.DYNAMIC,
-    //     },
-    //   ],
-    //   isJSConvertible: false,
-    //   isBindProperty: false,
-    //   isTriggerProperty: false,
-    //   validation: { type: ValidationTypes.TEXT },
-    //   updateHook: updateMenuItemsSource,
-    //   dependencies: [
-    //     "columnActions",
-    //     "columnOrder",
-    //     "menuSourceData",
-    //     "configureMenuItems",
-    //   ],
-
-    //   hidden: (props: TableWidgetProps, propertyPath: string) => {
-    //     return hideByColumnType(
-    //       props,
-    //       propertyPath,
-    //       [ColumnTypes.MENU_BUTTON],
-    //       false,
-    //     );
-    //   },
-    // },
-    // {
-    //   helpText: "下拉菜单项数据",
-    //   propertyName: "menuSourceData",
-    //   label: "下拉菜单数据",
-    //   controlType: "TABLE_COMPUTE_VALUE",
-    //   placeholderText: "{{Query1.data}}",
-    //   isBindProperty: true,
-    //   isTriggerProperty: false,
-    //   validation: {
-    //     type: ValidationTypes.FUNCTION,
-    //     params: {
-    //       expected: {
-    //         type: "Array of values",
-    //         example: `['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
-    //         autocompleteDataType: AutocompleteDataType.ARRAY,
-    //       },
-    //       fn: sourceDataArrayValidation,
-    //     },
-    //   },
-    //   evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-    //   hidden: (props: TableWidgetProps, propertyPath: string) => {
-    //     return (
-    //       hideByColumnType(
-    //         props,
-    //         propertyPath,
-    //         [ColumnTypes.MENU_BUTTON],
-    //         false,
-    //       ) ||
-    //       hideByMenuItemsSource(props, propertyPath, MenuItemsSource.STATIC)
-    //     );
-    //   },
-    //   dependencies: ["columnActions", "menuItemsSource", "menuSourceData"],
-    // },
     {
       helpText: "菜单项配置",
       propertyName: "configureMenuItems",
@@ -354,7 +304,7 @@ export default {
               },
               {
                 helpText: "点击菜单项时触发",
-                propertyName: "onClick",
+                propertyName: "onBtnClick",
                 label: "onClick",
                 controlType: "ACTION_SELECTOR",
                 isJSConvertible: true,
@@ -546,7 +496,12 @@ export default {
         ),
       }),
       isJSConvertible: true,
-      dependencies: ["columnActions", "rowSelectionActions", "editingActions"],
+      dependencies: [
+        "columnActions",
+        "rowSelectionActions",
+        "editingActions",
+        "allowRowSelection",
+      ],
       isBindProperty: true,
       isTriggerProperty: true,
       hidden: (props: TableWidgetProps, propertyPath: string) => {

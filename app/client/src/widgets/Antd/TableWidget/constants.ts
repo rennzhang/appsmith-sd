@@ -23,7 +23,10 @@ import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
 
 export interface AntdTableProps {
-  rowSelectionActions: ButtonAction[];
+  handleAlertBtnClick: (action: string) => void;
+  editableColumn: any[];
+  handleUrlOrImgClick: (column: any, row?: Record<string, unknown>) => void;
+  rowSelectionActions: Record<string, ButtonAction>;
   selectionColumnWidth: number;
   selectedRows: Record<string, any>[];
   selectedRowKeys: React.Key[];
@@ -94,7 +97,6 @@ export interface AntdTableProps {
   showQuickJumper: boolean;
   simplePagination: boolean;
   paginationDisabled: boolean;
-  isEditableCellsValid: Record<string, boolean>;
   primaryColumns: Record<string, ColumnProperties>;
   tableBackground: string;
   defaultPageSize: number;
@@ -112,13 +114,12 @@ export interface AntdTableProps {
   actionWidth?: number;
   editableCell: EditableCell;
   variant?: TableVariant;
-  handleRowActionClick: (
+  handleRowBtnClick: (
     onClick: string | undefined,
     record: Record<string, any>,
-    isInlineEditing?: boolean,
   ) => void;
-  columnActions: ButtonAction[];
-  editingActions: ButtonAction[];
+  columnActions: Record<string, ButtonAction>;
+  editingActions: Record<string, ButtonAction>;
   textSize?: number;
   compactMode?: SizeType;
   queryData: Record<string, any>;
@@ -212,6 +213,21 @@ export interface AntdTableProps {
   disableAddNewRow: boolean;
 }
 
+export type MenuItemAction = {
+  id: string;
+  index: number;
+  label: string;
+  widgetId: string;
+  isDisabled: boolean;
+  isVisible: boolean;
+  onClick?: string;
+  iconName: IconName;
+  iconAlign: Alignment;
+  backgroundColor: string;
+  iconColor: string;
+  textColor: string;
+};
+
 export interface ButtonAction {
   iconColor: string;
   popconfirmMessage: string;
@@ -239,20 +255,7 @@ export interface ButtonAction {
   menuIconName: IconName;
   menuTooltip: string;
   menuItems: {
-    [key: string]: {
-      id: string;
-      index: number;
-      label: string;
-      widgetId: string;
-      isDisabled: boolean;
-      isVisible: boolean;
-      onClick?: string;
-      iconName: IconName;
-      iconAlign: Alignment;
-      backgroundColor: string;
-      iconColor: string;
-      textColor: string;
-    };
+    [key: string]: MenuItemAction;
   };
 }
 export type EditableCell = {
@@ -342,7 +345,6 @@ export interface TableWidgetProps
   inlineEditingSaveOption?: InlineEditingSaveOptions;
   showInlineEditingOptionDropdown?: boolean;
   variant?: TableVariant;
-  isEditableCellsValid: Record<string, boolean>;
   selectColumnFilterText?: Record<string, string>;
   isAddRowInProgress: boolean;
   newRow: Record<string, unknown>;

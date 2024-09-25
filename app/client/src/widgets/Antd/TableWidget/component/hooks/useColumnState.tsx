@@ -1,18 +1,14 @@
 import { useMemo } from "react";
 import type { ProFieldValueType } from "@ant-design/pro-components";
-import { TableDropdown, type ProColumns } from "@ant-design/pro-components";
+import { type ProColumns } from "@ant-design/pro-components";
 import type { TableColumnProps } from "widgets/Antd/TableWidget/component/Constants";
 import type { Rule } from "antd/es/form";
 import type { ColumnStateType } from "@ant-design/pro-table/es/typing";
-import { Alignment } from "@blueprintjs/core";
-import IconRenderer from "widgets/Antd/Components/IconRenderer";
-import ButtonComponent from "widgets/Antd/ButtonWidget/component";
 import type { AntdTableProps, ButtonAction } from "../../constants";
 import { ColumnTypes, InlineEditingSaveOptions } from "../../constants";
-import { Colors } from "constants/Colors";
 import { Switch } from "antd";
-import type { FieldProps } from "components/editorComponents/ActionCreator/types";
-
+import styled from "styled-components";
+import useButtonRender from "./useTableButtonRender";
 const getRules = (column: TableColumnProps) => {
   const { columnProperties } = column;
   const { validation } = columnProperties;
@@ -193,84 +189,11 @@ const getValueEnum = (column: TableColumnProps) => {
   console.log("表格 getValueEnum valueEnum", valueEnum);
   return valueEnum;
 };
-
+const { getTableButtonRender } = useButtonRender();
 const getActionColumn = (props: AntdTableProps): ProColumns => {
   console.group("表格 getActionColumn");
   console.log("props", props);
   console.groupEnd();
-
-  const sortedButtons = Object.values(props.columnActions)
-    .sort((a, b) => a.index - b.index)
-    .filter((c) => c.showButton);
-
-  const renderMenuButton = (
-    button: ButtonAction,
-    record: any,
-    recordIndex: number,
-    action: any,
-  ) => (
-    <TableDropdown
-      key="actionGroup"
-      menus={Object.values(button.menuItems || {})
-        .filter((c) => c.isVisible)
-        ?.map((c) => ({
-          disabled: c.isDisabled,
-          key: c.id,
-          name: renderMenuItemContent(c, props, record, recordIndex),
-        }))}
-      style={{ color: button.buttonColor }}
-    >
-      <ButtonComponent
-        buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
-        buttonSize="sm"
-        buttonVariant="TERTIARY"
-        configToken={{ paddingInline: 0, controlHeight: 22 }}
-        iconAlign={button.iconAlign}
-        iconColor={button.iconColor}
-        iconName={button.menuIconName}
-        iconSize={14}
-        isDisabled={button.isDisabled}
-        key={button.id}
-        placement="CENTER"
-        text={button.menuButtonLabel}
-        tooltip={button.menuTooltip}
-        widgetId={button.widgetId}
-      />
-    </TableDropdown>
-  );
-
-  const renderActionButton = (
-    button: any,
-    record: any,
-    recordIndex: number,
-    action: any,
-  ) => (
-    <ButtonComponent
-      buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
-      buttonSize="sm"
-      buttonVariant="TERTIARY"
-      configToken={{ paddingInline: 0, controlHeight: 22 }}
-      iconAlign={button.iconAlign}
-      iconColor={button.iconColor}
-      iconName={
-        button.columnType === ColumnTypes.BUTTON
-          ? button.iconName
-          : button.btnIconName
-      }
-      isDisabled={button.isDisabled}
-      key={button.id}
-      onClick={() =>
-        handleButtonClick(button, props, record, recordIndex, action)
-      }
-      placement="CENTER"
-      popconfirmMessage={button.popconfirmMessage}
-      text={
-        button.columnType === ColumnTypes.ICON_BUTTON ? "" : button.buttonLabel
-      }
-      tooltip={button.tooltip}
-      widgetId={button.widgetId}
-    />
-  );
 
   return {
     title: "操作",
@@ -278,74 +201,31 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
     key: "operation",
     fixed: "right",
     width: props.actionWidth || 120,
-    render: (text, record, recordIndex, action, ...rest) => {
+    render: (text, record, recordIndex, tableAction, ...rest) => {
       console.log("antd 表格 operation", {
         text,
         record,
         recordIndex,
-        action,
+        tableAction,
         rest,
       });
 
-      return sortedButtons.map((button) =>
-        button.columnType === ColumnTypes.MENU_BUTTON
-          ? renderMenuButton(button, record, recordIndex, action)
-          : renderActionButton(button, record, recordIndex, action),
+      return getTableButtonRender(props.columnActions, (menuItem) =>
+        handleButtonClick(menuItem, props, record, recordIndex, tableAction),
       );
     },
   };
 };
 
-const renderMenuItemContent = (
-  menuItem: any,
-  props: any,
-  record: any,
-  recordIndex: number,
-) => (
-  <div
-    className="inline-flex justify-center items-center"
-    style={{
-      color: menuItem.textColor,
-      backgroundColor: menuItem.backgroundColor,
-    }}
-  >
-    {menuItem.iconAlign !== Alignment.RIGHT && menuItem.iconName && (
-      <IconRenderer
-        className="mr-1"
-        color={menuItem.iconColor || "currentColor"}
-        icon={menuItem.iconName}
-        size={14}
-      />
-    )}
-    <span
-      onClick={() =>
-        props.handleRowActionClick(menuItem.onClick, record, recordIndex)
-      }
-    >
-      {menuItem.label}
-    </span>
-    {menuItem.iconAlign === Alignment.RIGHT && menuItem.iconName && (
-      <IconRenderer
-        className="ml-1"
-        color={menuItem.iconColor || "currentColor"}
-        icon={menuItem.iconName}
-        size={14}
-      />
-    )}
-  </div>
-);
-
 const handleButtonClick = (
-  button: any,
+  button: ButtonAction,
   props: AntdTableProps,
   record: any,
   recordIndex: number,
-  action: any,
+  action?: any,
 ) => {
-  const { inlineEditingSaveOption, primaryColumns } = props;
-  const existEditableColumn = Object.values(primaryColumns).find(
-    (column) => column.isCellEditable,
-  );
+  const { editableColumn, inlineEditingSaveOption } = props;
+
   console.log("handleButtonClick", {
     button,
     props,
@@ -353,22 +233,33 @@ const handleButtonClick = (
     recordIndex,
     action,
     inlineEditingSaveOption,
-    existEditableColumn,
+    editableColumn,
   });
 
   const isInlineEditing =
     inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL;
 
-  if (button.id === "edit" && isInlineEditing && existEditableColumn) {
+  if (button.id === "edit" && isInlineEditing && editableColumn?.length) {
     action?.startEditable?.(record.id);
+  } else {
+    props.handleRowBtnClick(button.onBtnClick, record);
   }
-  props.handleRowActionClick(
-    button.onBtnClick,
-    record,
-    isInlineEditing && !!existEditableColumn,
-  );
+};
+const getDisplayText = (index: number, displayText?: string | string[]) => {
+  if (Array.isArray(displayText)) {
+    return displayText?.[index];
+  }
+  return displayText;
 };
 
+const CellWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  .ant-image {
+    width: 100%;
+    height: auto;
+  }
+`;
 const getColumnRender = (
   column: TableColumnProps,
   props: AntdTableProps,
@@ -383,6 +274,23 @@ const getColumnRender = (
     });
     const valueType = schema.valueType;
     const value = record[column.id];
+
+    const onUrlOrImgClick = () => {
+      props?.handleUrlOrImgClick(column, record);
+    };
+
+    const handleCellDomClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      console.log("handleCellDomClick", {
+        dom,
+        record,
+        index,
+        action,
+        schema,
+      });
+      if (props.onRowClick) {
+        props.onRowClick(record, index);
+      }
+    };
     switch (valueType as ProFieldValueType & ColumnTypes) {
       case ColumnTypes.SWITCH:
         return (
@@ -401,17 +309,30 @@ const getColumnRender = (
         );
       case ColumnTypes.URL:
         return (
-          <a href={value} rel="noreferrer" target="_blank">
-            {column.columnProperties.displayText || value}
+          <a
+            href={value}
+            onClick={onUrlOrImgClick}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {getDisplayText(index, column.columnProperties.displayText) ||
+              value}
           </a>
         );
       default:
-        return dom;
+        return (
+          <CellWrapper
+            className="protable-cell-wrapper"
+            onClick={handleCellDomClick}
+          >
+            {dom}
+          </CellWrapper>
+        );
     }
   };
 };
 
-const getFieldProps = (column: TableColumnProps) => {
+const getFieldProps = (column: TableColumnProps, props: AntdTableProps) => {
   const fieldProps: ProColumns<Record<string, any>>["fieldProps"] = {
     ...column.columnProperties,
     fieldNames: {
@@ -434,9 +355,10 @@ const getFieldProps = (column: TableColumnProps) => {
     case ColumnTypes.DATE:
       fieldProps.format = column.columnProperties.outputFormat;
       break;
-    // case ColumnTypes.IMAGE:
-    //   fieldProps.src
-    //   break;
+    case ColumnTypes.IMAGE:
+      fieldProps.width = "100%";
+      fieldProps.onClick = () => props?.handleUrlOrImgClick(column);
+      break;
     default:
       break;
   }
@@ -481,7 +403,7 @@ export const useColumnState = (
             rules: getRules(column),
           },
           valueEnum: getValueEnum(column),
-          fieldProps: getFieldProps(column),
+          fieldProps: getFieldProps(column, props),
           copyable: column.columnProperties.isCellCopyable,
           filters: column.columnProperties.isVisibleCellFilters,
           onFilter: true,

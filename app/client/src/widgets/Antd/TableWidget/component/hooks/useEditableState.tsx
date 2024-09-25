@@ -110,7 +110,7 @@ export const useEditableState = (
       handleAddNewRowAction,
       handleEditableRowChange,
       handleEditableValuesChange,
-      handleRowActionClick,
+      handleRowBtnClick,
       inlineEditingSaveOption,
     } = props;
 
@@ -160,7 +160,7 @@ export const useEditableState = (
                 () => "",
               );
             }
-            await handleRowActionClick(saveButtonConfig.onBtnClick, originRow);
+            await handleRowBtnClick(saveButtonConfig.onBtnClick, originRow);
           }
         },
         onCancel: async (key, row, originRow, newLineConfig) => {
@@ -178,15 +178,12 @@ export const useEditableState = (
                 () => "",
               );
             }
-            await handleRowActionClick(
-              cancelButtonConfig.onBtnClick,
-              originRow,
-            );
+            await handleRowBtnClick(cancelButtonConfig.onBtnClick, originRow);
           }
         },
         onDelete: async (key, row) => {
           if (deleteButtonConfig) {
-            await handleRowActionClick(deleteButtonConfig.onBtnClick, row);
+            await handleRowBtnClick(deleteButtonConfig.onBtnClick, row);
           }
         },
         onChange: (key, row) => {

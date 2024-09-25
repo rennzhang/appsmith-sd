@@ -352,7 +352,7 @@ export interface ColumnProperties
   onClick?: string;
   dropdownOptions?: string;
   onOptionChange?: string;
-  displayText?: string;
+  displayText?: string | string[];
   buttonVariant?: ButtonVariant;
   isCompact?: boolean;
   menuItems?: MenuItems;

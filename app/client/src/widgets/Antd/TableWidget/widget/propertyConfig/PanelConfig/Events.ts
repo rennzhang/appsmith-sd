@@ -38,14 +38,15 @@ export default {
   children: [
     // Image onClick
     {
-      propertyName: "onClick",
+      propertyName: "onUrlOrImgClick",
       label: "onClick",
-      helpText: "when user clicks on an image",
+      helpText: "当点击图片或链接时触发",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        const baseProperty = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== ColumnTypes.IMAGE;
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.IMAGE,
+          ColumnTypes.URL,
+        ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
       isJSConvertible: true,

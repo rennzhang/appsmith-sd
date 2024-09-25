@@ -6,11 +6,11 @@ import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/Antd/TableWidget/constants";
 import {
   ColumnTypes,
   InlineEditingSaveOptions,
-} from "widgets/TableWidgetV2/constants";
+} from "widgets/Antd/TableWidget/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
   tableDataValidation,
@@ -191,6 +191,7 @@ export default [
         panelConfig: ActionPanelConfig,
         isHideToggleVisibility: true,
         defaultProperties: {
+          menuButtonLabel: undefined,
           buttonColor: Colors.AZURE_RADIANCE,
           columnType: ColumnTypes.BUTTON,
           iconName: "",
@@ -226,6 +227,7 @@ export default [
         isHideToggleVisibility: true,
         isHideAddButton: true,
         defaultProperties: {
+          menuButtonLabel: undefined,
           buttonColor: Colors.AZURE_RADIANCE,
           columnType: ColumnTypes.BUTTON,
           iconName: "",
@@ -717,11 +719,12 @@ export default [
         panelConfig: ActionPanelConfig,
         isHideToggleVisibility: true,
         defaultProperties: {
+          menuButtonLabel: undefined,
           buttonColor: Colors.AZURE_RADIANCE,
           columnType: ColumnTypes.BUTTON,
           iconName: "",
-          btnIconName: "add",
-          menuIconName: "more",
+          btnIconName: "ant-design:SettingOutlined",
+          menuIconName: "ant-design:MenuOutlined",
           showButton: true,
           isDisabled: false,
           buttonVariant: ButtonVariantTypes.TERTIARY,
@@ -731,6 +734,8 @@ export default [
           iconAlign: "left",
           menuTooltip: "",
         },
+        dependencies: ["rowSelectionActions", "allowRowSelection"],
+        hidden: (props: TableWidgetProps) => !props.allowRowSelection,
       },
       // onSelect
       {

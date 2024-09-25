@@ -175,10 +175,10 @@ export default {
           label: "URL",
           value: ColumnTypes.URL,
         },
-        {
-          label: "视频",
-          value: ColumnTypes.VIDEO,
-        },
+        // {
+        //   label: "视频",
+        //   value: ColumnTypes.VIDEO,
+        // },
       ],
       updateHook: composePropertyUpdateHook([
         updateNumberColumnTypeTextAlignment,
@@ -258,8 +258,8 @@ export default {
     },
     {
       propertyName: "displayText",
-      label: "显示文本",
-      helpText: "显示在列中的文本",
+      label: "链接显示文本",
+      helpText: "链接显示的文本内容",
       controlType: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);

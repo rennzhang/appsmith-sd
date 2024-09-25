@@ -299,6 +299,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           column: "string",
           order: ["asc", "desc"],
         },
+        editableColumn: generateTypeDef(widget.editableColumn),
         updatedRows: generateTypeDef(widget.updatedRows, extraDefsToDefine),
         triggeredRowKey: generateTypeDef(widget.triggeredRowKey),
         pageOffset: generateTypeDef(widget.pageOffset),
@@ -328,10 +329,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       orderedTableColumns: `{{(()=>{${derivedProperties.getOrderedTableColumns}})()}}`,
       filteredTableData: `{{(()=>{ ${derivedProperties.getFilteredTableData}})()}}`,
       pageOffset: `{{(()=>{${derivedProperties.getPageOffset}})()}}`,
-      isEditableCellsValid: `{{(()=>{ ${derivedProperties.getEditableCellValidity}})()}}`,
       tableHeaders: `{{(()=>{${derivedProperties.getTableHeaders}})()}}`,
       expandedRows: `{{(()=>{${derivedProperties.getExpandedRows}})()}}`,
       updatedRows: `{{(()=>{ ${derivedProperties.getUpdatedRows}})()}}`,
+      editableColumn: `{{(()=>{ ${derivedProperties.getEditableColumn}})()}}`,
     };
   }
 
@@ -848,7 +849,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (isTableDataModified) {
       pushBatchMetaUpdates("transientTableData", {});
 
-      this.pushClearEditableCellsUpdates();
       pushBatchMetaUpdates("selectColumnFilterText", {});
     }
 
@@ -1059,23 +1059,23 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           defaultPageSize={this.props.defaultPageSize}
           delimiter={delimiter}
           disableDrag={this.toggleDrag}
-          disabledAddNewRowSave={this.hasInvalidColumnCell()}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           editableCell={this.props.editableCell}
           filters={this.props.filters}
           handleAddNewRow={this.handleAddNewRow}
           handleAddNewRowAction={this.handleAddNewRowAction}
+          handleAlertBtnClick={this.handleAlertBtnClick}
           handleColumnFreeze={this.handleColumnFreeze}
           handleEditableRowChange={this.handleEditableRowChange}
           handleEditableValuesChange={this.handleEditableValuesChange}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
-          handleRowActionClick={this.handleRowActionClick}
+          handleRowBtnClick={this.handleRowBtnClick}
           handleRowSelect={this.handleRowSelect}
           handleRowSelectionChange={this.handleRowSelectionChange}
+          handleUrlOrImgClick={this.handleUrlOrImgClick}
           height={componentHeight}
           isAddRowInProgress={this.props.isAddRowInProgress}
-          isEditableCellsValid={this.props.isEditableCellsValid}
           isLoading={this.props.isLoading}
           isSortable={this.props.isSortable ?? true}
           isVisibleCellSetting={this.props.isVisibleCellSetting}
@@ -1669,39 +1669,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  pushClearEditableCellsUpdates = () => {
-    const { pushBatchMetaUpdates } = this.props;
-
-    pushBatchMetaUpdates("editableCell", defaultEditableCell);
-    pushBatchMetaUpdates("columnEditableCellValue", {});
-  };
-
-  clearEditableCell = (skipTimeout?: boolean) => {
-    const clear = () => {
-      const { commitBatchMetaUpdates } = this.props;
-
-      this.pushClearEditableCellsUpdates();
-      commitBatchMetaUpdates();
-    };
-
-    if (skipTimeout) {
-      clear();
-    } else {
-      /*
-       * We need to let the evaulations compute derived property (filteredTableData)
-       * before we clear the editableCell to avoid the text flickering
-       */
-      this.inlineEditTimer = setTimeout(clear, 100);
-    }
-  };
-
-  isColumnCellEditable = (column: ColumnProperties, rowIndex: number) => {
-    return (
-      column.alias === this.props.editableCell?.column &&
-      rowIndex === this.props.editableCell?.index
-    );
-  };
-
   handleEditableRowChange = (data: {
     editableKeys: React.Key[];
     editableRecords: Record<string, unknown>[];
@@ -1817,7 +1784,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     // 添加这一行
     this.updataTriggeredRowKey(row[this.props.primaryColumnId] as string);
 
-    this.updataTriggeredRowKey(row[this.props.primaryColumnId] as string);
     if (this.props.isAddRowInProgress) {
       this.updateNewRowValues(alias, value, value);
     } else {
@@ -1840,13 +1806,30 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       });
     }
   };
-  handleRowActionClick = (
-    onClick: string | undefined,
-    record: Record<string, any>,
-    isInlineEditing?: boolean,
-  ) => {
+
+  handleUrlOrImgClick = (column: any, row?: Record<string, unknown>) => {
+    // this.updataTriggeredRowKey(row[this.props.primaryColumnId] as string);
+    this.onColumnEvent({
+      action: column.columnProperties.onUrlOrImgClick,
+      triggerPropertyName: "onUrlOrImgClick",
+      eventType: EventType.ON_CLICK,
+      row: {
+        ...(row || {}),
+      },
+    });
+  };
+  handleAlertBtnClick = (onClick: string) => {
+    console.log("Antd 表格 handleAlertBtnClick", onClick);
+    super.executeAction({
+      dynamicString: onClick,
+      event: {
+        type: EventType.ON_CLICK,
+      },
+    });
+  };
+  handleRowBtnClick = (onClick: string, record: Record<string, any>) => {
     console.log(
-      "Antd 表格 handleRowActionClick",
+      "Antd 表格 handleRowBtnClick",
       onClick,
       record,
       this.props,
@@ -1856,7 +1839,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     this.updataTriggeredRowKey(record[this.props.primaryColumnId]);
 
     this.onColumnEvent({
-      action: isInlineEditing ? "" : onClick || "",
+      action: onClick,
       triggerPropertyName: "triggeredRowKey",
       eventType: EventType.ON_CLICK,
       row: {
@@ -1922,22 +1905,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         ...row,
       },
     });
-  };
-
-  isColumnCellValid = (columnsAlias: string) => {
-    if (this.props.isEditableCellsValid?.hasOwnProperty(columnsAlias)) {
-      return this.props.isEditableCellsValid[columnsAlias];
-    }
-
-    return true;
-  };
-
-  hasInvalidColumnCell = () => {
-    if (isObject(this.props.isEditableCellsValid)) {
-      return Object.values(this.props.isEditableCellsValid).some((d) => !d);
-    } else {
-      return false;
-    }
   };
 
   updateNewRowValues = (

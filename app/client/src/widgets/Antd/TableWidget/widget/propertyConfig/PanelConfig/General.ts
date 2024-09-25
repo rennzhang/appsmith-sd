@@ -15,7 +15,7 @@ import type { TableWidgetProps } from "widgets/Antd/TableWidget/constants";
 import { ColumnTypes } from "widgets/Antd/TableWidget/constants";
 
 export default {
-  sectionName: "属性",
+  sectionName: "通用属性",
   children: [
     {
       propertyName: "isCellVisible",
@@ -87,23 +87,6 @@ export default {
           type: ValidationTypes.BOOLEAN,
         },
       },
-      // dependencies: ["primaryColumns", "columnType"],
-      // hidden: (props: TableWidgetProps, propertyPath: string) => {
-      //   // console.log(
-      //   //   "showCellValueEnum",
-      //   //   props,
-      //   //   propertyPath,
-      //   //   props?.primaryColumns?.[props?.editingColumnId || ""],
-      //   //   props?.primaryColumns?.[props?.editingColumnId || ""]?.options
-      //   //     ?.length,
-      //   //   (props?.primaryColumns?.[props?.editingColumnId || ""]?.options
-      //   //     ?.length || 0) <= 0,
-      //   // );
-      //   return (
-      //     (props?.primaryColumns?.[props?.editingColumnId || ""]?.options
-      //       ?.length || 0) <= 0
-      //   );
-      // },
     },
 
     {
@@ -129,26 +112,6 @@ export default {
           ColumnTypes.MENU_BUTTON,
           ColumnTypes.BUTTON,
         ]);
-      },
-    },
-    {
-      propertyName: "isCompact",
-      helpText: "菜单项占用更少的空间",
-      label: "紧凑模式",
-      controlType: "SWITCH",
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      isJSConvertible: true,
-      isBindProperty: true,
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-      isTriggerProperty: false,
-      dependencies: ["primaryColumns", "columnOrder"],
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
       },
     },
     {
@@ -241,125 +204,5 @@ export default {
 
 export const GeneralStyle = {
   sectionName: "通用配置",
-  children: [
-    {
-      propertyName: "buttonVariant",
-      label: "按钮类型",
-      controlType: "ICON_TABS",
-      fullWidth: true,
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      isJSConvertible: true,
-      helpText: "设置按钮样式类型",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.ICON_BUTTON,
-          ColumnTypes.BUTTON,
-        ]);
-      },
-      dependencies: ["primaryColumns", "columnOrder"],
-      options: [
-        {
-          label: "主按钮",
-          value: ButtonVariantTypes.PRIMARY,
-        },
-        {
-          label: "次级按钮",
-          value: ButtonVariantTypes.SECONDARY,
-        },
-        {
-          label: "文本按钮",
-          value: ButtonVariantTypes.TERTIARY,
-        },
-      ],
-      defaultValue: ButtonVariantTypes.PRIMARY,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            default: ButtonVariantTypes.PRIMARY,
-            allowedValues: [
-              ButtonVariantTypes.PRIMARY,
-              ButtonVariantTypes.SECONDARY,
-              ButtonVariantTypes.TERTIARY,
-            ],
-          },
-        },
-      },
-    },
-    {
-      propertyName: "menuVariant",
-      label: "按钮类型",
-      controlType: "ICON_TABS",
-      fullWidth: true,
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      helpText: "Sets the variant of the menu button",
-      options: [
-        {
-          label: "主按钮",
-          value: ButtonVariantTypes.PRIMARY,
-        },
-        {
-          label: "次级按钮",
-          value: ButtonVariantTypes.SECONDARY,
-        },
-        {
-          label: "文本按钮",
-          value: ButtonVariantTypes.TERTIARY,
-        },
-      ],
-      isJSConvertible: true,
-      dependencies: ["primaryColumns", "columnOrder"],
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
-      },
-      isBindProperty: true,
-      isTriggerProperty: false,
-      defaultValue: ButtonVariantTypes.PRIMARY,
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            default: ButtonVariantTypes.PRIMARY,
-            allowedValues: [
-              ButtonVariantTypes.PRIMARY,
-              ButtonVariantTypes.SECONDARY,
-              ButtonVariantTypes.TERTIARY,
-            ],
-          },
-        },
-      },
-    },
-    {
-      propertyName: "imageSize",
-      dependencies: ["primaryColumns", "columnType"],
-      label: "图片尺寸",
-      helpText: "设置图片尺寸大小",
-      defaultValue: "DEFAULT",
-      controlType: "ICON_TABS",
-      fullWidth: true,
-      options: [
-        {
-          label: "默认",
-          value: "DEFAULT",
-        },
-        {
-          label: "适中",
-          value: "MEDIUM",
-        },
-        {
-          label: "大",
-          value: "LARGE",
-        },
-      ],
-      isBindProperty: false,
-      isTriggerProperty: false,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.IMAGE]);
-      },
-    },
-  ],
+  children: [],
 };

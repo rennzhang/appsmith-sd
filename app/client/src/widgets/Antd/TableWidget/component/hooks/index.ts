@@ -7,3 +7,5 @@ export { useTableQuery } from "./useTableQuery";
 export { useExpandState } from "./useExpandState";
 // useSelectionState
 export { useSelectionState } from "./useSelectionState";
+// useTableAlertState
+export { useTableAlertState } from "./useTableAlertState";

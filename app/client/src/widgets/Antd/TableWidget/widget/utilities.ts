@@ -163,6 +163,11 @@ export function getDefaultColumnProperties(
   isDerived?: boolean,
   columnType?: string,
 ): ColumnProperties {
+  const computedValue = isDerived
+    ? ""
+    : (`{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
+        id,
+      )}"]))}}` as any);
   const columnProps = {
     options: [],
     labelKey: "label",
@@ -197,11 +202,8 @@ export function getDefaultColumnProperties(
     label: id,
     isSaveVisible: true,
     isDiscardVisible: true,
-    computedValue: isDerived
-      ? ""
-      : `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
-          id,
-        )}"]))}}`,
+    displayText: computedValue,
+    computedValue,
     sticky: StickyType.NONE,
     validation: {},
   };
@@ -698,7 +700,25 @@ export const createEditActionColumn = (props: TableWidgetProps) => {
     })),
   ];
 };
+// const isVideoUrl = (url: string) => {
+//   const videoExtensions = ["mp4", "webm", "ogg"];
+//   const pattern = new RegExp(`\\.(${videoExtensions.join("|")})($|\\?|#)`, "i");
+//   return pattern.test(url);
+// }
 
+const isImageUrl = _.memoize((url) => {
+  if (!_.isString(url) || _.isEmpty(url)) return false;
+
+  const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"];
+  const pattern = new RegExp(`\\.(${imageExtensions.join("|")})($|\\?|#)`, "i");
+
+  return pattern.test(url) || /^data:image\//i.test(url);
+});
+export const isValidUrl = _.memoize((str) => {
+  const pattern =
+    /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
+  return !_.isEmpty(str) && pattern.test(str);
+});
 export const getColumnType = (
   tableData: Array<Record<string, unknown>>,
   columnKey: string,
@@ -724,6 +744,15 @@ export const getColumnType = (
 
   if (_.isNil(columnValue)) {
     return ColumnTypes.TEXT;
+  }
+
+  // 判断是否为图片
+  if (isImageUrl(columnValue as string)) {
+    return ColumnTypes.IMAGE;
+  }
+  // 判断是否为连接
+  if (isValidUrl(columnValue as string)) {
+    return ColumnTypes.URL;
   }
 
   switch (typeof columnValue) {

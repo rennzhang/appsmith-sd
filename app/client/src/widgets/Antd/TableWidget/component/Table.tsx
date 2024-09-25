@@ -17,6 +17,7 @@ import {
   useTableQuery,
   useExpandState,
   useSelectionState,
+  useTableAlertState,
 } from "./hooks";
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 
@@ -77,6 +78,9 @@ export function ProTableComponent(props: AntdTableProps) {
   const { actionColumn, columnsState, tableColumns } = useColumnState(props, {
     setInitialQueryData,
   });
+
+  const { tableAlertOptionRender, tableAlertRender } =
+    useTableAlertState(props);
 
   const { expandable } = useExpandState(props);
 
@@ -184,35 +188,18 @@ export function ProTableComponent(props: AntdTableProps) {
                 pagination={pagination}
                 request={handleRequest}
                 rowKey={(record: any) => record[props.primaryColumnId || ""]}
+                rowSelection={rowSelection}
+                scroll={{ x: "100%" }}
+                search={
+                  props?.isVisibleSearch
+                    ? {
+                        labelWidth: "auto",
+                      }
+                    : false
+                }
                 style={{ width: "100%" }}
-                tableAlertOptionRender={() => {
-                  return (
-                    <Space size={16}>
-                      <a>批量删除</a>
-                      <a>导出数据</a>
-                    </Space>
-                  );
-                }}
-                tableAlertRender={({
-                  onCleanSelected,
-                  selectedRowKeys,
-                  selectedRows,
-                }) => {
-                  console.log(selectedRowKeys, selectedRows);
-                  return (
-                    <Space size={24}>
-                      <span>
-                        已选 {selectedRowKeys.length} 项
-                        <a
-                          onClick={onCleanSelected}
-                          style={{ marginInlineStart: 8 }}
-                        >
-                          取消选择
-                        </a>
-                      </span>
-                    </Space>
-                  );
-                }}
+                tableAlertOptionRender={tableAlertOptionRender}
+                tableAlertRender={tableAlertRender}
                 toolBarRender={() => [
                   addNewRowBtn,
                   // <Button
@@ -230,15 +217,6 @@ export function ProTableComponent(props: AntdTableProps) {
                 defaultSize={props.compactMode}
                 // dragSortKey="sort"
                 editable={editable}
-                rowSelection={rowSelection}
-                // scroll={{ x: "100%", y: 400 }}
-                search={
-                  props?.isVisibleSearch
-                    ? {
-                        labelWidth: "auto",
-                      }
-                    : false
-                }
               />
             </ConfigProvider>
           </div>

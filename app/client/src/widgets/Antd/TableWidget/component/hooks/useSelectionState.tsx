@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import type { TableRowSelection } from "antd/es/table/interface";
 import type { AntdTableProps, TableWidgetProps } from "../../constants";
 import { Table } from "antd";
+import type { ProTableProps } from "@ant-design/pro-components";
 
 export function useSelectionState(props: AntdTableProps) {
   const {
@@ -28,8 +29,8 @@ export function useSelectionState(props: AntdTableProps) {
     }
   }, [props.selectedRowKeys, tableData]);
 
-  const rowSelection = useMemo<TableRowSelection<any> | undefined>(() => {
-    if (!allowRowSelection) return undefined;
+  const rowSelection = useMemo<ProTableProps<any, any>["rowSelection"]>(() => {
+    if (!allowRowSelection) return false;
 
     return {
       type: rowSelectionType,
@@ -42,7 +43,6 @@ export function useSelectionState(props: AntdTableProps) {
         Table.SELECTION_ALL,
         Table.SELECTION_INVERT,
         Table.SELECTION_NONE,
-        Table.SELECTION_COLUMN,
       ],
       columnWidth: selectionColumnWidth || 60,
       onChange: (selectedRowKeys: React.Key[], selectedRows: any[]) => {

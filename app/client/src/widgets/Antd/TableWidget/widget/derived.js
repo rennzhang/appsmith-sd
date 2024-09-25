@@ -1,5 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
+  // getEditableColumn
+  getEditableColumn: (props, moment, _) => {
+    const editableColumn = [];
+    Object.values(props.primaryColumns).map((column) => {
+      if (column.isCellEditable) {
+        editableColumn.push(column);
+      }
+    });
+    return editableColumn;
+  },
   //
   getQueryData: (props, moment, _) => {
     return {
@@ -650,127 +660,7 @@ export default {
     }
     return 0;
   },
-  //
-  getEditableCellValidity: (props, moment, _) => {
-    if (
-      (!props.editableCell?.column && !props.isAddRowInProgress) ||
-      !props.primaryColumns
-    ) {
-      return {};
-    }
 
-    const createRegex = (regex) => {
-      if (!regex) {
-        return new RegExp("//");
-      }
-
-      /*
-       * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
-       * Example /test/i will be split into ["/test/gi", "/", "test", "gi"]
-       */
-      const regexParts = regex.match(/(\/?)(.+)\\1([a-z]*)/i);
-      let parsedRegex;
-
-      if (!regexParts) {
-        parsedRegex = new RegExp(regex);
-      } else {
-        /*
-         * if we don't have a regex flags (gmisuy), convert provided string into regexp directly
-         */
-        if (
-          regexParts[3] &&
-          !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])
-        ) {
-          parsedRegex = RegExp(regex);
-        } else {
-          /*
-           * if we have a regex flags, use it to form regexp
-           */
-          parsedRegex = new RegExp(regexParts[2], regexParts[3]);
-        }
-      }
-
-      return parsedRegex;
-    };
-
-    const editableColumns = [];
-    const validatableColumns = ["text", "number"];
-
-    if (props.isAddRowInProgress) {
-      Object.values(props.primaryColumns)
-        .filter(
-          (column) =>
-            column.isEditable && validatableColumns.includes(column.columnType),
-        )
-        .forEach((column) => {
-          editableColumns.push([column, props.newRow[column.alias]]);
-        });
-    } else {
-      const editedColumn = Object.values(props.primaryColumns).find(
-        (column) => column.alias === props.editableCell?.column,
-      );
-
-      if (validatableColumns.includes(editedColumn.columnType)) {
-        editableColumns.push([editedColumn, props.editableCell?.value]);
-      }
-    }
-
-    const validationMap = {};
-
-    editableColumns.forEach((validationObj) => {
-      const editedColumn = validationObj[0];
-      const value = validationObj[1];
-
-      if (editedColumn && editedColumn.validation) {
-        const validation = editedColumn.validation;
-
-        /* General validations */
-        if (
-          !validation.isColumnEditableCellRequired &&
-          (value === "" || _.isNil(value))
-        ) {
-          validationMap[editedColumn.alias] = true;
-          return;
-        } else if (
-          (!_.isNil(validation.isColumnEditableCellValid) &&
-            !validation.isColumnEditableCellValid) ||
-          (validation.regex && !createRegex(validation.regex).test(value)) ||
-          (validation.isColumnEditableCellRequired &&
-            (value === "" || _.isNil(value)))
-        ) {
-          validationMap[editedColumn.alias] = false;
-          return;
-        }
-
-        /* Column type related validations */
-        switch (editedColumn.columnType) {
-          case "number":
-            if (
-              !_.isNil(validation.min) &&
-              validation.min !== "" &&
-              validation.min > value
-            ) {
-              validationMap[editedColumn.alias] = false;
-              return;
-            }
-
-            if (
-              !_.isNil(validation.max) &&
-              validation.max !== "" &&
-              validation.max < value
-            ) {
-              validationMap[editedColumn.alias] = false;
-              return;
-            }
-            break;
-        }
-      }
-
-      validationMap[editedColumn.alias] = true;
-    });
-
-    return validationMap;
-  },
   //
   getTableHeaders: (props, moment, _) => {
     const columns = props.primaryColumns
