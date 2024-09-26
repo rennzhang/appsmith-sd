@@ -1,5 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { updateColumnStyles } from "../propertyUtils";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
 export default [
   {
@@ -44,6 +45,8 @@ export default [
         controlType: "ICON_TABS",
         fullWidth: true,
         defaultValue: "default",
+        isBindProperty: true,
+        isTriggerProperty: false,
         options: [
           {
             label: "默认",
@@ -98,6 +101,7 @@ export default [
         label: "显示切换器",
         controlType: "SWITCH",
         isJSConvertible: true,
+        isTriggerProperty: false,
         isBindProperty: true,
         validation: { type: ValidationTypes.BOOLEAN },
       },
@@ -378,4 +382,4 @@ export default [
       },
     ],
   },
-];
+] as PropertyPaneConfig[];

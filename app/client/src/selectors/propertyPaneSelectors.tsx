@@ -236,7 +236,6 @@ export const getWidgetPropsForPropertyName = (
       if (dependencies.includes("googleMapsApiKey")) {
         widgetProperties.googleMapsApiKey = googleMapsApiKey;
       }
-      console.log(` evaluatedWidget11111`, evaluatedWidget);
       widgetProperties[EVALUATION_PATH] = populateEvaluatedWidgetProperties(
         evaluatedWidget,
         propertyName,

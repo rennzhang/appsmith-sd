@@ -23,6 +23,7 @@ import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
 
 export interface AntdTableProps {
+  tableType: "dragSort" | "edit" | "normal";
   handleAlertBtnClick: (action: string) => void;
   editableColumn: any[];
   handleUrlOrImgClick: (column: any, row?: Record<string, unknown>) => void;
@@ -70,10 +71,10 @@ export interface AntdTableProps {
   defaultExpandAllRows: boolean;
   defaultExpandedRowKeys: Key[];
   expandedKeys: Key[];
-  onCellTextChange: (
-    value: EditableCell["value"],
-    inputValue: string,
+  handleCellTextChange: (
+    value: any,
     alias: string,
+    column: ReactTableColumnProps,
   ) => void;
   handleEditableRowChange: (data: {
     editableKeys: React.Key[];
@@ -83,7 +84,7 @@ export interface AntdTableProps {
     record: Record<string, unknown>;
     rowIndex?: number;
   }) => void;
-  onSwitchValueChange: (
+  handleSwitchValueChange: (
     column: any,
     row: Record<string, unknown>,
     value: boolean,
@@ -105,9 +106,9 @@ export interface AntdTableProps {
   cardBorderedSearch: boolean;
   cardBorderedTable: boolean;
   enableSearchFormValidation: boolean;
-  inlineEditingSaveOption?: InlineEditingSaveOptions;
+  tableInlineEditType?: TableInlineEditTypes;
   expandRowByClick?: boolean;
-  onExpandedRowsChange: (expandedKeys: Key[]) => void;
+  handleExpandedRowsChange: (expandedKeys: Key[]) => void;
   onExpand: (expanded: boolean, record: any) => void;
   childrenColumnName: string;
   isActionFixed?: boolean;
@@ -149,7 +150,6 @@ export interface AntdTableProps {
   ) => void;
   // editableCell: EditableCell;
   applyFilter: (filters: ReactTableFilter[]) => void;
-  handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
   selectTableRow: (row: {
@@ -234,10 +234,7 @@ export interface ButtonAction {
   btnIconName: IconName;
   iconName: IconName;
   iconAlign: Alignment;
-  columnType:
-    | ColumnTypes.BUTTON
-    | ColumnTypes.ICON_BUTTON
-    | ColumnTypes.MENU_BUTTON;
+  buttonType: ButtonTypes;
   label: string;
   id: string;
   widgetId: string;
@@ -277,7 +274,7 @@ export enum EditableCellActions {
   DISCARD = "DISCARD",
 }
 
-export enum InlineEditingSaveOptions {
+export enum TableInlineEditTypes {
   ROW_LEVEL = "ROW_LEVEL",
   TABLE_LEVEL = "TABLE_LEVEL",
   CUSTOM = "CUSTOM",
@@ -342,8 +339,7 @@ export interface TableWidgetProps
   primaryColor: string;
   borderRadius: string;
   boxShadow?: string;
-  inlineEditingSaveOption?: InlineEditingSaveOptions;
-  showInlineEditingOptionDropdown?: boolean;
+  tableInlineEditType?: TableInlineEditTypes;
   variant?: TableVariant;
   selectColumnFilterText?: Record<string, string>;
   isAddRowInProgress: boolean;
@@ -382,15 +378,12 @@ export enum ColumnTypes {
   IMAGE = "image",
   VIDEO = "video",
   DATE = "date",
-  BUTTON = "button",
-  ICON_BUTTON = "iconButton",
-  MENU_BUTTON = "menuButton",
   SELECT = "select",
-  EDIT_ACTIONS = "editActions",
+  // EDIT_ACTIONS = "editActions",
   CHECKBOX = "checkbox",
   SWITCH = "switch",
   PASSWORD = "password",
-  MONY = "money",
+  MONEY = "money",
   RADIO = "radio",
   // color
   COLOR = "color",
@@ -419,13 +412,6 @@ export enum ReadOnlyColumnTypes {
   SELECT = "select",
   PASSWORD = "password",
 }
-
-export const ActionColumnTypes = [
-  ColumnTypes.BUTTON,
-  ColumnTypes.ICON_BUTTON,
-  ColumnTypes.MENU_BUTTON,
-  ColumnTypes.EDIT_ACTIONS,
-];
 
 export const FilterableColumnTypes = [
   ColumnTypes.TEXT,

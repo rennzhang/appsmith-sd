@@ -13,28 +13,28 @@ export default {
     return columnType !== ColumnTypes.DATE || !isEditable;
   },
   children: [
-    {
-      propertyName: "firstDayOfWeek",
-      label: "First Day Of Week",
-      helpText: "Defines the first day of the week for calendar",
-      controlType: "INPUT_TEXT",
-      defaultValue: "0",
-      inputType: "NUMBER",
-      isBindProperty: true,
-      isTriggerProperty: false,
-      dependencies: ["primaryColumns", "columnType"],
-      validation: {
-        type: ValidationTypes.FUNCTION,
-        params: {
-          fnString: allowedFirstDayOfWeekRange.toString(),
-          expected: {
-            type: "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
-            example: "0",
-            autocompleteDataType: AutocompleteDataType.STRING,
-          },
-        },
-      },
-    },
+    // {
+    //   propertyName: "firstDayOfWeek",
+    //   label: "First Day Of Week",
+    //   helpText: "Defines the first day of the week for calendar",
+    //   controlType: "INPUT_TEXT",
+    //   defaultValue: "0",
+    //   inputType: "NUMBER",
+    //   isBindProperty: true,
+    //   isTriggerProperty: false,
+    //   dependencies: ["primaryColumns", "columnType"],
+    //   validation: {
+    //     type: ValidationTypes.FUNCTION,
+    //     params: {
+    //       fnString: allowedFirstDayOfWeekRange.toString(),
+    //       expected: {
+    //         type: "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
+    //         example: "0",
+    //         autocompleteDataType: AutocompleteDataType.STRING,
+    //       },
+    //     },
+    //   },
+    // },
     {
       propertyName: "shortcuts",
       label: "Show Shortcuts",

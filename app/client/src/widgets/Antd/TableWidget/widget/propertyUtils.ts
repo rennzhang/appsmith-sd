@@ -3,17 +3,14 @@ import type { ColumnProperties } from "../component/Constants";
 import { StickyType } from "../component/Constants";
 import { CellAlignmentTypes } from "../component/Constants";
 import type { TableWidgetProps } from "../constants";
-import { ColumnTypes, InlineEditingSaveOptions } from "../constants";
+import { ColumnTypes, TableInlineEditTypes, ButtonTypes } from "../constants";
 import _, { findIndex, get, isBoolean } from "lodash";
 import { Colors } from "constants/Colors";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import {
-  createEditActionColumn,
-  generateNewColumnOrderFromStickyValue,
-} from "./utilities";
+import { generateNewColumnOrderFromStickyValue } from "./utilities";
 import type { PropertyUpdates } from "widgets/constants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 
@@ -238,82 +235,6 @@ function isMatchingEditablePath(propertyPath: string) {
   );
 }
 
-export const updateInlineEditingOptionDropdownVisibilityHook = (
-  props: TableWidgetProps,
-  propertyPath: string,
-  propertyValue: any,
-): Array<PropertyUpdates> | undefined => {
-  let propertiesToUpdate = [];
-
-  if (
-    props &&
-    !props.showInlineEditingOptionDropdown &&
-    propertyValue &&
-    isMatchingEditablePath(propertyPath)
-  ) {
-    propertiesToUpdate.push({
-      propertyPath: `showInlineEditingOptionDropdown`,
-      propertyValue: true,
-    });
-  }
-
-  if (
-    props &&
-    isMatchingEditablePath(propertyPath) &&
-    props.inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL &&
-    isBoolean(propertyValue)
-  ) {
-    if (propertyValue) {
-      const editActionsColumn = Object.values(props.primaryColumns).find(
-        (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
-      );
-
-      if (!editActionsColumn) {
-        propertiesToUpdate = [
-          ...propertiesToUpdate,
-          // ...createEditActionColumn(props),
-        ];
-      }
-    } else {
-      const regex = /^primaryColumns\.(\w+)\.(\w+)$/;
-      const columnIdMatcher = propertyPath.match(regex);
-      const columnId = columnIdMatcher && columnIdMatcher[1];
-      const isAtleastOneColumnEditablePresent = Object.values(
-        props.primaryColumns,
-      ).some((column) => column.id !== columnId && column.isEditable);
-
-      if (!isAtleastOneColumnEditablePresent) {
-        const columnsArray = Object.values(props.primaryColumns);
-        const edtiActionColumn = columnsArray.find(
-          (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
-        );
-
-        if (edtiActionColumn && edtiActionColumn.id) {
-          const newColumnOrder = _.difference(props.columnOrder, [
-            edtiActionColumn.id,
-          ]);
-          propertiesToUpdate = [
-            ...propertiesToUpdate,
-            {
-              propertyPath: `primaryColumns.${edtiActionColumn.id}`,
-              shouldDeleteProperty: true,
-            },
-            {
-              propertyPath: "columnOrder",
-              propertyValue: newColumnOrder,
-            },
-          ];
-        }
-      }
-    }
-  }
-
-  if (propertiesToUpdate.length) {
-    return propertiesToUpdate;
-  }
-  return;
-};
-
 const CELL_EDITABLITY_PATH_REGEX = /^primaryColumns\.(\w+)\.isCellEditable$/;
 
 /**
@@ -411,6 +332,24 @@ export const hideByColumnType = (
   return !columnTypes.includes(columnType);
 };
 
+export const hideByButtonType = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  columnTypes: ButtonTypes[],
+  shouldUsePropertyPath?: boolean,
+) => {
+  let baseProperty;
+
+  if (shouldUsePropertyPath) {
+    baseProperty = propertyPath;
+  } else {
+    baseProperty = getBasePropertyPath(propertyPath);
+  }
+
+  const buttonType = get(props, `${baseProperty}.buttonType`, "");
+  return !columnTypes.includes(buttonType);
+};
+
 /*
  * Function to check if column should be shown, based on
  * the given columnTypes
@@ -486,50 +425,6 @@ export const SelectColumnOptionsValidations = (
     parsed,
     messages: [message],
   };
-};
-
-/*
- * Hook that updates column isDiabled binding when columnType is
- * changed to ColumnTypes.EDIT_ACTIONS.
- */
-export const updateInlineEditingSaveOptionHook = (
-  props: TableWidgetProps,
-  propertyPath: string,
-  propertyValue: any,
-): Array<PropertyUpdates> | undefined => {
-  if (propertyValue !== InlineEditingSaveOptions.ROW_LEVEL) {
-    const columnsArray = Object.values(props.primaryColumns);
-    const edtiActionColumn = columnsArray.find(
-      (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
-    );
-
-    if (edtiActionColumn && edtiActionColumn.id) {
-      const newColumnOrder = _.difference(props.columnOrder, [
-        edtiActionColumn.id,
-      ]);
-
-      return [
-        {
-          propertyPath: `primaryColumns.${edtiActionColumn.id}`,
-          shouldDeleteProperty: true,
-        },
-        {
-          propertyPath: "columnOrder",
-          propertyValue: newColumnOrder,
-        },
-      ];
-    }
-  } else {
-    const columnIdMatcher = propertyPath.match(EDITABLITY_PATH_REGEX);
-    const columnId = columnIdMatcher && columnIdMatcher[1];
-    const isAtleastOneEditableColumnPresent = Object.values(
-      props.primaryColumns,
-    ).some((column) => column.id !== columnId && column.isEditable);
-
-    // if (isAtleastOneEditableColumnPresent) {
-    //   return createEditActionColumn(props);
-    // }
-  }
 };
 
 export const updateNumberColumnTypeTextAlignment = (
@@ -730,7 +625,6 @@ export const updateColumnProperties = (
   // isVisibleCellFilters 在置顶类型下，默认是true
   const supportFilterColumnTypes = [
     ColumnTypes.SELECT,
-    ColumnTypes.MENU_BUTTON,
     ColumnTypes.RADIO,
     ColumnTypes.CHECKBOX,
     ColumnTypes.SWITCH,
@@ -798,7 +692,7 @@ export const updateMenuItemsSource = (
   const baseProperty = getBasePropertyPath(propertyPath);
   const menuItemsSource = get(props, `${baseProperty}.menuItemsSource`);
 
-  if (propertyValue === ColumnTypes.MENU_BUTTON && !menuItemsSource) {
+  if (propertyValue === ButtonTypes.MENU_BUTTON && !menuItemsSource) {
     // Sets the default value for menuItemsSource to static when
     // selecting the menu button column type for the first time
     propertiesToUpdate.push({

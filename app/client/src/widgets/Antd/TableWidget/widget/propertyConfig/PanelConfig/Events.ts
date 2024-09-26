@@ -4,7 +4,6 @@ import { ColumnTypes } from "widgets/Antd/TableWidget/constants";
 import { get } from "lodash";
 import {
   getBasePropertyPath,
-  showByColumnType,
   hideByColumnType,
   getColumnPath,
 } from "../../propertyUtils";
@@ -12,30 +11,35 @@ import {
 export default {
   sectionName: "事件",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
-    if (
-      showByColumnType(
-        props,
-        propertyPath,
-        [ColumnTypes.IMAGE, ColumnTypes.SWITCH],
-        true,
-      )
-    ) {
-      return false;
-    } else {
-      const columnType = get(props, `${propertyPath}.columnType`, "");
-      const isEditable = get(props, `${propertyPath}.isEditable`, "");
-      return (
-        !(
-          columnType === ColumnTypes.TEXT ||
-          columnType === ColumnTypes.NUMBER ||
-          columnType === ColumnTypes.CHECKBOX ||
-          columnType === ColumnTypes.SELECT ||
-          columnType === ColumnTypes.DATE
-        ) || !isEditable
-      );
-    }
+    const columnType = get(props, `${propertyPath}.columnType`, "");
+    const isEditable = get(props, `${propertyPath}.isEditable`, "");
+    return (
+      !isEditable ||
+      [ColumnTypes.INDEX_BORDER, ColumnTypes.INDEX].includes(columnType)
+    );
   },
   children: [
+    // onChange input number
+    {
+      propertyName: "onCellTextChange",
+      label: "onChange",
+      helpText: "当输入框内容改变时触发",
+      controlType: "ACTION_SELECTOR",
+      dependencies: ["primaryColumns"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.NUMBER,
+          ColumnTypes.TEXT,
+          ColumnTypes.TEXTAREA,
+          ColumnTypes.MONEY,
+          ColumnTypes.PASSWORD,
+          ColumnTypes.IMAGE,
+        ]);
+      },
+    },
     // Image onClick
     {
       propertyName: "onUrlOrImgClick",

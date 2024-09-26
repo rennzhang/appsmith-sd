@@ -19,6 +19,7 @@ function arePropsEqual(
 ) {
   // 比较关键属性
   const keyProps: (keyof ReactTableComponentProps)[] = [
+    "tableType",
     "editableColumn",
     // 行选择相关
     "rowSelectionActions",
@@ -92,15 +93,15 @@ function arePropsEqual(
     "columnWidthMap",
     "tableData",
     "editableCell",
-    "inlineEditingSaveOption",
+    "tableInlineEditType",
     "handleAddNewRow",
     "handleEditableValuesChange",
     "handleEditableRowChange",
-    "onCellTextChange",
-    "onExpandedRowsChange",
+    "handleCellTextChange",
+    "handleExpandedRowsChange",
     "onExpand",
     "onRowClick",
-    "onSwitchValueChange",
+    "handleSwitchValueChange",
     "handleUrlOrImgClick",
     "handleAlertBtnClick",
   ];

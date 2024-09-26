@@ -8,8 +8,9 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/Antd/TableWidget/constants";
 import {
+  ButtonTypes,
   ColumnTypes,
-  InlineEditingSaveOptions,
+  TableInlineEditTypes,
 } from "widgets/Antd/TableWidget/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
@@ -18,8 +19,6 @@ import {
   uniqueColumnNameValidation,
   updateColumnOrderHook,
   updateCustomColumnAliasOnLabelChange,
-  updateInlineEditingOptionDropdownVisibilityHook,
-  updateInlineEditingSaveOptionHook,
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
 import ActionPanelConfig from "./ActionPanelConfig";
@@ -30,6 +29,44 @@ export default [
   {
     sectionName: "数据",
     children: [
+      // 表格类型，拖拽排序表格、可编辑表格、普通表格
+      {
+        helperText(props) {
+          // 给出表格类型为拖拽排序表格、可编辑表格、普通表格的提示，要显示出区别
+          if (props.tableType === "dragSort") {
+            return "拖拽排序表格，能够支持拖拽排序、新增单行、普通的编辑模式";
+          } else if (props.tableType === "edit") {
+            return "可编辑表格，能够支持新增多行、实时保存的更高级编辑模式";
+          } else {
+            return "普通表格，能够支持拖编辑、删除等操作";
+          }
+        },
+        helpText: "表格类型",
+        propertyName: "tableType",
+        label: "表格类型",
+        controlType: "DROP_DOWN",
+        defaultValue: "normal",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+        },
+
+        options: [
+          {
+            label: "普通表格",
+            value: "normal",
+          },
+          {
+            label: "拖拽排序表格",
+            value: "dragSort",
+          },
+          {
+            label: "可编辑表格",
+            value: "edit",
+          },
+        ],
+      },
       {
         helpText: "表格数组数据",
         propertyName: "tableData",
@@ -68,14 +105,13 @@ export default [
         label: "数据列",
         updateHook: composePropertyUpdateHook([
           updateColumnOrderHook,
-          updateInlineEditingOptionDropdownVisibilityHook,
           updateCustomColumnAliasOnLabelChange,
         ]),
         dependencies: [
           "primaryColumns",
           "columnOrder",
           "childStylesheet",
-          "inlineEditingSaveOption",
+          "tableInlineEditType",
           "textColor",
           "textSize",
           "fontStyle",
@@ -99,39 +135,30 @@ export default [
         panelConfig,
       },
       {
-        propertyName: "inlineEditingSaveOption",
+        propertyName: "tableInlineEditType",
         helpText: "选择如何保存编辑的单元格数据",
         label: "更新模式",
         controlType: "ICON_TABS",
-        defaultValue: InlineEditingSaveOptions.ROW_LEVEL,
+        defaultValue: TableInlineEditTypes.ROW_LEVEL,
         fullWidth: true,
         isBindProperty: true,
         isTriggerProperty: false,
         hidden: (props: TableWidgetProps) => {
-          return (
-            !props.showInlineEditingOptionDropdown &&
-            !Object.values(props.primaryColumns).find(
-              (column) => column.isEditable,
-            )
+          return !Object.values(props.primaryColumns).find(
+            (column) => column.isEditable,
           );
         },
-        dependencies: [
-          "primaryColumns",
-          "columnOrder",
-          "childStylesheet",
-          "showInlineEditingOptionDropdown",
-        ],
+        dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
         options: [
           {
             label: "行更新",
-            value: InlineEditingSaveOptions.ROW_LEVEL,
+            value: TableInlineEditTypes.ROW_LEVEL,
           },
           {
             label: "自定义更新",
-            value: InlineEditingSaveOptions.CUSTOM,
+            value: TableInlineEditTypes.CUSTOM,
           },
         ],
-        updateHook: updateInlineEditingSaveOptionHook,
       },
       {
         helpText:
@@ -193,18 +220,32 @@ export default [
         defaultProperties: {
           menuButtonLabel: undefined,
           buttonColor: Colors.AZURE_RADIANCE,
-          columnType: ColumnTypes.BUTTON,
+          buttonType: ButtonTypes.BUTTON,
           iconName: "",
-          btnIconName: "add",
-          menuIconName: "more",
+          btnIconName: "ant-design:SettingOutlined",
+          menuIconName: "ant-design:EllipsisOutlined",
           showButton: true,
           isDisabled: false,
           buttonVariant: ButtonVariantTypes.TERTIARY,
           menuVariant: ButtonVariantTypes.TERTIARY,
-          buttonLabel: "动作",
-          tooltip: "提示",
+          buttonLabel: "按钮",
+          tooltip: "",
           iconAlign: "left",
           menuTooltip: "",
+          onBtnClick: "{{showAlert('请先配置按钮的动作', 'warning');}}",
+          menuItems: {
+            menuItemfs0i704r9c: {
+              id: "menuItemfs0i704r9c",
+              index: 0,
+              label: "Menu Item 1",
+              widgetId: "",
+              isDisabled: false,
+              isVisible: true,
+              backgroundColor: "",
+              textColor: "",
+              // onBtnClick: "{{showAlert('请先配置按钮的动作', 'warning');}}",
+            },
+          },
         },
       },
     ],
@@ -213,8 +254,18 @@ export default [
   {
     sectionName: "行编辑配置",
     hidden: (props: TableWidgetProps) => {
-      return props.inlineEditingSaveOption == InlineEditingSaveOptions.CUSTOM;
+      const editableColumn = [];
+      Object.values(props.primaryColumns).map((column) => {
+        if (column.isCellEditable) {
+          editableColumn.push(column);
+        }
+      });
+      return !(
+        props.tableInlineEditType == TableInlineEditTypes.ROW_LEVEL &&
+        editableColumn.length
+      );
     },
+    dependencies: ["tableInlineEditType", "primaryColumns"],
     children: [
       {
         helpText: "行编辑状态下的操作列按钮配置",
@@ -226,23 +277,7 @@ export default [
         panelConfig: ActionPanelConfig,
         isHideToggleVisibility: true,
         isHideAddButton: true,
-        defaultProperties: {
-          menuButtonLabel: undefined,
-          buttonColor: Colors.AZURE_RADIANCE,
-          columnType: ColumnTypes.BUTTON,
-          iconName: "",
-          btnIconName: "add",
-          menuIconName: "more",
-          showButton: true,
-          isDisabled: false,
-          buttonVariant: ButtonVariantTypes.TERTIARY,
-          menuVariant: ButtonVariantTypes.TERTIARY,
-          buttonLabel: "动作",
-          tooltip: "提示",
-          iconAlign: "left",
-          menuTooltip: "",
-        },
-        dependencies: ["inlineEditingSaveOption"],
+        dependencies: ["tableInlineEditType"],
       },
       // editType
       {
@@ -721,18 +756,33 @@ export default [
         defaultProperties: {
           menuButtonLabel: undefined,
           buttonColor: Colors.AZURE_RADIANCE,
-          columnType: ColumnTypes.BUTTON,
+          buttonType: ButtonTypes.BUTTON,
           iconName: "",
           btnIconName: "ant-design:SettingOutlined",
-          menuIconName: "ant-design:MenuOutlined",
+          menuIconName: "ant-design:EllipsisOutlined",
           showButton: true,
           isDisabled: false,
           buttonVariant: ButtonVariantTypes.TERTIARY,
           menuVariant: ButtonVariantTypes.TERTIARY,
-          buttonLabel: "动作",
-          tooltip: "提示",
+          buttonLabel: "按钮",
+          tooltip: "",
           iconAlign: "left",
           menuTooltip: "",
+          onBtnClick: "{{showAlert('请先配置按钮的动作', 'warning');}}",
+
+          menuItems: {
+            menuItemfs0i704r9c: {
+              id: "menuItemfs0i704r9c",
+              index: 0,
+              label: "Menu Item 1",
+              widgetId: "",
+              isDisabled: false,
+              isVisible: true,
+              backgroundColor: "",
+              textColor: "",
+              // onBtnClick: "{{showAlert('请先配置按钮的动作', 'warning');}}",
+            },
+          },
         },
         dependencies: ["rowSelectionActions", "allowRowSelection"],
         hidden: (props: TableWidgetProps) => !props.allowRowSelection,

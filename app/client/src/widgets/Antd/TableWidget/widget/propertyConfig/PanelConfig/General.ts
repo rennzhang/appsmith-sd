@@ -3,9 +3,9 @@ import { get } from "lodash";
 import {
   getBasePropertyPath,
   hideByColumnType,
+  showByColumnType,
   updateColumnLevelEditability,
   updateColumnOrderWhenFrozen,
-  updateInlineEditingOptionDropdownVisibilityHook,
 } from "../../propertyUtils";
 import { isColumnTypeEditable } from "../../utilities";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
@@ -51,6 +51,12 @@ export default {
           type: ValidationTypes.BOOLEAN,
         },
       },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return showByColumnType(props, propertyPath, [
+          ColumnTypes.INDEX,
+          ColumnTypes.INDEX_BORDER,
+        ]);
+      },
     },
     // isCellCopyable
     {
@@ -69,6 +75,12 @@ export default {
           type: ValidationTypes.BOOLEAN,
         },
       },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return showByColumnType(props, propertyPath, [
+          ColumnTypes.INDEX,
+          ColumnTypes.INDEX_BORDER,
+        ]);
+      },
     },
     // isVisibleCellFilters
     {
@@ -86,6 +98,12 @@ export default {
         params: {
           type: ValidationTypes.BOOLEAN,
         },
+      },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return showByColumnType(props, propertyPath, [
+          ColumnTypes.INDEX,
+          ColumnTypes.INDEX_BORDER,
+        ]);
       },
     },
 
@@ -106,13 +124,6 @@ export default {
         },
       },
       dependencies: ["primaryColumns", "columnOrder"],
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.ICON_BUTTON,
-          ColumnTypes.MENU_BUTTON,
-          ColumnTypes.BUTTON,
-        ]);
-      },
     },
     {
       propertyName: "allowCellWrapping",
@@ -134,6 +145,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
           ColumnTypes.TEXT,
+          ColumnTypes.TEXTAREA,
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
         ]);
@@ -146,7 +158,7 @@ export default {
         "columnOrder",
         "columnType",
         "childStylesheet",
-        "inlineEditingSaveOption",
+        "tableInlineEditType",
       ],
       label: "支持编辑",
       helpText: "让表格单元格可以编辑",
@@ -156,10 +168,7 @@ export default {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
-      updateHook: composePropertyUpdateHook([
-        updateColumnLevelEditability,
-        updateInlineEditingOptionDropdownVisibilityHook,
-      ]),
+      updateHook: composePropertyUpdateHook([updateColumnLevelEditability]),
       validation: {
         type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {

@@ -31,9 +31,9 @@ export function useExpandState(props: AntdTableProps) {
         );
 
         setExpandedKeys(expandedKeys);
-        props.onExpandedRowsChange?.(expandedKeys);
+        props.handleExpandedRowsChange?.(expandedKeys);
       },
-      [props.onExpandedRowsChange],
+      [props.handleExpandedRowsChange],
     );
 
   const expandable = useMemo(

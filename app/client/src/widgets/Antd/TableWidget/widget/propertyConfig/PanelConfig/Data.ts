@@ -13,7 +13,6 @@ import {
   showByColumnType,
   uniqueColumnAliasValidation,
   updateColumnProperties,
-  updateMenuItemsSource,
   updateNumberColumnTypeTextAlignment,
   updateSelectSource,
   updateThemeStylesheetsInColumns,
@@ -99,10 +98,10 @@ export default {
           label: "密码",
           value: ColumnTypes.PASSWORD,
         },
-        // MONY
+        // MONEY
         {
           label: "金额",
-          value: ColumnTypes.MONY,
+          value: ColumnTypes.MONEY,
         },
         // COLOR
         {
@@ -183,7 +182,6 @@ export default {
       updateHook: composePropertyUpdateHook([
         updateNumberColumnTypeTextAlignment,
         updateThemeStylesheetsInColumns,
-        updateMenuItemsSource,
         updateSelectSource,
         updateColumnProperties,
       ]),
@@ -209,11 +207,6 @@ export default {
       ],
       isBindProperty: false,
       isTriggerProperty: false,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return showByColumnType(props, propertyPath, [
-          ColumnTypes.EDIT_ACTIONS,
-        ]);
-      },
     },
     {
       helpText: "在 selectedrow 中使用的别名",
@@ -299,7 +292,7 @@ export default {
     {
       propertyName: "inputFormat",
       label: "原始日期类型",
-      helpText: "Date format of incoming data to the column",
+      helpText: "列数据的原始日期类型",
       controlType: "DROP_DOWN",
       options: [
         {

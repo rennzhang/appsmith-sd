@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { AntdTableProps } from "../../constants";
 import type { TableProps } from "antd";
@@ -36,25 +36,24 @@ export const useTableQuery = (props: AntdTableProps) => {
     props?.onQueryDataChange(initialQueryData);
   };
 
-  const handleRequest: ProTableProps<any, any>["request"] = async (
-    params: any,
-    sort: any,
-    filter: any,
-  ) => {
-    console.log("Antd 表格 handleRequest", {
-      initialQueryData,
-      props,
-    });
-    return new Promise((resolve) => {
-      setQueryData(params);
-      props?.onQueryDataChange(params);
-      return resolve({
-        data: props.tableData || [],
-        success: true,
-        total: props.totalRecordsCount || 0,
+  const handleRequest: ProTableProps<any, any>["request"] = useCallback(
+    async (params: any, sort: any, filter: any) => {
+      console.log("Antd 表格 handleRequest", {
+        initialQueryData,
+        props,
       });
-    });
-  };
+      return new Promise((resolve) => {
+        setQueryData(params);
+        // props?.onQueryDataChange(params);
+        return resolve({
+          data: props.tableData || [],
+          success: true,
+          total: props.totalRecordsCount || 0,
+        });
+      });
+    },
+    [props.tableData, props.totalRecordsCount],
+  );
 
   const form = useMemo<ProTableProps<any, any>["form"]>(() => {
     return {

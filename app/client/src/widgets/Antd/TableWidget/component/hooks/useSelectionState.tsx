@@ -17,9 +17,6 @@ export function useSelectionState(props: AntdTableProps) {
     selectionColumnWidth,
     tableData,
   } = props;
-  console.group("Antd 表格 useSelectionState ");
-  console.log("props", props);
-  console.groupEnd();
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 

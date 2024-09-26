@@ -3,19 +3,15 @@ import Alignment from "./Alignment";
 import BorderAndShadow from "./BorderAndShadow";
 import Color from "./Color";
 import Data from "./Data";
-import DiscardButtonproperties, {
-  discardButtonStyleConfig,
-} from "./DiscardButtonproperties";
+
 import Events from "./Events";
 import General, { GeneralStyle } from "./General";
 import Icon from "./Icon";
-import SaveButtonProperties, {
-  saveButtonStyleConfig,
-} from "./SaveButtonProperties";
+
 import Select from "./Select";
 import TextFormatting from "./TextFormatting";
 import Validations from "./Validation";
-import DateProperties from "./DateProperties";
+// import DateProperties from "./DateProperties";
 import ColumnStyleControl from "./ColumnStyleControl";
 
 export default {
@@ -27,11 +23,8 @@ export default {
     Data,
     General,
     Validations,
-    SaveButtonProperties,
-    DiscardButtonproperties,
     Select,
-    Events,
-    DateProperties,
+    Events /* DateProperties */,
   ],
   styleChildren: [
     GeneralStyle,
@@ -40,8 +33,6 @@ export default {
     TextFormatting,
     ColumnStyleControl,
     Color,
-    saveButtonStyleConfig,
-    discardButtonStyleConfig,
     BorderAndShadow,
   ],
   updateHook: updateCustomColumnAliasOnLabelChange,

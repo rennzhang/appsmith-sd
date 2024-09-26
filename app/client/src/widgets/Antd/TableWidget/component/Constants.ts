@@ -262,7 +262,7 @@ export interface ColumnBaseProperties {
   id: string;
   originalId: string;
   label?: string;
-  columnType: ProFieldValueType | ColumnTypes.EDIT_ACTIONS;
+  columnType: ColumnTypes;
   isVisible: boolean;
   isDisabled?: boolean;
   index: number;

@@ -6,7 +6,7 @@ import {
 } from "../../../constants";
 
 import {
-  hideByColumnType,
+  hideByButtonType,
   hideByMenuItemsSource,
   hideIfMenuItemsSourceDataIsFalsy,
   updateIconAlignment,
@@ -19,14 +19,14 @@ import {
   ICON_NAMES,
   MenuItemsSource,
 } from "widgets/MenuButtonWidget/constants";
-import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
+import MenuItemsConfig from "./childPanels/MenuItemsConfig";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
 export default {
   sectionName: "属性",
   children: [
     {
-      propertyName: "columnType",
+      propertyName: "buttonType",
       label: "按钮类型",
       helpText: "设置按钮类型，文本按钮、图标按钮、菜单按钮",
       controlType: "DROP_DOWN",
@@ -70,13 +70,13 @@ export default {
       label: "图标",
       helpText: "设置按钮图标",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);
+        return hideByButtonType(props, propertyPath, [ButtonTypes.BUTTON]);
       },
 
       updateHook: updateIconAlignment,
       dependencies: [
         "columnActions",
-        "columnType",
+        "buttonType",
         "editingActions",
         "rowSelectionActions",
       ],
@@ -96,13 +96,13 @@ export default {
       label: "图标",
       helpText: "设置按钮图标",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
+        return hideByButtonType(props, propertyPath, [ButtonTypes.MENU_BUTTON]);
       },
 
       updateHook: updateIconAlignment,
       dependencies: [
         "columnActions",
-        "columnType",
+        "buttonType",
         "editingActions",
         "rowSelectionActions",
       ],
@@ -124,12 +124,12 @@ export default {
       label: "按钮图标",
       helpText: "设置按钮图标",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.ICON_BUTTON]);
+        return hideByButtonType(props, propertyPath, [ButtonTypes.ICON_BUTTON]);
       },
       updateHook: updateIconAlignment,
       dependencies: [
         "columnActions",
-        "columnType",
+        "buttonType",
         "editingActions",
         "rowSelectionActions",
       ],
@@ -153,7 +153,7 @@ export default {
       helpText: "按钮文本内容",
       controlType: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);
+        return hideByButtonType(props, propertyPath, [ButtonTypes.BUTTON]);
       },
       dependencies: ["columnActions", "editingActions", "rowSelectionActions"],
       isBindProperty: true,
@@ -167,7 +167,7 @@ export default {
       defaultValue: undefined,
       controlType: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
+        return hideByButtonType(props, propertyPath, [ButtonTypes.MENU_BUTTON]);
       },
       dependencies: ["columnActions", "editingActions", "rowSelectionActions"],
       isBindProperty: true,
@@ -184,7 +184,7 @@ export default {
       validation: { type: ValidationTypes.TEXT },
       dependencies: ["columnActions", "editingActions", "rowSelectionActions"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
+        return hideByButtonType(props, propertyPath, [ButtonTypes.MENU_BUTTON]);
       },
     },
     {
@@ -201,9 +201,9 @@ export default {
         if (propertyPath.includes("editingActions")) {
           return true;
         }
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.BUTTON,
-          ColumnTypes.ICON_BUTTON,
+        return hideByButtonType(props, propertyPath, [
+          ButtonTypes.BUTTON,
+          ButtonTypes.ICON_BUTTON,
         ]);
       },
     },
@@ -221,9 +221,9 @@ export default {
         if (propertyPath.includes("editingActions")) {
           return true;
         }
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.BUTTON,
-          ColumnTypes.ICON_BUTTON,
+        return hideByButtonType(props, propertyPath, [
+          ButtonTypes.BUTTON,
+          ButtonTypes.ICON_BUTTON,
         ]);
       },
     },
@@ -232,42 +232,37 @@ export default {
       propertyName: "configureMenuItems",
       controlType: "OPEN_CONFIG_PANEL",
       buttonConfig: {
-        label: "Configure",
+        label: "配置",
         icon: "settings-2-line",
       },
-      label: "Configure menu items",
+      label: "配置菜单项",
       isBindProperty: false,
       isTriggerProperty: false,
       hidden: (props: TableWidgetProps, propertyPath: string) =>
-        hideByColumnType(
+        hideByButtonType(
           props,
           propertyPath,
-          [ColumnTypes.MENU_BUTTON],
+          [ButtonTypes.MENU_BUTTON],
           false,
         ) ||
         hideIfMenuItemsSourceDataIsFalsy(props, propertyPath) ||
         hideByMenuItemsSource(props, propertyPath, MenuItemsSource.STATIC),
-      dependencies: [
-        "columnActions",
-        "columnOrder",
-        "menuItemsSource",
-        "menuSourceData",
-      ],
-      panelConfig: configureMenuItemsConfig,
+      dependencies: ["columnActions", "columnOrder", "menuItemsSource"],
+      panelConfig: MenuItemsConfig,
     },
     {
-      helpText: "Menu items",
+      helpText: "菜单项",
       propertyName: "menuItems",
       controlType: "MENU_ITEMS",
-      label: "Menu items",
+      label: "菜单项",
       isBindProperty: false,
       isTriggerProperty: false,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return (
-          hideByColumnType(
+          hideByButtonType(
             props,
             propertyPath,
-            [ColumnTypes.MENU_BUTTON],
+            [ButtonTypes.MENU_BUTTON],
             false,
           ) ||
           hideByMenuItemsSource(props, propertyPath, MenuItemsSource.DYNAMIC)
@@ -505,8 +500,8 @@ export default {
       isBindProperty: true,
       isTriggerProperty: true,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return !hideByColumnType(props, propertyPath, [
-          ColumnTypes.MENU_BUTTON,
+        return !hideByButtonType(props, propertyPath, [
+          ButtonTypes.MENU_BUTTON,
         ]);
       },
     },

@@ -2,7 +2,11 @@ import React, { useEffect, useMemo, useState, useCallback } from "react";
 import type { Key, ReactNode } from "react";
 import type { ProTableProps, ActionType } from "@ant-design/pro-components";
 import type { AntdTableProps, ButtonAction } from "../../constants";
-import { InlineEditingSaveOptions, ColumnTypes } from "../../constants";
+import {
+  TableInlineEditTypes,
+  ColumnTypes,
+  ButtonTypes,
+} from "../../constants";
 import ButtonComponent from "widgets/Antd/ButtonWidget/component";
 import { Colors } from "constants/Colors";
 import { AddNewRowActions } from "../Constants";
@@ -26,12 +30,12 @@ const ButtonComponentWrapper = React.memo(
       iconAlign={buttonConfig.iconAlign}
       iconColor={buttonConfig.iconColor || defaultColor}
       iconName={
-        buttonConfig.columnType === ColumnTypes.BUTTON
+        buttonConfig.buttonType === ButtonTypes.BUTTON
           ? buttonConfig.iconName
           : buttonConfig.btnIconName
       }
       text={
-        buttonConfig.columnType === ColumnTypes.ICON_BUTTON
+        buttonConfig.buttonType === ButtonTypes.ICON_BUTTON
           ? ""
           : buttonConfig.buttonLabel
       }
@@ -77,7 +81,7 @@ export const useEditableState = (
         ...(props.defaultNewRow || {}),
       },
       {
-        newRecordType: "dataSource",
+        newRecordType: "cache",
         position: props.addNewRowPosition,
       },
     );
@@ -111,10 +115,10 @@ export const useEditableState = (
       handleEditableRowChange,
       handleEditableValuesChange,
       handleRowBtnClick,
-      inlineEditingSaveOption,
+      tableInlineEditType,
     } = props;
 
-    if (inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL) {
+    if (tableInlineEditType === TableInlineEditTypes.ROW_LEVEL) {
       const sortedButtons = Object.values(editingActions)
         .sort((a, b) => a.index - b.index)
         .filter((c) => c.showButton);
@@ -194,11 +198,9 @@ export const useEditableState = (
         onValuesChange: (record, dataSource) => {
           console.log("表格 editable onValuesChange: ", record, dataSource);
           if (!record) return;
-          requestAnimationFrame(() => {
-            handleEditableValuesChange({
-              record: record,
-              rowIndex: record.rowIndex,
-            });
+          handleEditableValuesChange({
+            record: record,
+            rowIndex: record.rowIndex,
           });
         },
       };

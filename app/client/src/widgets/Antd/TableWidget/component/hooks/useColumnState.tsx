@@ -5,7 +5,7 @@ import type { TableColumnProps } from "widgets/Antd/TableWidget/component/Consta
 import type { Rule } from "antd/es/form";
 import type { ColumnStateType } from "@ant-design/pro-table/es/typing";
 import type { AntdTableProps, ButtonAction } from "../../constants";
-import { ColumnTypes, InlineEditingSaveOptions } from "../../constants";
+import { ColumnTypes, TableInlineEditTypes } from "../../constants";
 import { Switch } from "antd";
 import styled from "styled-components";
 import useButtonRender from "./useTableButtonRender";
@@ -27,7 +27,7 @@ const getRules = (column: TableColumnProps) => {
 
   // 根据不同的 columnType 添加特定的规则
   switch (columnProperties.columnType) {
-    case "text":
+    case "input":
     case "password":
     case "textarea":
       rules.push({
@@ -41,8 +41,8 @@ const getRules = (column: TableColumnProps) => {
       break;
 
     case "digit":
-    case "percent":
-    case "second":
+      // case "percent":
+      // case "second":
       rules.push({
         type: "number",
         min: validation?.min,
@@ -61,30 +61,30 @@ const getRules = (column: TableColumnProps) => {
       break;
 
     case "date":
-    case "dateWeek":
-    case "dateMonth":
-    case "dateQuarter":
-    case "dateYear":
-    case "dateTime":
-    case "time":
-      rules.push({
-        type: "date",
-        message: `请输入有效的${columnProperties.label}`,
-      });
-      break;
+    // case "dateWeek":
+    // case "dateMonth":
+    // case "dateQuarter":
+    // case "dateYear":
+    // case "dateTime":
+    // case "time":
+    //   rules.push({
+    //     type: "date",
+    //     message: `请输入有效的${columnProperties.label}`,
+    //   });
+    //   break;
 
-    case "dateRange":
-    case "dateTimeRange":
-    case "timeRange":
-      rules.push({
-        type: "array",
-        message: `请选择有效的${columnProperties.label}`,
-      });
-      break;
+    // case "dateRange":
+    // case "dateTimeRange":
+    // case "timeRange":
+    //   rules.push({
+    //     type: "array",
+    //     message: `请选择有效的${columnProperties.label}`,
+    //   });
+    //   break;
 
     case "select":
-    case "cascader":
-    case "treeSelect":
+      // case "cascader":
+      // case "treeSelect":
       // 这些类型通常由组件本身处理验证，但我们可以添加自定义验证如果需要
       break;
 
@@ -94,25 +94,25 @@ const getRules = (column: TableColumnProps) => {
       // 这些类型通常不需要额外的验证规则
       break;
 
-    case "rate":
-      rules.push({
-        type: "number",
-        min: 0,
-        max: 5, // 假设最大值为5，可以根据实际情况调整
-        message: `请选择有效的评分`,
-      });
-      break;
+    // case "rate":
+    //   rules.push({
+    //     type: "number",
+    //     min: 0,
+    //     max: 5, // 假设最大值为5，可以根据实际情况调整
+    //     message: `请选择有效的评分`,
+    //   });
+    //   break;
 
-    case "slider":
-      rules.push({
-        type: "number",
-        min: validation?.min,
-        max: validation?.max,
-        message: `${columnProperties.label}必须在${validation?.min || 0}到${
-          validation?.max || 100
-        }之间`,
-      });
-      break;
+    // case "slider":
+    //   rules.push({
+    //     type: "number",
+    //     min: validation?.min,
+    //     max: validation?.max,
+    //     message: `${columnProperties.label}必须在${validation?.min || 0}到${
+    //       validation?.max || 100
+    //     }之间`,
+    //   });
+    //   break;
 
     case "image":
       // 可以添加文件类型验证如果需要
@@ -125,10 +125,10 @@ const getRules = (column: TableColumnProps) => {
       });
       break;
 
-    case "code":
-    case "jsonCode":
-      // 这些类型可能需要特定的验证逻辑，这里只提供基本的必填控制
-      break;
+    // case "code":
+    // case "jsonCode":
+    //   // 这些类型可能需要特定的验证逻辑，这里只提供基本的必填控制
+    //   break;
 
     // 对于其他不常见或复杂的类型，我们只提供基本的必填控制
     default:
@@ -160,11 +160,25 @@ const getRules = (column: TableColumnProps) => {
 const getValueEnum = (column: TableColumnProps) => {
   const { columnProperties } = column;
   const {
+    columnType,
     computedValue = [],
     labelKey,
     options,
     valueKey,
   } = columnProperties || {};
+
+  if (
+    [
+      ColumnTypes.NUMBER,
+      ColumnTypes.TEXT,
+      ColumnTypes.TEXTAREA,
+      ColumnTypes.MONEY,
+      ColumnTypes.PASSWORD,
+      ColumnTypes.IMAGE,
+    ].includes(columnType)
+  ) {
+    return undefined;
+  }
   let _options = options || [];
   // 如果不需要显示筛选或没有选项，则返回 undefined
   if (!options || options.length === 0) {
@@ -202,13 +216,13 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
     fixed: "right",
     width: props.actionWidth || 120,
     render: (text, record, recordIndex, tableAction, ...rest) => {
-      console.log("antd 表格 operation", {
-        text,
-        record,
-        recordIndex,
-        tableAction,
-        rest,
-      });
+      // console.log("antd 表格 operation", {
+      //   text,
+      //   record,
+      //   recordIndex,
+      //   tableAction,
+      //   rest,
+      // });
 
       return getTableButtonRender(props.columnActions, (menuItem) =>
         handleButtonClick(menuItem, props, record, recordIndex, tableAction),
@@ -224,7 +238,7 @@ const handleButtonClick = (
   recordIndex: number,
   action?: any,
 ) => {
-  const { editableColumn, inlineEditingSaveOption } = props;
+  const { editableColumn, tableInlineEditType } = props;
 
   console.log("handleButtonClick", {
     button,
@@ -232,12 +246,12 @@ const handleButtonClick = (
     record,
     recordIndex,
     action,
-    inlineEditingSaveOption,
+    tableInlineEditType,
     editableColumn,
   });
 
   const isInlineEditing =
-    inlineEditingSaveOption === InlineEditingSaveOptions.ROW_LEVEL;
+    tableInlineEditType === TableInlineEditTypes.ROW_LEVEL;
 
   if (button.id === "edit" && isInlineEditing && editableColumn?.length) {
     action?.startEditable?.(record.id);
@@ -265,13 +279,13 @@ const getColumnRender = (
   props: AntdTableProps,
 ): ProColumns["render"] => {
   return (dom, record, index, action, schema) => {
-    console.log("antd table column render", {
-      dom,
-      record,
-      index,
-      action,
-      schema,
-    });
+    // console.log("antd table column render", {
+    //   dom,
+    //   record,
+    //   index,
+    //   action,
+    //   schema,
+    // });
     const valueType = schema.valueType;
     const value = record[column.id];
 
@@ -297,7 +311,7 @@ const getColumnRender = (
           <Switch
             checked={record[column.id]}
             onChange={(checked) => {
-              props.onSwitchValueChange(
+              props.handleSwitchValueChange(
                 column,
                 record,
                 checked,
@@ -342,6 +356,10 @@ const getFieldProps = (column: TableColumnProps, props: AntdTableProps) => {
       key: column.columnProperties.valueKey || "key",
       title: column.columnProperties.labelKey || "label",
     },
+    onChange: (e, ...rest: any[]) => {
+      const val = e?.target?.value || e;
+      props?.handleCellTextChange(val, column.alias, column);
+    },
     options: column.columnProperties.options?.map((option: any) => {
       return {
         label: option[column.columnProperties.labelKey || ""] || option.label,
@@ -352,6 +370,9 @@ const getFieldProps = (column: TableColumnProps, props: AntdTableProps) => {
   };
 
   switch (column.columnProperties.columnType) {
+    case ColumnTypes.TEXTAREA:
+      delete fieldProps.options;
+      break;
     case ColumnTypes.DATE:
       fieldProps.format = column.columnProperties.outputFormat;
       break;
@@ -365,6 +386,7 @@ const getFieldProps = (column: TableColumnProps, props: AntdTableProps) => {
   if (column.columnProperties.columnType === ColumnTypes.DATE) {
     fieldProps.format = column.columnProperties.outputFormat;
   }
+
   return fieldProps;
 };
 
@@ -386,9 +408,9 @@ export const useColumnState = (
         initialQueryData[column.id] = "";
         const columnType = column.columnProperties
           .columnType as ProFieldValueType;
-        const proColumn: ProColumns<Record<string, any>> &
-          Partial<TableColumnProps> = {
+        const proColumn: ProColumns<Record<string, any>> & TableColumnProps = {
           ...column,
+          id: column.id!,
           width: column.columnProperties.columnWidth || 120,
           editable: () => column.columnProperties.isCellEditable,
           fixed: column.sticky || false,
@@ -412,6 +434,7 @@ export const useColumnState = (
           ),
         };
         delete proColumn.sticky;
+
         return proColumn;
       }) || [];
     setInitialQueryData(initialQueryData);
@@ -443,7 +466,7 @@ export const useColumnState = (
       props.actionWidth,
       props.primaryColumns,
       props.columns,
-      props.inlineEditingSaveOption,
+      props.tableInlineEditType,
     ],
   );
 

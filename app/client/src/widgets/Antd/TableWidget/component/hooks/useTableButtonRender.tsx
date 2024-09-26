@@ -4,7 +4,7 @@ import React from "react";
 import { Colors } from "constants/Colors";
 
 import type { ButtonAction } from "../../constants";
-import { ColumnTypes } from "../../constants";
+import { ButtonTypes, ColumnTypes } from "../../constants";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
 import ButtonComponent from "widgets/Antd/ButtonWidget/component";
 
@@ -93,7 +93,7 @@ export const useButtonRender = () => {
       iconAlign={button.iconAlign}
       iconColor={button.iconColor}
       iconName={
-        button.columnType === ColumnTypes.BUTTON
+        button.buttonType === ButtonTypes.BUTTON
           ? button.iconName
           : button.btnIconName
       }
@@ -106,7 +106,7 @@ export const useButtonRender = () => {
       placement="CENTER"
       popconfirmMessage={button.popconfirmMessage}
       text={
-        button.columnType === ColumnTypes.ICON_BUTTON ? "" : button.buttonLabel
+        button.buttonType === ButtonTypes.ICON_BUTTON ? "" : button.buttonLabel
       }
       tooltip={button.tooltip}
       widgetId={button.widgetId}
@@ -122,7 +122,7 @@ export const useButtonRender = () => {
       .filter((c) => c.showButton);
 
     return sortedButtons.map((button) =>
-      button.columnType === ColumnTypes.MENU_BUTTON
+      button.buttonType === ButtonTypes.MENU_BUTTON
         ? renderMenuButton({ button, onClick })
         : renderActionButton({ button, onClick }),
     );

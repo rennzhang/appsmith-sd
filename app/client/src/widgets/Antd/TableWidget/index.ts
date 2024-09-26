@@ -2,7 +2,7 @@ import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { ColumnTypes, InlineEditingSaveOptions } from "./constants";
+import { ButtonTypes, ColumnTypes, TableInlineEditTypes } from "./constants";
 import type { TableWidgetProps } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -37,7 +37,7 @@ export const CONFIG = {
       // 批量删除
       delete: {
         menuButtonLabel: "批量删除",
-        columnType: ColumnTypes.BUTTON,
+        buttonType: ButtonTypes.BUTTON,
         label: "批量删除",
         id: "delete",
         widgetId: "",
@@ -53,7 +53,7 @@ export const CONFIG = {
       // 导出数据
       export: {
         menuButtonLabel: "导出数据",
-        columnType: ColumnTypes.BUTTON,
+        buttonType: ButtonTypes.BUTTON,
         label: "导出数据",
         id: "export",
         widgetId: "",
@@ -69,7 +69,7 @@ export const CONFIG = {
     },
     editingActions: {
       save: {
-        columnType: ColumnTypes.BUTTON,
+        buttonType: ButtonTypes.BUTTON,
         label: "保存",
         id: "save",
         widgetId: "",
@@ -84,7 +84,7 @@ export const CONFIG = {
         isHideDelete: true,
       },
       delete: {
-        columnType: ColumnTypes.BUTTON,
+        buttonType: ButtonTypes.BUTTON,
         label: "删除",
         id: "delete",
         widgetId: "",
@@ -99,7 +99,7 @@ export const CONFIG = {
         isHideDelete: true,
       },
       cancel: {
-        columnType: ColumnTypes.BUTTON,
+        buttonType: ButtonTypes.BUTTON,
         label: "取消",
         id: "cancel",
         widgetId: "",
@@ -118,7 +118,7 @@ export const CONFIG = {
       edit: {
         menuButtonLabel: "编辑",
         isHideDelete: true,
-        columnType: ColumnTypes.BUTTON,
+        buttonType: ButtonTypes.BUTTON,
         label: "编辑",
         id: "edit",
         widgetId: "",
@@ -133,7 +133,7 @@ export const CONFIG = {
       },
       delete: {
         menuButtonLabel: "删除",
-        columnType: ColumnTypes.BUTTON,
+        buttonType: ButtonTypes.BUTTON,
         label: "删除",
         id: "delete",
         widgetId: "",
@@ -195,7 +195,7 @@ export const CONFIG = {
     isSortable: true,
     delimiter: ",",
     version: 2,
-    inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
+    tableInlineEditType: TableInlineEditTypes.ROW_LEVEL,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

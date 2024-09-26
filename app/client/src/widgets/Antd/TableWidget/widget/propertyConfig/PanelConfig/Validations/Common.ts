@@ -2,9 +2,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { TableWidgetProps } from "widgets/Antd/TableWidget/constants";
 import { ColumnTypes } from "widgets/Antd/TableWidget/constants";
 import {
-  showByColumnType,
   getColumnPath,
-} from "widgets/TableWidgetV2/widget/propertyUtils";
+  showByColumnType,
+} from "widgets/Antd/TableWidget/widget/propertyUtils";
 
 export default [
   {

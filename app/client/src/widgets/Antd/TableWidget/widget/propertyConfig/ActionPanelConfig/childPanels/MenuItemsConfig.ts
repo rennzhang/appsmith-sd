@@ -21,7 +21,7 @@ export default {
         {
           propertyName: "label",
           helpText:
-            "Sets the label of a menu item using the {{currentItem}} binding.",
+            "菜单项的标签文本，可以使用 {{currentItem}} 绑定设置菜单项的标签",
           label: "Label",
           controlType: "MENU_BUTTON_DYNAMIC_ITEMS",
           placeholderText: "{{currentItem.name}}",
@@ -47,8 +47,8 @@ export default {
         {
           propertyName: "isVisible",
           helpText:
-            "Controls the visibility of the widget. Can also be configured the using {{currentItem}} binding.",
-          label: "Visible",
+            "控制组件的显示/隐藏。可以使用 {{currentItem}} 绑定数据控制菜单项是否显示",
+          label: "是否显示",
           controlType: "SWITCH",
           isJSConvertible: true,
           isBindProperty: true,
@@ -69,8 +69,8 @@ export default {
         {
           propertyName: "isDisabled",
           helpText:
-            "Disables input to the widget. Can also be configured the using {{currentItem}} binding.",
-          label: "Disabled",
+            "禁用菜单项。可以使用 {{currentItem}} 绑定数据控制菜单项是否禁用",
+          label: "禁用",
           controlType: "SWITCH",
           isJSConvertible: true,
           isBindProperty: true,
@@ -95,7 +95,7 @@ export default {
       children: [
         {
           helpText:
-            "when the menu item is clicked. Can also be configured the using {{currentItem}} binding.",
+            "当菜单项被点击时触发。可以使用 {{currentItem}} 绑定数据控制菜单项的点击事件",
           propertyName: "onClick",
           label: "onClick",
           controlType: "ACTION_SELECTOR",
@@ -121,7 +121,7 @@ export default {
           propertyName: "iconName",
           label: "Icon",
           helpText:
-            "Sets the icon to be used for a menu item. Can also be configured the using {{currentItem}} binding.",
+            "设置菜单项的图标。可以使用 {{currentItem}} 绑定数据控制菜单项的图标",
           controlType: "ICON_SELECT",
           isBindProperty: true,
           isTriggerProperty: false,
@@ -144,7 +144,7 @@ export default {
           propertyName: "iconAlign",
           label: "Position",
           helpText:
-            "Sets the icon alignment of a menu item. Can also be configured the using {{currentItem}} binding.",
+            "设置菜单项的图标对齐方式。可以使用 {{currentItem}} 绑定数据控制菜单项的图标对齐方式",
           controlType: "ICON_TABS",
           defaultValue: "left",
           fullWidth: false,
@@ -183,7 +183,7 @@ export default {
         {
           propertyName: "iconColor",
           helpText:
-            "Sets the icon color of a menu item. Can also be configured the using {{currentItem}} binding.",
+            "设置菜单项的图标颜色。可以使用 {{currentItem}} 绑定数据控制菜单项的图标颜色",
           label: "Icon color",
           controlType: "COLOR_PICKER",
           isBindProperty: true,
@@ -206,7 +206,7 @@ export default {
         {
           propertyName: "backgroundColor",
           helpText:
-            "Sets the background color of a menu item. Can also be configured the using {{currentItem}} binding.",
+            "设置菜单项的背景颜色。可以使用 {{currentItem}} 绑定数据控制菜单项的背景颜色",
           label: "Background color",
           controlType: "COLOR_PICKER",
           isBindProperty: true,
@@ -229,7 +229,7 @@ export default {
         {
           propertyName: "textColor",
           helpText:
-            "Sets the text color of a menu item. Can also be configured the using {{currentItem}} binding.",
+            "设置菜单项的文本颜色。可以使用 {{currentItem}} 绑定数据控制菜单项的文本颜色",
           label: "Text color",
           controlType: "COLOR_PICKER",
           isBindProperty: true,

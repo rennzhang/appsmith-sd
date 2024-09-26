@@ -4,10 +4,15 @@ import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
 import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
 import { ConnectDataOverlay } from "./ConnectDataOverlay";
-import type { ActionType } from "@ant-design/pro-components";
-import { DragSortTable } from "@ant-design/pro-components";
+import type {
+  ActionType,
+  DragTableProps,
+  EditableProTableProps,
+  ProColumns,
+} from "@ant-design/pro-components";
+import { DragSortTable, EditableProTable } from "@ant-design/pro-components";
 import { ConfigProvider, Space, Table } from "antd";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import React from "react";
 import type { AntdTableProps } from "../constants";
 // ColumnStateType
@@ -19,6 +24,7 @@ import {
   useSelectionState,
   useTableAlertState,
 } from "./hooks";
+import { data } from "utils/autoLayout/testData";
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 
 const PopoverStyles = createGlobalStyle<{
@@ -38,6 +44,78 @@ const PopoverStyles = createGlobalStyle<{
     }
 `;
 
+type TableComponentProps = EditableProTableProps<any, any> &
+  DragTableProps<any, any> & {
+    props: AntdTableProps;
+  };
+export function EditTableComponent(props: EditableProTableProps<any, any>) {
+  return <EditableProTable {...props} />;
+}
+export function DragSortTableComponent(props: DragTableProps<any, any>) {
+  return <DragSortTable {...props} />;
+}
+
+export function TableComponent(tableProps: TableComponentProps) {
+  const { props } = tableProps;
+  const isEditType = props.tableType === "edit";
+  const isDragSortType = props.tableType === "dragSort";
+  console.log("Antd 表格 333 tableProps", tableProps);
+  console.log("Antd 表格 333 props", props);
+
+  if (isEditType) {
+    const _props = tableProps as EditableProTableProps<any, any>;
+    return <EditTableComponent {..._props} />;
+  } else {
+    const [dataSource, setDataSource] = useState(tableProps.dataSource);
+    useEffect(() => {
+      setDataSource(tableProps.dataSource);
+    }, [tableProps.dataSource]);
+    const _props = tableProps as DragTableProps<any, any>;
+    const dragSortColumn = isDragSortType
+      ? [
+          {
+            title: "排序",
+            dataIndex: "sort",
+            width: 60,
+            className: "drag-visible",
+          },
+          ...(tableProps!.columns as ProColumns<any, "text">[]),
+        ]
+      : tableProps.columns;
+    return (
+      <DragSortTable
+        // {..._props}
+        columns={dragSortColumn}
+        dragSortKey="sort"
+        expandable={{
+          childrenColumnName: "children123",
+        }}
+        onDragSortEnd={(
+          beforeIndex: number,
+          afterIndex: number,
+          newDataSource: any[],
+        ) => {
+          setDataSource(newDataSource);
+
+          console.log("Antd 表格 333 onDragSortEnd", {
+            beforeIndex,
+            afterIndex,
+            newDataSource,
+          });
+        }}
+        pagination={false}
+        request={async () => {
+          return {
+            data: tableProps.dataSource as any[],
+            success: true,
+            total: tableProps.dataSource?.length || 0,
+          };
+        }}
+        search={false}
+      />
+    );
+  }
+}
 export function ProTableComponent(props: AntdTableProps) {
   const { showConnectDataOverlay } = props;
   const actionRef = useRef<ActionType | null>(null);
@@ -137,7 +215,7 @@ export function ProTableComponent(props: AntdTableProps) {
                 },
               }}
             >
-              <DragSortTable
+              <TableComponent
                 actionRef={actionRef}
                 cardBordered={{
                   search: props.cardBorderedSearch,
@@ -171,10 +249,6 @@ export function ProTableComponent(props: AntdTableProps) {
                     },
                   };
                 }}
-                loading={props.isLoading}
-                // onDragSortEnd={() => {
-                //   console.log("表格 onDragSortEnd: ");
-                // }}
                 options={{
                   reload: props.isVisibleRefresh,
                   fullScreen: props.isVisibleFullScreen,
@@ -185,7 +259,12 @@ export function ProTableComponent(props: AntdTableProps) {
                       }
                     : false,
                 }}
+                loading={props.isLoading}
+                // onDragSortEnd={() => {
+                //   console.log("表格 onDragSortEnd: ");
+                // }}
                 pagination={pagination}
+                props={props}
                 request={handleRequest}
                 rowKey={(record: any) => record[props.primaryColumnId || ""]}
                 rowSelection={rowSelection}

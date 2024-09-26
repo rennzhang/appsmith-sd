@@ -58,7 +58,6 @@ import {
   generateLocalNewColumnOrderFromStickyValue,
   updateAndSyncTableLocalColumnOrders,
   getAllStickyColumnsCount,
-  createEditActionColumn,
 } from "./utilities";
 import type {
   ColumnProperties,
@@ -173,49 +172,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               prev[`primaryColumns.${curr}.isCellEditable`] = true;
             }
 
-            prev[`showInlineEditingOptionDropdown`] = true;
-
             return prev;
           },
           {},
         ),
       });
     }
-
-    // if (queryConfig.update) {
-    //   let editAction = {};
-
-    //   if (
-    //     !Object.values(widget.primaryColumns).some(
-    //       (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
-    //     )
-    //   ) {
-    //     editAction = Object.values(createEditActionColumn(widget)).reduce(
-    //       (
-    //         prev: Record<string, unknown>,
-    //         curr: {
-    //           propertyPath: string;
-    //           propertyValue: unknown;
-    //           isDynamicPropertyPath?: boolean;
-    //         },
-    //       ) => {
-    //         prev[curr.propertyPath] = curr.propertyValue;
-
-    //         if (curr.isDynamicPropertyPath) {
-    //           dynamicPropertyPathList.push({ key: curr.propertyPath });
-    //         }
-
-    //         return prev;
-    //       },
-    //       {},
-    //     );
-    //   }
-
-    //   modify = merge(modify, {
-    //     ...editAction,
-    //     [`primaryColumns.EditActions1.onSave`]: queryConfig.update.run,
-    //   });
-    // }
 
     if (queryConfig.total_record) {
       modify = merge(modify, {
@@ -426,7 +388,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       componentWidth,
       renderMode,
     );
-    console.log("getTableColumns columns", columns);
 
     // this.batchUpdateWidgetProperty({
     //   modify: {
@@ -934,12 +895,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   //   this.updateWidgetProperty("currentRecord", currentRecord);
   // };
 
-  onExpandedRowsChange = (expandedKeys: readonly Key[]) => {
+  handleExpandedRowsChange = (expandedKeys: readonly Key[]) => {
     const { commitBatchMetaUpdates } = this.props;
-    console.log("Antd 表格 onExpandedRowsChange", expandedKeys);
+    console.log("Antd 表格 handleExpandedRowsChange", expandedKeys);
     this.props.updateWidgetMetaProperty("expandedKeys", expandedKeys);
 
-    commitBatchMetaUpdates();
+    // commitBatchMetaUpdates();
   };
   updataTriggeredRowKey = (triggeredRowKey: string) => {
     this.props.updateWidgetMetaProperty("triggeredRowKey", triggeredRowKey);
@@ -1016,6 +977,261 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
+  handleRowClick = (row: Record<string, unknown>) => {
+    this.props.updateWidgetMetaProperty(
+      "triggeredRowKey",
+      row[this.props.primaryColumnId],
+    );
+
+    if (this.props.onRowClick) {
+      this.onColumnEvent({
+        row,
+        action: this.props.onRowClick,
+        triggerPropertyName: "onRowClick",
+        eventType: EventType.ON_ROW_SELECTED,
+      });
+    }
+  };
+  handleQueryDataChange = (params: any, isInit?: boolean) => {
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
+    if (isInit) {
+      pushBatchMetaUpdates("queryData", params);
+    } else {
+      pushBatchMetaUpdates("queryData", params, {
+        triggerPropertyName: "onPageChange",
+        dynamicString: this.props.onPageChange,
+        event: {
+          type: EventType.ON_QUERY_CHANGE,
+        },
+      });
+
+      commitBatchMetaUpdates();
+    }
+  };
+
+  handleNextPageClick = () => {
+    const pageNo = (this.props.pageNo || 1) + 1;
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
+    this.updatePaginationDirectionFlags(PaginationDirection.NEXT_PAGE);
+
+    pushBatchMetaUpdates("pageNo", pageNo, {
+      triggerPropertyName: "onPageChange",
+      dynamicString: this.props.onPageChange,
+      event: {
+        type: EventType.ON_NEXT_PAGE,
+      },
+    });
+    commitBatchMetaUpdates();
+  };
+
+  handlePrevPageClick = () => {
+    const pageNo = (this.props.pageNo || 1) - 1;
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
+    if (pageNo >= 1) {
+      this.updatePaginationDirectionFlags(PaginationDirection.PREVIOUS_PAGE);
+      pushBatchMetaUpdates("pageNo", pageNo, {
+        triggerPropertyName: "onPageChange",
+        dynamicString: this.props.onPageChange,
+        event: {
+          type: EventType.ON_PREV_PAGE,
+        },
+      });
+    }
+    commitBatchMetaUpdates();
+  };
+  handleEditableRowChange = (data: {
+    editableKeys: React.Key[];
+    editableRecords: Record<string, unknown>[];
+  }) => {
+    console.log("表格 handleEditableRowChange: ", data);
+    this.props.updateWidgetMetaProperty("updatedRowKeys", data.editableKeys);
+    this.props.updateWidgetMetaProperty("updatedRows", data.editableRecords);
+    // updatedRowKey
+    this.props.updateWidgetMetaProperty(
+      "updatedRowKey",
+      last(data.editableRecords)?.[this.props.primaryColumnId],
+    );
+    this.props.updateWidgetMetaProperty(
+      "updatedRow",
+      last(data.editableRecords),
+    );
+  };
+
+  handleUrlOrImgClick = (column: any, row?: Record<string, unknown>) => {
+    // this.updataTriggeredRowKey(row[this.props.primaryColumnId] as string);
+    this.onColumnEvent({
+      action: column.columnProperties.onUrlOrImgClick,
+      triggerPropertyName: "onUrlOrImgClick",
+      eventType: EventType.ON_CLICK,
+      row: {
+        ...(row || {}),
+      },
+    });
+  };
+  handleAlertBtnClick = (onClick: string) => {
+    console.log("Antd 表格 handleAlertBtnClick", onClick);
+    super.executeAction({
+      dynamicString: onClick,
+      event: {
+        type: EventType.ON_CLICK,
+      },
+    });
+  };
+  handleRowBtnClick = (onClick: string, record: Record<string, any>) => {
+    console.log(
+      "Antd 表格 handleRowBtnClick",
+      onClick,
+      record,
+      this.props,
+      record.__originalIndex__,
+    );
+
+    this.updataTriggeredRowKey(record[this.props.primaryColumnId]);
+
+    this.onColumnEvent({
+      action: onClick,
+      triggerPropertyName: "triggeredRowKey",
+      eventType: EventType.ON_CLICK,
+      row: {
+        ...record,
+      },
+    });
+  };
+  handleSwitchValueChange = (
+    column: any,
+    row: Record<string, unknown>,
+    value: boolean,
+    alias: string,
+    originalIndex: number,
+    rowIndex: number,
+  ) => {
+    console.log("表格onCheckChange", {
+      column,
+      row,
+      value,
+      alias,
+      originalIndex,
+      rowIndex,
+    });
+
+    // 添加这一行
+    this.updataTriggeredRowKey(row[this.props.primaryColumnId] as string);
+
+    if (this.props.isAddRowInProgress) {
+      this.updateNewRowValues(alias, value, value);
+    } else {
+      const { commitBatchMetaUpdates } = this.props;
+
+      // this.pushTransientTableDataActionsUpdates({
+      //   [ORIGINAL_INDEX_KEY]: originalIndex,
+      //   [alias]: value,
+      // });
+      //cannot batch this update because we are not sure if it action is truthy or not
+      this.onColumnEvent({
+        action: column.columnProperties.onCheckChange,
+        triggerPropertyName: "onCheckChange",
+        eventType: EventType.ON_CHECK_CHANGE,
+        row: {
+          ...row,
+          [alias]: value,
+        },
+      });
+    }
+  };
+  handleCellTextChange = (value: any, alias: string, column: any) => {
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
+    console.log("Antd 表格 handleCellTextChange", {
+      value,
+      alias,
+      column,
+      props: this.props,
+    });
+
+    if (this.props.isAddRowInProgress) {
+      // this.updateNewRowValues(alias, inputValue, value);
+      this.updateNewRowValues(alias, value, value);
+    } else {
+      this.onColumnEvent({
+        action: column.columnProperties.onCellTextChange,
+        triggerPropertyName: "onCellTextChange",
+        eventType: EventType.ON_CHECK_CHANGE,
+        row: {
+          // ...row,
+          [alias]: value,
+        },
+      });
+      // pushBatchMetaUpdates("editableCell", {
+      //   ...this.props.editableCell,
+      //   value: value,
+      //   inputValue,
+      // });
+
+      // if (this.props.editableCell?.column) {
+      //   pushBatchMetaUpdates("columnEditableCellValue", {
+      //     ...this.props.columnEditableCellValue,
+      //     [this.props.editableCell?.column]: value,
+      //   });
+      // }
+      // commitBatchMetaUpdates();
+    }
+  };
+  handleEditableValuesChange = (data: {
+    record: Record<string, unknown>;
+    dataSource: Record<string, unknown>[];
+    rowIndex?: number;
+  }) => {
+    const { record, rowIndex } = data;
+    const { commitBatchMetaUpdates } = this.props;
+
+    function findSimpleChanges(
+      objA: Record<string, unknown>,
+      objB: Record<string, unknown>,
+    ) {
+      return _.pickBy(objB, (value, key) => {
+        if (typeof value !== "object" && typeof objA[key] !== "object") {
+          return !_.isEqual(value, objA?.[key]);
+        }
+        return false;
+      });
+    }
+
+    const originalRecord =
+      this.getRecordForKey(record[this.props.primaryColumnId] as string) || {};
+    // lodash 取出修改的内容
+    const diffRecord = findSimpleChanges(originalRecord, record);
+    console.log("diffRecord", {
+      originalRecord,
+      diffRecord,
+      record,
+      primaryColumnId: this.props.primaryColumnId,
+    });
+    // return;
+    // this.pushTransientTableDataActionsUpdates({
+    //   [ORIGINAL_INDEX_KEY]: record.__originalIndex__ as number,
+    //   [ORIGINAL_INDEX_PATH_KEY]: record.__originalIndexPath__ as string,
+    //   ...diffRecord,
+    // });
+
+    // 添加这一行
+    this.updataTriggeredRowKey(record[this.props.primaryColumnId] as string);
+    this.props.updateWidgetMetaProperty("updatedRow", record);
+    this.props.updateWidgetMetaProperty(
+      "updatedRowKey",
+      record[this.props.primaryColumnId],
+    );
+    this.onColumnEvent({
+      action: this.props.onRowValueChange,
+      triggerPropertyName: "onRowValueChange",
+      eventType: EventType.ON_ROW_VALUE_CHANGE,
+      row: {
+        ...record,
+      },
+    });
+  };
   getPageView() {
     const {
       delimiter,
@@ -1065,14 +1281,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           handleAddNewRow={this.handleAddNewRow}
           handleAddNewRowAction={this.handleAddNewRowAction}
           handleAlertBtnClick={this.handleAlertBtnClick}
+          handleCellTextChange={this.handleCellTextChange}
           handleColumnFreeze={this.handleColumnFreeze}
           handleEditableRowChange={this.handleEditableRowChange}
           handleEditableValuesChange={this.handleEditableValuesChange}
+          handleExpandedRowsChange={this.handleExpandedRowsChange}
           handleReorderColumn={this.handleReorderColumn}
-          handleResizeColumn={this.handleResizeColumn}
           handleRowBtnClick={this.handleRowBtnClick}
           handleRowSelect={this.handleRowSelect}
           handleRowSelectionChange={this.handleRowSelectionChange}
+          handleSwitchValueChange={this.handleSwitchValueChange}
           handleUrlOrImgClick={this.handleUrlOrImgClick}
           height={componentHeight}
           isAddRowInProgress={this.props.isAddRowInProgress}
@@ -1091,13 +1309,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           nextPageClick={this.handleNextPageClick}
           onBulkEditDiscard={this.onBulkEditDiscard}
           onBulkEditSave={this.onBulkEditSave}
-          onCellTextChange={this.onCellTextChange}
           onConnectData={this.onConnectData}
           onExpand={this.onExpand}
-          onExpandedRowsChange={this.onExpandedRowsChange}
           onQueryDataChange={this.handleQueryDataChange}
           onRowClick={this.handleRowClick}
-          onSwitchValueChange={this.onSwitchValueChange}
           pageNo={this.props.pageNo}
           pageSize={this.props.pageSize}
           prevPageClick={this.handlePrevPageClick}
@@ -1115,7 +1330,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           tableData={finalTableData}
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
-          unSelectAllRow={this.unSelectAllRow}
           updatePageNo={this.updatePageNumber}
           updatePageSize={this.updatePageSize}
           variant={this.props.variant}
@@ -1305,15 +1519,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     commitBatchMetaUpdates();
   };
 
-  handleResizeColumn = (columnWidthMap: { [key: string]: number }) => {
-    if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("columnWidthMap", columnWidthMap);
-    } else {
-      //single action no need to batch
-      this.props.updateWidgetMetaProperty("columnWidthMap", columnWidthMap);
-    }
-  };
-
   handleSearchTable = (searchKey: any) => {
     const {
       commitBatchMetaUpdates,
@@ -1398,31 +1603,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  onDropdownOptionSelect = (action: string) => {
-    super.executeAction({
-      dynamicString: action,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
-  };
-
-  handleRowClick = (row: Record<string, unknown>) => {
-    this.props.updateWidgetMetaProperty(
-      "triggeredRowKey",
-      row[this.props.primaryColumnId],
-    );
-
-    if (this.props.onRowClick) {
-      this.onColumnEvent({
-        row,
-        action: this.props.onRowClick,
-        triggerPropertyName: "onRowClick",
-        eventType: EventType.ON_ROW_SELECTED,
-      });
-    }
-  };
-
   updatePageSize = (_pageSize: number) => {
     const { commitBatchMetaUpdates, pageSize, pushBatchMetaUpdates } =
       this.props;
@@ -1495,61 +1675,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     pushBatchMetaUpdates("nextPageVisited", nextButtonFlag);
   };
 
-  handleQueryDataChange = (params: any, isInit?: boolean) => {
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    if (isInit) {
-      pushBatchMetaUpdates("queryData", params);
-    } else {
-      pushBatchMetaUpdates("queryData", params, {
-        triggerPropertyName: "onPageChange",
-        dynamicString: this.props.onPageChange,
-        event: {
-          type: EventType.ON_QUERY_CHANGE,
-        },
-      });
-
-      commitBatchMetaUpdates();
-    }
-  };
-
-  handleNextPageClick = () => {
-    const pageNo = (this.props.pageNo || 1) + 1;
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    this.updatePaginationDirectionFlags(PaginationDirection.NEXT_PAGE);
-
-    pushBatchMetaUpdates("pageNo", pageNo, {
-      triggerPropertyName: "onPageChange",
-      dynamicString: this.props.onPageChange,
-      event: {
-        type: EventType.ON_NEXT_PAGE,
-      },
-    });
-    commitBatchMetaUpdates();
-  };
-
-  unSelectAllRow = () => {
-    this.props.updateWidgetMetaProperty("selectedRowKeys", []);
-  };
-
-  handlePrevPageClick = () => {
-    const pageNo = (this.props.pageNo || 1) - 1;
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    if (pageNo >= 1) {
-      this.updatePaginationDirectionFlags(PaginationDirection.PREVIOUS_PAGE);
-      pushBatchMetaUpdates("pageNo", pageNo, {
-        triggerPropertyName: "onPageChange",
-        dynamicString: this.props.onPageChange,
-        event: {
-          type: EventType.ON_PREV_PAGE,
-        },
-      });
-    }
-    commitBatchMetaUpdates();
-  };
-
   static getWidgetType(): WidgetType {
     return "ANTD_PRO_TABLE_WIDGET";
   }
@@ -1577,7 +1702,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   pushTransientTableDataActionsUpdates = (data: TransientDataPayload) => {
-    const { __originalIndex__, ...transientData } = data;
+    const { __originalIndex__, __originalIndexPath__, ...transientData } = data;
     const { pushBatchMetaUpdates } = this.props;
 
     pushBatchMetaUpdates("transientTableData", {
@@ -1643,56 +1768,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     );
   };
 
-  onCellTextChange = (
-    value: EditableCell["value"],
-    inputValue: string,
-    alias: string,
-  ) => {
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    if (this.props.isAddRowInProgress) {
-      this.updateNewRowValues(alias, inputValue, value);
-    } else {
-      pushBatchMetaUpdates("editableCell", {
-        ...this.props.editableCell,
-        value: value,
-        inputValue,
-      });
-
-      if (this.props.editableCell?.column) {
-        pushBatchMetaUpdates("columnEditableCellValue", {
-          ...this.props.columnEditableCellValue,
-          [this.props.editableCell?.column]: value,
-        });
-      }
-      commitBatchMetaUpdates();
-    }
-  };
-
-  handleEditableRowChange = (data: {
-    editableKeys: React.Key[];
-    editableRecords: Record<string, unknown>[];
-  }) => {
-    console.log("表格 handleEditableRowChange: ", data);
-    this.props.updateWidgetMetaProperty("updatedRowKeys", data.editableKeys);
-    this.props.updateWidgetMetaProperty("updatedRows", data.editableRecords);
-    // updatedRowKey
-    this.props.updateWidgetMetaProperty(
-      "updatedRowKey",
-      last(data.editableRecords)?.[this.props.primaryColumnId],
-    );
-    this.props.updateWidgetMetaProperty(
-      "updatedRow",
-      last(data.editableRecords),
-    );
-  };
-
   // 需要处理树形数据情况
-  getRecordForKey = (key: React.Key, _rows?: Record<string, any>[]) => {
+  getRecordForKey = (
+    key: React.Key,
+    _rows?: Record<string, any>[],
+  ): Record<string, any> | null => {
     const { filteredTableData } = this.props;
-    const rows =
-      _rows || filteredTableData || this.props.processedTableData || [];
-    rows.forEach((item: Record<string, any>) => {
+    const rows = (_rows ||
+      filteredTableData ||
+      this.props.processedTableData ||
+      []) as Record<string, any>[];
+    for (const item of rows) {
       if (item[this.props.primaryColumnId] === key) {
         return item;
       }
@@ -1700,153 +1786,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         item[this.props.childrenColumnName] &&
         Array.isArray(item[this.props.childrenColumnName])
       ) {
-        const child = this.getRecordForKey(
-          key,
-          item[this.props.childrenColumnName],
-        );
-        if (child) {
-          return child;
-        }
+        return this.getRecordForKey(key, item[this.props.childrenColumnName]);
       }
-    });
+    }
     return null;
   };
-  handleEditableValuesChange = (data: {
-    record: Record<string, unknown>;
-    dataSource: Record<string, unknown>[];
-    rowIndex?: number;
-  }) => {
-    const { record, rowIndex } = data;
-    const { commitBatchMetaUpdates } = this.props;
 
-    // 添加这一行
-    this.updataTriggeredRowKey(record[this.props.primaryColumnId] as string);
-    this.props.updateWidgetMetaProperty("updatedRow", record);
-    this.props.updateWidgetMetaProperty(
-      "updatedRowKey",
-      record[this.props.primaryColumnId],
-    );
-
-    function findSimpleChanges(
-      objA: Record<string, unknown>,
-      objB: Record<string, unknown>,
-    ) {
-      return _.pickBy(objB, (value, key) => {
-        if (typeof value !== "object" && typeof objA[key] !== "object") {
-          return !_.isEqual(value, objA?.[key]);
-        }
-        return false;
-      });
-    }
-
-    // lodash 取出修改的内容
-    const diffRecord = findSimpleChanges(
-      this.getRecordForKey(record[this.props.primaryColumnId] as string) || {},
-      record,
-    );
-    console.log("diffRecord", diffRecord);
-    // return;
-    this.pushTransientTableDataActionsUpdates({
-      [ORIGINAL_INDEX_KEY]: record.__originalIndex__ as number,
-      [ORIGINAL_INDEX_PATH_KEY]: record.__originalIndexPath__ as string,
-      ...diffRecord,
-    });
-    this.updataTriggeredRowKey(record[this.props.primaryColumnId] as string);
-
-    commitBatchMetaUpdates();
-
-    this.onColumnEvent({
-      action: this.props.onRowValueChange,
-      triggerPropertyName: "onRowValueChange",
-      eventType: EventType.ON_ROW_VALUE_CHANGE,
-      row: {
-        ...record,
-      },
-    });
-  };
-  onSwitchValueChange = (
-    column: any,
-    row: Record<string, unknown>,
-    value: boolean,
-    alias: string,
-    originalIndex: number,
-    rowIndex: number,
-  ) => {
-    console.log("表格onCheckChange", {
-      column,
-      row,
-      value,
-      alias,
-      originalIndex,
-      rowIndex,
-    });
-
-    // 添加这一行
-    this.updataTriggeredRowKey(row[this.props.primaryColumnId] as string);
-
-    if (this.props.isAddRowInProgress) {
-      this.updateNewRowValues(alias, value, value);
-    } else {
-      const { commitBatchMetaUpdates } = this.props;
-
-      this.pushTransientTableDataActionsUpdates({
-        [ORIGINAL_INDEX_KEY]: originalIndex,
-        [alias]: value,
-      });
-      commitBatchMetaUpdates();
-      //cannot batch this update because we are not sure if it action is truthy or not
-      this.onColumnEvent({
-        action: column.columnProperties.onCheckChange,
-        triggerPropertyName: "onCheckChange",
-        eventType: EventType.ON_CHECK_CHANGE,
-        row: {
-          ...row,
-          [alias]: value,
-        },
-      });
-    }
-  };
-
-  handleUrlOrImgClick = (column: any, row?: Record<string, unknown>) => {
-    // this.updataTriggeredRowKey(row[this.props.primaryColumnId] as string);
-    this.onColumnEvent({
-      action: column.columnProperties.onUrlOrImgClick,
-      triggerPropertyName: "onUrlOrImgClick",
-      eventType: EventType.ON_CLICK,
-      row: {
-        ...(row || {}),
-      },
-    });
-  };
-  handleAlertBtnClick = (onClick: string) => {
-    console.log("Antd 表格 handleAlertBtnClick", onClick);
-    super.executeAction({
-      dynamicString: onClick,
-      event: {
-        type: EventType.ON_CLICK,
-      },
-    });
-  };
-  handleRowBtnClick = (onClick: string, record: Record<string, any>) => {
-    console.log(
-      "Antd 表格 handleRowBtnClick",
-      onClick,
-      record,
-      this.props,
-      record.__originalIndex__,
-    );
-
-    this.updataTriggeredRowKey(record[this.props.primaryColumnId]);
-
-    this.onColumnEvent({
-      action: onClick,
-      triggerPropertyName: "triggeredRowKey",
-      eventType: EventType.ON_CLICK,
-      row: {
-        ...record,
-      },
-    });
-  };
   handleAddNewRow = (id?: string | number) => {
     const defaultNewRow = this.props.defaultNewRow || {};
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
