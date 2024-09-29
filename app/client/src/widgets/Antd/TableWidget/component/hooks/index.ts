@@ -9,5 +9,3 @@ export { useExpandState } from "./useExpandState";
 export { useSelectionState } from "./useSelectionState";
 // useTableAlertState
 export { useTableAlertState } from "./useTableAlertState";
-// useDragSortState
-export { useDragSortState } from "./useDragSortState";

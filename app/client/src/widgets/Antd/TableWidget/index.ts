@@ -180,7 +180,7 @@ export const CONFIG = {
     serverSidePaginationEnabled: true,
     allowRowSelection: false,
     rowSelectionType: "checkbox",
-    isSortable: true,
+    isRemoteSort: false,
     delimiter: ",",
     version: 2,
     tableInlineEditType: TableInlineEditTypes.ROW_LEVEL,

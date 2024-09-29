@@ -22,7 +22,7 @@ export default {
     return hideByColumnType(
       props,
       propertyPath,
-      [ColumnTypes.SELECT, ColumnTypes.CHECKBOX],
+      [ColumnTypes.SELECT, ColumnTypes.CHECKBOX, ColumnTypes.RADIO],
       true,
     );
   },

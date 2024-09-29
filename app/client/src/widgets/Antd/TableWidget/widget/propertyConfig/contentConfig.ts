@@ -39,7 +39,7 @@ export default [
           } else if (props.tableType === "edit") {
             return "可编辑表格，支持新增多行、实时保存的更高级编辑模式";
           } else {
-            return "普通表格，支持常见场景的数据展示、新增单行、删除等操作";
+            return "普通表格，支持常见场景的数据展示、列排序、新增单行、删除等操作";
           }
         },
         helpText: "表格类型",
@@ -498,7 +498,7 @@ export default [
     ],
   },
   {
-    sectionName: "分页配置",
+    sectionName: "查询配置",
     children: [
       // defaultPageSize
       {
@@ -894,31 +894,35 @@ export default [
   {
     sectionName: "排序",
     children: [
+      // 是否开启远程排序
       {
-        helpText: "是否支持按列排序",
-        propertyName: "isSortable",
-        isJSConvertible: true,
-        label: "列排序",
+        helpText: "是否开启远程排序，开启后需要配合 onSort 事件重新请求数据",
+        propertyName: "isRemoteSort",
+        label: "远程排序",
         controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.BOOLEAN,
-          params: {
-            default: true,
-          },
-        },
+        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
-        helpText: "表格列排序时触发",
+        helpText:
+          "表格列排序时触发，如开启远程排序，可使用该项配置查询请求数据",
         propertyName: "onSort",
         label: "onSort",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
-        hidden: (props: TableWidgetProps) => !props.isSortable,
-        dependencies: ["isSortable"],
+      },
+      // onDragSortEnd
+      {
+        helpText: "拖拽排序结束时触发",
+        propertyName: "onDragSortEnd",
+        label: "onDragSortEnd",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
       },
     ],
   },
@@ -1022,16 +1026,6 @@ export default [
         helpText: "行点击事件",
         propertyName: "onRowClick",
         label: "行点击事件",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-      },
-      // onDragSortEnd
-      {
-        helpText: "拖拽排序结束时触发",
-        propertyName: "onDragSortEnd",
-        label: "onDragSortEnd",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,

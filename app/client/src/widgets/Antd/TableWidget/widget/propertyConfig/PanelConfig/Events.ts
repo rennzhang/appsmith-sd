@@ -7,16 +7,17 @@ import {
   hideByColumnType,
   getColumnPath,
 } from "../../propertyUtils";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
 export default {
   sectionName: "事件",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
     const columnType = get(props, `${propertyPath}.columnType`, "");
     const isEditable = get(props, `${propertyPath}.isEditable`, "");
-    return (
-      !isEditable ||
-      [ColumnTypes.INDEX_BORDER, ColumnTypes.INDEX].includes(columnType)
-    );
+    if (!isEditable) {
+      return ![ColumnTypes.SWITCH].includes(columnType);
+    }
+    return [ColumnTypes.INDEX_BORDER, ColumnTypes.INDEX].includes(columnType);
   },
   children: [
     // onChange input number
@@ -57,13 +58,47 @@ export default {
       isBindProperty: true,
       isTriggerProperty: true,
     },
+    // onSelectChange SELECT 组件
+    {
+      propertyName: "onSelectChange",
+      label: "onChange",
+      helpText: "当选择框状态改变时触发",
+      controlType: "ACTION_SELECTOR",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT]);
+      },
+      dependencies: ["primaryColumns"],
+    },
+    // onSwitchClick
+    {
+      propertyName: "onSwitchClick",
+      label: "onSwitchClick",
+      helpText: "当开关状态改变时触发，可以用于点击变更状态更新后台数据",
+      controlType: "ACTION_SELECTOR",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.SWITCH]);
+      },
+      additionalAutoComplete: () => ({
+        checked: "",
+      }),
+      dependencies: ["primaryColumns"],
+    },
     {
       propertyName: "onCheckChange",
       label: "onChange",
-      helpText: "当开关状态改变时触发",
+      helpText: "当前行处于编辑状态下，开关状态改变时触发",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.SWITCH]);
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        const isEditable = get(props, `${baseProperty}.isEditable`, "");
+        return ![ColumnTypes.SWITCH].includes(columnType) || !isEditable;
       },
       dependencies: ["primaryColumns"],
       isJSConvertible: true,
@@ -77,6 +112,19 @@ export default {
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.CHECKBOX]);
+      },
+      dependencies: ["primaryColumns"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+    },
+    {
+      propertyName: "onRadioChange",
+      label: "onChange",
+      helpText: "当单选框状态改变时触发",
+      controlType: "ACTION_SELECTOR",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.RADIO]);
       },
       dependencies: ["primaryColumns"],
       isJSConvertible: true,
@@ -125,5 +173,5 @@ export default {
         return hideByColumnType(props, path, [ColumnTypes.DATE], true);
       },
     },
-  ],
+  ] as PropertyPaneConfig[],
 };

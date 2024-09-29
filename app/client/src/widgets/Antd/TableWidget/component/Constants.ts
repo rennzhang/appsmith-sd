@@ -339,6 +339,7 @@ export interface ColumnProperties
     EditActionColumnProperties {
   columnWidth?: number;
   isVisibleCellFilters: boolean;
+  isVisibleCellSort: boolean;
   isCellCopyable: boolean;
   options?: DropdownOption[];
   imageHeight?: number;

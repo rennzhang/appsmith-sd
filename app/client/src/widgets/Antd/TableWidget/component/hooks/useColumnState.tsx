@@ -1,3 +1,4 @@
+import type { Key } from "react";
 import { useMemo } from "react";
 import type { ProFieldValueType } from "@ant-design/pro-components";
 import { type ProColumns } from "@ant-design/pro-components";
@@ -6,9 +7,11 @@ import type { Rule } from "antd/es/form";
 import type { ColumnStateType } from "@ant-design/pro-table/es/typing";
 import type { AntdTableProps, ButtonAction } from "../../constants";
 import { ColumnTypes, TableInlineEditTypes } from "../../constants";
-import { Switch } from "antd";
+import { message, Switch } from "antd";
 import styled from "styled-components";
 import useButtonRender from "./useTableButtonRender";
+import dayjs from "dayjs";
+import type { SorterResult, SortOrder } from "antd/es/table/interface";
 const getRules = (column: TableColumnProps) => {
   const { columnProperties } = column;
   const { validation } = columnProperties;
@@ -310,7 +313,7 @@ const getColumnRender = (
         return (
           <Switch
             checked={record[column.id]}
-            onChange={(checked) => {
+            onClick={(checked) => {
               props.handleSwitchValueChange(
                 column,
                 record,
@@ -358,7 +361,15 @@ const getFieldProps = (column: TableColumnProps, props: AntdTableProps) => {
     },
     onChange: (e, ...rest: any[]) => {
       const val = e?.target?.value || e;
-      props?.handleCellTextChange(val, column.alias, column);
+      props.handleCellValueChange(val, column.alias, column);
+    },
+    onClick: (e) => {
+      const { columnType } = column.columnProperties;
+      console.log("getFieldProps onClick" + columnType, {
+        e,
+        columnType,
+        column,
+      });
     },
     options: column.columnProperties.options?.map((option: any) => {
       return {
@@ -395,11 +406,12 @@ const getFieldProps = (column: TableColumnProps, props: AntdTableProps) => {
 
 export const useColumnState = (
   props: AntdTableProps,
-  setter: {
+  extra: {
     setInitialQueryData: (data: Record<string, any>) => void;
+    sortInfo: { sortField: Key | undefined; sortOrder: SortOrder | undefined };
   },
 ) => {
-  const { setInitialQueryData } = setter;
+  const { setInitialQueryData, sortInfo } = extra;
   const initialQueryData: Record<string, any> = {};
   const actionColumn = useMemo(
     () => getActionColumn(props),
@@ -415,6 +427,38 @@ export const useColumnState = (
     const renderColumns = props.columns.filter((column) => {
       return column.alias !== "actions" && column.alias !== "children";
     });
+
+    const getSorter = (
+      column: TableColumnProps,
+    ): ProColumns<Record<string, any>>["sorter"] => {
+      const isVisibleCellSort = column.columnProperties.isVisibleCellSort;
+      if (props.isRemoteSort) {
+        return isVisibleCellSort;
+      } else {
+        if (isVisibleCellSort) {
+          return {
+            compare: (a, b) => {
+              const valueA = a[column.id];
+              const valueB = b[column.id];
+
+              // 处理数值类型
+              if (typeof valueA === "number" && typeof valueB === "number") {
+                return valueA - valueB;
+              }
+
+              // 使用 dayjs 处理日期类型
+              if (dayjs(valueA).isValid() && dayjs(valueB).isValid()) {
+                return dayjs(valueA).diff(dayjs(valueB));
+              }
+
+              // 处理字符串和其他类型
+              return String(valueA).localeCompare(String(valueB));
+            },
+          };
+        }
+        return false;
+      }
+    };
     const transColumns =
       renderColumns?.map((column: TableColumnProps, i: number) => {
         initialQueryData[column.id] = "";
@@ -440,10 +484,22 @@ export const useColumnState = (
           fieldProps: getFieldProps(column, props),
           copyable: column.columnProperties.isCellCopyable,
           filters: column.columnProperties.isVisibleCellFilters,
-          onFilter: true,
+          filterSearch: true,
+          onFilter: (value, record) => {
+            // 使用包含
+            console.log("onFilter", { value, record });
+            return record[column.id]
+              .toString()
+              .toLowerCase()
+              .includes(value.toString().toLowerCase());
+          },
           hideInSearch: !(
             props.isVisibleSearch && column.columnProperties.isVisibleCellSearch
           ),
+          sorter: getSorter(column),
+          // sortOrder: "ascend",
+          sortOrder:
+            sortInfo.sortField === column.id ? sortInfo.sortOrder : null,
         };
         delete proColumn.sticky;
 
@@ -452,8 +508,25 @@ export const useColumnState = (
     setInitialQueryData(initialQueryData);
     props?.onQueryDataChange(initialQueryData, true);
 
+    const sortColumn = {
+      title: "排序",
+      dataIndex: "sort",
+      width: 90,
+      className: "drag-visible",
+    };
+    if (props.tableType === "dragSort") {
+      return [sortColumn, ...transColumns, actionColumn];
+    }
     return [...transColumns, actionColumn];
-  }, [props.columns, props.isVirtual, props.handleRowClick, actionColumn]);
+  }, [
+    props.columns,
+    props.isVirtual,
+    props.handleRowClick,
+    actionColumn,
+    props.isRemoteSort,
+    props.tableType,
+    sortInfo,
+  ]);
 
   const columnsState = useMemo((): ColumnStateType => {
     return {

@@ -23,6 +23,7 @@ import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
 
 export interface AntdTableProps extends ProTableProps<any, any> {
+  isRemoteSort: boolean;
   handleDragSortEnd: (
     beforeIndex: number,
     afterIndex: number,
@@ -76,11 +77,12 @@ export interface AntdTableProps extends ProTableProps<any, any> {
   defaultExpandAllRows: boolean;
   defaultExpandedRowKeys: Key[];
   expandedKeys: Key[];
-  handleCellTextChange: (
+  handleCellValueChange: (
     value: any,
     alias: string,
     column: ReactTableColumnProps,
   ) => void;
+
   handleEditableRowChange: (data: {
     editableKeys: React.Key[];
     editableRecords: Record<string, unknown>[];
@@ -166,7 +168,6 @@ export interface AntdTableProps extends ProTableProps<any, any> {
   updatePageSize: (pageSize: number) => void;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   multiRowSelection?: boolean;
-  isSortable?: boolean;
   nextPageClick: () => void;
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
@@ -330,7 +331,6 @@ export interface TableWidgetProps
   columnWidthMap?: { [key: string]: number };
   filters?: ReactTableFilter[];
   compactMode?: CompactMode;
-  isSortable?: boolean;
   primaryColumnId: string;
   primaryColumns: Record<string, ColumnProperties>;
   derivedColumns: Record<string, ColumnProperties>;
@@ -385,6 +385,7 @@ export enum ColumnTypes {
   IMAGE = "image",
   VIDEO = "video",
   DATE = "date",
+  DATE_RANGE = "dateRange",
   SELECT = "select",
   // EDIT_ACTIONS = "editActions",
   CHECKBOX = "checkbox",
@@ -452,6 +453,7 @@ export type OnColumnEventArgs = {
   eventType: EventType;
   row?: Record<string, unknown>;
   additionalData?: Record<string, unknown>;
+  callbackData?: any[];
 };
 
 export const ICON_NAMES = Object.keys(IconNames).map(

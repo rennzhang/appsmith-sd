@@ -197,6 +197,7 @@ export function getDefaultColumnProperties(
     isEditable: false,
     isCellVisible: true,
     isVisibleCellFilters: false,
+    isVisibleCellSort: false,
     isCellCopyable: false,
     isVisibleCellSearch: true,
     isDerived: !!isDerived,

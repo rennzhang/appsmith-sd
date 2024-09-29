@@ -37,8 +37,8 @@ export default {
     },
     {
       propertyName: "isVisibleCellSearch",
-      label: "支持搜索",
-      helpText: "支持表格上方使用该字段服务端搜索",
+      label: "显示搜索表单",
+      helpText: "支持表格上方显示搜索表单，用于远程搜索",
       defaultValue: true,
       controlType: "SWITCH",
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -104,6 +104,25 @@ export default {
           ColumnTypes.INDEX,
           ColumnTypes.INDEX_BORDER,
         ]);
+      },
+    },
+    // 列排序
+    {
+      propertyName: "isVisibleCellSort",
+      label: "显示排序",
+      helpText: "开启后在当前列的表头显示排序按钮",
+      defaultValue: false,
+      controlType: "SWITCH",
+      customJSControl: "TABLE_COMPUTE_VALUE",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+
+      validation: {
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
       },
     },
 

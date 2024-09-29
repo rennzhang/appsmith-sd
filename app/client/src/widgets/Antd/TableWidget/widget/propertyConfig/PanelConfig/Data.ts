@@ -121,10 +121,6 @@ export default {
           value: ColumnTypes.RADIO,
         },
         // {
-        //   label: "单选框按钮",
-        //   value: ColumnTypes.RADIO_BUTTON,
-        // },
-        // {
         //   label: "百分比",
         //   value: ColumnTypes.PERCENT,
         // },
@@ -157,18 +153,10 @@ export default {
         //   value: ColumnTypes.SEGMENTED,
         // },
 
-        // {
-        //   label: "图标按钮",
-        //   value: ColumnTypes.ICON_BUTTON,
-        // },
         {
           label: "图片",
           value: ColumnTypes.IMAGE,
         },
-        // {
-        //   label: "菜单按钮",
-        //   value: ColumnTypes.MENU_BUTTON,
-        // },
 
         {
           label: "URL",

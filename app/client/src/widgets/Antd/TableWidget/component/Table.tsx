@@ -1,6 +1,10 @@
 import React, { useRef, useMemo, useCallback, useEffect } from "react";
 import { ConfigProvider, message } from "antd";
-import { DragSortTable, EditableProTable } from "@ant-design/pro-components";
+import {
+  DragSortTable,
+  EditableProTable,
+  ProTable,
+} from "@ant-design/pro-components";
 import type {
   ActionType,
   DragTableProps,
@@ -20,7 +24,6 @@ import {
   useExpandState,
   useSelectionState,
   useTableAlertState,
-  useDragSortState,
 } from "./hooks";
 
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
@@ -47,47 +50,30 @@ const ProtableRender = React.memo(function ProtableRender(
   const actionRef = useRef<ActionType>(null);
 
   const isEditType = props.tableType === "edit";
+  const isDragSortType = props.tableType === "dragSort";
 
   const {
     dataSource,
     form,
     habdleReset,
     handleRequest,
+    onChange,
     pagination,
     setDataSource,
     setInitialQueryData,
+    sortInfo,
   } = useTableQuery(props);
 
   const { columnsState, tableColumns } = useColumnState(props, {
     setInitialQueryData,
+    sortInfo,
   });
-
-  const { dragSortProps, isDragSortType } = useDragSortState(
-    props,
-    dataSource,
-    setDataSource,
-  );
 
   const { tableAlertOptionRender, tableAlertRender } =
     useTableAlertState(props);
   const { expandable } = useExpandState(props);
   const { addNewRowBtn, editable } = useEditableState(props, actionRef);
   const { rowSelection } = useSelectionState(props);
-
-  const columns = useMemo(() => {
-    if (isDragSortType) {
-      return [
-        {
-          title: "排序",
-          dataIndex: "sort",
-          width: 90,
-          className: "drag-visible",
-        },
-        ...tableColumns,
-      ];
-    }
-    return tableColumns;
-  }, [isDragSortType, tableColumns]);
 
   const commonProps: Omit<ProTableProps<any, any>, "onChange"> = useMemo(
     () => ({
@@ -98,7 +84,7 @@ const ProtableRender = React.memo(function ProtableRender(
         search: props.cardBorderedSearch,
         table: props.cardBorderedTable,
       },
-      columns,
+      columns: tableColumns,
       columnsState,
       dateFormatter: "string",
       defaultSize: props.compactMode,
@@ -133,7 +119,7 @@ const ProtableRender = React.memo(function ProtableRender(
     }),
     [
       props,
-      columns,
+      tableColumns,
       columnsState,
       editable,
       expandable,
@@ -145,6 +131,7 @@ const ProtableRender = React.memo(function ProtableRender(
       tableAlertOptionRender,
       tableAlertRender,
       addNewRowBtn,
+      dataSource,
     ],
   );
 
@@ -153,17 +140,48 @@ const ProtableRender = React.memo(function ProtableRender(
       isEditType
         ? {
             onChange: (value) => {
-              console.log("antd 表格 editableProps onChange", value);
+              console.log("antd 表格 onChange editableProps ", value);
             },
           }
         : {},
     [isEditType],
   );
 
+  const onDragSortEnd = (
+    beforeIndex: number,
+    afterIndex: number,
+    newDataSource: any,
+  ) => {
+    console.log("antd 表格 排序 排序后的数据", {
+      newDataSource,
+      dataSource,
+      beforeIndex,
+      afterIndex,
+    });
+    setDataSource(newDataSource);
+    props.handleDragSortEnd?.(beforeIndex, afterIndex, newDataSource);
+    message.success("修改列表排序成功");
+  };
+
+  console.group("Antd 表格 TABLE");
+  console.log(" props", props);
+  console.log(" commonProps", commonProps);
+  console.log(" editableProps", editableProps);
+  console.log(" columns", tableColumns);
+  console.groupEnd();
+
   return isEditType ? (
     <EditableProTable {...commonProps} {...editableProps} />
+  ) : isDragSortType ? (
+    <DragSortTable
+      {...commonProps}
+      dragSortKey="sort"
+      onChange={onChange}
+      onDragSortEnd={onDragSortEnd}
+      rowKey={props.primaryColumnId}
+    />
   ) : (
-    <DragSortTable {...commonProps} {...dragSortProps} />
+    <ProTable {...commonProps} onChange={onChange} />
   );
 });
 

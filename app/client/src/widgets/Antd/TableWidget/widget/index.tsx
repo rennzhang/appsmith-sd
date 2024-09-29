@@ -1149,65 +1149,65 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     // 添加这一行
     this.updataTriggeredRowKey(row[this.props.primaryColumnId] as string);
 
-    if (this.props.isAddRowInProgress) {
-      this.updateNewRowValues(alias, value, value);
-    } else {
-      const { commitBatchMetaUpdates } = this.props;
-
-      // this.pushTransientTableDataActionsUpdates({
-      //   [ORIGINAL_INDEX_KEY]: originalIndex,
-      //   [alias]: value,
-      // });
-      //cannot batch this update because we are not sure if it action is truthy or not
-      this.onColumnEvent({
-        action: column.columnProperties.onCheckChange,
-        triggerPropertyName: "onCheckChange",
-        eventType: EventType.ON_CHECK_CHANGE,
-        row: {
-          ...row,
-          [alias]: value,
-        },
-      });
-    }
+    this.onColumnEvent({
+      action: column.columnProperties.onSwitchClick,
+      triggerPropertyName: "onSwitchClick",
+      eventType: EventType.ON_CHECK_CHANGE,
+      row: {
+        ...row,
+        [alias]: value,
+      },
+      additionalData: {
+        checked: value,
+      },
+    });
   };
-  handleCellTextChange = (value: any, alias: string, column: any) => {
+
+  // 统一处理 protable 编辑状态 onChange
+  handleCellValueChange = (value: any, alias: string, column: any) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
-    console.log("Antd 表格 handleCellTextChange", {
+    const columnType = column.columnProperties.columnType;
+    let eventName = "onCellTextChange";
+    let eventType = EventType.ON_TEXT_CHANGE;
+    console.log("Antd 表格 handleCellValueChange", {
       value,
       alias,
       column,
       props: this.props,
+      columnType,
     });
-
-    if (this.props.isAddRowInProgress) {
-      // this.updateNewRowValues(alias, inputValue, value);
-      this.updateNewRowValues(alias, value, value);
-    } else {
-      this.onColumnEvent({
-        action: column.columnProperties.onCellTextChange,
-        triggerPropertyName: "onCellTextChange",
-        eventType: EventType.ON_CHECK_CHANGE,
-        row: {
-          // ...row,
-          [alias]: value,
-        },
-      });
-      // pushBatchMetaUpdates("editableCell", {
-      //   ...this.props.editableCell,
-      //   value: value,
-      //   inputValue,
-      // });
-
-      // if (this.props.editableCell?.column) {
-      //   pushBatchMetaUpdates("columnEditableCellValue", {
-      //     ...this.props.columnEditableCellValue,
-      //     [this.props.editableCell?.column]: value,
-      //   });
-      // }
-      // commitBatchMetaUpdates();
+    switch (columnType) {
+      case ColumnTypes.SELECT:
+        eventName = "onSelectChange";
+        eventType = EventType.ON_SELECT;
+        break;
+      case ColumnTypes.CHECKBOX:
+      case ColumnTypes.SWITCH:
+        eventName = "onCheckChange";
+        eventType = EventType.ON_CHECK_CHANGE;
+        break;
+      case ColumnTypes.RADIO:
+        eventName = "onRadioChange";
+        eventType = EventType.ON_SELECT;
+        break;
+      case ColumnTypes.DATE:
+      case ColumnTypes.DATE_RANGE:
+        eventName = "onDateSelected";
+        eventType = EventType.ON_DATE_SELECTED;
+        break;
     }
+    this.onColumnEvent({
+      action: column.columnProperties[eventName],
+      triggerPropertyName: eventName,
+      eventType: eventType,
+      row: {
+        // ...row,
+        [alias]: value,
+      },
+    });
   };
+
   handleEditableValuesChange = (data: {
     record: Record<string, unknown>;
     dataSource: Record<string, unknown>[];
@@ -1310,7 +1310,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           handleAddNewRow={this.handleAddNewRow}
           handleAddNewRowAction={this.handleAddNewRowAction}
           handleAlertBtnClick={this.handleAlertBtnClick}
-          handleCellTextChange={this.handleCellTextChange}
+          handleCellValueChange={this.handleCellValueChange}
           handleColumnFreeze={this.handleColumnFreeze}
           handleDragSortEnd={this.handleDragSortEnd}
           handleEditableRowChange={this.handleEditableRowChange}
@@ -1326,7 +1326,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           height={componentHeight}
           isAddRowInProgress={this.props.isAddRowInProgress}
           isLoading={this.props.isLoading}
-          isSortable={this.props.isSortable ?? true}
           isVisibleCellSetting={this.props.isVisibleCellSetting}
           isVisibleDensity={this.props.isVisibleDensity}
           isVisibleDownload={isVisibleDownload}
@@ -1578,10 +1577,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   pushOnColumnEvent = ({
     action,
     additionalData = {},
+    callbackData,
     eventType,
     onComplete = noop,
-    row,
     // rowIndex,
+    row,
     triggerPropertyName,
   }: OnColumnEventArgs) => {
     const { filteredTableData = [], pushBatchMetaUpdates } = this.props;
@@ -1596,6 +1596,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         type: eventType,
         callback: onComplete,
       },
+      callbackData,
       globalContext: { currentRow, ...additionalData },
     });
   };
@@ -1609,6 +1610,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   onColumnEvent = ({
     action,
     additionalData = {},
+    callbackData,
     eventType,
     onComplete = noop,
     row,
@@ -1624,6 +1626,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         eventType,
         row,
         additionalData,
+        callbackData,
       });
       commitBatchMetaUpdates();
     } else {

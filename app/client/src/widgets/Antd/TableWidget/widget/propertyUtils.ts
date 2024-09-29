@@ -661,7 +661,7 @@ export const updateSelectSource = (
   const selectSource = get(props, `${baseProperty}.options`);
 
   if (
-    [ColumnTypes.SELECT, ColumnTypes.CHECKBOX].includes(
+    [ColumnTypes.SELECT, ColumnTypes.CHECKBOX, ColumnTypes.RADIO].includes(
       propertyValue as ColumnTypes,
     ) &&
     !selectSource?.legnth

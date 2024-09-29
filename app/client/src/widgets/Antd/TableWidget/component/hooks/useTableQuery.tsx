@@ -3,8 +3,14 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { AntdTableProps } from "../../constants";
 import type { TableProps } from "antd";
 import type { ProTableProps } from "@ant-design/pro-components";
+import type { SorterResult, SortOrder, Key } from "antd/es/table/interface";
 
 export const useTableQuery = (props: AntdTableProps) => {
+  // sortState
+  const [sortInfo, setSortInfo] = useState({
+    sortField: undefined as Key | undefined,
+    sortOrder: undefined as SortOrder | undefined,
+  });
   const [dataSource, setDataSource] = useState(props.tableData);
   useEffect(() => {
     setDataSource(props.tableData);
@@ -41,24 +47,50 @@ export const useTableQuery = (props: AntdTableProps) => {
     props?.onQueryDataChange(initialQueryData);
   };
 
-  const handleRequest = useCallback(
-    async (params: any, sort: any, filter: any) => {
-      console.log("Antd 表格 handleRequest", {
-        initialQueryData,
-        props,
+  const handleRequest = async (params: any, sort: any, filter: any) => {
+    console.log("Antd 表格 handleRequest", {
+      params,
+      initialQueryData,
+      props,
+      sort,
+      filter,
+      dataSource,
+    });
+
+    setQueryData(params);
+    console.log("antd 表格 dataSource request", dataSource);
+
+    return {
+      data: dataSource || [],
+      success: true,
+      total: props.totalRecordsCount || 0,
+    };
+  };
+
+  const onChange: ProTableProps<any, any>["onChange"] = (
+    pagination,
+    filters,
+    sorter,
+    extra,
+  ) => {
+    if (extra.action === "sort" && !props.isRemoteSort) {
+      setDataSource(extra.currentDataSource);
+    }
+
+    if (sorter && !Array.isArray(sorter)) {
+      setSortInfo({
+        sortField: sorter.field as Key,
+        sortOrder: sorter.order,
       });
+    }
 
-      setQueryData(params);
-      console.log("antd 表格 dataSource request", dataSource);
-
-      return {
-        data: dataSource || [],
-        success: true,
-        total: props.totalRecordsCount || 0,
-      };
-    },
-    [dataSource, initialQueryData, props.totalRecordsCount],
-  );
+    console.log("antd 表格 onChange 排序 dragSortProps ", {
+      pagination,
+      filters,
+      sorter,
+      extra,
+    });
+  };
 
   const form = useMemo<ProTableProps<any, any>["form"]>(() => {
     return {
@@ -109,6 +141,8 @@ export const useTableQuery = (props: AntdTableProps) => {
   ]);
 
   return {
+    sortInfo,
+    onChange,
     dataSource,
     setDataSource,
     form,
