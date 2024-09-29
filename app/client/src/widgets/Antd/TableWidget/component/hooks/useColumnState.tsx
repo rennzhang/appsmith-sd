@@ -301,8 +301,8 @@ const getColumnRender = (
         action,
         schema,
       });
-      if (props.onRowClick) {
-        props.onRowClick(record, index);
+      if (props.handleRowClick) {
+        props.handleRowClick(record, index);
       }
     };
     switch (valueType as ProFieldValueType & ColumnTypes) {
@@ -377,7 +377,8 @@ const getFieldProps = (column: TableColumnProps, props: AntdTableProps) => {
       fieldProps.format = column.columnProperties.outputFormat;
       break;
     case ColumnTypes.IMAGE:
-      fieldProps.width = "100%";
+      fieldProps.width = "auto";
+      fieldProps.height = column.columnProperties.imageHeight;
       fieldProps.onClick = () => props?.handleUrlOrImgClick(column);
       break;
     default:
@@ -386,6 +387,8 @@ const getFieldProps = (column: TableColumnProps, props: AntdTableProps) => {
   if (column.columnProperties.columnType === ColumnTypes.DATE) {
     fieldProps.format = column.columnProperties.outputFormat;
   }
+
+  delete fieldProps.insideSidebar;
 
   return fieldProps;
 };
@@ -398,7 +401,16 @@ export const useColumnState = (
 ) => {
   const { setInitialQueryData } = setter;
   const initialQueryData: Record<string, any> = {};
-
+  const actionColumn = useMemo(
+    () => getActionColumn(props),
+    [
+      props.columnActions,
+      props.actionWidth,
+      props.primaryColumns,
+      props.columns,
+      props.tableInlineEditType,
+    ],
+  );
   const tableColumns = useMemo(() => {
     const renderColumns = props.columns.filter((column) => {
       return column.alias !== "actions" && column.alias !== "children";
@@ -440,8 +452,8 @@ export const useColumnState = (
     setInitialQueryData(initialQueryData);
     props?.onQueryDataChange(initialQueryData, true);
 
-    return transColumns;
-  }, [props.columns, props.isVirtual, props.onRowClick]);
+    return [...transColumns, actionColumn];
+  }, [props.columns, props.isVirtual, props.handleRowClick, actionColumn]);
 
   const columnsState = useMemo((): ColumnStateType => {
     return {
@@ -458,17 +470,6 @@ export const useColumnState = (
       },
     };
   }, [props.widgetId]);
-
-  const actionColumn = useMemo(
-    () => getActionColumn(props),
-    [
-      props.columnActions,
-      props.actionWidth,
-      props.primaryColumns,
-      props.columns,
-      props.tableInlineEditType,
-    ],
-  );
 
   return {
     columnsState,

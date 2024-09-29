@@ -8,6 +8,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/Antd/TableWidget/constants";
 import {
+  BUTTON_DEFAULT_CONFIG,
   ButtonTypes,
   ColumnTypes,
   TableInlineEditTypes,
@@ -34,14 +35,15 @@ export default [
         helperText(props) {
           // 给出表格类型为拖拽排序表格、可编辑表格、普通表格的提示，要显示出区别
           if (props.tableType === "dragSort") {
-            return "拖拽排序表格，能够支持拖拽排序、新增单行、普通的编辑模式";
+            return "拖拽排序表格，支持拖拽排序、新增单行、普通的编辑模式";
           } else if (props.tableType === "edit") {
-            return "可编辑表格，能够支持新增多行、实时保存的更高级编辑模式";
+            return "可编辑表格，支持新增多行、实时保存的更高级编辑模式";
           } else {
-            return "普通表格，能够支持拖编辑、删除等操作";
+            return "普通表格，支持常见场景的数据展示、新增单行、删除等操作";
           }
         },
         helpText: "表格类型",
+        placeholderText: "请选择表格类型",
         propertyName: "tableType",
         label: "表格类型",
         controlType: "DROP_DOWN",
@@ -66,6 +68,20 @@ export default [
             value: "edit",
           },
         ],
+      },
+      // 表格标题
+      {
+        helpText: "表格标题",
+        propertyName: "headerTitle",
+        label: "标题",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+
+        placeholderText: "请输入表格标题",
+        validation: {
+          type: ValidationTypes.TEXT,
+        },
       },
       {
         helpText: "表格数组数据",
@@ -218,15 +234,12 @@ export default [
         panelConfig: ActionPanelConfig,
         isHideToggleVisibility: true,
         defaultProperties: {
+          ...BUTTON_DEFAULT_CONFIG,
+
           menuButtonLabel: undefined,
-          buttonColor: Colors.AZURE_RADIANCE,
-          buttonType: ButtonTypes.BUTTON,
           iconName: "",
           btnIconName: "ant-design:SettingOutlined",
           menuIconName: "ant-design:EllipsisOutlined",
-          showButton: true,
-          isDisabled: false,
-          buttonVariant: ButtonVariantTypes.TERTIARY,
           menuVariant: ButtonVariantTypes.TERTIARY,
           buttonLabel: "按钮",
           tooltip: "",
@@ -754,15 +767,11 @@ export default [
         panelConfig: ActionPanelConfig,
         isHideToggleVisibility: true,
         defaultProperties: {
+          ...BUTTON_DEFAULT_CONFIG,
           menuButtonLabel: undefined,
-          buttonColor: Colors.AZURE_RADIANCE,
-          buttonType: ButtonTypes.BUTTON,
           iconName: "",
           btnIconName: "ant-design:SettingOutlined",
           menuIconName: "ant-design:EllipsisOutlined",
-          showButton: true,
-          isDisabled: false,
-          buttonVariant: ButtonVariantTypes.TERTIARY,
           menuVariant: ButtonVariantTypes.TERTIARY,
           buttonLabel: "按钮",
           tooltip: "",
@@ -1013,6 +1022,16 @@ export default [
         helpText: "行点击事件",
         propertyName: "onRowClick",
         label: "行点击事件",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
+      // onDragSortEnd
+      {
+        helpText: "拖拽排序结束时触发",
+        propertyName: "onDragSortEnd",
+        label: "onDragSortEnd",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,

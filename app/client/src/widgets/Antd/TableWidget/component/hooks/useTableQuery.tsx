@@ -5,6 +5,11 @@ import type { TableProps } from "antd";
 import type { ProTableProps } from "@ant-design/pro-components";
 
 export const useTableQuery = (props: AntdTableProps) => {
+  const [dataSource, setDataSource] = useState(props.tableData);
+  useEffect(() => {
+    setDataSource(props.tableData);
+  }, [props.tableData]);
+
   const [queryData, setQueryData] = useState({ ...props.queryData });
   // initialQueryData
   const [initialQueryData, setInitialQueryData] = useState({
@@ -36,23 +41,23 @@ export const useTableQuery = (props: AntdTableProps) => {
     props?.onQueryDataChange(initialQueryData);
   };
 
-  const handleRequest: ProTableProps<any, any>["request"] = useCallback(
+  const handleRequest = useCallback(
     async (params: any, sort: any, filter: any) => {
       console.log("Antd 表格 handleRequest", {
         initialQueryData,
         props,
       });
-      return new Promise((resolve) => {
-        setQueryData(params);
-        // props?.onQueryDataChange(params);
-        return resolve({
-          data: props.tableData || [],
-          success: true,
-          total: props.totalRecordsCount || 0,
-        });
-      });
+
+      setQueryData(params);
+      console.log("antd 表格 dataSource request", dataSource);
+
+      return {
+        data: dataSource || [],
+        success: true,
+        total: props.totalRecordsCount || 0,
+      };
     },
-    [props.tableData, props.totalRecordsCount],
+    [dataSource, initialQueryData, props.totalRecordsCount],
   );
 
   const form = useMemo<ProTableProps<any, any>["form"]>(() => {
@@ -90,6 +95,7 @@ export const useTableQuery = (props: AntdTableProps) => {
         }
       : false;
   }, [
+    dataSource,
     props.isVisiblePagination,
     props.totalRecordsCount,
     props.pageSize,
@@ -103,6 +109,8 @@ export const useTableQuery = (props: AntdTableProps) => {
   ]);
 
   return {
+    dataSource,
+    setDataSource,
     form,
     pagination,
     queryData,

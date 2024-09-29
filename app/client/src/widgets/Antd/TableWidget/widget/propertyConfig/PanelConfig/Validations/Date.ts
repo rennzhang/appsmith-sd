@@ -3,7 +3,7 @@ import { ColumnTypes } from "widgets/Antd/TableWidget/constants";
 import {
   getColumnPath,
   hideByColumnType,
-} from "widgets/TableWidgetV2/widget/propertyUtils";
+} from "widgets/Antd/TableWidget/widget/propertyUtils";
 
 export default [
   {

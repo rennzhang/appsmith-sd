@@ -129,7 +129,6 @@ const samplePrimaryColumns = {
     computedValue: "",
     buttonStyle: "rgb(3, 179, 101)",
     labelColor: "#FFFFFF",
-    menuColor: ["#553DE9", "#553DE9", "#553DE9"],
     borderRadius: ["0.375rem", "0.375rem", "0.375rem"],
     boxShadow: ["none", "none", "none"],
     customAlias: "",

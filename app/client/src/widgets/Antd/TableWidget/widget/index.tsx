@@ -221,6 +221,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       expandedKeys: undefined,
       searchText: undefined,
       triggeredRowKey: undefined,
+      dragSortRowKey: undefined,
+      dragSortRow: undefined,
+      dragSortRowState: undefined,
+      dragSortEndTableData: undefined,
       filters: [],
       sortOrder: {
         column: "",
@@ -264,6 +268,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         editableColumn: generateTypeDef(widget.editableColumn),
         updatedRows: generateTypeDef(widget.updatedRows, extraDefsToDefine),
         triggeredRowKey: generateTypeDef(widget.triggeredRowKey),
+        dragSortRowKey: generateTypeDef(widget.dragSortRowKey),
+        dragSortRow: generateTypeDef(widget.dragSortRow),
+        dragSortEndTableData: generateTypeDef(widget.dragSortEndTableData),
+        dragSortRowState: generateTypeDef(widget.dragSortRowState),
         pageOffset: generateTypeDef(widget.pageOffset),
         tableHeaders: generateTypeDef(widget.tableHeaders),
         newRow: generateTypeDef(widget.newRow),
@@ -324,7 +332,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           boxShadow: "none",
         },
         menuButton: {
-          menuColor: "{{appsmith.theme.colors.primaryColor}}",
           borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
           boxShadow: "none",
         },
@@ -976,7 +983,29 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       },
     });
   };
-
+  handleDragSortEnd = (
+    beforeIndex: number,
+    afterIndex: number,
+    newDataSource: Record<string, unknown>[],
+  ) => {
+    const dragSortRow = newDataSource[afterIndex];
+    const dragSortRowKey = dragSortRow[this.props.primaryColumnId];
+    console.log("Antd 表格 handleDragSortEnd", {
+      newDataSource,
+      beforeIndex,
+      afterIndex,
+      dragSortRow,
+      dragSortRowKey,
+    });
+    this.props.updateWidgetMetaProperty("dragSortRowKey", dragSortRowKey);
+    this.props.updateWidgetMetaProperty("dragSortRow", dragSortRow);
+    this.props.updateWidgetMetaProperty("dragSortRowState", {
+      row: dragSortRow,
+      beforeIndex,
+      afterIndex,
+    });
+    this.props.updateWidgetMetaProperty("dragSortEndTableData", newDataSource);
+  };
   handleRowClick = (row: Record<string, unknown>) => {
     this.props.updateWidgetMetaProperty(
       "triggeredRowKey",
@@ -1283,11 +1312,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           handleAlertBtnClick={this.handleAlertBtnClick}
           handleCellTextChange={this.handleCellTextChange}
           handleColumnFreeze={this.handleColumnFreeze}
+          handleDragSortEnd={this.handleDragSortEnd}
           handleEditableRowChange={this.handleEditableRowChange}
           handleEditableValuesChange={this.handleEditableValuesChange}
           handleExpandedRowsChange={this.handleExpandedRowsChange}
           handleReorderColumn={this.handleReorderColumn}
           handleRowBtnClick={this.handleRowBtnClick}
+          handleRowClick={this.handleRowClick}
           handleRowSelect={this.handleRowSelect}
           handleRowSelectionChange={this.handleRowSelectionChange}
           handleSwitchValueChange={this.handleSwitchValueChange}
@@ -1312,7 +1343,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onConnectData={this.onConnectData}
           onExpand={this.onExpand}
           onQueryDataChange={this.handleQueryDataChange}
-          onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
           pageSize={this.props.pageSize}
           prevPageClick={this.handlePrevPageClick}

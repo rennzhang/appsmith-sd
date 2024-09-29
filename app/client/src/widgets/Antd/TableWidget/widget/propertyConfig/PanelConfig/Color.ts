@@ -7,56 +7,6 @@ export default {
   sectionName: "颜色",
   children: [
     {
-      propertyName: "buttonColor",
-      label: "按钮颜色",
-      controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
-      helpText: "设置按钮颜色",
-      isJSConvertible: true,
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.BUTTON,
-          ColumnTypes.ICON_BUTTON,
-        ]);
-      },
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: true,
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            regex: /^(?![<|{{]).+/,
-          },
-        },
-      },
-      isTriggerProperty: false,
-    },
-    {
-      propertyName: "menuColor",
-      helpText: "设置菜单按钮颜色",
-      label: "按钮颜色",
-      controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            regex: /^(?![<|{{]).+/,
-          },
-        },
-      },
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
-      },
-      dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
-    },
-    {
       propertyName: "cellBackground",
       label: "单元格背景",
       helpText: "设置单元格背景颜色",

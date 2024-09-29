@@ -62,9 +62,11 @@ export const useButtonRender = () => {
       style={{ color: button.buttonColor }}
     >
       <ButtonComponent
+        borderRadius={button.borderRadius}
+        boxShadow={button.boxShadow}
         buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
-        buttonSize="sm"
-        buttonVariant="TERTIARY"
+        buttonSize={button.buttonSize || "sm"}
+        buttonVariant={button.buttonVariant || "TERTIARY"}
         configToken={{ paddingInline: 0, controlHeight: 22 }}
         iconAlign={button.iconAlign}
         iconColor={button.iconColor}
@@ -86,9 +88,11 @@ export const useButtonRender = () => {
   };
   const renderActionButton = ({ button, onClick }: RenderButtonProps) => (
     <ButtonComponent
+      borderRadius={button.borderRadius}
+      boxShadow={button.boxShadow}
       buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
-      buttonSize="sm"
-      buttonVariant="TERTIARY"
+      buttonSize={button.buttonSize || "sm"}
+      buttonVariant={button.buttonVariant || "TERTIARY"}
       configToken={{ paddingInline: 0, controlHeight: 22 }}
       iconAlign={button.iconAlign}
       iconColor={button.iconColor}

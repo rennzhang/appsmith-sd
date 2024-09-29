@@ -2,7 +2,12 @@ import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { ButtonTypes, ColumnTypes, TableInlineEditTypes } from "./constants";
+import {
+  ButtonTypes,
+  ColumnTypes,
+  TableInlineEditTypes,
+  BUTTON_DEFAULT_CONFIG,
+} from "./constants";
 import type { TableWidgetProps } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -12,6 +17,7 @@ import type {
 } from "WidgetQueryGenerators/types";
 import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ButtonVariantTypes } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -24,6 +30,7 @@ export const CONFIG = {
   needsHeightForContent: true,
 
   defaults: {
+    tableType: "normal",
     addNewRowText: "新增一行",
     allowAddNewRow: false,
     addNewRowPosition: "bottom",
@@ -36,79 +43,66 @@ export const CONFIG = {
     rowSelectionActions: {
       // 批量删除
       delete: {
+        ...BUTTON_DEFAULT_CONFIG,
         menuButtonLabel: "批量删除",
-        buttonType: ButtonTypes.BUTTON,
         label: "批量删除",
         id: "delete",
         widgetId: "",
-        showButton: true,
-        isDisabled: false,
         index: 0,
         tooltip: "批量删除",
         buttonLabel: "批量删除",
-        buttonColor: Colors.AZURE_RADIANCE,
         btnIconName: "ant-design:DeleteOutlined",
         onBtnClick: "{{showAlert('请先配置批量删除按钮的动作', 'warning');}}",
       },
       // 导出数据
       export: {
+        ...BUTTON_DEFAULT_CONFIG,
         menuButtonLabel: "导出数据",
-        buttonType: ButtonTypes.BUTTON,
         label: "导出数据",
         id: "export",
         widgetId: "",
-        showButton: true,
-        isDisabled: false,
         index: 1,
         tooltip: "导出数据",
         buttonLabel: "导出数据",
-        buttonColor: Colors.AZURE_RADIANCE,
         btnIconName: "ant-design:DownloadOutlined",
         onBtnClick: "{{showAlert('请先配置导出数据按钮的动作', 'warning');}}",
       },
     },
     editingActions: {
       save: {
-        buttonType: ButtonTypes.BUTTON,
+        ...BUTTON_DEFAULT_CONFIG,
+        menuButtonLabel: "保存",
         label: "保存",
         id: "save",
         widgetId: "",
-        showButton: true,
-        isDisabled: false,
         index: 0,
         tooltip: "保存",
         buttonLabel: "保存",
-        buttonColor: Colors.AZURE_RADIANCE,
         btnIconName: "ant-design:SaveOutlined",
         onBtnClick: "{{showAlert('请先配置保存按钮的动作', 'warning');}}",
         isHideDelete: true,
       },
       delete: {
-        buttonType: ButtonTypes.BUTTON,
+        ...BUTTON_DEFAULT_CONFIG,
+
         label: "删除",
         id: "delete",
         widgetId: "",
-        showButton: true,
-        isDisabled: false,
         index: 1,
         tooltip: "删除",
         buttonLabel: "删除",
-        buttonColor: Colors.AZURE_RADIANCE,
         btnIconName: "ant-design:DeleteOutlined",
         onBtnClick: "{{showAlert('请先配置删除按钮的动作', 'warning');}}",
         isHideDelete: true,
       },
       cancel: {
-        buttonType: ButtonTypes.BUTTON,
+        ...BUTTON_DEFAULT_CONFIG,
         label: "取消",
         id: "cancel",
         widgetId: "",
-        showButton: true,
-        isDisabled: false,
         index: 1,
         tooltip: "取消",
         buttonLabel: "取消",
-        buttonColor: Colors.AZURE_RADIANCE,
         btnIconName: "ant-design:CloseOutlined",
         onBtnClick: "{{showAlert('请先配置取消按钮的动作', 'warning');}}",
         isHideDelete: true,
@@ -116,33 +110,27 @@ export const CONFIG = {
     },
     columnActions: {
       edit: {
+        ...BUTTON_DEFAULT_CONFIG,
         menuButtonLabel: "编辑",
         isHideDelete: true,
-        buttonType: ButtonTypes.BUTTON,
         label: "编辑",
         id: "edit",
         widgetId: "",
-        showButton: true,
-        isDisabled: false,
         index: 0,
         tooltip: "编辑",
         buttonLabel: "编辑",
-        buttonColor: Colors.AZURE_RADIANCE,
         btnIconName: "ant-design:EditOutlined",
         onBtnClick: "{{showAlert('请先配置编辑按钮的动作', 'warning');}}",
       },
       delete: {
+        ...BUTTON_DEFAULT_CONFIG,
         menuButtonLabel: "删除",
-        buttonType: ButtonTypes.BUTTON,
         label: "删除",
         id: "delete",
         widgetId: "",
-        showButton: true,
-        isDisabled: false,
         index: 1,
         tooltip: "删除",
         buttonLabel: "删除",
-        buttonColor: Colors.AZURE_RADIANCE,
         btnIconName: "ant-design:DeleteOutlined",
         onBtnClick: "{{showAlert('请先配置删除按钮的动作', 'warning');}}",
       },

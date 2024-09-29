@@ -23,9 +23,11 @@ const ButtonComponentWrapper = React.memo(
     defaultColor: string;
   }) => (
     <ButtonComponent
+      borderRadius={buttonConfig.borderRadius}
+      boxShadow={buttonConfig.boxShadow}
       buttonColor={buttonConfig.buttonColor || defaultColor}
-      buttonSize="sm"
-      buttonVariant="TERTIARY"
+      buttonSize={buttonConfig.buttonSize || "sm"}
+      buttonVariant={buttonConfig.buttonVariant || "TERTIARY"}
       configToken={{ paddingInline: 0, controlHeight: 22 }}
       iconAlign={buttonConfig.iconAlign}
       iconColor={buttonConfig.iconColor || defaultColor}

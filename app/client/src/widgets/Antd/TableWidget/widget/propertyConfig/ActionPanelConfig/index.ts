@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 
-import { hideByColumnType } from "../../propertyUtils";
+import { hideByButtonType, hideByColumnType } from "../../propertyUtils";
 import Basic from "./Basic";
 import {
   ButtonTypes,
@@ -8,6 +8,7 @@ import {
   type TableWidgetProps,
 } from "../../../constants";
 import ButtonWidget from "widgets/Antd/ButtonWidget/widget";
+import { ButtonVariantTypes } from "components/constants";
 export default {
   editableTitle: true,
   titlePropertyName: "label",
@@ -66,6 +67,74 @@ export default {
   ],
   // styleChildren: ButtonWidget.getPropertyPaneStyleConfig(),
   styleChildren: [
+    // 属性
+    {
+      sectionName: "属性",
+      children: [
+        {
+          propertyName: "buttonVariant",
+          label: "按钮风格",
+          controlType: "ICON_TABS",
+          helpText: "设置菜单按钮的风格类型",
+          options: [
+            {
+              label: "主按钮",
+              value: ButtonVariantTypes.PRIMARY,
+            },
+            {
+              label: "次级按钮",
+              value: ButtonVariantTypes.SECONDARY,
+            },
+            {
+              label: "文本按钮",
+              value: ButtonVariantTypes.TERTIARY,
+            },
+          ],
+          defaultValue: ButtonVariantTypes.SECONDARY,
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                ButtonVariantTypes.PRIMARY,
+                ButtonVariantTypes.SECONDARY,
+                ButtonVariantTypes.TERTIARY,
+              ],
+              default: ButtonVariantTypes.PRIMARY,
+            },
+          },
+        },
+        {
+          propertyName: "buttonSize",
+          label: "按钮大小",
+          controlType: "ICON_TABS",
+          helpText: "设置按钮的尺寸大小",
+          defaultValue: "middle",
+          options: [
+            {
+              label: "小",
+              value: "small",
+            },
+            {
+              label: "中等",
+              value: "middle",
+            },
+            {
+              label: "大",
+              value: "large",
+            },
+          ],
+          // isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: {
+            type: ValidationTypes.TEXT,
+          },
+        },
+      ],
+    },
     // GeneralStyle,
     {
       sectionName: "图标",
@@ -75,12 +144,12 @@ export default {
         // }
         console.log("图标props", props, propertyPath);
 
-        return hideByColumnType(props, propertyPath + ".columnType", [
-          ColumnTypes.BUTTON,
-          ColumnTypes.MENU_BUTTON,
+        return hideByButtonType(props, propertyPath + ".buttonType", [
+          ButtonTypes.BUTTON,
+          ButtonTypes.MENU_BUTTON,
         ]);
       },
-      dependencies: ["columnActions", "columnType", "editingActions"],
+      dependencies: ["columnActions", "buttonType", "editingActions"],
       children: [
         {
           propertyName: "iconAlign",
@@ -134,9 +203,9 @@ export default {
           },
           isTriggerProperty: false,
           hidden: (props: TableWidgetProps, path: string) => {
-            return hideByColumnType(props, path, [
-              ColumnTypes.BUTTON,
-              ColumnTypes.MENU_BUTTON,
+            return hideByButtonType(props, path, [
+              ButtonTypes.BUTTON,
+              ButtonTypes.MENU_BUTTON,
             ]);
           },
         },
@@ -151,31 +220,34 @@ export default {
           dependencies: ["columnActions", "editingActions"],
           isBindProperty: true,
         },
+      ],
+    },
+    {
+      sectionName: "轮廓样式",
+      children: [
         {
-          propertyName: "textColor",
-          label: "文本颜色",
-          helpText: "按钮文本颜色",
-          controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
-          isJSConvertible: true,
-          customJSControl: "TABLE_COMPUTE_VALUE",
-          dependencies: ["columnActions", "editingActions"],
+          propertyName: "borderRadius",
+          label: "边框圆角",
+          helpText: "边框圆角样式",
+          controlType: "BORDER_RADIUS_OPTIONS",
           isBindProperty: true,
-          validation: {
-            type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-            params: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^(?![<|{{]).+/,
-              },
-            },
-          },
+          isJSConvertible: true,
           isTriggerProperty: false,
-          hidden: (props: TableWidgetProps, path: string) => {
-            return hideByColumnType(props, path, [
-              ColumnTypes.BUTTON,
-              ColumnTypes.MENU_BUTTON,
-            ]);
+          defaultValue: "none",
+          validation: {
+            type: ValidationTypes.TEXT,
           },
+        },
+        {
+          propertyName: "boxShadow",
+          label: "阴影",
+          helpText: "组件轮廓投影",
+          controlType: "BOX_SHADOW_OPTIONS",
+          defaultValue: "none",
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.TEXT },
         },
       ],
     },

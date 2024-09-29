@@ -2,52 +2,20 @@ import type { ProColumns } from "@ant-design/pro-components";
 import { DragSortTable } from "@ant-design/pro-components";
 import { message } from "antd";
 import { useState } from "react";
+import { data as _data, columns as _columns } from "./mock";
 
-const columns: ProColumns[] = [
+const columns: any[] = [
   {
     title: "排序",
     dataIndex: "sort",
-    width: 60,
+    width: 90,
     className: "drag-visible",
   },
-  {
-    title: "姓名",
-    dataIndex: "name",
-    className: "drag-visible",
-  },
-  {
-    title: "年龄",
-    dataIndex: "age",
-  },
-  {
-    title: "地址",
-    dataIndex: "address",
-  },
-];
-
-const data = [
-  {
-    key: "1",
-    name: "John Brown",
-    age: 32,
-    address: "New York No. 1 Lake Park",
-  },
-  {
-    key: "2",
-    name: "Jim Green",
-    age: 42,
-    address: "London No. 1 Lake Park",
-  },
-  {
-    key: "3",
-    name: "Joe Black",
-    age: 32,
-    address: "Sidney No. 1 Lake Park",
-  },
+  ..._columns,
 ];
 
 export default () => {
-  const [dataSource, setDataSource] = useState(data);
+  const [dataSource, setDataSource] = useState(_data);
 
   const handleDragSortEnd = (
     beforeIndex: number,
@@ -62,13 +30,15 @@ export default () => {
   return (
     <DragSortTable
       columns={columns}
-      dataSource={dataSource}
       dragSortKey="sort"
       headerTitle="拖拽排序(默认把手)"
       onDragSortEnd={handleDragSortEnd}
-      pagination={false}
-      rowKey="key"
-      search={false}
+      request={async () => ({
+        data: dataSource,
+        total: dataSource.length,
+        success: true,
+      })}
+      rowKey="id"
     />
   );
 };

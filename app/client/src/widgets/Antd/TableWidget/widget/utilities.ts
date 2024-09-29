@@ -170,6 +170,7 @@ export function getDefaultColumnProperties(
       )}"]))}}` as any);
   const columnProps = {
     options: [],
+    imageHeight: 60,
     labelKey: "label",
     valueKey: "value",
     optionsKey: "options",

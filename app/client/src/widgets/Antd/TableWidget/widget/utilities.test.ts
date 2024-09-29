@@ -2040,7 +2040,6 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
               computedValue: ["", "", ""],
               labelColor: "#FFFFFF",
               buttonLabel: ["Action", "Action", "Action"],
-              menuColor: ["#553DE9", "#553DE9", "#553DE9"],
               menuItemsSource: "DYNAMIC",
               menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
               sourceData: [
@@ -2147,7 +2146,6 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
               computedValue: ["", "", ""],
               labelColor: "#FFFFFF",
               buttonLabel: ["Action", "Action", "Action"],
-              menuColor: ["#553DE9", "#553DE9", "#553DE9"],
               menuItemsSource: "DYNAMIC",
               menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
               sourceData: [],
@@ -2222,7 +2220,6 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
               computedValue: ["", "", ""],
               labelColor: "#FFFFFF",
               buttonLabel: ["Action", "Action", "Action"],
-              menuColor: ["#553DE9", "#553DE9", "#553DE9"],
               menuItemsSource: "DYNAMIC",
               menuButtonLabel: ["Open Menu", "Open Menu", "Open Menu"],
               configureMenuItems: {

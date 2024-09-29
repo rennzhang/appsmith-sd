@@ -338,6 +338,8 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        defaultValue: "none",
+
         validation: { type: ValidationTypes.TEXT },
       },
       {
@@ -348,6 +350,8 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        defaultValue: "none",
+
         validation: { type: ValidationTypes.TEXT },
       },
       {
@@ -358,6 +362,8 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        defaultValue: "none",
+
         validation: { type: ValidationTypes.TEXT },
       },
       {

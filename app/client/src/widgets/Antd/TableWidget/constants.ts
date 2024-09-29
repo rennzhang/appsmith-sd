@@ -15,14 +15,19 @@ import { IconNames } from "@blueprintjs/icons";
 import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import type { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
-import type { ButtonVariant } from "components/constants";
+import { ButtonVariantTypes, type ButtonVariant } from "components/constants";
 import type { Row } from "react-table";
 import type { Key } from "@ant-design/pro-components";
-import { ProTableProps } from "@ant-design/pro-components";
+import type { ProTableProps } from "@ant-design/pro-components";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
 
-export interface AntdTableProps {
+export interface AntdTableProps extends ProTableProps<any, any> {
+  handleDragSortEnd: (
+    beforeIndex: number,
+    afterIndex: number,
+    newDataSource: any,
+  ) => void;
   tableType: "dragSort" | "edit" | "normal";
   handleAlertBtnClick: (action: string) => void;
   editableColumn: any[];
@@ -91,7 +96,7 @@ export interface AntdTableProps {
     alias: string,
     rowIndex: number,
   ) => void;
-  onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
+  handleRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
   isVirtual: boolean;
   hideOnSinglePage: boolean;
   paginationSize: "default" | "small";
@@ -244,6 +249,7 @@ export interface ButtonAction {
   boxShadow: string;
   borderRadius: string;
   buttonColor: string;
+  buttonSize: string;
   buttonVariant: ButtonVariant;
   isDisabled: boolean;
   onBtnClick: string;
@@ -255,6 +261,7 @@ export interface ButtonAction {
     [key: string]: MenuItemAction;
   };
 }
+
 export type EditableCell = {
   column: string;
   index: number;
@@ -475,7 +482,18 @@ export const defaultEditableCell = {
   value: "",
   initialValue: "",
 };
+import { Colors } from "constants/Colors";
 
 export const DEFAULT_COLUMN_NAME = "Table Column";
 
 export const DEFAULT_DATE_FORMAT = "YYYY-MM-DD HH:mm";
+export const BUTTON_DEFAULT_CONFIG = {
+  borderRadius: "none",
+  boxShadow: "none",
+  buttonSize: "small",
+  buttonVariant: ButtonVariantTypes.TERTIARY,
+  buttonType: ButtonTypes.BUTTON,
+  buttonColor: Colors.AZURE_RADIANCE,
+  showButton: true,
+  isDisabled: false,
+};

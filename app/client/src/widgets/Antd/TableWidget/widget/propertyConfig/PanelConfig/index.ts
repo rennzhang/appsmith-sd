@@ -1,6 +1,5 @@
 import { updateCustomColumnAliasOnLabelChange } from "../../propertyUtils";
 import Alignment from "./Alignment";
-import BorderAndShadow from "./BorderAndShadow";
 import Color from "./Color";
 import Data from "./Data";
 
@@ -33,7 +32,6 @@ export default {
     TextFormatting,
     ColumnStyleControl,
     Color,
-    BorderAndShadow,
   ],
   updateHook: updateCustomColumnAliasOnLabelChange,
 };

@@ -341,7 +341,7 @@ export interface ColumnProperties
   isVisibleCellFilters: boolean;
   isCellCopyable: boolean;
   options?: DropdownOption[];
-
+  imageHeight?: number;
   labelKey?: string;
   valueKey?: string;
   optionsKey?: string;
