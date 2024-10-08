@@ -61,14 +61,15 @@ export const useEditableState = (
   actionRef: React.RefObject<ActionType>,
 ) => {
   const [editableKeys, setEditableKeys] = useState<Key[]>([]);
-
+  const {
+    editableKeys: propsEditableKeys,
+    editingActions,
+    editType,
+    primaryColumnId,
+    tableData,
+    tableInlineEditType,
+  } = props;
   useEffect(() => {
-    const {
-      editableKeys: propsEditableKeys,
-      primaryColumnId,
-      tableData,
-    } = props;
-
     const keys = propsEditableKeys?.length > 0 ? propsEditableKeys : [];
 
     setEditableKeys(keys as Key[]);
@@ -96,7 +97,7 @@ export const useEditableState = (
 
   const addNewRowBtn = useMemo<ReactNode>(
     () =>
-      props.allowAddNewRow ? (
+      props.allowAddNewRow && props.tableType !== "edit" ? (
         <Button
           icon={<PlusOutlined />}
           key="button"
@@ -111,13 +112,9 @@ export const useEditableState = (
 
   const editable = useMemo((): ProTableProps<any, any>["editable"] => {
     const {
-      editingActions,
-      editType,
-      handleAddNewRowAction,
       handleEditableRowChange,
       handleEditableValuesChange,
       handleRowBtnClick,
-      tableInlineEditType,
     } = props;
 
     if (tableInlineEditType === TableInlineEditTypes.ROW_LEVEL) {
@@ -129,6 +126,11 @@ export const useEditableState = (
       const cancelButtonConfig = getButtonConfigs(sortedButtons, "cancel");
       const deleteButtonConfig = getButtonConfigs(sortedButtons, "delete");
 
+      console.log("Antd 表格 editable: ", {
+        saveButtonConfig,
+        cancelButtonConfig,
+        deleteButtonConfig,
+      });
       return {
         type: editType || "multiple",
         editableKeys,
@@ -159,13 +161,6 @@ export const useEditableState = (
             newLineConfig,
           });
           if (saveButtonConfig) {
-            if (newLineConfig) {
-              return handleAddNewRowAction(
-                AddNewRowActions.SAVE,
-                originRow,
-                () => "",
-              );
-            }
             await handleRowBtnClick(saveButtonConfig.onBtnClick, originRow);
           }
         },
@@ -177,13 +172,6 @@ export const useEditableState = (
             newLineConfig,
           });
           if (cancelButtonConfig) {
-            if (newLineConfig) {
-              return handleAddNewRowAction(
-                AddNewRowActions.DISCARD,
-                originRow,
-                () => "",
-              );
-            }
             await handleRowBtnClick(cancelButtonConfig.onBtnClick, originRow);
           }
         },
@@ -208,7 +196,13 @@ export const useEditableState = (
       };
     }
     return undefined;
-  }, [props, editableKeys]);
+  }, [
+    editingActions,
+    editableKeys,
+    props.tableType,
+    tableInlineEditType,
+    editType,
+  ]);
 
   return {
     editable,

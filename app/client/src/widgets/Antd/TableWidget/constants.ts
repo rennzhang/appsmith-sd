@@ -23,6 +23,7 @@ import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
 
 export interface AntdTableProps extends ProTableProps<any, any> {
+  creatorButtonText: string;
   handleColumnSorting: (sortInfo: {
     sortField: Key | undefined;
     sortOrder: SortOrder | undefined;
@@ -69,11 +70,6 @@ export interface AntdTableProps extends ProTableProps<any, any> {
   ) => React.ReactNode;
   addNewRowText: string;
   defaultNewRow: Record<string, unknown>;
-  handleAddNewRowAction: (
-    type: AddNewRowActions,
-    row: Record<string, unknown>,
-    onActionComplete: () => void,
-  ) => void;
   addNewRowPosition: "top" | "bottom";
   handleAddNewRow: (id: string | number) => void;
   editType: "single" | "multiple";

@@ -15,7 +15,9 @@ export default {
     const columnType = get(props, `${propertyPath}.columnType`, "");
     const isEditable = get(props, `${propertyPath}.isEditable`, "");
     if (!isEditable) {
-      return ![ColumnTypes.SWITCH].includes(columnType);
+      return ![ColumnTypes.SWITCH, ColumnTypes.IMAGE, ColumnTypes.URL].includes(
+        columnType,
+      );
     }
     return [ColumnTypes.INDEX_BORDER, ColumnTypes.INDEX].includes(columnType);
   },

@@ -541,6 +541,7 @@ export const useColumnState = (
               .toLowerCase()
               .includes(value.toString().toLowerCase());
           },
+          search: props.isVisibleSearch,
           hideInSearch: !(
             props.isVisibleSearch && column.columnProperties.isVisibleCellSearch
           ),
@@ -567,6 +568,7 @@ export const useColumnState = (
     }
     return [...transColumns, actionColumn];
   }, [
+    props.isVisibleSearch,
     props.columns,
     props.isVirtual,
     props.handleRowClick,

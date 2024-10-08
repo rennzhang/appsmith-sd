@@ -1344,7 +1344,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           editableCell={this.props.editableCell}
           filters={this.props.filters}
           handleAddNewRow={this.handleAddNewRow}
-          handleAddNewRowAction={this.handleAddNewRowAction}
           handleAlertBtnClick={this.handleAlertBtnClick}
           handleCellValueChange={this.handleCellValueChange}
           handleColumnFreeze={this.handleColumnFreeze}
@@ -1850,47 +1849,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // so we're resetting the row selection
     pushBatchMetaUpdates("selectedRowKeys", []);
     commitBatchMetaUpdates();
-  };
-
-  handleAddNewRowAction = (
-    type: AddNewRowActions,
-    row: Record<string, unknown>,
-    onActionComplete: () => void,
-  ) => {
-    console.log("Antd 表格 handleAddNewRowAction", type, row);
-
-    let triggerPropertyName, action, eventType;
-
-    const onComplete = () => {
-      const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-      pushBatchMetaUpdates("isAddRowInProgress", false);
-      pushBatchMetaUpdates("newRowContent", undefined);
-      pushBatchMetaUpdates("newRow", undefined);
-      commitBatchMetaUpdates();
-
-      onActionComplete();
-    };
-
-    if (type === AddNewRowActions.SAVE) {
-      triggerPropertyName = "onAddNewRowSave";
-      action = this.props.onAddNewRowSave;
-      eventType = EventType.ON_ADD_NEW_ROW_SAVE;
-    } else {
-      triggerPropertyName = "onAddNewRowDiscard";
-      action = this.props.onAddNewRowDiscard;
-      eventType = EventType.ON_ADD_NEW_ROW_DISCARD;
-    }
-
-    this.onColumnEvent({
-      action: action,
-      triggerPropertyName: triggerPropertyName,
-      eventType: EventType.ON_CHECK_CHANGE,
-      onComplete: onComplete,
-      row: {
-        ...row,
-      },
-    });
   };
 
   updateNewRowValues = (

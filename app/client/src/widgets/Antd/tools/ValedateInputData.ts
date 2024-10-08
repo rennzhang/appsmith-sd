@@ -337,6 +337,13 @@ export function valueKeyValidation(
     _value = _.get(props, path || "");
   }
 
+  if (!path?.includes(props.editingColumnId)) {
+    return {
+      parsed: _value,
+      isValid: true,
+    };
+  }
+
   console.log("valueKeyValidation", { value, _value, props, path });
   /*
    * Validation rules
@@ -352,7 +359,7 @@ export function valueKeyValidation(
       messages: [
         {
           name: "ValidationError",
-          message: `值的类型必须是字符串或数字`,
+          message: `值的类型必须是字符串或数字（${path}）`,
         },
       ],
     };
@@ -373,6 +380,14 @@ export function valueKeyValidation(
       return keys;
     }, new Set());
 
+    console.log("valueKeyValidation keys", {
+      value,
+      _value,
+      props,
+      path,
+      keys,
+    });
+
     if (!keys.has(_value)) {
       return {
         parsed: _value,
@@ -380,7 +395,7 @@ export function valueKeyValidation(
         messages: [
           {
             name: "ValidationError",
-            message: `值键必须存在于源数据中`,
+            message: `值键必须存在于源数据中（${path}）`,
           },
         ],
       };
@@ -400,7 +415,7 @@ export function valueKeyValidation(
         messages: [
           {
             name: "ValidationError",
-            message: `索引 ${errorIndex} 处的值无效。该值必须是字符串、数字或布尔类型`,
+            message: `索引 ${errorIndex} 处的值无效。该值必须是字符串、数字或布尔类型（${path}）`,
           },
         ],
       };
@@ -414,7 +429,7 @@ export function valueKeyValidation(
       messages: [
         {
           name: "ValidationError",
-          message: "值的类型必须是字符串或字符串、数字、布尔值的数组",
+          message: `值的类型必须是字符串或字符串、数字、布尔值的数组（${path}）`,
         },
       ],
     };
@@ -432,7 +447,7 @@ export function valueKeyValidation(
       : [
           {
             name: "ValidationError",
-            message: "发现重复值，值必须唯一",
+            message: `发现重复值，值必须唯一（${path}）`,
           },
         ],
   };

@@ -22,11 +22,20 @@ export const useTableQuery = (props: AntdTableProps) => {
   const [initialQueryData, setInitialQueryData] = useState({
     ...props.queryData,
   });
-  const { pageNo, pageSize, tableData, totalRecordsCount } = props;
+  const [pageNo, setPageNo] = useState(props.pageNo);
+  const [pageSize, setPageSize] = useState(props.pageSize);
+
+  // useEffect(() => {
+  //   setPageNo(props.pageNo);
+  //   setPageSize(props.pageSize);
+  // }, [props.pageNo, props.pageSize]);
+
+  const { tableData, totalRecordsCount } = props;
 
   const handlePageChange = (page: number, pageSize: number) => {
     console.log("page: ", page, pageNo, props.serverSidePaginationEnabled);
-
+    setPageNo(page);
+    setPageSize(pageSize);
     if (page < pageNo) {
       console.log("page: 向前", page, pageNo);
       props.updatePageNo(page, EventType.ON_PREV_PAGE);
@@ -134,10 +143,10 @@ export const useTableQuery = (props: AntdTableProps) => {
       ? {
           defaultPageSize: props.defaultPageSize,
           total: props.totalRecordsCount,
-          pageSize: props.pageSize || props.defaultPageSize || 10,
+          pageSize: pageSize || props.defaultPageSize || 10,
           showSizeChanger: props.showSizeChanger,
 
-          current: props.pageNo,
+          current: pageNo,
           onChange: handlePageChange,
           disabled: props.paginationDisabled,
           // showQuickJumper: true,
@@ -152,16 +161,19 @@ export const useTableQuery = (props: AntdTableProps) => {
     props.isVisiblePagination,
     props.totalRecordsCount,
     props.pageSize,
-    props.pageNo,
     props.defaultPageSize,
     props.showSizeChanger,
     props.paginationDisabled,
     props.showQuickJumper,
     props.simplePagination,
     props.paginationSize,
+    pageNo,
+    pageSize,
   ]);
 
   return {
+    pageNo,
+    pageSize,
     sortInfo,
     onChange,
     dataSource,

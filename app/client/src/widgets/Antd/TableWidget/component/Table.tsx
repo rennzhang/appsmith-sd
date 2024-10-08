@@ -1,5 +1,5 @@
 import React, { useRef, useMemo, useCallback, useEffect } from "react";
-import { ConfigProvider, message } from "antd";
+import { Button, ConfigProvider, message } from "antd";
 import {
   DragSortTable,
   EditableProTable,
@@ -115,15 +115,31 @@ const ProtableRender = React.memo(function ProtableRender(
         ? ({
             labelWidth: "auto",
           } as SearchConfig)
-        : undefined,
+        : false,
       style: { width: "100%" },
       tableAlertOptionRender,
       tableAlertRender,
-      toolBarRender: () => [addNewRowBtn],
+      toolBarRender: () => [
+        addNewRowBtn,
+        <Button
+          key="save"
+          onClick={() => {
+            // dataSource 就是当前数据，可以调用 api 将其保存
+            console.log(dataSource);
+          }}
+          type="primary"
+        >
+          保存数据
+        </Button>,
+      ],
       virtual: props.isVirtual,
     }),
     [
-      props,
+      props.isVisibleSearch,
+      props.isVisibleRefresh,
+      props.isVisibleFullScreen,
+      props.isVisibleDensity,
+      props.isVisibleCellSetting,
       tableColumns,
       columnsState,
       editable,
@@ -144,12 +160,31 @@ const ProtableRender = React.memo(function ProtableRender(
     () =>
       isEditType
         ? {
+            controlled: true,
+            value: dataSource,
+            request: undefined,
             onChange: (value) => {
+              setDataSource(value as any);
               console.log("antd 表格 onChange editableProps ", value);
+            },
+            recordCreatorProps: {
+              position: props.addNewRowPosition,
+              creatorButtonText: props.creatorButtonText,
+              newRecordType: "dataSource",
+              record: () => ({
+                id: Date.now(),
+                ...props.defaultNewRow,
+              }),
             },
           }
         : {},
-    [isEditType],
+    [
+      dataSource,
+      isEditType,
+      props.creatorButtonText,
+      props.addNewRowPosition,
+      props.defaultNewRow,
+    ],
   );
 
   const onDragSortEnd = (

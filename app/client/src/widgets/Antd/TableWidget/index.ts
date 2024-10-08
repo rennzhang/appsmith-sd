@@ -79,7 +79,7 @@ export const CONFIG = {
         tooltip: "保存",
         buttonLabel: "保存",
         btnIconName: "ant-design:SaveOutlined",
-        onBtnClick: "{{showAlert('请先配置保存按钮的动作', 'warning');}}",
+        onBtnClick: "",
         isHideDelete: true,
       },
       delete: {
@@ -92,7 +92,7 @@ export const CONFIG = {
         tooltip: "删除",
         buttonLabel: "删除",
         btnIconName: "ant-design:DeleteOutlined",
-        onBtnClick: "{{showAlert('请先配置删除按钮的动作', 'warning');}}",
+        onBtnClick: "",
         isHideDelete: true,
       },
       cancel: {
@@ -104,7 +104,7 @@ export const CONFIG = {
         tooltip: "取消",
         buttonLabel: "取消",
         btnIconName: "ant-design:CloseOutlined",
-        onBtnClick: "{{showAlert('请先配置取消按钮的动作', 'warning');}}",
+        onBtnClick: "",
         isHideDelete: true,
       },
     },

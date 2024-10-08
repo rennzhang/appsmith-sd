@@ -19,6 +19,8 @@ function arePropsEqual(
 ) {
   // 比较关键属性
   const keyProps: (keyof ReactTableComponentProps)[] = [
+    "isVisibleDensity",
+    "creatorButtonText",
     "headerTitle",
     "tableType",
     "editableColumn",

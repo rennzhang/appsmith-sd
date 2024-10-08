@@ -32,6 +32,12 @@ export const TableWrapper = styled.div<{
   flex-direction: column;
   overflow: hidden;
 
+  .ant-table-cell .ant-btn.ant-btn-link.ant-btn-sm {
+    padding: 0;
+    height: 22px;
+  }
+
+
 
   }
 `;

@@ -68,6 +68,42 @@ export default [
             value: "edit",
           },
         ],
+        updateHook: (
+          props: TableWidgetProps,
+          propertyPath: string,
+          propertyValue: any,
+        ) => {
+          console.log("tableType updateHook", props.tableType, propertyValue);
+
+          const propertiesToUpdate: Array<{
+            propertyPath: string;
+            propertyValue: any;
+          }> = [];
+
+          if (propertyValue === "edit") {
+            propertiesToUpdate.push({
+              propertyPath: "allowAddNewRow",
+              propertyValue: true,
+            });
+            propertiesToUpdate.push({
+              propertyPath: "isVisibleSearch",
+              propertyValue: false,
+            });
+            propertiesToUpdate.push({
+              propertyPath: "serverSidePaginationEnabled",
+              propertyValue: false,
+            });
+
+            // props.recordCreatorProps = {
+            //   newRecordType: "dataSource",
+            //   record: () => ({
+            //     id: Date.now(),
+            //   }),
+            // };
+
+            return propertiesToUpdate;
+          }
+        },
       },
       // 表格标题
       {
@@ -124,6 +160,7 @@ export default [
           updateCustomColumnAliasOnLabelChange,
         ]),
         dependencies: [
+          "tableType",
           "primaryColumnId",
           "primaryColumns",
           "columnOrder",
@@ -312,6 +349,10 @@ export default [
         ],
         isBindProperty: false,
         isTriggerProperty: false,
+        hidden: (props: TableWidgetProps) => {
+          return props.tableType == "edit";
+        },
+        dependencies: ["tableType"],
       },
       // 默认编辑行
       {
@@ -364,7 +405,7 @@ export default [
           },
         },
         hidden: (props: TableWidgetProps) => {
-          return props.defaultExpandAllRows;
+          return props.defaultExpandAllRows || props.tableType == "edit";
         },
         dependencies: ["tableData", "primaryColumnId", "editType"],
         evaluatedDependencies: ["tableData", "primaryColumnId", "editType"],
@@ -394,6 +435,26 @@ export default [
         validation: {
           type: ValidationTypes.BOOLEAN,
         },
+        hidden: (props: TableWidgetProps) => {
+          return props.tableType == "edit";
+        },
+      },
+      // tableType 为 edit 时，新增行按钮文本
+      {
+        propertyName: "creatorButtonText",
+        helpText: "新增行按钮文本",
+        label: "新增行按钮文本",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        dependencies: ["allowAddNewRow", "tableType"],
+        defaultValue: "添加一行数据",
+        validation: {
+          type: ValidationTypes.TEXT,
+        },
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow || props.tableType !== "edit";
+        },
       },
       // 按钮文本
       {
@@ -403,13 +464,13 @@ export default [
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
-        dependencies: ["allowAddNewRow"],
+        dependencies: ["allowAddNewRow", "tableType"],
         defaultValue: "新增一行",
         validation: {
           type: ValidationTypes.TEXT,
         },
         hidden: (props: TableWidgetProps) => {
-          return !props.allowAddNewRow;
+          return !props.allowAddNewRow || props.tableType == "edit";
         },
       },
       // position
@@ -435,47 +496,6 @@ export default [
           return !props.allowAddNewRow;
         },
         dependencies: ["allowAddNewRow"],
-      },
-      {
-        propertyName: "onAddNewRowSave",
-        helpText: "点击新增行保存按钮时触发",
-        label: "onSave",
-        controlType: "ACTION_SELECTOR",
-        hidden: (props: TableWidgetProps) => {
-          return !props.allowAddNewRow;
-        },
-        dependencies: ["allowAddNewRow", "primaryColumns"],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-        additionalAutoComplete: (props: TableWidgetProps) => {
-          const newRow: Record<string, unknown> = {};
-
-          if (props.primaryColumns) {
-            Object.values(props.primaryColumns)
-              .filter((column) => !column.isDerived)
-              .forEach((column) => {
-                newRow[column.alias] = "";
-              });
-          }
-
-          return {
-            newRow,
-          };
-        },
-      },
-      {
-        propertyName: "onAddNewRowDiscard",
-        helpText: "点击新增行丢弃按钮时触发",
-        label: "onDiscard",
-        controlType: "ACTION_SELECTOR",
-        hidden: (props: TableWidgetProps) => {
-          return !props.allowAddNewRow;
-        },
-        dependencies: ["allowAddNewRow"],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
       },
       {
         propertyName: "defaultNewRow",
@@ -608,7 +628,7 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
-      // 开启查询表单���验
+      // 开启查询表单验
       {
         helpText: "是否启用查询表单校验",
         propertyName: "enableSearchFormValidation",
@@ -894,6 +914,8 @@ export default [
   },
   {
     sectionName: "排序",
+    hidden: (props: TableWidgetProps) => props.tableType == "edit",
+    dependencies: ["tableType"],
     children: [
       // 是否开启远程排序
       {
