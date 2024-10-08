@@ -106,6 +106,7 @@ function arePropsEqual(
     "handleSwitchValueChange",
     "handleUrlOrImgClick",
     "handleAlertBtnClick",
+    "handleColumnSorting",
   ];
 
   for (const prop of keyProps) {

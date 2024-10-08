@@ -55,10 +55,10 @@ export default {
           value: ColumnTypes.SWITCH,
         },
         // dateRange
-        // {
-        //   label: "日期范围",
-        //   value: ColumnTypes.DATE_RANGE,
-        // },
+        {
+          label: "日期范围",
+          value: ColumnTypes.DATE_RANGE,
+        },
         {
           label: "日期",
           value: ColumnTypes.DATE,
@@ -277,6 +277,20 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
     },
+    // 筛选表单中使用范围选择器？
+    {
+      propertyName: "isRangeInSearch",
+      label: "搜索栏使用日期范围",
+      helpText: "在搜索表单中使用日期范围选择器，而不是单日期选择器",
+      controlType: "SWITCH",
+      dependencies: ["primaryColumns"],
+      isBindProperty: true,
+      isTriggerProperty: false,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.DATE]);
+      },
+    },
+
     {
       propertyName: "inputFormat",
       label: "原始日期类型",
@@ -368,9 +382,10 @@ export default {
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        const baseProperty = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== ColumnTypes.DATE;
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.DATE_RANGE,
+          ColumnTypes.DATE,
+        ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,

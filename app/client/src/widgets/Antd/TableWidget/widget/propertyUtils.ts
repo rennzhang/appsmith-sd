@@ -327,13 +327,6 @@ export const hideByColumnType = (
   } else {
     baseProperty = getBasePropertyPath(propertyPath);
   }
-  console.log("Antd 表格 hideByColumnType", {
-    props,
-    propertyPath,
-    columnTypes,
-    shouldUsePropertyPath,
-    baseProperty,
-  });
   const columnType = get(props, `${baseProperty}.columnType`, "");
   return !columnTypes.includes(columnType);
 };

@@ -91,6 +91,7 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { SortOrder } from "antd/es/table/interface";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -112,7 +113,7 @@ const getMemoisedAddNewRow = (): addNewRowToTable =>
     return tableData;
   });
 
-class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
+class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   inlineEditTimer: number | null = null;
   memoisedAddNewRow: addNewRowToTable;
   memoiseGetColumnsWithLocalStorage: (localStorage: any) => getColumns;
@@ -261,10 +262,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         isVisible: DefaultAutocompleteDefinitions.isVisible,
         searchText: "string",
         totalRecordsCount: "number",
-        sortOrder: {
-          column: "string",
-          order: ["asc", "desc"],
-        },
+        sortOrder: generateTypeDef(widget.sortOrder),
         editableColumn: generateTypeDef(widget.editableColumn),
         updatedRows: generateTypeDef(widget.updatedRows, extraDefsToDefine),
         triggeredRowKey: generateTypeDef(widget.triggeredRowKey),
@@ -1023,6 +1021,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
   handleQueryDataChange = (params: any, isInit?: boolean) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+    console.log("Antd 表格 handleQueryDataChange", params);
 
     if (isInit) {
       pushBatchMetaUpdates("queryData", params);
@@ -1165,7 +1164,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   // 统一处理 protable 编辑状态 onChange
   handleCellValueChange = (value: any, alias: string, column: any) => {
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates, updatedRowKeys } =
+      this.props;
 
     const columnType = column.columnProperties.columnType;
     let eventName = "onCellTextChange";
@@ -1261,6 +1261,42 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       },
     });
   };
+
+  handleColumnSorting = (sortInfo: {
+    sortField: Key | undefined;
+    sortOrder: SortOrder | undefined;
+    column: any;
+  }) => {
+    console.log("Antd 表格 handleColumnSorting", sortInfo);
+
+    const columnId = sortInfo?.column?.id;
+    const isAsc = sortInfo.sortOrder === "ascend";
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
+    let sortOrderProps;
+
+    if (columnId) {
+      sortOrderProps = {
+        column: columnId,
+        order: isAsc ? SortOrderTypes.asc : SortOrderTypes.desc,
+      };
+    } else {
+      sortOrderProps = {
+        column: "",
+        order: null,
+      };
+    }
+
+    pushBatchMetaUpdates("sortOrder", sortOrderProps, {
+      triggerPropertyName: "onSort",
+      dynamicString: this.props.onSort,
+      event: {
+        type: EventType.ON_SORT,
+      },
+    });
+    commitBatchMetaUpdates();
+  };
+
   getPageView() {
     const {
       delimiter,
@@ -1312,10 +1348,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           handleAlertBtnClick={this.handleAlertBtnClick}
           handleCellValueChange={this.handleCellValueChange}
           handleColumnFreeze={this.handleColumnFreeze}
+          handleColumnSorting={this.handleColumnSorting}
           handleDragSortEnd={this.handleDragSortEnd}
           handleEditableRowChange={this.handleEditableRowChange}
           handleEditableValuesChange={this.handleEditableValuesChange}
           handleExpandedRowsChange={this.handleExpandedRowsChange}
+          handleQueryDataChange={this.handleQueryDataChange}
           handleReorderColumn={this.handleReorderColumn}
           handleRowBtnClick={this.handleRowBtnClick}
           handleRowClick={this.handleRowClick}
@@ -1341,7 +1379,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onBulkEditSave={this.onBulkEditSave}
           onConnectData={this.onConnectData}
           onExpand={this.onExpand}
-          onQueryDataChange={this.handleQueryDataChange}
           pageNo={this.props.pageNo}
           pageSize={this.props.pageSize}
           prevPageClick={this.handlePrevPageClick}
@@ -1355,7 +1392,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             !Object.keys(primaryColumns).length &&
             this.props.renderMode === RenderModes.CANVAS
           }
-          sortTableColumn={this.handleColumnSorting}
           tableData={finalTableData}
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
@@ -1518,34 +1554,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     super.updateWidgetProperty("columnOrder", columnOrder);
-  };
-
-  handleColumnSorting = (columnAccessor: string, isAsc: boolean) => {
-    const columnId = this.getColumnIdByAlias(columnAccessor);
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    let sortOrderProps;
-
-    if (columnId) {
-      sortOrderProps = {
-        column: columnId,
-        order: isAsc ? SortOrderTypes.asc : SortOrderTypes.desc,
-      };
-    } else {
-      sortOrderProps = {
-        column: "",
-        order: null,
-      };
-    }
-
-    pushBatchMetaUpdates("sortOrder", sortOrderProps, {
-      triggerPropertyName: "onSort",
-      dynamicString: this.props.onSort,
-      event: {
-        type: EventType.ON_SORT,
-      },
-    });
-    commitBatchMetaUpdates();
   };
 
   handleSearchTable = (searchKey: any) => {
@@ -1915,4 +1923,4 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 }
 
-export default TableWidgetV2;
+export default AntdProTableWidget;

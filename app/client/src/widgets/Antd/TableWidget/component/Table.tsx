@@ -11,6 +11,7 @@ import type {
   EditableProTableProps,
   ProTableProps,
 } from "@ant-design/pro-components";
+import type { SearchConfig } from "@ant-design/pro-table/es/components/Form/FormRender";
 import { TableWrapper } from "./TableStyledWrappers";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "styled-components";
@@ -110,7 +111,11 @@ const ProtableRender = React.memo(function ProtableRender(
       rowKey: (record: any) => record[props.primaryColumnId || ""],
       rowSelection,
       scroll: { x: "100%" },
-      search: props?.isVisibleSearch ? { labelWidth: "auto" } : false,
+      search: props?.isVisibleSearch
+        ? ({
+            labelWidth: "auto",
+          } as SearchConfig)
+        : undefined,
       style: { width: "100%" },
       tableAlertOptionRender,
       tableAlertRender,

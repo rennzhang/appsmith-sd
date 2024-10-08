@@ -41,11 +41,6 @@ export default {
         },
       },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        console.log("Antd 表格 ColumnStyleControl 图片高度", {
-          props,
-          propertyPath,
-        });
-
         return hideByColumnType(props, propertyPath, [ColumnTypes.IMAGE]);
       },
       dependencies: ["primaryColumns"],

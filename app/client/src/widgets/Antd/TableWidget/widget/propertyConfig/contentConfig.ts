@@ -124,6 +124,7 @@ export default [
           updateCustomColumnAliasOnLabelChange,
         ]),
         dependencies: [
+          "primaryColumnId",
           "primaryColumns",
           "columnOrder",
           "childStylesheet",
@@ -178,7 +179,7 @@ export default [
       },
       {
         helpText:
-          "数据主键值唯一，用于表格的 selectedRows 和 triggeredRows、行内编辑等功能",
+          "数据主键值唯一，用于表格的 selectedRows 和 triggeredRows、行内编辑等功能，该列必须存在且不允许编辑",
         propertyName: "primaryColumnId",
         dependencies: ["tableData", "primaryColumns"],
         evaluatedDependencies: ["tableData", "primaryColumns"],
@@ -923,6 +924,8 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+        hidden: (props: TableWidgetProps) => props.tableType !== "dragSort",
+        dependencies: ["tableType"],
       },
     ],
   },

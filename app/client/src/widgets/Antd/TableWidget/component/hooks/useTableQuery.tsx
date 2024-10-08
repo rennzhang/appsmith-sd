@@ -10,6 +10,7 @@ export const useTableQuery = (props: AntdTableProps) => {
   const [sortInfo, setSortInfo] = useState({
     sortField: undefined as Key | undefined,
     sortOrder: undefined as SortOrder | undefined,
+    column: undefined as any,
   });
   const [dataSource, setDataSource] = useState(props.tableData);
   useEffect(() => {
@@ -44,7 +45,7 @@ export const useTableQuery = (props: AntdTableProps) => {
     });
 
     setQueryData(initialQueryData);
-    props?.onQueryDataChange(initialQueryData);
+    props?.handleQueryDataChange(initialQueryData);
   };
 
   const handleRequest = async (params: any, sort: any, filter: any) => {
@@ -59,7 +60,7 @@ export const useTableQuery = (props: AntdTableProps) => {
 
     setQueryData(params);
     console.log("antd 表格 dataSource request", dataSource);
-
+    props.handleQueryDataChange(params);
     return {
       data: dataSource || [],
       success: true,
@@ -73,15 +74,21 @@ export const useTableQuery = (props: AntdTableProps) => {
     sorter,
     extra,
   ) => {
-    if (extra.action === "sort" && !props.isRemoteSort) {
-      setDataSource(extra.currentDataSource);
-    }
+    if (extra.action === "sort") {
+      // if (!props.isRemoteSort) {
+      //   setDataSource(extra.currentDataSource);
+      // }
 
-    if (sorter && !Array.isArray(sorter)) {
-      setSortInfo({
-        sortField: sorter.field as Key,
-        sortOrder: sorter.order,
-      });
+      if (sorter && !Array.isArray(sorter)) {
+        const _sortInfo = {
+          sortField: sorter.field as Key,
+          sortOrder: sorter.order,
+          column: sorter.column,
+        };
+
+        setSortInfo(_sortInfo);
+        props.handleColumnSorting(_sortInfo);
+      }
     }
 
     console.log("antd 表格 onChange 排序 dragSortProps ", {
@@ -89,11 +96,25 @@ export const useTableQuery = (props: AntdTableProps) => {
       filters,
       sorter,
       extra,
+      sortInfo,
     });
   };
 
   const form = useMemo<ProTableProps<any, any>["form"]>(() => {
     return {
+      // onFieldsChange: (changedFields, allFields) => {
+      //   console.log("Antd 表格 form onFieldsChange", {
+      //     changedFields,
+      //     allFields,
+      //   });
+      // },
+      // 表格表单数据变化
+      onValuesChange: (changedValues, allValues) => {
+        console.log("Antd 表格 form onValuesChange", {
+          changedValues,
+          allValues,
+        });
+      },
       ignoreRules: !props.enableSearchFormValidation,
       // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
       syncToUrl: (values, type) => {

@@ -23,6 +23,11 @@ import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
 
 export interface AntdTableProps extends ProTableProps<any, any> {
+  handleColumnSorting: (sortInfo: {
+    sortField: Key | undefined;
+    sortOrder: SortOrder | undefined;
+    column: any;
+  }) => void;
   isRemoteSort: boolean;
   handleDragSortEnd: (
     beforeIndex: number,
@@ -212,7 +217,7 @@ export interface AntdTableProps extends ProTableProps<any, any> {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
-  onQueryDataChange: (
+  handleQueryDataChange: (
     queryData: Record<string, unknown>,
     isInit?: boolean,
   ) => void;
@@ -485,6 +490,7 @@ export const defaultEditableCell = {
   initialValue: "",
 };
 import { Colors } from "constants/Colors";
+import type { SortOrder } from "antd/es/table/interface";
 
 export const DEFAULT_COLUMN_NAME = "Table Column";
 

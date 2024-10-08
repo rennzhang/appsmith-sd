@@ -193,6 +193,7 @@ class PrimaryColumnsControlAntd extends BaseControl<ControlProps, State> {
       },
     );
 
+    const primaryColumnId = this.props.widgetProperties.primaryColumnId;
     const column: ColumnProperties | undefined = Object.values(
       reorderedColumns,
     ).find(
@@ -234,7 +235,7 @@ class PrimaryColumnsControlAntd extends BaseControl<ControlProps, State> {
               renderComponent={(props: any) =>
                 DraggableListCard({
                   ...props,
-                  showCheckbox: true,
+                  showCheckbox: props.item.id !== primaryColumnId,
                   placeholder: "Column title",
                 })
               }

@@ -109,7 +109,7 @@ export default {
     // 列排序
     {
       propertyName: "isVisibleCellSort",
-      label: "显示排序",
+      label: "启用列排序",
       helpText: "开启后在当前列的表头显示排序按钮",
       defaultValue: false,
       controlType: "SWITCH",
@@ -123,6 +123,16 @@ export default {
         params: {
           type: ValidationTypes.BOOLEAN,
         },
+      },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return showByColumnType(props, propertyPath, [
+          ColumnTypes.IMAGE,
+          ColumnTypes.COLOR,
+          ColumnTypes.PASSWORD,
+          ColumnTypes.URL,
+          ColumnTypes.VIDEO,
+          ColumnTypes.SWITCH,
+        ]);
       },
     },
 
@@ -173,6 +183,7 @@ export default {
     {
       propertyName: "isCellEditable",
       dependencies: [
+        "primaryColumnId",
         "primaryColumns",
         "columnOrder",
         "columnType",
@@ -198,6 +209,17 @@ export default {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
         const isDerived = get(props, `${baseProperty}.isDerived`, false);
+
+        if (baseProperty?.includes(props.primaryColumnId)) {
+          return true;
+        }
+        console.log("Antd 表格 isCellEditable hidden", {
+          props,
+          propertyPath,
+          baseProperty,
+          columnType,
+          isDerived,
+        });
         return !isColumnTypeEditable(columnType) || isDerived;
       },
     },

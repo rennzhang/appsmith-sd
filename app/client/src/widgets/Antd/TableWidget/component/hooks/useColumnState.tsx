@@ -1,17 +1,21 @@
 import type { Key } from "react";
 import { useMemo } from "react";
-import type { ProFieldValueType } from "@ant-design/pro-components";
-import { type ProColumns } from "@ant-design/pro-components";
+import type { ProFieldValueType, ProSchema } from "@ant-design/pro-components";
+import {
+  ProFormDateRangePicker,
+  type ProColumns,
+} from "@ant-design/pro-components";
 import type { TableColumnProps } from "widgets/Antd/TableWidget/component/Constants";
-import type { Rule } from "antd/es/form";
+import type { FormInstance, Rule } from "antd/es/form";
 import type { ColumnStateType } from "@ant-design/pro-table/es/typing";
 import type { AntdTableProps, ButtonAction } from "../../constants";
 import { ColumnTypes, TableInlineEditTypes } from "../../constants";
-import { message, Switch } from "antd";
+import { Form, message, Switch, DatePicker } from "antd";
 import styled from "styled-components";
 import useButtonRender from "./useTableButtonRender";
 import dayjs from "dayjs";
 import type { SorterResult, SortOrder } from "antd/es/table/interface";
+const { RangePicker } = DatePicker;
 const getRules = (column: TableColumnProps) => {
   const { columnProperties } = column;
   const { validation } = columnProperties;
@@ -349,7 +353,13 @@ const getColumnRender = (
   };
 };
 
-const getFieldProps = (column: TableColumnProps, props: AntdTableProps) => {
+const getFieldProps = (propsData: {
+  column: TableColumnProps;
+  props: AntdTableProps;
+  form: FormInstance;
+  config: ProSchema;
+}) => {
+  const { column, config, form, props } = propsData;
   const fieldProps: ProColumns<Record<string, any>>["fieldProps"] = {
     ...column.columnProperties,
     fieldNames: {
@@ -360,6 +370,18 @@ const getFieldProps = (column: TableColumnProps, props: AntdTableProps) => {
       title: column.columnProperties.labelKey || "label",
     },
     onChange: (e, ...rest: any[]) => {
+      const formValues = form.getFieldsValue();
+      const fieldInstance = form.getFieldInstance(column.id);
+      console.log("Antd 表格 getFieldProps onChange", {
+        e,
+        rest,
+        form,
+        config,
+        column,
+        formValues,
+        fieldInstance,
+      });
+      if (column.id in formValues) return;
       const val = e?.target?.value || e;
       props.handleCellValueChange(val, column.alias, column);
     },
@@ -468,10 +490,36 @@ export const useColumnState = (
           ...column,
           id: column.id!,
           width: column.columnProperties.columnWidth || 120,
-          editable: () => column.columnProperties.isCellEditable,
+          editable: () =>
+            column.columnProperties.isCellEditable &&
+            column.id !== props.primaryColumnId,
           fixed: column.sticky || false,
           hideInTable: column.isHidden,
+          fieldProps: (form, config) =>
+            getFieldProps({ column, props, form, config }),
           render: getColumnRender(column, props),
+
+          renderFormItem(schema, config, form, action) {
+            const { isRangeInSearch } = column.columnProperties;
+
+            if (ColumnTypes.DATE === columnType && isRangeInSearch) {
+              return (
+                <ProFormDateRangePicker
+                  value={form?.getFieldValue(column.id)}
+                  {...(schema.fieldProps as any)}
+                  label={null}
+                  onChange={(date: any, dateString: any) => {
+                    // 处理单个日期变化
+                    console.log("表格行编辑日期变化:", date, dateString);
+                    const dataValue = date ? dateString : null;
+                    form?.setFieldValue(column.id, dataValue);
+                  }}
+                />
+              );
+            }
+
+            return config.defaultRender(schema);
+          },
           title: column.Header,
           dataIndex: column.id,
           ellipsis:
@@ -481,7 +529,7 @@ export const useColumnState = (
             rules: getRules(column),
           },
           valueEnum: getValueEnum(column),
-          fieldProps: getFieldProps(column, props),
+
           copyable: column.columnProperties.isCellCopyable,
           filters: column.columnProperties.isVisibleCellFilters,
           filterSearch: true,
@@ -506,7 +554,7 @@ export const useColumnState = (
         return proColumn;
       }) || [];
     setInitialQueryData(initialQueryData);
-    props?.onQueryDataChange(initialQueryData, true);
+    props?.handleQueryDataChange(initialQueryData, true);
 
     const sortColumn = {
       title: "排序",
