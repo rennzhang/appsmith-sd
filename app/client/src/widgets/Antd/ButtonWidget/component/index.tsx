@@ -53,6 +53,7 @@ interface RecaptchaProps {
   recaptchaType?: RecaptchaType;
 }
 interface ButtonComponentProps extends ComponentProps {
+  followParentTheme?: boolean;
   iconSize?: number;
   configToken?: Partial<ButtonComponentToken & SeedToken>;
   text?: string;
@@ -116,6 +117,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
     buttonSize,
     buttonVariant,
     configToken,
+    followParentTheme,
     iconAlign,
     iconColor,
     iconName,
@@ -123,6 +125,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
     onClick,
     placement,
     popconfirmMessage,
+
   } = props;
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -130,62 +133,72 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       onClick?.(event);
     }
   };
-
   const buttonContent = (
     <StyledDButtonBox borderRadius={borderRadius} boxShadow={boxShadow}>
-      <ConfigProvider
-        theme={{
-          components: {
-            Button: {
-              algorithm: true,
-              colorPrimary: buttonColor || undefined,
-              colorLink: buttonColor || undefined,
-              borderRadius: (borderRadius as unknown as number) || 0,
-              ...(configToken || {}),
-            },
-          },
-        }}
+      <Button
+        block
+        className="w-full"
+        disabled={props.isDisabled}
+        ghost={buttonVariant === ButtonVariantTypes.SECONDARY}
+        onClick={handleClick}
+        size={buttonSize}
+        type={
+          buttonVariant === ButtonVariantTypes.TERTIARY ? "link" : "primary"
+        }
       >
-        <Button
-          block
-          className="w-full"
-          disabled={props.isDisabled}
-          ghost={buttonVariant === ButtonVariantTypes.SECONDARY}
-          onClick={handleClick}
-          size={buttonSize}
-          type={
-            buttonVariant === ButtonVariantTypes.TERTIARY ? "link" : "primary"
-          }
+        <StyledDropdownBtnContent
+          className="w-full h-full flex items-center"
+          iconSize={iconSize}
+          placement={placement}
         >
-          <StyledDropdownBtnContent
-            className="w-full h-full flex items-center"
-            iconSize={iconSize}
-            placement={placement}
-          >
-            {iconAlign !== Alignment.RIGHT && iconName && (
-              <IconRenderer
-                className={props.text ? "mr-1" : ""}
-                color={iconColor}
-                icon={iconName}
-                size={iconSize}
-              />
-            )}
-            {props.text && (
-              <span style={{ color: props.textColor }}>{props.text}</span>
-            )}
-            {iconAlign === Alignment.RIGHT && iconName && (
-              <IconRenderer
-                className={props.text ? "ml-1" : ""}
-                color={iconColor}
-                icon={iconName}
-                size={iconSize}
-              />
-            )}
-          </StyledDropdownBtnContent>
-        </Button>
-      </ConfigProvider>
+          {iconAlign !== Alignment.RIGHT && iconName && (
+            <IconRenderer
+              className={props.text ? "mr-1" : ""}
+              color={iconColor}
+              icon={iconName}
+              size={iconSize}
+            />
+          )}
+          {props.text && (
+            <span style={{ color: props.textColor }}>{props.text}</span>
+          )}
+          {iconAlign === Alignment.RIGHT && iconName && (
+            <IconRenderer
+              className={props.text ? "ml-1" : ""}
+              color={iconColor}
+              icon={iconName}
+              size={iconSize}
+            />
+          )}
+        </StyledDropdownBtnContent>
+      </Button>
     </StyledDButtonBox>
   );
+
+  const buttonWithTheme = (
+    <ConfigProvider
+      theme={{
+        components: {
+          Button: {
+            algorithm: true,
+            colorPrimary: buttonColor || undefined,
+            colorLink: buttonColor || undefined,
+            borderRadius: (borderRadius as unknown as number) || 0,
+            ...(configToken || {}),
+          },
+        },
+      }}
+    >
+      {buttonContent}
+    </ConfigProvider>
+  );
+
+  const getButton = () => {
+    if (followParentTheme) {
+      return buttonContent;
+    }
+    return buttonWithTheme;
+  };
 
   return (
     <Tooltip placement="top" title={props.tooltip}>
@@ -196,10 +209,10 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
           onConfirm={onClick as () => void}
           title={popconfirmMessage}
         >
-          {buttonContent}
+          {getButton()}
         </Popconfirm>
       ) : (
-        buttonContent
+        getButton()
       )}
     </Tooltip>
   );

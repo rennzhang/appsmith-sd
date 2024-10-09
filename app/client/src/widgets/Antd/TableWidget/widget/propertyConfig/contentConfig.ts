@@ -68,41 +68,54 @@ export default [
             value: "edit",
           },
         ],
+        dependencies: [
+          "allowAddNewRow",
+          "tableType",
+          "toolBarActions",
+          "addNewRowText",
+          "addNewRowPosition",
+          "saveDataSourceText",
+          "saveDataSourceTooltip",
+          "saveDataSourceOnClick",
+        ],
         updateHook: (
           props: TableWidgetProps,
           propertyPath: string,
           propertyValue: any,
         ) => {
-          console.log("tableType updateHook", props.tableType, propertyValue);
-
+          const isEdit = propertyValue === "edit";
           const propertiesToUpdate: Array<{
             propertyPath: string;
             propertyValue: any;
-          }> = [];
-
-          if (propertyValue === "edit") {
-            propertiesToUpdate.push({
+          }> = [
+            {
               propertyPath: "allowAddNewRow",
-              propertyValue: true,
-            });
-            propertiesToUpdate.push({
+              propertyValue: isEdit,
+            },
+            {
               propertyPath: "isVisibleSearch",
-              propertyValue: false,
-            });
-            propertiesToUpdate.push({
+              propertyValue: !isEdit,
+            },
+            {
               propertyPath: "serverSidePaginationEnabled",
-              propertyValue: false,
-            });
-
-            // props.recordCreatorProps = {
-            //   newRecordType: "dataSource",
-            //   record: () => ({
-            //     id: Date.now(),
-            //   }),
-            // };
-
-            return propertiesToUpdate;
-          }
+              propertyValue: !isEdit,
+            },
+            {
+              propertyPath: "toolBarActions",
+              propertyValue: {
+                ...props.toolBarActions,
+                addNewRow: {
+                  ...props.toolBarActions.addNewRow,
+                  isHiddenItem: isEdit,
+                },
+                saveDataSource: {
+                  ...props.toolBarActions.saveDataSource,
+                  isHiddenItem: !isEdit,
+                },
+              },
+            },
+          ];
+          return propertiesToUpdate;
         },
       },
       // 表格标题
@@ -273,7 +286,6 @@ export default [
         isHideToggleVisibility: true,
         defaultProperties: {
           ...BUTTON_DEFAULT_CONFIG,
-
           menuButtonLabel: undefined,
           iconName: "",
           btnIconName: "ant-design:SettingOutlined",
@@ -426,7 +438,7 @@ export default [
     children: [
       {
         propertyName: "allowAddNewRow",
-        helpText: "显示新增一行按钮",
+        helpText: "显示新增一行按钮，可以在工具栏中配置按钮样式",
         isJSConvertible: true,
         label: "允许新增一行",
         controlType: "SWITCH",
@@ -437,23 +449,6 @@ export default [
         },
         hidden: (props: TableWidgetProps) => {
           return props.tableType == "edit";
-        },
-      },
-      // tableType 为 edit 时，新增行按钮文本
-      {
-        propertyName: "creatorButtonText",
-        helpText: "新增行按钮文本",
-        label: "新增行按钮文本",
-        controlType: "INPUT_TEXT",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        dependencies: ["allowAddNewRow", "tableType"],
-        defaultValue: "添加一行数据",
-        validation: {
-          type: ValidationTypes.TEXT,
-        },
-        hidden: (props: TableWidgetProps) => {
-          return !props.allowAddNewRow || props.tableType !== "edit";
         },
       },
       // 按钮文本
@@ -1039,6 +1034,44 @@ export default [
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
+        helpText: "工具栏按钮配置",
+        propertyName: "toolBarActions",
+        controlType: "MENU_ITEMS",
+        label: "工具栏按钮",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        createButtonText: "添加按钮",
+        presetLabel: "Action",
+        panelConfig: ActionPanelConfig,
+        isHideToggleVisibility: true,
+        defaultProperties: {
+          ...BUTTON_DEFAULT_CONFIG,
+          menuButtonLabel: undefined,
+          iconName: "",
+          btnIconName: "ant-design:SettingOutlined",
+          menuIconName: "ant-design:EllipsisOutlined",
+          menuVariant: ButtonVariantTypes.TERTIARY,
+          buttonLabel: "按钮",
+          tooltip: "",
+          iconAlign: "left",
+          menuTooltip: "",
+          onBtnClick: "{{showAlert('请先配置按钮的动作', 'warning');}}",
+          menuItems: {
+            menuItemfs0i704r9c: {
+              id: "menuItemfs0i704r9c",
+              index: 0,
+              label: "Menu Item 1",
+              widgetId: "",
+              isDisabled: false,
+              isVisible: true,
+              backgroundColor: "",
+              textColor: "",
+              // onBtnClick: "{{showAlert('请先配置按钮的动作', 'warning');}}",
+            },
+          },
         },
       },
     ],

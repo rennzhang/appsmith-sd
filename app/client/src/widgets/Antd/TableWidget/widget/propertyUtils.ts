@@ -4,7 +4,7 @@ import { StickyType } from "../component/Constants";
 import { CellAlignmentTypes } from "../component/Constants";
 import type { TableWidgetProps } from "../constants";
 import { ColumnTypes, TableInlineEditTypes, ButtonTypes } from "../constants";
-import _, { findIndex, get, isBoolean } from "lodash";
+import _, { clone, findIndex, get, isBoolean } from "lodash";
 import { Colors } from "constants/Colors";
 import {
   combineDynamicBindings,
@@ -110,6 +110,76 @@ export function uniqueColumnAliasValidation(
     };
   }
 }
+// updateActionBtnStyles
+// toolBarActions rowSelectionActions editingActions columnActions
+export const updateActionBtnStyles = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: any,
+) => {
+  const { columnActions, editingActions, rowSelectionActions, toolBarActions } =
+    props;
+  // 将所有action的buttonColor设置为propertyValue
+  const propertiesToUpdate: Array<{
+    propertyPath: string;
+    propertyValue: any;
+  }> = [];
+
+  console.log(
+    "updateActionBtnStyles propertiesToUpdate",
+    propertiesToUpdate,
+    props,
+    propertyValue,
+  );
+  const _toolBarActions = clone(toolBarActions);
+  const _rowSelectionActions = clone(rowSelectionActions);
+  const _editingActions = clone(editingActions);
+  const _columnActions = clone(columnActions);
+  Object.keys(_toolBarActions).forEach((key) => {
+    _toolBarActions[key] = {
+      ..._toolBarActions[key],
+      buttonColor: propertyValue,
+    };
+  });
+  Object.keys(_rowSelectionActions).forEach((key: any) => {
+    _rowSelectionActions[key] = {
+      ..._rowSelectionActions[key],
+      buttonColor: propertyValue,
+    };
+  });
+  Object.keys(_editingActions).forEach((key: any) => {
+    _editingActions[key] = {
+      ..._editingActions[key],
+      buttonColor: propertyValue,
+    };
+  });
+  Object.keys(_columnActions).forEach((key: any) => {
+    _columnActions[key] = {
+      ..._columnActions[key],
+      buttonColor: propertyValue,
+    };
+  });
+  propertiesToUpdate.push({
+    propertyPath: "toolBarActions",
+    propertyValue: _toolBarActions,
+  });
+  propertiesToUpdate.push({
+    propertyPath: "rowSelectionActions",
+    propertyValue: _rowSelectionActions,
+  });
+  propertiesToUpdate.push({
+    propertyPath: "editingActions",
+    propertyValue: _editingActions,
+  });
+  propertiesToUpdate.push({
+    propertyPath: "columnActions",
+    propertyValue: _columnActions,
+  });
+
+  console.log("updateActionBtnStyles propertiesToUpdate", propertiesToUpdate);
+
+  return propertiesToUpdate;
+};
 
 /*
  * Hook to update all column styles, when global table styles are updated.

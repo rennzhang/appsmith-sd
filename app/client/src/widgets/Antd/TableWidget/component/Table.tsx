@@ -1,5 +1,5 @@
 import React, { useRef, useMemo, useCallback, useEffect } from "react";
-import { Button, ConfigProvider, message } from "antd";
+import { Button, ConfigProvider, message, theme } from "antd";
 import {
   DragSortTable,
   EditableProTable,
@@ -18,6 +18,7 @@ import { createGlobalStyle } from "styled-components";
 import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
 import { ConnectDataOverlay } from "./ConnectDataOverlay";
 import type { AntdTableProps } from "../constants";
+
 import {
   useEditableState,
   useColumnState,
@@ -26,6 +27,7 @@ import {
   useSelectionState,
   useTableAlertState,
 } from "./hooks";
+import useButtonRender from "./hooks/useTableButtonRender";
 
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 
@@ -46,13 +48,14 @@ const PopoverStyles = createGlobalStyle<{
 `;
 
 const ProtableRender = React.memo(function ProtableRender(
-  props: AntdTableProps,
+  props: AntdTableProps & { configProviderTheme: any },
 ) {
   const actionRef = useRef<ActionType>(null);
 
   const isEditType = props.tableType === "edit";
   const isDragSortType = props.tableType === "dragSort";
 
+  const { getTableButtonRender } = useButtonRender();
   const {
     dataSource,
     form,
@@ -73,8 +76,38 @@ const ProtableRender = React.memo(function ProtableRender(
   const { tableAlertOptionRender, tableAlertRender } =
     useTableAlertState(props);
   const { expandable } = useExpandState(props);
-  const { addNewRowBtn, editable } = useEditableState(props, actionRef);
+  const { editable, handleAddNewRow } = useEditableState(props, actionRef);
   const { rowSelection } = useSelectionState(props);
+
+  const toolBarRender = useMemo<any[]>(() => {
+    return getTableButtonRender(
+      props.toolBarActions,
+      (action) => {
+        console.log("antd table toolBarRender onClick", action);
+
+        if (action.id == "addNewRow") {
+          handleAddNewRow();
+        }
+        props?.handleAlertBtnClick(action.onBtnClick);
+      },
+      {},
+      (button) => {
+        if (button.id == "addNewRow") {
+          return !props.allowAddNewRow || props.tableType === "edit";
+        } else if (button.id == "saveDataSource") {
+          return props.tableType !== "edit";
+        }
+        return false;
+      },
+    );
+  }, [
+    props.toolBarActions,
+    props.allowAddNewRow,
+    props.tableType,
+    props.defaultNewRow,
+    props.addNewRowPosition,
+    props.primaryColumnId,
+  ]);
 
   const commonProps: Omit<ProTableProps<any, any>, "onChange"> = useMemo(
     () => ({
@@ -119,19 +152,7 @@ const ProtableRender = React.memo(function ProtableRender(
       style: { width: "100%" },
       tableAlertOptionRender,
       tableAlertRender,
-      toolBarRender: () => [
-        addNewRowBtn,
-        <Button
-          key="save"
-          onClick={() => {
-            // dataSource 就是当前数据，可以调用 api 将其保存
-            console.log(dataSource);
-          }}
-          type="primary"
-        >
-          保存数据
-        </Button>,
-      ],
+      toolBarRender: () => toolBarRender,
       virtual: props.isVirtual,
     }),
     [
@@ -140,6 +161,7 @@ const ProtableRender = React.memo(function ProtableRender(
       props.isVisibleFullScreen,
       props.isVisibleDensity,
       props.isVisibleCellSetting,
+      props.toolBarActions,
       tableColumns,
       columnsState,
       editable,
@@ -151,7 +173,6 @@ const ProtableRender = React.memo(function ProtableRender(
       rowSelection,
       tableAlertOptionRender,
       tableAlertRender,
-      addNewRowBtn,
       dataSource,
     ],
   );
@@ -172,7 +193,7 @@ const ProtableRender = React.memo(function ProtableRender(
               creatorButtonText: props.creatorButtonText,
               newRecordType: "dataSource",
               record: () => ({
-                id: Date.now(),
+                [props.primaryColumnId]: Date.now(),
                 ...props.defaultNewRow,
               }),
             },
@@ -184,6 +205,7 @@ const ProtableRender = React.memo(function ProtableRender(
       props.creatorButtonText,
       props.addNewRowPosition,
       props.defaultNewRow,
+      props.primaryColumnId,
     ],
   );
 
@@ -237,6 +259,11 @@ export function ProTableComponent(props: AntdTableProps) {
 
   const configProviderTheme = useMemo(
     () => ({
+      token: {
+        colorPrimary: props.tablePrimaryColor || theme.defaultSeed.colorPrimary,
+        colorLink: props.tablePrimaryColor || theme.defaultSeed.colorPrimary,
+      },
+      // algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
       components: {
         Table: {
           borderRadius: (props.borderRadius as unknown as number) || 0,
@@ -246,7 +273,12 @@ export function ProTableComponent(props: AntdTableProps) {
         },
       },
     }),
-    [props.borderRadius, props.textSize, props.headerBorderRadius],
+    [
+      props.borderRadius,
+      props.textSize,
+      props.headerBorderRadius,
+      props.tablePrimaryColor,
+    ],
   );
 
   return (
@@ -278,7 +310,10 @@ export function ProTableComponent(props: AntdTableProps) {
         />
         <div className="overflow-auto">
           <ConfigProvider theme={configProviderTheme}>
-            <ProtableRender {...props} />
+            <ProtableRender
+              {...props}
+              configProviderTheme={configProviderTheme}
+            />
           </ConfigProvider>
         </div>
       </TableWrapper>

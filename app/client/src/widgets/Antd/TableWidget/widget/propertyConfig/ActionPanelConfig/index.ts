@@ -13,7 +13,12 @@ export default {
   editableTitle: true,
   titlePropertyName: "label",
   panelIdPropertyName: "id",
-  dependencies: ["columnActions", "editingActions"],
+  dependencies: [
+    "columnActions",
+    "editingActions",
+    "rowSelectionActions",
+    "toolBarActions",
+  ],
   updateHook: (props: any, propertyPath: string, propertyValue: string) => {
     return [
       {
@@ -190,7 +195,12 @@ export default {
           helpText: "设置按钮颜色",
           isJSConvertible: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
-          dependencies: ["columnActions", "editingActions"],
+          dependencies: [
+            "columnActions",
+            "editingActions",
+            "rowSelectionActions",
+            "toolBarActions",
+          ],
           isBindProperty: true,
           validation: {
             type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
@@ -217,7 +227,12 @@ export default {
           controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
           isJSConvertible: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
-          dependencies: ["columnActions", "editingActions"],
+          dependencies: [
+            "columnActions",
+            "editingActions",
+            "rowSelectionActions",
+            "toolBarActions",
+          ],
           isBindProperty: true,
         },
       ],

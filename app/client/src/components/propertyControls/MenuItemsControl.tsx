@@ -52,13 +52,18 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
       isDisabled: boolean;
       isVisible: boolean;
       widgetId: string;
+      isHiddenItem?: boolean;
     }> =
       isString(this.props.propertyValue) ||
       isUndefined(this.props.propertyValue)
         ? []
         : Object.values(this.props.propertyValue);
 
-    return orderBy(menuItems, ["index"], ["asc"]);
+    const filterMenuItems = menuItems.filter((item) => {
+      return !item?.isHiddenItem;
+    });
+
+    return orderBy(filterMenuItems, ["index"], ["asc"]);
   };
 
   onEdit = (index: number) => {
@@ -88,7 +93,9 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
               hideSetting: this.props.hideSetting,
               isDelete: !this.props.isHideDelete,
               placeholder: this.props.placeholderText || "Menu item label",
-              toggleVisibility:!this.props.isHideToggleVisibility ? this.toggleVisibility : undefined,
+              toggleVisibility: !this.props.isHideToggleVisibility
+                ? this.toggleVisibility
+                : undefined,
             })
           }
           toggleVisibility={this.toggleVisibility}
@@ -97,14 +104,16 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           updateOption={this.updateOption}
         />
 
-        {!this.props.isHideAddButton && <Button
-          className="self-end t--add-menu-item-btn"
-          kind="tertiary"
-          onClick={this.addOption}
-          startIcon="plus"
-        >
-          {this.props.createButtonText || "新建菜单项"}
-        </Button>}
+        {!this.props.isHideAddButton && (
+          <Button
+            className="self-end t--add-menu-item-btn"
+            kind="tertiary"
+            onClick={this.addOption}
+            startIcon="plus"
+          >
+            {this.props.createButtonText || "新建菜单项"}
+          </Button>
+        )}
       </div>
     );
   }

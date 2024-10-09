@@ -155,7 +155,14 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByButtonType(props, propertyPath, [ButtonTypes.BUTTON]);
       },
-      dependencies: ["columnActions", "editingActions", "rowSelectionActions"],
+      dependencies: [
+        "columnActions",
+        "editingActions",
+        "rowSelectionActions",
+        "toolBarActions",
+        ,
+        "rowSelectionActions",
+      ],
       isBindProperty: true,
       isTriggerProperty: false,
     },
@@ -169,7 +176,14 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByButtonType(props, propertyPath, [ButtonTypes.MENU_BUTTON]);
       },
-      dependencies: ["columnActions", "editingActions", "rowSelectionActions"],
+      dependencies: [
+        "columnActions",
+        "editingActions",
+        "rowSelectionActions",
+        "toolBarActions",
+        ,
+        "rowSelectionActions",
+      ],
       isBindProperty: true,
       isTriggerProperty: false,
     },
@@ -182,7 +196,14 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
-      dependencies: ["columnActions", "editingActions", "rowSelectionActions"],
+      dependencies: [
+        "columnActions",
+        "editingActions",
+        "rowSelectionActions",
+        "toolBarActions",
+        ,
+        "rowSelectionActions",
+      ],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByButtonType(props, propertyPath, [ButtonTypes.MENU_BUTTON]);
       },

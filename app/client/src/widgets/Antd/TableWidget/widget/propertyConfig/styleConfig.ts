@@ -1,7 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { updateColumnStyles } from "../propertyUtils";
+import { updateActionBtnStyles, updateColumnStyles } from "../propertyUtils";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-
+import { theme } from "antd";
 export default [
   {
     sectionName: "属性",
@@ -238,6 +238,25 @@ export default [
   {
     sectionName: "颜色配置",
     children: [
+      // 表格主色
+      {
+        propertyName: "tablePrimaryColor",
+        label: "表格主色",
+        helpText: "表格主色",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        defaultValue: theme.defaultSeed.colorPrimary,
+        updateHook: updateActionBtnStyles,
+        dependencies: [
+          "columnActions",
+          "editingActions",
+          "rowSelectionActions",
+          "toolBarActions",
+        ],
+      },
       // 表格背景颜色
       {
         propertyName: "tableBackground",
@@ -322,8 +341,8 @@ export default [
       // cardBorderedTable
       {
         propertyName: "cardBorderedTable",
-        helpText: "是否显示搜索表单卡片边框",
-        label: "表单卡片边框",
+        helpText: "是否显示搜索表格卡片边框",
+        label: "表格卡片边框",
         controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,

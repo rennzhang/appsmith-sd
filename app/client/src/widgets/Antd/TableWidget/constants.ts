@@ -23,6 +23,9 @@ import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
 
 export interface AntdTableProps extends ProTableProps<any, any> {
+  configProviderTheme: any;
+  tablePrimaryColor: string;
+  toolBarActions: Record<string, ButtonAction>;
   creatorButtonText: string;
   handleColumnSorting: (sortInfo: {
     sortField: Key | undefined;
@@ -200,7 +203,7 @@ export interface AntdTableProps extends ProTableProps<any, any> {
   onBulkEditDiscard: () => void;
   onBulkEditSave: () => void;
   // variant?: TableVariant;
-  primaryColumnId?: string;
+  primaryColumnId: string;
   isAddRowInProgress: boolean;
   allowAddNewRow: boolean;
   onAddNewRow: () => void;
@@ -492,7 +495,7 @@ export const DEFAULT_COLUMN_NAME = "Table Column";
 
 export const DEFAULT_DATE_FORMAT = "YYYY-MM-DD HH:mm";
 export const BUTTON_DEFAULT_CONFIG = {
-  borderRadius: "none",
+  borderRadius: "0.375rem",
   boxShadow: "none",
   buttonSize: "small",
   buttonVariant: ButtonVariantTypes.TERTIARY,

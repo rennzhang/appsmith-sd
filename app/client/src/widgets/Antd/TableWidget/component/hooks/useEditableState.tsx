@@ -80,7 +80,7 @@ export const useEditableState = (
     props.handleAddNewRow(newId);
     actionRef.current?.addEditRecord(
       {
-        id: newId,
+        [props.primaryColumnId]: newId,
         ...(props.defaultNewRow || {}),
       },
       {
@@ -89,26 +89,12 @@ export const useEditableState = (
       },
     );
   }, [
+    props.primaryColumnId,
     props.handleAddNewRow,
     props.defaultNewRow,
     props.addNewRowPosition,
     actionRef,
   ]);
-
-  const addNewRowBtn = useMemo<ReactNode>(
-    () =>
-      props.allowAddNewRow && props.tableType !== "edit" ? (
-        <Button
-          icon={<PlusOutlined />}
-          key="button"
-          onClick={handleAddNewRow}
-          type="primary"
-        >
-          {props.addNewRowText || "新增"}
-        </Button>
-      ) : null,
-    [props.allowAddNewRow, props.addNewRowText, handleAddNewRow],
-  );
 
   const editable = useMemo((): ProTableProps<any, any>["editable"] => {
     const {
@@ -206,6 +192,6 @@ export const useEditableState = (
 
   return {
     editable,
-    addNewRowBtn,
+    handleAddNewRow,
   };
 };

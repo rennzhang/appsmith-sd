@@ -3,7 +3,7 @@ import { Alignment } from "@blueprintjs/core";
 import React from "react";
 import { Colors } from "constants/Colors";
 
-import type { ButtonAction } from "../../constants";
+import type { AntdTableProps, ButtonAction } from "../../constants";
 import { ButtonTypes, ColumnTypes } from "../../constants";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
 import ButtonComponent from "widgets/Antd/ButtonWidget/component";
@@ -48,78 +48,106 @@ export const useButtonRender = () => {
   type RenderMenuButtonProps = {
     button: ButtonAction;
     onClick: (button: ButtonAction) => void;
+    configToken: any;
+    isHide?: (button: ButtonAction) => boolean;
   };
-  const renderMenuButton = ({ button, onClick }: RenderMenuButtonProps) => (
-    <TableDropdown
-      key="actionGroup"
-      menus={Object.values(button.menuItems || {})
-        .filter((c) => c.isVisible)
-        ?.map((c) => ({
-          disabled: c.isDisabled,
-          key: c.id,
-          name: renderMenuItemContent(c, onClick),
-        }))}
-      style={{ color: button.buttonColor }}
-    >
-      <ButtonComponent
-        borderRadius={button.borderRadius}
-        boxShadow={button.boxShadow}
-        buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
-        buttonSize={button.buttonSize || "sm"}
-        buttonVariant={button.buttonVariant || "TERTIARY"}
-        configToken={{ paddingInline: 0, controlHeight: 22 }}
-        iconAlign={button.iconAlign}
-        iconColor={button.iconColor}
-        iconName={button.menuIconName}
-        iconSize={14}
-        isDisabled={button.isDisabled}
-        key={button.id}
-        placement="CENTER"
-        text={button.menuButtonLabel}
-        tooltip={button.menuTooltip}
-        widgetId={button.widgetId}
-      />
-    </TableDropdown>
-  );
+  const renderMenuButton = ({
+    button,
+    isHide,
+    configToken,
+    onClick,
+  }: RenderMenuButtonProps) => {
+    const isHidden = isHide ? isHide(button) : false;
+    return (
+      !isHidden && (
+        <TableDropdown
+          key="actionGroup"
+          menus={Object.values(button.menuItems || {})
+            .filter((c) => c.isVisible)
+            ?.map((c) => ({
+              disabled: c.isDisabled,
+              key: c.id,
+              name: renderMenuItemContent(c, onClick),
+            }))}
+          style={{ color: button.buttonColor }}
+        >
+          <ButtonComponent
+            borderRadius={button.borderRadius}
+            boxShadow={button.boxShadow}
+            buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
+            buttonSize={button.buttonSize || "sm"}
+            buttonVariant={button.buttonVariant || "TERTIARY"}
+            followParentTheme
+            iconAlign={button.iconAlign}
+            iconColor={button.iconColor}
+            iconName={button.menuIconName}
+            iconSize={14}
+            isDisabled={button.isDisabled}
+            key={button.id}
+            placement="CENTER"
+            text={button.menuButtonLabel}
+            tooltip={button.menuTooltip}
+            widgetId={button.widgetId}
+          />
+        </TableDropdown>
+      )
+    );
+  };
 
   type RenderButtonProps = {
     button: ButtonAction;
     onClick: (button: ButtonAction) => void;
+    configToken: any;
+    isHide?: (button: ButtonAction) => boolean;
   };
-  const renderActionButton = ({ button, onClick }: RenderButtonProps) => (
-    <ButtonComponent
-      borderRadius={button.borderRadius}
-      boxShadow={button.boxShadow}
-      buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
-      buttonSize={button.buttonSize || "sm"}
-      buttonVariant={button.buttonVariant || "TERTIARY"}
-      configToken={{ paddingInline: 0, controlHeight: 22 }}
-      iconAlign={button.iconAlign}
-      iconColor={button.iconColor}
-      iconName={
-        button.buttonType === ButtonTypes.BUTTON
-          ? button.iconName
-          : button.btnIconName
-      }
-      isDisabled={button.isDisabled}
-      key={button.id}
-      onClick={() => {
-        onClick(button);
-        // handleButtonClick(button, props, record, recordIndex, action);
-      }}
-      placement="CENTER"
-      popconfirmMessage={button.popconfirmMessage}
-      text={
-        button.buttonType === ButtonTypes.ICON_BUTTON ? "" : button.buttonLabel
-      }
-      tooltip={button.tooltip}
-      widgetId={button.widgetId}
-    />
-  );
+  const renderActionButton = ({
+    button,
+    isHide,
+    configToken,
+    onClick,
+  }: RenderButtonProps) => {
+    const isHidden = isHide ? isHide(button) : false;
+    return (
+      !isHidden && (
+        <ButtonComponent
+          borderRadius={button.borderRadius}
+          boxShadow={button.boxShadow}
+          buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
+          buttonSize={button.buttonSize || "sm"}
+          buttonVariant={button.buttonVariant || "TERTIARY"}
+          configToken={configToken}
+          iconAlign={button.iconAlign}
+          iconColor={button.iconColor}
+          iconName={
+            button.buttonType === ButtonTypes.BUTTON
+              ? button.iconName
+              : button.btnIconName
+          }
+          isDisabled={button.isDisabled}
+          key={button.id}
+          onClick={() => {
+            onClick(button);
+            // handleButtonClick(button, props, record, recordIndex, action);
+          }}
+          placement="CENTER"
+          popconfirmMessage={button.popconfirmMessage}
+          text={
+            button.buttonType === ButtonTypes.ICON_BUTTON
+              ? ""
+              : button.buttonLabel
+          }
+          tooltip={button.tooltip}
+          widgetId={button.widgetId}
+        />
+      )
+    );
+  };
 
   const getTableButtonRender = (
     buttonActions: Record<string, ButtonAction>,
     onClick: (button: ButtonAction) => void,
+    configToken?: any,
+    isHide?: (button: ButtonAction) => boolean,
   ) => {
     const sortedButtons = Object.values(buttonActions)
       .sort((a, b) => a.index - b.index)
@@ -127,8 +155,8 @@ export const useButtonRender = () => {
 
     return sortedButtons.map((button) =>
       button.buttonType === ButtonTypes.MENU_BUTTON
-        ? renderMenuButton({ button, onClick })
-        : renderActionButton({ button, onClick }),
+        ? renderMenuButton({ button, onClick, configToken, isHide })
+        : renderActionButton({ button, onClick, configToken, isHide }),
     );
   };
   return {

@@ -18,6 +18,7 @@ import type {
 import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ButtonVariantTypes } from "components/constants";
+import { theme } from "antd";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -30,6 +31,7 @@ export const CONFIG = {
   needsHeightForContent: true,
 
   defaults: {
+    tablePrimaryColor: theme.defaultSeed.colorPrimary,
     tableType: "normal",
     addNewRowText: "新增一行",
     allowAddNewRow: false,
@@ -40,6 +42,39 @@ export const CONFIG = {
     rows: 48,
     columns: 64,
     width: 456,
+    toolBarActions: {
+      addNewRow: {
+        ...BUTTON_DEFAULT_CONFIG,
+        buttonVariant: ButtonVariantTypes.PRIMARY,
+        buttonSize: undefined,
+        menuButtonLabel: "新增一行",
+        label: "新增一行",
+        id: "addNewRow",
+        widgetId: "",
+        index: 0,
+        tooltip: "",
+        buttonLabel: "新增一行",
+        btnIconName: "ant-design:PlusOutlined",
+        onBtnClick: "",
+        isHideDelete: true,
+        iconName: "ant-design:PlusOutlined",
+      },
+      saveDataSource: {
+        ...BUTTON_DEFAULT_CONFIG,
+        buttonVariant: ButtonVariantTypes.PRIMARY,
+        buttonSize: undefined,
+        menuButtonLabel: "保存数据",
+        label: "保存数据",
+        id: "saveDataSource",
+        widgetId: "",
+        index: 0,
+        tooltip: "",
+        buttonLabel: "保存数据",
+        btnIconName: "ant-design:SaveOutlined",
+        onBtnClick: "{{showAlert('请先配置保存数据按钮的动作', 'warning');}}",
+        isHideDelete: true,
+      },
+    },
     rowSelectionActions: {
       // 批量删除
       delete: {

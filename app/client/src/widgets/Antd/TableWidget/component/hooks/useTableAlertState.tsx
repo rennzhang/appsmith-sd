@@ -25,6 +25,8 @@ export function useTableAlertState(props: AntdTableProps) {
     );
   };
 
+  // useMemo props.configProviderTheme
+
   const tableAlertOptionRender: ProTableProps<
     any,
     any
