@@ -17,7 +17,7 @@ import {
 } from "@appsmith/constants/messages";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { isNil, isNumber, toString } from "lodash";
+import { get, isNil, isNumber, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { mergeWidgetConfig } from "utils/helpers";
 import {
@@ -37,6 +37,7 @@ import { InputControlProperty } from "./childPanels/CompConfig";
 import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
 import BaseWidget from "widgets/BaseWidget";
 import type { AntdInputWidgetProps } from "../types";
+import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
 
 export function defaultValueValidation(
   value: any,
@@ -268,8 +269,17 @@ class AntdInputWidget<
               showAntdIcon: true,
               isBindProperty: false,
               isTriggerProperty: false,
-              hidden: (props: AntdInputWidgetProps) =>
-                props.prefixType !== "icon",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const parentPropertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, parentPropertyPath);
+                console.log(` propsData`, {
+                  props,
+                  propsData,
+                  parentPropertyPath,
+                  propertyPath,
+                });
+                return propsData.prefixType !== "icon";
+              },
               dependencies: ["prefixType"],
             },
             {

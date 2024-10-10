@@ -94,6 +94,11 @@ import AntdTextWidget, {
 } from "widgets/Antd/Form/TextWidget";
 /* Antd form 组件注册 end */
 
+// widgets/Antd/JSONFormWidget
+import AntdJSONFormWidget, {
+  CONFIG as ANTD_JSON_FORM_WIDGET_CONFIG,
+} from "widgets/Antd/JSONFormWidget";
+
 // widgets/Antd/ModalWidget
 import AntdModalWidget, {
   CONFIG as ANTD_MODAL_WIDGET_CONFIG,
@@ -348,6 +353,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdBreadcrumbWidget, ANTD_BREADCRUM_CONFIG],
   [AntdFormWidget, ANTD_FORM_WIDGET_CONFIG],
   [AntdModalWidget, ANTD_MODAL_WIDGET_CONFIG],
+  [AntdJSONFormWidget, ANTD_JSON_FORM_WIDGET_CONFIG],
   [AntdUploadWidget, ANTD_UPLOAD_WIDGET_CONFIG],
   [AntdImageWidget, ANTD_IMAGE_CONFIG],
   [AntdTransferWidget, ANTD_TRANSFER_CONFIG],

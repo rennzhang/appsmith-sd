@@ -3,8 +3,8 @@ import type { Alignment } from "@blueprintjs/core";
 import type { AntdLabelPosition } from "components/constants";
 import type { IconName } from "design-system-old";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { InputTypes } from "widgets/BaseInputWidget/constants";
-import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
+import type { InputTypes } from "widgets/Antd/Form/InputWidget/constants";
+import { NumberInputStepButtonPosition } from "widgets/Antd/Form/InputWidget/constants";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 export interface AntdInputWidgetProps extends WidgetProps {
   defaultValue?: string | number;
