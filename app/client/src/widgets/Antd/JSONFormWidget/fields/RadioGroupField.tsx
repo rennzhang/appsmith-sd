@@ -32,7 +32,7 @@ const COMPONENT_DEFAULT_VALUES: RadioGroupComponentProps = {
   isDisabled: false,
   isRequired: false,
   isVisible: true,
-  label: "",
+  labelText: "",
   labelTextSize: BASE_LABEL_TEXT_SIZE,
   options: [
     { label: "Yes", value: "Y" },
@@ -100,7 +100,7 @@ function RadioGroupField({
       defaultValue={passedDefaultValue ?? schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
-      label={schemaItem.label}
+      label={schemaItem.labelText}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}

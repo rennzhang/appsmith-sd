@@ -82,6 +82,10 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
       const { identifier } = schemaItem;
 
       this.updateProperty(`${propertyName}.${identifier}.label`, updatedLabel);
+      this.updateProperty(
+        `${propertyName}.${identifier}.labelText`,
+        updatedLabel,
+      );
     }
   };
 
@@ -102,7 +106,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
   addNewField = () => {
     if (this.isArrayItem()) return;
 
-    const { propertyValue = {}, propertyName, widgetProperties } = this.props;
+    const { propertyName, propertyValue = {}, widgetProperties } = this.props;
     const { childStylesheet, widgetName } =
       widgetProperties as JSONFormWidgetProps;
     const schema: Schema = propertyValue;
@@ -177,7 +181,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
   };
 
   render() {
-    const { propertyValue = {}, panelConfig } = this.props;
+    const { panelConfig, propertyValue = {} } = this.props;
     const schema: Schema = propertyValue;
     const schemaItems = Object.values(schema);
 
@@ -207,12 +211,12 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
     const isMaxLevelReached = !panelConfig;
 
     const draggableComponentColumns: DroppableItem[] = sortedSchemaItems.map(
-      ({ identifier, isCustomField, isVisible, label }, index) => ({
+      ({ identifier, isCustomField, isVisible, label, labelText }, index) => ({
         id: identifier,
         index,
         isCustomField,
         isVisible,
-        label,
+        label: label || labelText || "",
       }),
     );
 

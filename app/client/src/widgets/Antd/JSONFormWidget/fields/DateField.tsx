@@ -49,7 +49,7 @@ const COMPONENT_DEFAULT_VALUES = {
   isDisabled: false,
   isRequired: false,
   isVisible: true,
-  label: "",
+  labelText: "",
   maxDate: "2121-12-31T18:29:00.000Z",
   minDate: "1920-12-31T18:30:00.000Z",
   shortcuts: false,
@@ -235,7 +235,7 @@ function DateField({
       defaultValue={defaultDateValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
-      label={schemaItem.label}
+      label={schemaItem.labelText}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}

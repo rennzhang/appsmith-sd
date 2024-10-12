@@ -53,6 +53,7 @@ type InputDataType = number | string | undefined;
 
 const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
   const {
+    accessor,
     addonAfterColor,
     addonAfterIcon,
     addonAfterText,
@@ -71,6 +72,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     defaultValue,
     disabled,
     errorMessage,
+    inputRef,
     inputType,
     keyboard,
     labelAlignment,
@@ -84,6 +86,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     maxNum,
     minNum,
     onFocusChange,
+    onKeyDown,
     onValueChange,
     placeholder,
     precision,
@@ -176,12 +179,14 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
   );
 
   const commonProps = {
+    ref: inputRef,
     className: "antd-input",
     disabled,
     maxLength: maxChars,
     onBlur: () => onFocusChange(false),
     onChange,
     onFocus: () => onFocusChange(true),
+    onKeyDown,
     placeholder: placeholder || "请输入内容",
     value,
     autoFocus,
@@ -311,7 +316,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
           disabled={disabled}
           label={labelText}
           labelAlign={labelAlignment}
-          name={widgetName}
+          name={accessor || widgetName}
           tooltip={tooltip}
           {...colLayoutMemo}
           {...validateProps}

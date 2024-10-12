@@ -470,7 +470,7 @@ class SchemaParser {
     // new generated schemaItem that we got from the getSchemaItem
     const oldSchemaItemProperties = pick(schemaItem, [
       "accessor",
-      "label",
+      "labelText",
       "originalIdentifier",
       "position",
     ]);
@@ -568,7 +568,6 @@ class SchemaParser {
           isRequired: false,
           isVisible: true,
           labelText: "",
-          label: "",
         };
       } else {
         defaultValues = componentDefaultValues;
@@ -580,8 +579,7 @@ class SchemaParser {
 
       return {
         ...defaultValues,
-        labelText: startCase(key) || key || defaultValues?.label || "",
-        label: startCase(key) || key || defaultValues?.label || "",
+        labelText: startCase(key) || key || defaultValues?.labelText || "",
       };
     })();
 

@@ -43,7 +43,7 @@ const COMPONENT_DEFAULT_VALUES: CurrencyInputComponentProps = {
   isSpellCheck: false,
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
-  label: "",
+  labelText: "",
 };
 
 export const isValid = (

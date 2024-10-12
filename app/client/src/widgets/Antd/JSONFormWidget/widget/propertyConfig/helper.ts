@@ -71,8 +71,11 @@ export const hiddenIfArrayItemIsObject = (
 export const getSchemaItem = <TSchemaItem extends SchemaItem>(
   props: JSONFormWidgetProps,
   propertyPath: string,
+  isParentPath?: boolean,
 ) => {
-  const parentPropertyPath = getParentPropertyPath(propertyPath);
+  const parentPropertyPath = isParentPath
+    ? propertyPath
+    : getParentPropertyPath(propertyPath);
   const schemaItem: TSchemaItem = get(props, parentPropertyPath, {});
   const propertyName = propertyPath.split(".").slice(-1)[0]; // schema.__root_schema__.age.borderRadius -> borderRadius
   console.log("getSchemaItem", parentPropertyPath, {

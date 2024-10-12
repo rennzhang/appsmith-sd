@@ -89,7 +89,7 @@ const COMPONENT_DEFAULT_VALUES: BaseInputComponentProps = {
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
   labelText: "",
-  label: "",
+  labelText: "",
 };
 
 // This is to compensate the lack of Resizable Component which gives Input widget's height.
@@ -355,8 +355,10 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       <AntdInputComponent
         {...schemaItem}
         {...conditionalProps}
-        inputType={inputHTMLType}
-        labelText={schemaItem.label}
+        inputRef={inputRef}
+        onFocusChange={setIsFocused}
+        onKeyDown={(e) => keyDownHandler(e, onChange, isValueValid)}
+        onValueChange={(value) => onTextChangeHandler(value, onChange)}
       />
       // <BaseInputComponent
       //   {...conditionalProps}
@@ -407,7 +409,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       defaultValue={inputDefaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
-      label={schemaItem.label}
+      label={schemaItem.labelText}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}

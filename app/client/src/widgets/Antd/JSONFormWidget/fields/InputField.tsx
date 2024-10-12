@@ -15,6 +15,7 @@ import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 type InputComponentProps = BaseInputComponentProps & {
   iconName?: string;
   iconAlign?: string;
+  type: string;
 };
 
 export type InputFieldProps = BaseFieldComponentProps<InputComponentProps>;
@@ -32,7 +33,8 @@ const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
   labelText: "",
-  label: "",
+  labelText: "",
+  type: AntdInputWidgetConfig.type,
 };
 
 const getInputHTMLType = (fieldType: FieldType) => {

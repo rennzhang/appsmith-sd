@@ -24,7 +24,8 @@ import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
-import { merge, uniq } from "lodash";
+import { get, merge, uniq } from "lodash";
+import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
 
 // 如果是对象，递归可选
 type DeepPartial<T> = T extends object
@@ -139,14 +140,18 @@ export const FORM_LABEL_CONTENT_CONFIG = {
           natural: true,
         },
       },
-      hidden: (props: AntdInputWidgetProps) =>
-        props.labelPosition !== AntdLabelPosition.Left,
+      hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+        const _propertyPath = getParentPropertyPath(propertyPath);
+        const propsData = get(props, _propertyPath) || props;
+        return propsData.labelPosition !== AntdLabelPosition.Left;
+      },
       dependencies: ["labelPosition"],
     },
   ],
 };
 export const DEFAULT_STYLE_PANEL_CONFIG = [
   {
+    sortOrder: -1000,
     sectionName: "属性",
     children: [
       {
@@ -168,13 +173,27 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         },
         dependencies: ["type"],
         //ANTD_TREE_WIDGET、ANTD_SWITCH_WIDGET ANTD_TEXT_WIDGET ANTD_SLIDER_WIDGET 不显示
-        hidden: (props: any) =>
-          [
+        hidden: (props: any, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          console.log(
+            "controlSize hidden",
+            [
+              "ANTD_SLIDER_WIDGET",
+              "ANTD_TREE_WIDGET",
+              "ANTD_SWITCH_WIDGET",
+              "ANTD_TEXT_WIDGET",
+            ].includes(propsData.type),
+            { propsData, _propertyPath, propertyPath, props },
+          );
+
+          return [
             "ANTD_SLIDER_WIDGET",
             "ANTD_TREE_WIDGET",
             "ANTD_SWITCH_WIDGET",
             "ANTD_TEXT_WIDGET",
-          ].includes(props.type),
+          ].includes(propsData.type);
+        },
       },
       {
         propertyName: "controlSize",
@@ -194,7 +213,11 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         },
         dependencies: ["type"],
         //ANTD_SWITCH_WIDGET 显示
-        hidden: (props: any) => !["ANTD_SWITCH_WIDGET"].includes(props.type),
+        hidden: (props: any, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return !["ANTD_SWITCH_WIDGET"].includes(propsData.type);
+        },
       },
     ],
   },
@@ -278,6 +301,8 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
     ],
   },
   {
+    sortOrder: 2000,
+
     sectionName: "轮廓样式",
     children: [
       {
@@ -289,7 +314,11 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
         //ANTD_SWITCH_WIDGET 显示
-        hidden: (props: any) => !["ANTD_SWITCH_WIDGET"].includes(props.type),
+        hidden: (props: any, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return !["ANTD_SWITCH_WIDGET"].includes(propsData.type);
+        },
       },
       // hoverColor
       {
@@ -300,7 +329,11 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
-        hidden: (props: any) => !["ANTD_SWITCH_WIDGET"].includes(props.type),
+        hidden: (props: any, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return !["ANTD_SWITCH_WIDGET"].includes(propsData.type);
+        },
       },
 
       {
@@ -314,12 +347,15 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
         //ANTD_TREE_WIDGET、ANTD_SWITCH_WIDGET 不显示
-        hidden: (props: any) =>
-          [
+        hidden: (props: any, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return [
             "ANTD_TREE_WIDGET",
             "ANTD_SWITCH_WIDGET",
             "ANTD_TEXT_WIDGET",
-          ].includes(props.type),
+          ].includes(propsData.type);
+        },
       },
       {
         propertyName: "boxShadow",
@@ -330,7 +366,11 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
-        hidden: (props: any) => ["ANTD_TEXT_WIDGET"].includes(props.type),
+        hidden: (props: any, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return ["ANTD_TEXT_WIDGET"].includes(propsData.type);
+        },
       },
     ],
   },

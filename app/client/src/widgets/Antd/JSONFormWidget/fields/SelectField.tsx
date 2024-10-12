@@ -46,7 +46,7 @@ const COMPONENT_DEFAULT_VALUES: SelectComponentProps = {
   isFilterable: false,
   isRequired: false,
   isVisible: true,
-  label: "",
+  labelText: "",
   labelTextSize: BASE_LABEL_TEXT_SIZE,
   serverSideFiltering: false,
   options: [
@@ -211,7 +211,7 @@ function SelectField({
       defaultValue={defaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={schemaItem.isRequired}
-      label={schemaItem.label}
+      label={schemaItem.labelText}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}

@@ -1,5 +1,5 @@
 import { isNil } from "lodash";
-import { InputTypes } from "widgets/BaseInputWidget/constants";
+import { InputTypes } from "widgets/Antd/Form/InputWidget/constants";
 
 /*
  * Function to parse text as number based on InputType

@@ -134,7 +134,7 @@ const COMMON_PROPERTIES = {
     data: [
       {
         propertyName: "fieldType",
-        label: "字段类型",
+        label: "表单控件类型",
         helpText: "与字段对应的要使用的组件类型",
         controlType: "DROP_DOWN",
         isBindProperty: false,
@@ -215,23 +215,9 @@ const COMMON_PROPERTIES = {
         dependencies: ["schema", "sourceData"],
       },
     ],
-    // general: [
-    //   {
-    //     propertyName: "tooltip",
-    //     helpText: "当前字段的帮助信息",
-    //     label: "提示",
-    //     controlType: "JSON_FORM_COMPUTE_VALUE",
-    //     placeholderText: "密码必须不少于6位",
-    //     isBindProperty: true,
-    //     isTriggerProperty: false,
-    //     validation: { type: ValidationTypes.TEXT },
-    //     hidden: hiddenIfArrayItemIsObject,
-    //     dependencies: ["schema", "sourceData"],
-    //   },
-    // ],
     label: [
       {
-        propertyName: "label",
+        propertyName: "labelText",
         helpText: "设置字段标签文本",
         label: "文本",
         controlType: "INPUT_TEXT",

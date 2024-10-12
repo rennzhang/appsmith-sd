@@ -35,7 +35,7 @@ const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
   isRequired: false,
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
-  label: "",
+  labelText: "",
 };
 
 const isValid = (value: boolean, schemaItem: SwitchFieldProps["schemaItem"]) =>
@@ -120,7 +120,7 @@ function SwitchField({
       fieldClassName={fieldClassName}
       inlineLabel
       isRequiredField={schemaItem.isRequired}
-      label={schemaItem.label}
+      label={schemaItem.labelText}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}

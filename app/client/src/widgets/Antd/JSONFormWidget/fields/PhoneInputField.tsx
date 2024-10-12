@@ -38,7 +38,7 @@ const COMPONENT_DEFAULT_VALUES: PhoneInputComponentProps = {
   isSpellCheck: false,
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
-  label: "",
+  labelText: "",
 };
 
 export const isValid = (

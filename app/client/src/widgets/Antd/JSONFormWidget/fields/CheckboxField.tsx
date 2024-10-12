@@ -44,7 +44,7 @@ const COMPONENT_DEFAULT_VALUES: CheckboxComponentProps = {
   isRequired: false,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
   isVisible: true,
-  label: "",
+  labelText: "",
 };
 
 const isValid = (
@@ -132,7 +132,7 @@ function CheckboxField({
       fieldClassName={fieldClassName}
       inlineLabel
       isRequiredField={schemaItem.isRequired}
-      label={schemaItem.label}
+      label={schemaItem.labelText}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}

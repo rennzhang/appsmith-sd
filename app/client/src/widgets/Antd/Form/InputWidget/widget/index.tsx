@@ -44,6 +44,8 @@ export function defaultValueValidation(
   props: AntdInputWidgetProps,
   _?: any,
 ): ValidationResponse {
+  console.log("defaultValueValidation", value, props, _);
+
   const STRING_ERROR_MESSAGE = {
     name: "TypeError",
     message: "This value must be string",
@@ -245,6 +247,7 @@ class AntdInputWidget<
     return mergeWidgetConfig(
       [
         {
+          sortOrder: 1005,
           sectionName: "前缀后缀",
           children: [
             {
@@ -270,14 +273,15 @@ class AntdInputWidget<
               isBindProperty: false,
               isTriggerProperty: false,
               hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
-                const parentPropertyPath = getParentPropertyPath(propertyPath);
-                const propsData = get(props, parentPropertyPath);
-                console.log(` propsData`, {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                console.log("prefixIcon12312", {
                   props,
+                  _propertyPath,
                   propsData,
-                  parentPropertyPath,
                   propertyPath,
                 });
+
                 return propsData.prefixType !== "icon";
               },
               dependencies: ["prefixType"],
@@ -290,8 +294,11 @@ class AntdInputWidget<
               placeholderText: "请输入前缀文本",
               isBindProperty: true,
               isTriggerProperty: false,
-              hidden: (props: AntdInputWidgetProps) =>
-                props.prefixType !== "text",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                return propsData.prefixType !== "text";
+              },
               dependencies: ["prefixType"],
             },
             {
@@ -303,8 +310,19 @@ class AntdInputWidget<
               isBindProperty: true,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.TEXT },
-              hidden: (props: AntdInputWidgetProps) =>
-                props.prefixType === "none",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+
+                console.log("prefixColor12312", {
+                  propsData,
+                  _propertyPath,
+                  propertyPath,
+                  props,
+                });
+
+                return propsData.prefixType === "none";
+              },
               dependencies: ["prefixType"],
             },
             {
@@ -329,8 +347,11 @@ class AntdInputWidget<
               showAntdIcon: true,
               isBindProperty: false,
               isTriggerProperty: false,
-              hidden: (props: AntdInputWidgetProps) =>
-                props.suffixType !== "icon",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                return propsData.suffixType !== "icon";
+              },
               dependencies: ["suffixType"],
             },
             {
@@ -341,8 +362,11 @@ class AntdInputWidget<
               placeholderText: "请输入后缀文本",
               isBindProperty: true,
               isTriggerProperty: false,
-              hidden: (props: AntdInputWidgetProps) =>
-                props.suffixType !== "text",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                return propsData.suffixType !== "text";
+              },
               dependencies: ["suffixType"],
             },
 
@@ -355,13 +379,18 @@ class AntdInputWidget<
               isBindProperty: true,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.TEXT },
-              hidden: (props: AntdInputWidgetProps) =>
-                props.suffixType === "none",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                return propsData.suffixType === "none";
+              },
               dependencies: ["suffixType"],
             },
           ],
         },
         {
+          sortOrder: 1006,
+
           sectionName: "附加内容配置",
           children: [
             {
@@ -386,8 +415,11 @@ class AntdInputWidget<
               showAntdIcon: true,
               isBindProperty: false,
               isTriggerProperty: false,
-              hidden: (props: AntdInputWidgetProps) =>
-                props.addonBeforeType !== "icon",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                return propsData.addonBeforeType !== "icon";
+              },
               dependencies: ["addonBeforeType"],
             },
             {
@@ -398,8 +430,11 @@ class AntdInputWidget<
               placeholderText: "请输入前置文本",
               isBindProperty: true,
               isTriggerProperty: false,
-              hidden: (props: AntdInputWidgetProps) =>
-                props.addonBeforeType !== "text",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                return propsData.addonBeforeType !== "text";
+              },
               dependencies: ["addonBeforeType"],
             },
             {
@@ -411,8 +446,11 @@ class AntdInputWidget<
               isBindProperty: true,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.TEXT },
-              hidden: (props: AntdInputWidgetProps) =>
-                props.addonBeforeType === "none",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                return propsData.addonBeforeType === "none";
+              },
               dependencies: ["addonBeforeType"],
             },
             {
@@ -437,8 +475,11 @@ class AntdInputWidget<
               controlType: "ICON_SELECT",
               isBindProperty: false,
               isTriggerProperty: false,
-              hidden: (props: AntdInputWidgetProps) =>
-                props.addonAfterType !== "icon",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                return propsData.addonAfterType !== "icon";
+              },
               dependencies: ["addonAfterType"],
             },
             {
@@ -449,8 +490,11 @@ class AntdInputWidget<
               placeholderText: "请输入后置文本",
               isBindProperty: true,
               isTriggerProperty: false,
-              hidden: (props: AntdInputWidgetProps) =>
-                props.addonAfterType !== "text",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                return propsData.addonAfterType !== "text";
+              },
               dependencies: ["addonAfterType"],
             },
 
@@ -463,8 +507,11 @@ class AntdInputWidget<
               isBindProperty: true,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.TEXT },
-              hidden: (props: AntdInputWidgetProps) =>
-                props.addonAfterType === "none",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                return propsData.addonAfterType === "none";
+              },
               dependencies: ["addonAfterType"],
             },
           ],

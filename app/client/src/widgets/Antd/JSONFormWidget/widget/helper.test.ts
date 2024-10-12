@@ -204,7 +204,7 @@ describe(".generateFieldState", () => {
         isDisabled: false,
         isRequired: false,
         isVisible: true,
-        label: "",
+        labelText: "",
       },
     };
 
@@ -318,7 +318,7 @@ describe(".generateFieldState", () => {
         isDisabled: false,
         isRequired: false,
         isVisible: true,
-        label: "",
+        labelText: "",
       },
     };
 

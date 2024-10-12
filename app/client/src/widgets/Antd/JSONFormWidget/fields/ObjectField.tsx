@@ -46,7 +46,7 @@ const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
   isRequired: false,
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
-  label: "",
+  labelText: "",
 };
 
 const StyledFieldsWrapper = styled.div`

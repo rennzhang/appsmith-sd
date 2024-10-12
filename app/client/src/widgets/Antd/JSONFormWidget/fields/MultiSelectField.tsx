@@ -50,7 +50,7 @@ const COMPONENT_DEFAULT_VALUES: MultiSelectComponentProps = {
   isFilterable: false,
   isRequired: false,
   isVisible: true,
-  label: "",
+  labelText: "",
   labelTextSize: BASE_LABEL_TEXT_SIZE,
   serverSideFiltering: false,
   options: [
@@ -251,7 +251,7 @@ function MultiSelectField({
       defaultValue={fieldDefaultValue}
       fieldClassName={fieldClassName}
       isRequiredField={isRequired}
-      label={schemaItem.label}
+      label={schemaItem.labelText}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}

@@ -68,6 +68,7 @@ export type FieldComponentBaseProps = {
   isRequired?: boolean;
   isVisible: boolean;
   label: string;
+  labelText: string;
   labelStyle?: string;
   labelTextColor?: string;
   labelTextSize?: string;

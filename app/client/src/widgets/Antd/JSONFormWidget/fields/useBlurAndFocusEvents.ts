@@ -3,6 +3,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { useCallback, useContext, useEffect, useRef } from "react";
 
 import FormContext from "../FormContext";
+import type { InputRef } from "antd";
 
 type BaseEvents = Pick<
   HTMLInputElement,
@@ -21,7 +22,7 @@ function useBlurAndFocusEvents<TElement extends BaseEvents>({
   onFocusDynamicString,
 }: UseEventsProps = {}) {
   const fieldBlurHandlerRef = useRef<ControllerRenderProps["onBlur"]>();
-  const inputRef = useRef<TElement | null>(null);
+  const inputRef = useRef<InputRef | TElement | null>(null);
   const { executeAction } = useContext(FormContext) || {};
 
   const onBlurHandler = useCallback(() => {
@@ -57,7 +58,9 @@ function useBlurAndFocusEvents<TElement extends BaseEvents>({
   }, [executeAction, onFocusDynamicString]);
 
   useEffect(() => {
-    const inputElm = inputRef.current;
+    const inputElm = ((inputRef.current as InputRef)?.input ||
+      inputRef.current) as TElement;
+    console.log(` inputRef`, inputRef, inputElm);
     if (inputElm) {
       inputElm.addEventListener("blur", onBlurHandler);
       inputElm.addEventListener("focus", onFocusHandler);

@@ -8,13 +8,32 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { isInputTypeEmailOrPassword } from "../Utilities";
 import { FORM_LABEL_CONTENT_CONFIG } from "widgets/Antd/Form/CONST/DEFAULT_CONFIG";
 import { validationNumberOrUndefined } from "widgets/Antd/tools";
-
+import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
+import { get } from "lodash";
 export function minValueValidation(
   min: any,
   props: AntdInputWidgetProps,
   _?: any,
+  test: any,
+  propertyPath: string,
 ) {
-  const max = props.maxNum;
+  const propertyPathChunks = propertyPath?.split(".") || [];
+  const parentPath = propertyPathChunks.slice(0, -1).join(".");
+  const propsData = _.get(props, parentPath) || props;
+  const propertyName = propertyPathChunks.slice(-1)[0];
+  const widgetName = props.widgetName;
+  console.log("minValueValidation", {
+    min,
+    props,
+    _,
+    propertyPath,
+    test,
+    propsData,
+    propertyName,
+    widgetName,
+  });
+
+  const max = propsData.maxNum;
   const value = min;
   min = Number(min);
 
@@ -36,7 +55,7 @@ export function minValueValidation(
       messages: [
         {
           name: "TypeError",
-          message: "This value must be number",
+          message: "必须为数字",
         },
       ],
     };
@@ -47,7 +66,7 @@ export function minValueValidation(
       messages: [
         {
           name: "RangeError",
-          message: "This value must be lesser than max value",
+          message: "当前数值不能大于最大值",
         },
       ],
     };
@@ -224,11 +243,14 @@ export const InputControlProperty = [
               autocompleteDataType: AutocompleteDataType.NUMBER,
             },
           },
+          dependentPaths: ["maxNum", "inputType", "defaultValue"],
         },
-        hidden: (props: AntdInputWidgetProps) => {
-          return props.inputType !== InputTypes.NUMBER;
+        hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return propsData.inputType !== InputTypes.NUMBER;
         },
-        dependencies: ["inputType"],
+        dependencies: ["inputType", "defaultValue", "maxNum"],
       },
       {
         helpText: "设置数字输入的最大值",
@@ -249,8 +271,10 @@ export const InputControlProperty = [
             },
           },
         },
-        hidden: (props: AntdInputWidgetProps) => {
-          return props.inputType !== InputTypes.NUMBER;
+        hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return propsData.inputType !== InputTypes.NUMBER;
         },
         dependencies: ["inputType"],
       },
@@ -377,8 +401,11 @@ export const InputControlProperty = [
         validation: {
           type: ValidationTypes.NUMBER,
         },
-        hidden: (props: AntdInputWidgetProps) =>
-          props.inputType !== "MULTI_LINE_TEXT",
+        hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return propsData.inputType !== "MULTI_LINE_TEXT";
+        },
         dependencies: ["inputType"],
       },
 
@@ -394,9 +421,14 @@ export const InputControlProperty = [
         validation: {
           type: ValidationTypes.NUMBER,
         },
-        hidden: (props: AntdInputWidgetProps) =>
-          props.inputType !== "MULTI_LINE_TEXT" ||
-          props.textareaRowsControlType === "固定值",
+        hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return (
+            propsData.inputType !== "MULTI_LINE_TEXT" ||
+            propsData.textareaRowsControlType === "固定值"
+          );
+        },
         dependencies: ["inputType", "textareaRowsControlType"],
       },
       {
@@ -411,9 +443,14 @@ export const InputControlProperty = [
         validation: {
           type: ValidationTypes.NUMBER,
         },
-        hidden: (props: AntdInputWidgetProps) =>
-          props.inputType !== "MULTI_LINE_TEXT" ||
-          props.textareaRowsControlType === "固定值",
+        hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return (
+            propsData.inputType !== "MULTI_LINE_TEXT" ||
+            propsData.textareaRowsControlType === "固定值"
+          );
+        },
         dependencies: ["inputType", "textareaRowsControlType"],
       },
       {
@@ -428,9 +465,14 @@ export const InputControlProperty = [
         validation: {
           type: ValidationTypes.NUMBER,
         },
-        hidden: (props: AntdInputWidgetProps) =>
-          props.inputType !== "MULTI_LINE_TEXT" ||
-          props.textareaRowsControlType === "自适应",
+        hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return (
+            propsData.inputType !== "MULTI_LINE_TEXT" ||
+            propsData.textareaRowsControlType === "自适应"
+          );
+        },
         dependencies: ["inputType", "textareaRowsControlType"],
       },
       {
@@ -476,11 +518,13 @@ export const InputControlProperty = [
       },
     ],
   },
-    // 数字输入框属性
+  // 数字输入框属性
   {
     sectionName: "数字输入框属性",
-    hidden: (props: AntdInputWidgetProps) => {
-      return props.inputType !== InputTypes.NUMBER;
+    hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+      const _propertyPath = getParentPropertyPath(propertyPath);
+      const propsData = get(props, _propertyPath) || props;
+      return propsData.inputType !== InputTypes.NUMBER;
     },
     children: [
       // 是否使用 keyboard
@@ -538,8 +582,10 @@ export const InputControlProperty = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.NUMBER },
         dependencies: ["inputType"],
-        hidden: (props: AntdInputWidgetProps) => {
-          return props.inputType !== InputTypes.NUMBER;
+        hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return propsData.inputType !== InputTypes.NUMBER;
         },
       },
       // decimalSeparator
@@ -554,8 +600,10 @@ export const InputControlProperty = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
         dependencies: ["inputType"],
-        hidden: (props: AntdInputWidgetProps) => {
-          return props.inputType !== InputTypes.NUMBER;
+        hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return propsData.inputType !== InputTypes.NUMBER;
         },
       },
       // precision
@@ -580,8 +628,10 @@ export const InputControlProperty = [
         },
         isTriggerProperty: false,
         dependencies: ["inputType"],
-        hidden: (props: AntdInputWidgetProps) => {
-          return props.inputType !== InputTypes.NUMBER;
+        hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return propsData.inputType !== InputTypes.NUMBER;
         },
       },
       // {
@@ -611,7 +661,11 @@ export const InputControlProperty = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
-        hidden: (props: AntdInputWidgetProps) => props.inputType !== InputTypes.SEARCH,
+        hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return propsData.inputType !== InputTypes.SEARCH;
+        },
         dependencies: ["inputType"],
       },
       {

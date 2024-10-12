@@ -69,6 +69,25 @@ export {
   UploadWidgetConfig,
 };
 
+export const AllAntdFormItems = [
+  AntdInputWidgetConfig,
+  AutoCompleteWidgetConfig,
+  CascaderWidgetConfig,
+  CheckboxWidgetConfig,
+  DatePickerWidgetConfig,
+  RadioWidgetConfig,
+  RateWidgetConfig,
+  SelectWidgetConfig,
+  SliderWidgetConfig,
+  SwitchWidgetConfig,
+  TextWidgetConfig,
+  TimePickerWidgetConfig,
+  TransferWidgetConfig,
+  TreeSelectWidgetConfig,
+  TreeWidgetConfig,
+  UploadWidgetConfig,
+];
+
 import {
   ArrayField,
   CheckboxField,
@@ -253,7 +272,6 @@ export type FieldComponentBaseProps = {
   isDisabled: boolean;
   isRequired?: boolean;
   isVisible: boolean;
-  label: string;
   labelText: string;
   labelStyle?: string;
   labelTextColor?: string;

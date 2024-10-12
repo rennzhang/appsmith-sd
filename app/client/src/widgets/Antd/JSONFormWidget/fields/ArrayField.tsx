@@ -62,7 +62,7 @@ const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
   isRequired: false,
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
-  label: "",
+  labelText: "",
 };
 
 const ACTION_ICON_SIZE = 10;
@@ -366,7 +366,7 @@ function ArrayField({
       className={`t--jsonformfield-${fieldClassName}`}
     >
       <FieldLabel
-        label={schemaItem.label}
+        label={schemaItem.labelText}
         labelStyle={schemaItem.labelStyle}
         labelTextColor={schemaItem.labelTextColor}
         labelTextSize={schemaItem.labelTextSize}
