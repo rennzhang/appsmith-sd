@@ -28,6 +28,7 @@ import {
   ROOT_SCHEMA_KEY,
 } from "./constants";
 import { getFieldStylesheet } from "./helper";
+import { InputTypes as AntdInputTypes } from "widgets/Antd/Form/InputWidget/constants";
 
 type Obj = Record<string, unknown>;
 
@@ -246,6 +247,17 @@ export const fieldTypeFor = (value: any): FieldType => {
   }
 
   return potentialFieldType;
+};
+
+export const getInputType = (dataType: DataType) => {
+  switch (dataType) {
+    case DataType.STRING:
+      return AntdInputTypes.TEXT_INPUT;
+    case DataType.NUMBER:
+      return AntdInputTypes.NUMBER;
+  }
+
+  return AntdInputTypes.TEXT_INPUT;
 };
 
 const extractProperties = (
@@ -578,10 +590,21 @@ class SchemaParser {
       }
 
       return {
+        inputType: AntdInputTypes.TEXT_INPUT,
         ...defaultValues,
         labelText: startCase(key) || key || defaultValues?.labelText || "",
       };
     })();
+
+    if (fieldType === FieldType.TEXT_INPUT) {
+      componentDefaultValues.inputType = getInputType(dataType);
+    }
+    console.log("componentDefaultValues", {
+      componentDefaultValues,
+      fieldType,
+      dataType,
+      baseSchemaPath,
+    });
 
     return {
       children,

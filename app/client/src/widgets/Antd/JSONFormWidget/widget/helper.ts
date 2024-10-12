@@ -262,6 +262,15 @@ export const computeSchema = ({
   prevSourceData,
   widgetName,
 }: ComputeSchemaProps): ComputedSchema => {
+  console.log("computeSchema", {
+    currentDynamicPropertyPathList,
+    currSourceData,
+    fieldThemeStylesheets,
+    prevSchema,
+    prevSourceData,
+    widgetName,
+  });
+
   // Hot path - early exit
   if (isEmpty(currSourceData) || equal(prevSourceData, currSourceData)) {
     return {

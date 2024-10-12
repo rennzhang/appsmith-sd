@@ -24,9 +24,10 @@ import {
 import type { JSONFormWidgetProps } from "..";
 import AntdInputWidget from "widgets/Antd/Form/InputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
-import { AllAntdFormItems } from "../../constants";
-const AntdInputWidgetPropertyPaneConfig =
-  AntdInputWidget.getPropertyPaneContentConfig();
+import { AllAntdFormItems, AntdInputWidgetConfig } from "../../constants";
+const AntdInputWidgetPropertyPaneConfig = cloneDeep(
+  AntdInputWidgetConfig.properties.contentConfig,
+);
 console.log("AntdInputWidget", AntdInputWidget.getPropertyPaneContentConfig());
 
 // 转换PropertyPaneContentConfig，合并 hidden 属性
@@ -35,22 +36,31 @@ const transConfig = (config: any[], types: FieldType[]) => {
     if (item.children) {
       item.children = transConfig(item.children, types);
     }
+
     const transItem = {
       ...item,
-      dependencies: [...(item.dependencies || []), "schema", "sourceData"],
+      // 去重
+      dependencies: [
+        ...new Set([...(item.dependencies || []), "schema", "sourceData"]),
+      ],
       hidden: (...args: HiddenFnParams) => {
         let originHiddenRes = null;
         if (item.hidden) {
           originHiddenRes = item.hidden(...args);
         }
+        // if (item.sectionName == "数字输入框属性") {
+        //   console.log(
+        //     "transConfig",
+        //     {
+        //       item,
+        //       args,
+        //       originHiddenRes,
+        //       types,
+        //     },
+        //     getSchemaItem(...args).fieldTypeNotIncludes(types),
+        //   );
+        // }
 
-        // console.log(
-        //   "transConfig",
-        //   args[1],
-        //   originHiddenRes,
-        //   getSchemaItem(...args).fieldTypeNotIncludes(types),
-        //   types,
-        // );
         if (originHiddenRes) {
           return originHiddenRes;
         }
@@ -61,17 +71,25 @@ const transConfig = (config: any[], types: FieldType[]) => {
         );
       },
     };
+    if (item.controlType == "INPUT_TEXT") {
+      transItem.controlType = "JSON_FORM_COMPUTE_VALUE";
+    } else {
+      transItem.customJSControl = "JSON_FORM_COMPUTE_VALUE";
+    }
     if (item.validation) {
       transItem.validation = {
         ...item.validation,
-        dependentPaths: [...(item.validation?.dependentPaths || []), "schema"],
+        // 去重
+        dependentPaths: [
+          ...new Set([...(item.validation?.dependentPaths || []), "schema"]),
+        ],
       };
     }
 
     if (item.propertyName === "labelText") {
-      console.log("transItem", transItem);
       item.hidden = hiddenIfArrayItemIsObject;
     }
+
     return transItem;
   });
 };
@@ -155,15 +173,16 @@ function generatePanelPropertyConfig(
         children: [
           // ...COMMON_PROPERTIES.content.general,
           // ...INPUT_PROPERTIES.content.general,
-          ...SELECT_PROPERTIES.content.general,
-          ...MULTI_SELECT_PROPERTIES.content.general,
-          ...COMMON_PROPERTIES.content.generalSwitch,
-          ...MULTI_SELECT_PROPERTIES.content.toggles,
+          // ...SELECT_PROPERTIES.content.general,
+          // ...MULTI_SELECT_PROPERTIES.content.general,
+          // ...COMMON_PROPERTIES.content.generalSwitch,
+          // ...MULTI_SELECT_PROPERTIES.content.toggles,
           ...DATE_PROPERTIES.content.general,
           ...ARRAY_PROPERTIES.content.general,
         ],
       },
       {
+        sortOrder: 99999,
         sectionName: "事件",
         children: [
           ...CHECKBOX_PROPERTIES.content.events,
@@ -181,7 +200,7 @@ function generatePanelPropertyConfig(
     transConfig(AntdInputWidgetPropertyPaneConfig, INPUT_TYPES),
   );
 
-  // console.log("contentChildren", contentChildren);
+  console.log("contentChildren", contentChildren);
 
   return {
     editableTitle: true,

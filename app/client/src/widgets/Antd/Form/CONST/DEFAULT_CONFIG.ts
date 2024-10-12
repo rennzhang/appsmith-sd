@@ -26,6 +26,8 @@ import type {
 } from "constants/PropertyControlConstants";
 import { get, merge, uniq } from "lodash";
 import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
+import type { ProFormItemProps } from "@ant-design/pro-components";
+import type { SizeType } from "antd/es/config-provider/SizeContext";
 
 // 如果是对象，递归可选
 type DeepPartial<T> = T extends object
@@ -59,7 +61,7 @@ export const DEFAULT_CONFIG = {
     isDisabled: false,
     allowClear: true,
     labelText: "标签",
-    labelAlignment: "right",
+    labelAlignment: "right" as ProFormItemProps["labelAlign"],
     labelWidth: 6,
     widgetName: "Input",
     version: 1,
@@ -69,7 +71,7 @@ export const DEFAULT_CONFIG = {
     labelStyle: "",
     resetOnSubmit: true,
     animateLoading: false,
-    controlSize: "middle",
+    controlSize: "middle" as SizeType,
   },
 };
 

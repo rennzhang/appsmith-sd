@@ -11,6 +11,7 @@ import {
 import { isNil, omit } from "lodash";
 import { isEmpty } from "../helper";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import { InputTypes } from "widgets/Antd/Form/InputWidget/constants";
 // console.log(` ComponentDefaultMap`, ComponentDefaultMap);
 type InputComponentProps = BaseInputComponentProps & {
   iconName?: string;
@@ -24,8 +25,9 @@ type IsValidOptions = {
   fieldType: FieldType;
 };
 
-const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
+const COMPONENT_DEFAULT_VALUES = {
   ...omit(AntdInputWidgetConfig.defaults, "defaultValue"),
+  inputType: InputTypes.TEXT_INPUT,
   iconAlign: "left",
   isDisabled: false,
   isRequired: false,
@@ -33,21 +35,7 @@ const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
   labelText: "",
-  labelText: "",
   type: AntdInputWidgetConfig.type,
-};
-
-const getInputHTMLType = (fieldType: FieldType) => {
-  switch (fieldType) {
-    case FieldType.NUMBER_INPUT:
-      return "NUMBER";
-    case FieldType.EMAIL_INPUT:
-      return "EMAIL";
-    case FieldType.PASSWORD_INPUT:
-      return "PASSWORD";
-    default:
-      return "TEXT";
-  }
 };
 
 export const isValid = (
@@ -175,7 +163,6 @@ function InputField({
   return (
     <BaseInputField
       fieldClassName={fieldClassName}
-      inputHTMLType={getInputHTMLType(schemaItem.fieldType)}
       isValid={isValid}
       name={name}
       passedDefaultValue={passedDefaultValue}

@@ -13,8 +13,10 @@ export default {
           return false;
         }
       case "TEXT":
+      case "TEXT_INPUT":
       case "MULTI_LINE_TEXT":
       case "EMAIL":
+      case "SEARCH":
       case "PASSWORD":
         value = props.inputText;
         isEmpty = !value;
@@ -84,6 +86,8 @@ export default {
           return true;
         }
       case "TEXT":
+      case "SEARCH":
+      case "TEXT_INPUT":
       case "MULTI_LINE_TEXT":
       case "PASSWORD":
         if (parsedRegex) {

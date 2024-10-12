@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { PropertyControlType } from "components/propertyControls";
-import { InputTypes } from "components/constants";
+import { InputTypes } from "../../constants";
 import type { AntdInputWidgetProps } from "../../types";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -13,7 +13,7 @@ import { get } from "lodash";
 export function minValueValidation(
   min: any,
   props: AntdInputWidgetProps,
-  _?: any,
+  _: any,
   test: any,
   propertyPath: string,
 ) {
@@ -349,6 +349,12 @@ export const InputControlProperty = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
+        dependencies: ["inputType"],
+        hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return propsData.inputType !== InputTypes.SEARCH;
+        },
       },
       {
         propertyName: "allowClear",
@@ -522,16 +528,17 @@ export const InputControlProperty = [
   {
     sectionName: "数字输入框属性",
     hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
-      const _propertyPath = getParentPropertyPath(propertyPath);
-      const propsData = get(props, _propertyPath) || props;
+      const propsData = get(props, propertyPath) || props;
+
       return propsData.inputType !== InputTypes.NUMBER;
     },
+    dependencies: ["inputType"],
     children: [
       // 是否使用 keyboard
       {
-        helpText: "是否启用键盘快捷行为",
+        helpText: "是否启用键盘上下箭头快捷行为",
         propertyName: "keyboard",
-        label: "键盘",
+        label: "键盘增减",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,

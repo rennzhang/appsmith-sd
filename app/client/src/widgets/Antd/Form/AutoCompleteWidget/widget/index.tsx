@@ -300,21 +300,21 @@ class AutoCompleteWidget extends AntdInputWidget<
           sectionName: "数据",
           children: [
             {
-              helpText: "输入的数据类型",
+              helpText: "输入框类型",
               propertyName: "inputType",
-              label: "数据类型",
+              label: "输入框类型",
               controlType: "DROP_DOWN",
               options: [
                 {
-                  label: "单行文本",
+                  label: "单行输入框",
                   value: "TEXT",
                 },
                 {
-                  label: "多行文本",
+                  label: "多行输入框",
                   value: "MULTI_LINE_TEXT",
                 },
                 {
-                  label: "邮箱",
+                  label: "邮箱输入框",
                   value: "EMAIL",
                 },
               ],
@@ -362,12 +362,14 @@ class AutoCompleteWidget extends AntdInputWidget<
       ],
       // InputControlProperty,
       // 排除 sectionName: "数字输入框属性",
-      InputControlProperty.filter((item) => item.sectionName !== "数字输入框属性"),
+      InputControlProperty.filter(
+        (item) => item.sectionName !== "数字输入框属性",
+      ),
     );
   }
 
   static getPropertyPaneStyleConfig() {
-    return mergeWidgetConfig([],DEFAULT_STYLE_PANEL_CONFIG);
+    return mergeWidgetConfig([], DEFAULT_STYLE_PANEL_CONFIG);
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -624,7 +626,6 @@ class AutoCompleteWidget extends AntdInputWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.props.labelWidth}
-        multiline={this.props.inputType === InputTypes.MULTI_LINE_TEXT}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}

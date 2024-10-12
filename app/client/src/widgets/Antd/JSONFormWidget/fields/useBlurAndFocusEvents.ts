@@ -4,6 +4,7 @@ import { useCallback, useContext, useEffect, useRef } from "react";
 
 import FormContext from "../FormContext";
 import type { InputRef } from "antd";
+import type { TextAreaRef } from "antd/es/input/TextArea";
 
 type BaseEvents = Pick<
   HTMLInputElement,
@@ -59,6 +60,7 @@ function useBlurAndFocusEvents<TElement extends BaseEvents>({
 
   useEffect(() => {
     const inputElm = ((inputRef.current as InputRef)?.input ||
+      (inputRef.current as TextAreaRef)?.resizableTextArea?.textArea ||
       inputRef.current) as TElement;
     console.log(` inputRef`, inputRef, inputElm);
     if (inputElm) {

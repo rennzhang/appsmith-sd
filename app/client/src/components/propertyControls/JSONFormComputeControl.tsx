@@ -149,6 +149,11 @@ export function InputText(props: {
             访问当前表单：
             <span className="code-wrapper">
               <CurlyBraces>{"{{"}</CurlyBraces>
+              formData.fieldName
+              <CurlyBraces>{"}}"}</CurlyBraces>
+            </span>
+            <span className="code-wrapper">
+              <CurlyBraces>{"{{"}</CurlyBraces>
               sourceData.fieldName
               <CurlyBraces>{"}}"}</CurlyBraces>
             </span>

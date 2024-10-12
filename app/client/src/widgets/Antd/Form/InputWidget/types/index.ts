@@ -15,7 +15,7 @@ export interface AntdInputWidgetProps extends WidgetProps {
   inputText: string;
   inputType: InputTypes;
   tooltip?: string;
-  isDisabled?: boolean;
+  isDisabled: boolean;
   validation: boolean;
   text: string;
   regex?: string;

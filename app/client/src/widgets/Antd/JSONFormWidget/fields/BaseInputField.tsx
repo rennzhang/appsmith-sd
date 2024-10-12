@@ -33,30 +33,18 @@ import {
   ActionUpdateDependency,
   FieldType,
   INPUT_FIELD_TYPE,
+  AntdInputWidgetConfig,
 } from "../constants";
 import type { InputHTMLType } from "widgets/BaseInputWidget/component";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import type { InputComponentProps } from "widgets/Antd/Form/InputWidget/component";
 import AntdInputComponent from "widgets/Antd/Form/InputWidget/component";
+import type { AntdInputWidgetProps } from "widgets/Antd/Form/InputWidget/types";
+import { InputTypes } from "widgets/Antd/Form/InputWidget/constants";
 export type BaseInputComponentProps = FieldComponentBaseProps &
-  FieldEventProps & {
-    borderRadius?: string;
-    boxShadow?: string;
-    errorMessage?: string;
-    iconAlign?: Omit<Alignment, "center">;
-    iconName?: IconName;
-    isSpellCheck: boolean;
-    maxChars?: number;
-    maxNum?: number;
-    minNum?: number;
-    onEnterKeyPress?: string;
-    onTextChanged?: string;
-    placeholderText?: string;
-    accentColor?: string;
-    regex?: string;
-    validation?: boolean;
-  };
+  FieldEventProps &
+  AntdInputWidgetProps;
 
 export type OnValueChangeOptions = {
   fieldOnChangeHandler: (...event: any[]) => void;
@@ -65,7 +53,6 @@ export type OnValueChangeOptions = {
 
 type BaseInputFieldProps<TSchemaItem extends SchemaItem = SchemaItem> =
   BaseFieldComponentProps<BaseInputComponentProps & TSchemaItem> & {
-    inputHTMLType?: InputHTMLType;
     leftIcon?: IconName | JSX.Element;
     transformValue: (
       newValue: string,
@@ -82,13 +69,14 @@ type StyledInputWrapperProps = {
   multiline: boolean;
 };
 
-const COMPONENT_DEFAULT_VALUES: BaseInputComponentProps = {
+const COMPONENT_DEFAULT_VALUES = {
+  ...AntdInputWidgetConfig.defaults,
+  inputType: InputTypes.TEXT_INPUT,
   isDisabled: false,
   isRequired: false,
   isSpellCheck: false,
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
-  labelText: "",
   labelText: "",
 };
 
@@ -148,7 +136,6 @@ function isValidType(value: string, options?: IsValidOptions) {
 
 function BaseInputField<TSchemaItem extends SchemaItem>({
   fieldClassName,
-  inputHTMLType = "TEXT",
   isValid,
   leftIcon,
   name,
@@ -245,8 +232,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     onFocusDynamicString,
   });
 
-  const inputType =
-    INPUT_FIELD_TYPE[schemaItem.fieldType as (typeof INPUT_TYPES)[number]];
+  const inputType = schemaItem.inputType;
 
   const keyDownHandler = useCallback(
     (
@@ -318,12 +304,12 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     if (isDirty && isInvalid) {
       props.isInvalid = true;
 
-      if (isDirty && isRequired && !inputText?.trim()?.length) {
+      if (isDirty && isRequired && !inputText?.toString()?.trim()?.length) {
         props.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
       }
     }
 
-    if (inputType === "TEXT" && maxChars) {
+    if (inputType === InputTypes.TEXT_INPUT && maxChars) {
       props.maxChars = maxChars;
 
       if (
@@ -357,8 +343,10 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         {...conditionalProps}
         inputRef={inputRef}
         onFocusChange={setIsFocused}
-        onKeyDown={(e) => keyDownHandler(e, onChange, isValueValid)}
-        onValueChange={(value) => onTextChangeHandler(value, onChange)}
+        onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) =>
+          keyDownHandler(e, onChange, isValueValid)
+        }
+        onValueChange={(value: string) => onTextChangeHandler(value, onChange)}
       />
       // <BaseInputComponent
       //   {...conditionalProps}
@@ -392,7 +380,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     );
   }, [
     conditionalProps,
-    inputHTMLType,
+    // inputHTMLType,
     inputRef,
     isFocused,
     keyDownHandler,

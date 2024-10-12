@@ -153,10 +153,10 @@ export enum FieldType {
   TEXT_INPUT = InputTypes.TEXT_INPUT,
   MULTILINE_TEXT_INPUT = InputTypes.MULTI_LINE_TEXT,
   PASSWORD_INPUT = InputTypes.PASSWORD,
-  CURRENCY_INPUT = InputTypes.CURRENCY,
+  // CURRENCY_INPUT = InputTypes.CURRENCY,
   SEARCH_INPUT = InputTypes.SEARCH,
   NUMBER_INPUT = InputTypes.NUMBER,
-  PHONE_NUMBER_INPUT = InputTypes.PHONE_NUMBER,
+  // PHONE_NUMBER_INPUT = InputTypes.PHONE_NUMBER,
   EMAIL_INPUT = InputTypes.EMAIL,
   ARRAY = "Array",
   CHECKBOX = "Checkbox",
@@ -180,37 +180,37 @@ export enum FieldType {
 }
 export const fieldTypeOptions = [
   {
-    label: "文本输入",
+    label: "输入框",
     value: FieldType.TEXT_INPUT,
   },
-  {
-    label: "多行文本输入",
-    value: FieldType.MULTILINE_TEXT_INPUT,
-  },
-  {
-    label: "密码输入",
-    value: FieldType.PASSWORD_INPUT,
-  },
-  {
-    label: "货币输入",
-    value: FieldType.CURRENCY_INPUT,
-  },
-  {
-    label: "搜索输入",
-    value: FieldType.SEARCH_INPUT,
-  },
-  {
-    label: "数字输入",
-    value: FieldType.NUMBER_INPUT,
-  },
-  {
-    label: "电话号码输入",
-    value: FieldType.PHONE_NUMBER_INPUT,
-  },
-  {
-    label: "邮箱输入",
-    value: FieldType.EMAIL_INPUT,
-  },
+  // {
+  //   label: "多行文本输入",
+  //   value: FieldType.MULTILINE_TEXT_INPUT,
+  // },
+  // {
+  //   label: "密码输入",
+  //   value: FieldType.PASSWORD_INPUT,
+  // },
+  // {
+  //   label: "货币输入",
+  //   value: FieldType.CURRENCY_INPUT,
+  // },
+  // {
+  //   label: "搜索输入",
+  //   value: FieldType.SEARCH_INPUT,
+  // },
+  // {
+  //   label: "数字输入",
+  //   value: FieldType.NUMBER_INPUT,
+  // },
+  // {
+  //   label: "电话号码输入",
+  //   value: FieldType.PHONE_NUMBER_INPUT,
+  // },
+  // {
+  //   label: "邮箱输入",
+  //   value: FieldType.EMAIL_INPUT,
+  // },
   {
     label: "复选框",
     value: FieldType.CHECKBOX,
@@ -374,31 +374,32 @@ export const MAX_ALLOWED_FIELDS = 50;
 export const RESTRICTED_KEYS = [ARRAY_ITEM_KEY, ROOT_SCHEMA_KEY];
 
 export const FIELD_MAP: Record<FieldType, FieldComponent> = {
-  [FieldType.ARRAY]: ArrayField,
-  [FieldType.CHECKBOX]: CheckboxField,
-  [FieldType.CURRENCY_INPUT]: CurrencyInputField,
-  [FieldType.DATEPICKER]: DateField,
+  [FieldType.TEXT_INPUT]: InputField,
+  [FieldType.SEARCH_INPUT]: InputField,
   [FieldType.EMAIL_INPUT]: InputField,
-  [FieldType.MULTISELECT]: MultiSelectField,
   [FieldType.MULTILINE_TEXT_INPUT]: InputField,
   [FieldType.NUMBER_INPUT]: InputField,
-  [FieldType.OBJECT]: ObjectField,
   [FieldType.PASSWORD_INPUT]: InputField,
-  [FieldType.PHONE_NUMBER_INPUT]: PhoneInputField,
+  // [FieldType.CURRENCY_INPUT]: CurrencyInputField,
+  // [FieldType.PHONE_NUMBER_INPUT]: PhoneInputField,
+  [FieldType.ARRAY]: ArrayField,
+  [FieldType.CHECKBOX]: CheckboxField,
+
+  [FieldType.DATEPICKER]: DateField,
+  [FieldType.MULTISELECT]: MultiSelectField,
+  [FieldType.OBJECT]: ObjectField,
   [FieldType.RADIO_GROUP]: RadioGroupField,
   [FieldType.SELECT]: SelectField,
   [FieldType.SWITCH]: SwitchField,
-  [FieldType.TEXT_INPUT]: InputField,
-  [FieldType.SEARCH_INPUT]: InputField,
 };
 
 export const INPUT_TYPES = [
-  FieldType.CURRENCY_INPUT,
+  // FieldType.CURRENCY_INPUT,
   FieldType.EMAIL_INPUT,
   FieldType.MULTILINE_TEXT_INPUT,
   FieldType.NUMBER_INPUT,
   FieldType.PASSWORD_INPUT,
-  FieldType.PHONE_NUMBER_INPUT,
+  // FieldType.PHONE_NUMBER_INPUT,
   FieldType.TEXT_INPUT,
   FieldType.SEARCH_INPUT,
 ] as const;
@@ -410,11 +411,11 @@ export const INPUT_TYPES = [
  */
 export const INPUT_FIELD_TYPE: Record<(typeof INPUT_TYPES)[number], InputType> =
   {
-    [FieldType.CURRENCY_INPUT]: "CURRENCY",
+    // [FieldType.CURRENCY_INPUT]: "CURRENCY",
+    // [FieldType.PHONE_NUMBER_INPUT]: "PHONE_NUMBER",
     [FieldType.EMAIL_INPUT]: "EMAIL",
     [FieldType.NUMBER_INPUT]: "NUMBER",
     [FieldType.PASSWORD_INPUT]: "PASSWORD",
-    [FieldType.PHONE_NUMBER_INPUT]: "PHONE_NUMBER",
     [FieldType.TEXT_INPUT]: "TEXT",
     [FieldType.MULTILINE_TEXT_INPUT]: "TEXT",
     [FieldType.SEARCH_INPUT]: "SEARCH",
@@ -427,15 +428,15 @@ export const FIELD_EXPECTING_OPTIONS = [
 
 export const DATA_TYPE_POTENTIAL_FIELD = {
   [DataType.STRING]: FieldType.TEXT_INPUT,
-  [DataType.BOOLEAN]: FieldType.SWITCH,
-  [DataType.NUMBER]: FieldType.NUMBER_INPUT,
-  [DataType.BIGINT]: FieldType.NUMBER_INPUT,
+  [DataType.NUMBER]: FieldType.TEXT_INPUT,
+  [DataType.BIGINT]: FieldType.TEXT_INPUT,
   [DataType.SYMBOL]: FieldType.TEXT_INPUT,
   [DataType.UNDEFINED]: FieldType.TEXT_INPUT,
+  [DataType.FUNCTION]: FieldType.TEXT_INPUT,
   [DataType.NULL]: FieldType.TEXT_INPUT,
+  [DataType.BOOLEAN]: FieldType.SWITCH,
   [DataType.OBJECT]: FieldType.OBJECT,
   [DataType.ARRAY]: FieldType.ARRAY,
-  [DataType.FUNCTION]: FieldType.TEXT_INPUT,
 };
 
 // The potential value here is just for representation i.e it won't be used to set default value anywhere.
@@ -444,7 +445,8 @@ export const DATA_TYPE_POTENTIAL_FIELD = {
 export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   [FieldType.ARRAY]: [{ firstField: "" }],
   [FieldType.CHECKBOX]: true,
-  [FieldType.CURRENCY_INPUT]: "",
+  // [FieldType.CURRENCY_INPUT]: "",
+  // [FieldType.PHONE_NUMBER_INPUT]: "",
   [FieldType.DATEPICKER]: "",
   [FieldType.EMAIL_INPUT]: "",
   [FieldType.MULTISELECT]: [],
@@ -452,7 +454,6 @@ export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   [FieldType.NUMBER_INPUT]: 0,
   [FieldType.OBJECT]: {},
   [FieldType.PASSWORD_INPUT]: "",
-  [FieldType.PHONE_NUMBER_INPUT]: "",
   [FieldType.RADIO_GROUP]: "",
   [FieldType.SELECT]: "",
   [FieldType.SWITCH]: true,
@@ -462,14 +463,14 @@ export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
 
 export const FIELD_SUPPORTING_FOCUS_EVENTS = [
   FieldType.CHECKBOX,
-  FieldType.CURRENCY_INPUT,
+  // FieldType.CURRENCY_INPUT,
   FieldType.DATEPICKER,
   FieldType.EMAIL_INPUT,
   FieldType.MULTISELECT,
   FieldType.MULTILINE_TEXT_INPUT,
   FieldType.NUMBER_INPUT,
   FieldType.PASSWORD_INPUT,
-  FieldType.PHONE_NUMBER_INPUT,
+  // FieldType.PHONE_NUMBER_INPUT,
   FieldType.TEXT_INPUT,
 ];
 
@@ -483,14 +484,14 @@ export const AUTO_JS_ENABLED_FIELDS: Record<
   [FieldType.SWITCH]: ["defaultValue"],
   [FieldType.ARRAY]: null,
   [FieldType.CHECKBOX]: ["defaultValue"],
-  [FieldType.CURRENCY_INPUT]: null,
+  // [FieldType.CURRENCY_INPUT]: null,
   [FieldType.EMAIL_INPUT]: null,
   [FieldType.MULTISELECT]: null,
   [FieldType.MULTILINE_TEXT_INPUT]: null,
   [FieldType.NUMBER_INPUT]: null,
   [FieldType.OBJECT]: null,
   [FieldType.PASSWORD_INPUT]: null,
-  [FieldType.PHONE_NUMBER_INPUT]: null,
+  // [FieldType.PHONE_NUMBER_INPUT]: null,
   [FieldType.RADIO_GROUP]: null,
   [FieldType.SELECT]: null,
   [FieldType.TEXT_INPUT]: null,

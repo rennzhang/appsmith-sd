@@ -20,10 +20,8 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { get, isNil, isNumber, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { mergeWidgetConfig } from "utils/helpers";
-import {
-  InputTypes,
-  NumberInputStepButtonPosition,
-} from "widgets/BaseInputWidget/constants";
+import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
+import { InputTypes } from "../constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { getParsedText, isInputTypeEmailOrPassword } from "./Utilities";
 import {
@@ -197,29 +195,29 @@ class AntdInputWidget<
           sectionName: "数据",
           children: [
             {
-              helpText: "输入的数据类型",
+              helpText: "输入框类型",
               propertyName: "inputType",
-              label: "数据类型",
+              label: "输入框类型",
               controlType: "DROP_DOWN",
               options: [
                 {
-                  label: "单行文本",
-                  value: "TEXT",
+                  label: "单行输入框",
+                  value: "TEXT_INPUT",
                 },
                 {
-                  label: "多行文本",
+                  label: "多行输入框",
                   value: "MULTI_LINE_TEXT",
                 },
                 {
-                  label: "密码",
+                  label: "密码输入框",
                   value: "PASSWORD",
                 },
                 {
-                  label: "数字",
+                  label: "数字输入框",
                   value: "NUMBER",
                 },
                 {
-                  label: "搜索",
+                  label: "搜索框",
                   value: "SEARCH",
                 },
               ],
@@ -593,11 +591,11 @@ class AntdInputWidget<
       this.resetWidgetText();
     }
   };
-  handleKeyDown(
+  handleKeyDown = (
     e:
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
-  ) {
+  ) => {
     const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
 
@@ -641,7 +639,7 @@ class AntdInputWidget<
         });
       }
     }
-  }
+  };
 
   componentDidUpdate = (prevProps: AntdInputWidgetProps) => {
     if (
@@ -836,7 +834,6 @@ class AntdInputWidget<
         }
         defaultValue={this.props.defaultValue}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
-        disabled={this.props.isDisabled}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
@@ -847,20 +844,11 @@ class AntdInputWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.props.labelWidth}
-        multiline={this.props.inputType === InputTypes.MULTI_LINE_TEXT}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
-        placeholder={this.props.placeholderText}
-        prefixColor={this.props.prefixColor}
-        prefixIcon={this.props.prefixIcon}
-        prefixText={this.props.prefixText}
-        prefixType={this.props.prefixType}
-        regex={this.props.regex}
-        required={this.props.isRequired}
         showError={!!this.props.isFocused}
         spellCheck={!!this.props.isSpellCheck}
-        stepSize={1}
         suffixColor={this.props.suffixColor}
         suffixIcon={this.props.suffixIcon}
         suffixText={this.props.suffixText}

@@ -1,7 +1,6 @@
 // import { AutoComplete } from "antd";
 // import React from "react";
-import type { BaseInputComponentProps } from "widgets/BaseInputWidget/component";
-import type { InputTypes } from "widgets/BaseInputWidget/constants";
+import type { InputTypes } from "widgets/Antd/Form/InputWidget/constants";
 import type { ProFormItemProps } from "@ant-design/pro-components";
 import { ProFormItem } from "@ant-design/pro-components";
 import { Input } from "antd";

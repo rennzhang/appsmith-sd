@@ -10,6 +10,7 @@ import type { IconName } from "@blueprintjs/core";
 import { Icon } from "@blueprintjs/core";
 import * as AntIcons from "@ant-design/icons";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
+import { InputTypes } from "../constants";
 
 const { Search, TextArea } = Input;
 
@@ -70,10 +71,11 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     controlSize,
     decimalSeparator,
     defaultValue,
-    disabled,
     errorMessage,
     inputRef,
     inputType,
+    isDisabled,
+    isRequired,
     keyboard,
     labelAlignment,
     labelPosition,
@@ -95,7 +97,6 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     prefixText,
     prefixType,
     regex,
-    required,
     showCount,
     step,
     stringMode,
@@ -127,27 +128,53 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     [regex],
   );
 
-  const validateProps = useMemo<ProFormItemProps>(
-    () => ({
-      required,
+  const validateProps = useMemo<ProFormItemProps>(() => {
+    const validateData: ProFormItemProps = {
+      required: isRequired,
       rules: [
         {
-          required,
+          required: isRequired,
           message: errorMessage,
           max: maxChars,
-          pattern: ruleRegexMemo,
           validateTrigger: ["onChange", "onBlur"],
           type: inputType === "NUMBER" ? "number" : "string",
         },
       ],
-      ...(required &&
+      ...(isRequired &&
         validation === false && {
           validateStatus: "error",
           help: errorMessage,
         }),
-    }),
-    [required, validation, errorMessage, maxChars, ruleRegexMemo, inputType],
-  );
+    };
+    // ruleRegexMemo && (ruleRegexMemo.lastIndex = 0);
+
+    if (isRequired && !value?.toString()?.trim()?.length) {
+      validateData.validateStatus = "error";
+      validateData.help = errorMessage;
+    }
+
+    // // ruleRegexMemo 正则校验，直接校验如果失败，则显示错误信息
+    if (value && ruleRegexMemo && !ruleRegexMemo.test(value.toString())) {
+      validateData.rules?.push({
+        required: true,
+        pattern: ruleRegexMemo,
+        message: "无效输入",
+        validateTrigger: ["onChange", "onBlur"],
+        type: "string",
+      });
+      validateData.validateStatus = "error";
+      validateData.help = "无效输入";
+    }
+    return validateData;
+  }, [
+    isRequired,
+    validation,
+    errorMessage,
+    maxChars,
+    ruleRegexMemo,
+    inputType,
+    value,
+  ]);
 
   const colLayoutMemo = useMemo(
     () =>
@@ -181,7 +208,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
   const commonProps = {
     ref: inputRef,
     className: "antd-input",
-    disabled,
+    disabled: isDisabled,
     maxLength: maxChars,
     onBlur: () => onFocusChange(false),
     onChange,
@@ -219,10 +246,15 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
       color: suffixColor,
     }),
   };
-  console.log(` Antd 输入框组件`, props);
+  console.log(` Antd 输入框组件`, {
+    props,
+    value,
+    ruleRegexMemo,
+    validateProps,
+  });
   const getInputComponent = useCallback(() => {
     switch (inputType) {
-      case "MULTI_LINE_TEXT":
+      case InputTypes.MULTI_LINE_TEXT:
         const textAreaProps = omit(commonProps, [
           "prefix",
           "suffix",
@@ -240,9 +272,9 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
             rows={textareaRows || 4}
           />
         );
-      case "PASSWORD":
+      case InputTypes.PASSWORD:
         return <Input.Password {...commonProps} />;
-      case "NUMBER":
+      case InputTypes.NUMBER:
         return (
           <InputNumber
             {...omit(commonProps, "onChange")}
@@ -258,7 +290,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
             value={value as number}
           />
         );
-      case "SEARCH":
+      case InputTypes.SEARCH:
         return (
           <Search
             {...commonProps}
@@ -313,11 +345,13 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
         }}
       >
         <ProFormItem
-          disabled={disabled}
+          disabled={isDisabled}
           label={labelText}
           labelAlign={labelAlignment}
           name={accessor || widgetName}
+          required={isRequired}
           tooltip={tooltip}
+          validateTrigger={["onChange", "onBlur"]}
           {...colLayoutMemo}
           {...validateProps}
         >
