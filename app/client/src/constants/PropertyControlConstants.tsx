@@ -115,6 +115,7 @@ export type PropertyPaneControlConfig = {
 
 // 属性校验参数
 type ValidationConfigParams = {
+  allowedVoid?:boolean
   errMsg?: string; // error message
   maxItems?: number; // max items in an array
   minItems?: number; // min items in an array

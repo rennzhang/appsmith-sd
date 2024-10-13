@@ -150,6 +150,7 @@ export const ComponentDefaultMap = {
 // eg fieldType === "Array" instead of fieldType === FieldType.ARRAY is taking place
 // and modified accordingly
 export enum FieldType {
+  AUTOCOMPLETE_INPUT = "AUTOCOMPLETE_INPUT",
   TEXT_INPUT = InputTypes.TEXT_INPUT,
   MULTILINE_TEXT_INPUT = InputTypes.MULTI_LINE_TEXT,
   PASSWORD_INPUT = InputTypes.PASSWORD,
@@ -157,7 +158,7 @@ export enum FieldType {
   SEARCH_INPUT = InputTypes.SEARCH,
   NUMBER_INPUT = InputTypes.NUMBER,
   // PHONE_NUMBER_INPUT = InputTypes.PHONE_NUMBER,
-  EMAIL_INPUT = InputTypes.EMAIL,
+  // EMAIL_INPUT = InputTypes.EMAIL,
   ARRAY = "Array",
   CHECKBOX = "Checkbox",
   DATEPICKER = "Datepicker",
@@ -182,6 +183,10 @@ export const fieldTypeOptions = [
   {
     label: "输入框",
     value: FieldType.TEXT_INPUT,
+  },
+  {
+    label: "自动完成输入框",
+    value: FieldType.AUTOCOMPLETE_INPUT,
   },
   // {
   //   label: "多行文本输入",
@@ -375,8 +380,9 @@ export const RESTRICTED_KEYS = [ARRAY_ITEM_KEY, ROOT_SCHEMA_KEY];
 
 export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.TEXT_INPUT]: InputField,
+  [FieldType.AUTOCOMPLETE_INPUT]: InputField,
   [FieldType.SEARCH_INPUT]: InputField,
-  [FieldType.EMAIL_INPUT]: InputField,
+  // [FieldType.EMAIL_INPUT]: InputField,
   [FieldType.MULTILINE_TEXT_INPUT]: InputField,
   [FieldType.NUMBER_INPUT]: InputField,
   [FieldType.PASSWORD_INPUT]: InputField,
@@ -395,7 +401,7 @@ export const FIELD_MAP: Record<FieldType, FieldComponent> = {
 
 export const INPUT_TYPES = [
   // FieldType.CURRENCY_INPUT,
-  FieldType.EMAIL_INPUT,
+  // FieldType.EMAIL_INPUT,
   FieldType.MULTILINE_TEXT_INPUT,
   FieldType.NUMBER_INPUT,
   FieldType.PASSWORD_INPUT,
@@ -413,7 +419,7 @@ export const INPUT_FIELD_TYPE: Record<(typeof INPUT_TYPES)[number], InputType> =
   {
     // [FieldType.CURRENCY_INPUT]: "CURRENCY",
     // [FieldType.PHONE_NUMBER_INPUT]: "PHONE_NUMBER",
-    [FieldType.EMAIL_INPUT]: "EMAIL",
+    // [FieldType.EMAIL_INPUT]: "EMAIL",
     [FieldType.NUMBER_INPUT]: "NUMBER",
     [FieldType.PASSWORD_INPUT]: "PASSWORD",
     [FieldType.TEXT_INPUT]: "TEXT",
@@ -448,7 +454,7 @@ export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   // [FieldType.CURRENCY_INPUT]: "",
   // [FieldType.PHONE_NUMBER_INPUT]: "",
   [FieldType.DATEPICKER]: "",
-  [FieldType.EMAIL_INPUT]: "",
+  // [FieldType.EMAIL_INPUT]: "",
   [FieldType.MULTISELECT]: [],
   [FieldType.MULTILINE_TEXT_INPUT]: "",
   [FieldType.NUMBER_INPUT]: 0,
@@ -459,13 +465,14 @@ export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   [FieldType.SWITCH]: true,
   [FieldType.TEXT_INPUT]: "",
   [FieldType.SEARCH_INPUT]: "",
+  [FieldType.AUTOCOMPLETE_INPUT]: "",
 };
 
 export const FIELD_SUPPORTING_FOCUS_EVENTS = [
   FieldType.CHECKBOX,
   // FieldType.CURRENCY_INPUT,
   FieldType.DATEPICKER,
-  FieldType.EMAIL_INPUT,
+  // FieldType.EMAIL_INPUT,
   FieldType.MULTISELECT,
   FieldType.MULTILINE_TEXT_INPUT,
   FieldType.NUMBER_INPUT,
@@ -485,7 +492,7 @@ export const AUTO_JS_ENABLED_FIELDS: Record<
   [FieldType.ARRAY]: null,
   [FieldType.CHECKBOX]: ["defaultValue"],
   // [FieldType.CURRENCY_INPUT]: null,
-  [FieldType.EMAIL_INPUT]: null,
+  // [FieldType.EMAIL_INPUT]: null,
   [FieldType.MULTISELECT]: null,
   [FieldType.MULTILINE_TEXT_INPUT]: null,
   [FieldType.NUMBER_INPUT]: null,
@@ -495,6 +502,7 @@ export const AUTO_JS_ENABLED_FIELDS: Record<
   [FieldType.RADIO_GROUP]: null,
   [FieldType.SELECT]: null,
   [FieldType.TEXT_INPUT]: null,
+  [FieldType.AUTOCOMPLETE_INPUT]: null,
   [FieldType.SEARCH_INPUT]: null,
 };
 

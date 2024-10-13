@@ -369,6 +369,25 @@ export const InputControlProperty = [
           type: ValidationTypes.BOOLEAN,
         },
       },
+      // maxLength
+      {
+        propertyName: "maxLength",
+        label: "最大输入长度",
+        helpText: "设置最大输入字符长度，达到最大长度后不可输入更多字符",
+        controlType: "INPUT_TEXT",
+        placeholderText: "255",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: {
+            min: 1,
+            natural: true,
+            passThroughOnZero: false,
+            allowedVoid: true,
+          },
+        },
+      },
 
       // showCount
       {

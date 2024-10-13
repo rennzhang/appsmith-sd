@@ -591,7 +591,7 @@ class AntdInputWidget<
       this.resetWidgetText();
     }
   };
-  handleKeyDown = (
+  public handleKeyDown = (
     e:
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,

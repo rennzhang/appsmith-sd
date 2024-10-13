@@ -5,7 +5,7 @@ import { ProFormItem } from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import { AntdLabelPosition } from "components/constants";
 import type { AntdInputWidgetProps } from "../types";
-import { omit, toNumber } from "lodash";
+import { isNumber, omit, toNumber } from "lodash";
 import type { IconName } from "@blueprintjs/core";
 import { Icon } from "@blueprintjs/core";
 import * as AntIcons from "@ant-design/icons";
@@ -85,6 +85,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     labelTextSize,
     labelWidth,
     maxChars,
+    maxLength,
     maxNum,
     minNum,
     onFocusChange,
@@ -135,7 +136,6 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
         {
           required: isRequired,
           message: errorMessage,
-          max: maxChars,
           validateTrigger: ["onChange", "onBlur"],
           type: inputType === "NUMBER" ? "number" : "string",
         },
@@ -146,6 +146,18 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
           help: errorMessage,
         }),
     };
+
+    if (
+      isNumber(maxChars) &&
+      (value?.toString()?.length || 0) > (maxChars || 0)
+    ) {
+      validateData.validateStatus = "error";
+      validateData.help = `最多输入${maxChars}个字符`;
+      validateData.rules?.push({
+        max: maxChars,
+        message: `最多输入${maxChars}个字符`,
+      });
+    }
     // ruleRegexMemo && (ruleRegexMemo.lastIndex = 0);
 
     if (isRequired && !value?.toString()?.trim()?.length) {
@@ -209,7 +221,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     ref: inputRef,
     className: "antd-input",
     disabled: isDisabled,
-    maxLength: maxChars,
+    maxLength: maxLength,
     onBlur: () => onFocusChange(false),
     onChange,
     onFocus: () => onFocusChange(true),

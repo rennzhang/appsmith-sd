@@ -73,6 +73,14 @@ function Field<TValue>({
       className={`t--jsonformfield-${fieldClassName}`}
       direction={direction}
     >
+      {children}
+    </StyledWrapper>
+  );
+  return (
+    <StyledWrapper
+      className={`t--jsonformfield-${fieldClassName}`}
+      direction={direction}
+    >
       {hideLabel ? (
         children
       ) : (

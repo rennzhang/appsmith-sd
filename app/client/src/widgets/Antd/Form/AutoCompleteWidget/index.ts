@@ -63,7 +63,7 @@ export const CONFIG = {
     rows: 8,
     // 组件拖拽后的默认宽度
     columns: 24,
-    inputType: "TEXT",
+    inputType: "TEXT_INPUT",
     widgetName: "AntdAutoComplete",
     version: 2,
     showStepArrows: false,

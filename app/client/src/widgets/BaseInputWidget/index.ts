@@ -16,7 +16,6 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 4,
-    label: "标签",
     labelPosition: LabelPosition.Left,
     labelAlignment: Alignment.LEFT,
     labelTextSize: "0.875rem",

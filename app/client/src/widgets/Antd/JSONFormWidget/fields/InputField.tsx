@@ -7,6 +7,7 @@ import {
   ComponentDefaultMap,
   FieldType,
   AntdInputWidgetConfig,
+  AutoCompleteWidgetConfig,
 } from "../constants";
 import { isNil, omit } from "lodash";
 import { isEmpty } from "../helper";
@@ -27,6 +28,7 @@ type IsValidOptions = {
 
 const COMPONENT_DEFAULT_VALUES = {
   ...omit(AntdInputWidgetConfig.defaults, "defaultValue"),
+  ...omit(AutoCompleteWidgetConfig.defaults, "defaultValue"),
   inputType: InputTypes.TEXT_INPUT,
   iconAlign: "left",
   isDisabled: false,
@@ -73,7 +75,7 @@ export const isValid = (
   const parsedRegex = parseRegex(schemaItem.regex);
 
   switch (schemaItem.fieldType) {
-    case FieldType.EMAIL_INPUT:
+    case FieldType.AUTOCOMPLETE_INPUT:
       if (!EMAIL_REGEX.test(inputValue)) {
         /* email should conform to generic email regex */
         return false;
@@ -113,7 +115,7 @@ export const isValid = (
 };
 
 function isValidType(value: string, options?: IsValidOptions) {
-  if (options?.fieldType === FieldType.EMAIL_INPUT && value) {
+  if (options?.fieldType === FieldType.AUTOCOMPLETE_INPUT && value) {
     return EMAIL_REGEX.test(value);
   }
 

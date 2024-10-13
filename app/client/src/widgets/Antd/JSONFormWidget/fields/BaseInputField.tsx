@@ -34,12 +34,11 @@ import {
   FieldType,
   INPUT_FIELD_TYPE,
   AntdInputWidgetConfig,
+  AutoCompleteWidgetConfig,
 } from "../constants";
-import type { InputHTMLType } from "widgets/BaseInputWidget/component";
-import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
-import type { InputComponentProps } from "widgets/Antd/Form/InputWidget/component";
 import AntdInputComponent from "widgets/Antd/Form/InputWidget/component";
+import AntdAutoCompleteComponent from "widgets/Antd/Form/AutoCompleteWidget/component";
 import type { AntdInputWidgetProps } from "widgets/Antd/Form/InputWidget/types";
 import { InputTypes } from "widgets/Antd/Form/InputWidget/constants";
 export type BaseInputComponentProps = FieldComponentBaseProps &
@@ -71,6 +70,7 @@ type StyledInputWrapperProps = {
 
 const COMPONENT_DEFAULT_VALUES = {
   ...AntdInputWidgetConfig.defaults,
+  ...AutoCompleteWidgetConfig.defaults,
   inputType: InputTypes.TEXT_INPUT,
   isDisabled: false,
   isRequired: false,
@@ -127,7 +127,7 @@ export const parseRegex = (regex?: string) => {
 };
 
 function isValidType(value: string, options?: IsValidOptions) {
-  if (options?.fieldType === FieldType.EMAIL_INPUT && value) {
+  if (options?.fieldType === FieldType.AUTOCOMPLETE_INPUT && value) {
     return EMAIL_REGEX.test(value);
   }
 
@@ -242,22 +242,27 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       fieldOnChangeHandler: (...event: any[]) => void,
       isValueValid: boolean,
     ) => {
-      const { onEnterKeyPress } = schemaItem;
+      const { onEnterKeyPress, onSubmit } = schemaItem;
       const isEnterKey = e.key === "Enter";
+      console.log("keyDownHandler", {
+        isEnterKey,
+        onEnterKeyPress,
+        isValueValid,
+      });
 
-      if (isEnterKey && onEnterKeyPress && isValueValid) {
+      if (isEnterKey && onSubmit && isValueValid) {
         executeAction({
-          triggerPropertyName: "onEnterKeyPress",
-          dynamicString: onEnterKeyPress,
+          triggerPropertyName: "onSubmit",
+          dynamicString: onSubmit,
           event: {
             type: EventType.ON_ENTER_KEY_PRESS,
             callback: () =>
-              onTextChangeHandler("", fieldOnChangeHandler, "onEnterKeyPress"),
+              onTextChangeHandler("", fieldOnChangeHandler, "onSubmit"),
           },
         });
       }
     },
-    [schemaItem.onEnterKeyPress, isValueValid],
+    [schemaItem.onEnterKeyPress, isValueValid, schemaItem.onSubmit],
   );
 
   const onTextChangeHandler = useCallback(
@@ -336,7 +341,30 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     return props;
   }, [schemaItem, isDirty, isValueValid, inputText]);
 
+  console.log("JSONFormWidget BaseInputField", {
+    conditionalProps,
+    inputType,
+    isValueValid,
+    schemaItem,
+  });
+
   const fieldComponent = useMemo(() => {
+    if (schemaItem.fieldType === FieldType.AUTOCOMPLETE_INPUT) {
+      return (
+        <AntdAutoCompleteComponent
+          {...schemaItem}
+          {...conditionalProps}
+          inputRef={inputRef}
+          onFocusChange={setIsFocused}
+          onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) =>
+            keyDownHandler(e, onChange, isValueValid)
+          }
+          onValueChange={(value: string) =>
+            onTextChangeHandler(value, onChange)
+          }
+        />
+      );
+    }
     return (
       <AntdInputComponent
         {...schemaItem}
@@ -348,35 +376,6 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         }
         onValueChange={(value: string) => onTextChangeHandler(value, onChange)}
       />
-      // <BaseInputComponent
-      //   {...conditionalProps}
-      //   accentColor={schemaItem.accentColor}
-      //   borderRadius={schemaItem.borderRadius}
-      //   boxShadow={schemaItem.boxShadow}
-      //   compactMode={false}
-      //   disableNewLineOnPressEnterKey={Boolean(schemaItem.onEnterKeyPress)}
-      //   disabled={schemaItem.isDisabled}
-      //   iconAlign={schemaItem.iconAlign || "left"}
-      //   iconName={schemaItem.iconName}
-      //   inputHTMLType={inputHTMLType}
-      //   inputRef={inputRef}
-      //   inputType={inputType}
-      //   isLoading={false}
-      //   label=""
-      //   leftIcon={leftIcon}
-      //   maxNum={schemaItem.maxNum}
-      //   minNum={schemaItem.minNum}
-      //   multiline={schemaItem.fieldType === FieldType.MULTILINE_TEXT_INPUT}
-      //   onFocusChange={setIsFocused}
-      //   onKeyDown={(e) => keyDownHandler(e, onChange, isValueValid)}
-      //   onValueChange={(value) => onTextChangeHandler(value, onChange)}
-      //   placeholder={schemaItem.placeholderText}
-      //   showError={isFocused}
-      //   spellCheck={schemaItem.isSpellCheck}
-      //   stepSize={1}
-      //   value={text || ""}
-      //   widgetId=""
-      // />
     );
   }, [
     conditionalProps,

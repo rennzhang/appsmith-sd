@@ -25,9 +25,9 @@ export interface InputComponentProps extends AntdInputWidgetProps {
 // export default InputComponent;
 import React, { useEffect, useMemo, useState } from "react";
 import { AutoComplete, ConfigProvider } from "antd";
-import styled from "styled-components";
 import { AntdLabelPosition } from "components/constants";
 import type { AntdInputWidgetProps } from "../../InputWidget/types";
+import { isNumber } from "lodash";
 
 const mockVal = (str: InputDataType, repeat = 1) => ({
   value: String(str).repeat(repeat),
@@ -45,6 +45,7 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     emailOptions,
     errorMessage,
     inputType,
+    isRequired,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -53,7 +54,9 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     labelTextSize,
     labelWidth,
     maxChars,
+    maxLength,
     onFocusChange,
+    onKeyDown,
     onValueChange,
     options: propsOptions,
     placeholder,
@@ -87,28 +90,65 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     }
     return undefined;
   }, [regex]);
+
   const validateProps = useMemo<ProFormItemProps>(() => {
     const validateData: ProFormItemProps = {
-      required,
+      required: isRequired,
       rules: [
         {
-          required: required,
+          required: isRequired,
           message: errorMessage,
-          max: maxChars,
-          pattern: ruleRegexMemo,
           validateTrigger: ["onChange", "onBlur"],
+          type: inputType === "NUMBER" ? "number" : "string",
         },
       ],
+      ...(isRequired &&
+        validation === false && {
+          validateStatus: "error",
+          help: errorMessage,
+        }),
     };
-    if (required && validation === false) {
-      console.log("自动完成组件 required but no validation", props);
 
+    if (
+      isNumber(maxChars) &&
+      (value?.toString()?.length || 0) > (maxChars || 0)
+    ) {
+      validateData.validateStatus = "error";
+      validateData.help = `最多输入${maxChars}个字符`;
+      validateData.rules?.push({
+        max: maxChars,
+        message: `最多输入${maxChars}个字符`,
+      });
+    }
+    // ruleRegexMemo && (ruleRegexMemo.lastIndex = 0);
+
+    if (isRequired && !value?.toString()?.trim()?.length) {
       validateData.validateStatus = "error";
       validateData.help = errorMessage;
     }
 
+    // // ruleRegexMemo 正则校验，直接校验如果失败，则显示错误信息
+    if (value && ruleRegexMemo && !ruleRegexMemo.test(value.toString())) {
+      validateData.rules?.push({
+        required: true,
+        pattern: ruleRegexMemo,
+        message: "无效输入",
+        validateTrigger: ["onChange", "onBlur"],
+        type: "string",
+      });
+      validateData.validateStatus = "error";
+      validateData.help = "无效输入";
+    }
     return validateData;
-  }, [required, validation, errorMessage, maxChars, ruleRegexMemo]);
+  }, [
+    isRequired,
+    validation,
+    errorMessage,
+    maxChars,
+    ruleRegexMemo,
+    inputType,
+    value,
+  ]);
 
   const colLayoutMemo = useMemo(() => {
     if (labelPosition === AntdLabelPosition.Left) {
@@ -137,10 +177,13 @@ const AntdAutoComplete = (props: InputComponentProps) => {
       try {
         opt = JSON.parse(propsOptions) || [];
       } catch (error) {
-        console.log(" error", error, propsOptions);
+        console.log(" getPanelValue error", error, propsOptions);
         return [];
       }
+    } else {
+      opt = propsOptions;
     }
+
     return opt.map((v: string) => ({
       label: v,
       value: v,
@@ -161,6 +204,11 @@ const AntdAutoComplete = (props: InputComponentProps) => {
     } else setOptions(getPanelValue());
   };
 
+  console.log("AntdAutoComplete组件", {
+    options,
+    props,
+  });
+
   return (
     <AntdFormItemContainer
       boxShadow={boxShadow}
@@ -175,6 +223,7 @@ const AntdAutoComplete = (props: InputComponentProps) => {
               labelColor: labelTextColor,
               labelFontSize: (labelTextSize as unknown as number) || 0,
             },
+
             Input: {
               borderRadius: (borderRadius as unknown as number) || 0,
               boxShadow: boxShadow,
@@ -197,10 +246,11 @@ const AntdAutoComplete = (props: InputComponentProps) => {
           <AutoComplete
             autoFocus={autoFocus}
             disabled={disabled}
-            maxLength={maxChars}
+            maxLength={maxLength}
             onBlur={() => onFocusChange(false)}
             onChange={onChange}
             onFocus={() => onFocusChange(true)}
+            onKeyDown={onKeyDown}
             onSearch={handleSearch}
             onSelect={onSelect}
             options={options}

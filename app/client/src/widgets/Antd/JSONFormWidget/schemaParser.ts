@@ -233,12 +233,14 @@ export const fieldTypeFor = (value: any): FieldType => {
 
   if (dataType === DataType.STRING) {
     const DateField = FIELD_MAP[FieldType.DATEPICKER];
-    const EmailField = FIELD_MAP[FieldType.EMAIL_INPUT];
+    const EmailField = FIELD_MAP[FieldType.AUTOCOMPLETE_INPUT];
 
     if (
-      EmailField?.isValidType?.(value, { fieldType: FieldType.EMAIL_INPUT })
+      EmailField?.isValidType?.(value, {
+        fieldType: FieldType.AUTOCOMPLETE_INPUT,
+      })
     ) {
-      return FieldType.EMAIL_INPUT;
+      return FieldType.AUTOCOMPLETE_INPUT;
     }
 
     if (DateField?.isValidType?.(value)) {
@@ -598,6 +600,9 @@ class SchemaParser {
 
     if (fieldType === FieldType.TEXT_INPUT) {
       componentDefaultValues.inputType = getInputType(dataType);
+    }
+    if (fieldType === FieldType.AUTOCOMPLETE_INPUT) {
+      componentDefaultValues.inputType = AntdInputTypes.EMAIL;
     }
     console.log("componentDefaultValues", {
       componentDefaultValues,

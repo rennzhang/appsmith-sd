@@ -18,14 +18,12 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import BaseInputWidget from "widgets/BaseInputWidget";
-import { isNil, isNumber, merge, toString } from "lodash";
+import { get, isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
-import {
-  InputTypes,
-  NumberInputStepButtonPosition,
-} from "widgets/BaseInputWidget/constants";
+import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
+import { InputTypes } from "widgets/Antd/Form/InputWidget/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { getParsedText, isInputTypeEmailOrPassword } from "./Utilities";
 import {
@@ -40,6 +38,7 @@ import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
 import { InputControlProperty } from "../../InputWidget/widget/childPanels/CompConfig";
 import type { AntdInputWidgetProps } from "../../InputWidget/types";
 import AntdInputWidget from "../../InputWidget/widget";
+import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
 
 export function defaultValueValidation(
   value: any,
@@ -307,7 +306,7 @@ class AutoCompleteWidget extends AntdInputWidget<
               options: [
                 {
                   label: "单行输入框",
-                  value: "TEXT",
+                  value: "TEXT_INPUT",
                 },
                 {
                   label: "多行输入框",
@@ -318,6 +317,7 @@ class AutoCompleteWidget extends AntdInputWidget<
                   value: "EMAIL",
                 },
               ],
+              defaultValue: "TEXT_INPUT",
               isBindProperty: false,
               isTriggerProperty: false,
               updateHook: InputTypeUpdateHook,
@@ -334,7 +334,13 @@ class AutoCompleteWidget extends AntdInputWidget<
               isBindProperty: true,
               isTriggerProperty: false,
               dependencies: ["inputType"],
-              hidden: (props: any) => props.inputType !== "EMAIL",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                console.log("emailOptionspropsData", propsData);
+
+                return propsData.inputType !== InputTypes.EMAIL;
+              },
             },
             {
               createButtonText: "添加选项",
@@ -347,7 +353,11 @@ class AutoCompleteWidget extends AntdInputWidget<
               isBindProperty: true,
               isTriggerProperty: false,
               dependencies: ["inputType"],
-              hidden: (props: any) => props.inputType == "EMAIL",
+              hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                return propsData.inputType == InputTypes.EMAIL;
+              },
             },
           ],
         },
@@ -430,7 +440,49 @@ class AutoCompleteWidget extends AntdInputWidget<
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    super.handleKeyDown(e);
+    const { isValid, onSubmit } = this.props;
+    const isEnterKey = e.key === "Enter" || e.keyCode === 13;
+
+    if (this.props.inputType === InputTypes.MULTI_LINE_TEXT) {
+      if (
+        isEnterKey &&
+        (e.metaKey || e.ctrlKey) &&
+        typeof onSubmit === "string" &&
+        onSubmit
+      ) {
+        this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
+          triggerPropertyName: "onSubmit",
+          dynamicString: onSubmit,
+          event: {
+            type: EventType.ON_SUBMIT,
+            callback: this.onSubmitSuccess,
+          },
+        });
+      }
+    } else {
+      if (isEnterKey && typeof onSubmit === "string" && onSubmit && isValid) {
+        /**
+         * Originally super.executeAction was used to trigger the ON_SUBMIT action and
+         * updateMetaProperty to update the text.
+         * Since executeAction is not queued and updateMetaProperty is,
+         * the user would observe that the data tree only gets partially updated with text
+         * before the ON_SUBMIT would get triggered,
+         * if they type {enter} really fast after typing some input text.
+         * So we're using updateMetaProperty to trigger the ON_SUBMIT to let the data tree update
+         * before we actually execute the action.
+         * Since updateMetaProperty expects a meta property to be updated,
+         * we are redundantly updating the common meta property, isDirty which is common on its child widgets here. But the main part is the action execution payload.
+         */
+        this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
+          triggerPropertyName: "onSubmit",
+          dynamicString: onSubmit,
+          event: {
+            type: EventType.ON_SUBMIT,
+            callback: this.onSubmitSuccess,
+          },
+        });
+      }
+    }
   };
 
   componentDidUpdate = (prevProps: AntdInputWidgetProps) => {
@@ -626,9 +678,6 @@ class AutoCompleteWidget extends AntdInputWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.props.labelWidth}
-        onFocusChange={this.handleFocusChange}
-        onKeyDown={this.handleKeyDown}
-        onValueChange={this.onValueChange}
         options={this.props.options}
         placeholder={this.props.placeholderText}
         regex={this.props.regex}
@@ -643,6 +692,9 @@ class AutoCompleteWidget extends AntdInputWidget<
         autoFocus={this.props.autoFocus}
         {...this.props}
         {...conditionalProps}
+        onFocusChange={this.handleFocusChange}
+        onKeyDown={this.handleKeyDown}
+        onValueChange={this.onValueChange}
       />
     );
   }

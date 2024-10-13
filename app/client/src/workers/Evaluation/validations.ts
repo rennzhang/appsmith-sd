@@ -602,6 +602,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     value: unknown,
     props: Record<string, unknown>,
   ): ValidationResponse => {
+    console.log("ValidationTypes.NUMBER", { props, value });
+
     if (value === undefined || value === null || value === "") {
       if (config.params?.required) {
         return {
@@ -613,6 +615,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
               message: "This value is required",
             },
           ],
+        };
+      }
+
+      if (config.params?.allowedVoid) {
+        return {
+          isValid: true,
+          parsed: value,
         };
       }
 

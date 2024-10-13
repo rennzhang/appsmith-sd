@@ -46,6 +46,8 @@ export const DEFAULT_CONFIG = {
     },
   },
   defaults: {
+    boxShadow: "none",
+    borderRadius: "0.375rem",
     labelKey: "label",
     valueKey: "value",
     optionsKey: "options",
