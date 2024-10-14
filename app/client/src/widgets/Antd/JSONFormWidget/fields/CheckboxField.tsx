@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useMemo } from "react";
 import styled from "styled-components";
-import { useController } from "react-hook-form";
+// import { useController } from "react-hook-form";
 
 import CheckboxComponent from "widgets/CheckboxWidget/component";
 import FormContext from "../FormContext";
@@ -62,30 +62,30 @@ function CheckboxField({
     schemaItem;
   const { executeAction } = useContext(FormContext);
 
-  const {
-    field: { onBlur, onChange, value },
-    fieldState: { isDirty },
-  } = useController({
-    name,
-  });
+  // const {
+  //   field: { onBlur, onChange, value },
+  //   fieldState: { isDirty },
+  // } = useController({
+  //   name,
+  // });
 
   const { inputRef } = useEvents<HTMLInputElement>({
-    fieldBlurHandler: onBlur,
+    // fieldBlurHandler: onBlur,
     onFocusDynamicString,
     onBlurDynamicString,
   });
 
-  const isValueValid = isValid(value, schemaItem);
+  // const isValueValid = isValid(value, schemaItem);
 
-  useRegisterFieldValidity({
-    fieldName: name,
-    fieldType: schemaItem.fieldType,
-    isValid: isValueValid,
-  });
+  // useRegisterFieldValidity({
+  //   fieldName: name,
+  //   fieldType: schemaItem.fieldType,
+  //   // isValid: isValueValid,
+  // });
 
   const onCheckChange = useCallback(
     (isChecked: boolean) => {
-      onChange(isChecked);
+      // onChange(isChecked);
 
       if (schemaItem.onCheckChange && executeAction) {
         executeAction({
@@ -98,7 +98,7 @@ function CheckboxField({
         });
       }
     },
-    [schemaItem.onCheckChange, onChange, executeAction],
+    [schemaItem.onCheckChange /* onChange */, , executeAction],
   );
 
   const fieldComponent = useMemo(
@@ -108,11 +108,11 @@ function CheckboxField({
           accentColor={schemaItem.accentColor || Colors.GREEN}
           borderRadius={schemaItem.borderRadius || DEFAULT_BORDER_RADIUS}
           inputRef={(e) => (inputRef.current = e)}
-          isChecked={value}
+          // isChecked={value}
           isDisabled={schemaItem.isDisabled}
           isLoading={false}
           isRequired={schemaItem.isRequired}
-          isValid={isDirty ? isValueValid : true}
+          // isValid={isDirty ? isValueValid : true}
           label=""
           labelPosition={LabelPosition.Left}
           noContainerPadding
@@ -121,7 +121,7 @@ function CheckboxField({
         />
       </StyledCheckboxWrapper>
     ),
-    [schemaItem, inputRef, value, isDirty, isValueValid, onCheckChange],
+    [schemaItem, inputRef /* value, isDirty, isValueValid */ , onCheckChange],
   );
 
   return (

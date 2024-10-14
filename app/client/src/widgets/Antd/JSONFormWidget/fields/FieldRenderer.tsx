@@ -23,7 +23,7 @@ function FieldRenderer({
 }: FieldRendererProps) {
   const firstRender = useRef(true);
   const { fieldType, isVisible = true } = schemaItem;
-  const { getValues } = useFormContext();
+  // const { getValues } = useFormContext();
   const { updateFormData } = useContext(FormContext);
 
   const FieldComponent = FIELD_MAP[fieldType];
@@ -41,8 +41,8 @@ function FieldRenderer({
     if (firstRender.current === true) {
       firstRender.current = false;
     } else {
-      const values = getValues();
-      updateFormData(values);
+      // const values = getValues();
+      // updateFormData(values);
     }
   }, [isVisible]);
 

@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useMemo } from "react";
-import { useController } from "react-hook-form";
+// import { useController } from "react-hook-form";
 
 import DateComponent from "widgets/DatePickerWidget2/component";
 import Field from "widgets/Antd/JSONFormWidget/component/Field";
@@ -111,34 +111,34 @@ function DateField({
   } = schemaItem;
   const { executeAction } = useContext(FormContext);
 
-  const {
-    field: { onBlur, onChange, value },
-  } = useController({
-    name,
-  });
+  // const {
+  //   field: { onBlur, onChange, value },
+  // } = useController({
+  //   name,
+  // });
 
   const { inputRef } = useEvents<HTMLInputElement>({
-    fieldBlurHandler: onBlur,
+    // fieldBlurHandler: onBlur,
     onFocusDynamicString,
     onBlurDynamicString,
   });
 
-  const isValueValid = isValid(schemaItem, value);
+  // const isValueValid = isValid(schemaItem, value);
   const defaultDateValue = passedDefaultValue ?? schemaItem.defaultValue;
 
-  useRegisterFieldValidity({
-    isValid: isValueValid,
-    fieldName: name,
-    fieldType,
-  });
+  // useRegisterFieldValidity({
+  //   isValid: isValueValid,
+  //   fieldName: name,
+  //   fieldType,
+  // });
 
   const onDateSelected = useCallback(
     (selectedValue: string) => {
-      if (schemaItem.convertToISO || !selectedValue) {
-        onChange(selectedValue);
-      } else {
-        onChange(moment(selectedValue).format(schemaItem.dateFormat));
-      }
+      // if (schemaItem.convertToISO || !selectedValue) {
+      //   onChange(selectedValue);
+      // } else {
+      //   onChange(moment(selectedValue).format(schemaItem.dateFormat));
+      // }
 
       if (schemaItem.onDateSelected && executeAction) {
         executeAction({
@@ -153,40 +153,40 @@ function DateField({
     },
     [
       executeAction,
-      onChange,
+      // onChange,
       schemaItem.convertToISO,
       schemaItem.dateFormat,
       schemaItem.onDateSelected,
     ],
   );
 
-  const valueInISOFormat = useMemo(() => {
-    if (!isValueValid || typeof value !== "string") return "";
+  // const valueInISOFormat = useMemo(() => {
+  //   if (!isValueValid || typeof value !== "string") return "";
 
-    if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
-      return value;
-    }
+  //   if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
+  //     return value;
+  //   }
 
-    const valueInSelectedFormat = moment(value, schemaItem.dateFormat, true);
+  //   const valueInSelectedFormat = moment(value, schemaItem.dateFormat, true);
 
-    if (valueInSelectedFormat.isValid()) {
-      return valueInSelectedFormat.format(ISO_DATE_FORMAT);
-    }
+  //   if (valueInSelectedFormat.isValid()) {
+  //     return valueInSelectedFormat.format(ISO_DATE_FORMAT);
+  //   }
 
-    return value;
-  }, [value, schemaItem.dateFormat]);
+  //   return value;
+  // }, [value, schemaItem.dateFormat]);
 
-  useEffect(() => {
-    if (schemaItem.convertToISO && value !== valueInISOFormat) {
-      onChange(valueInISOFormat);
-    }
+  // useEffect(() => {
+  //   if (schemaItem.convertToISO && value !== valueInISOFormat) {
+  //     onChange(valueInISOFormat);
+  //   }
 
-    if (!schemaItem.convertToISO && value && value === valueInISOFormat) {
-      if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
-        onChange(moment(value).format(schemaItem.dateFormat));
-      }
-    }
-  }, [schemaItem.convertToISO, value, valueInISOFormat, schemaItem.dateFormat]);
+  //   if (!schemaItem.convertToISO && value && value === valueInISOFormat) {
+  //     if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
+  //       onChange(moment(value).format(schemaItem.dateFormat));
+  //     }
+  //   }
+  // }, [schemaItem.convertToISO, value, valueInISOFormat, schemaItem.dateFormat]);
 
   const fieldComponent = useMemo(() => {
     return (
@@ -199,7 +199,7 @@ function DateField({
         compactMode
         dateFormat={schemaItem.dateFormat}
         datePickerType="DATE_PICKER"
-        inputRef={inputRef}
+        // inputRef={inputRef}
         isDisabled={schemaItem.isDisabled}
         isLoading={false}
         isRequired={schemaItem.isRequired}
@@ -207,7 +207,7 @@ function DateField({
         maxDate={schemaItem.maxDate}
         minDate={schemaItem.minDate}
         onDateSelected={onDateSelected}
-        selectedDate={valueInISOFormat}
+        // selectedDate={valueInISOFormat}
         shortcuts={schemaItem.shortcuts}
         timePrecision={schemaItem.timePrecision}
         widgetId={fieldClassName}
@@ -222,7 +222,7 @@ function DateField({
     schemaItem.isDisabled,
     schemaItem.maxDate,
     onDateSelected,
-    valueInISOFormat,
+    // valueInISOFormat,
     schemaItem.shortcuts,
     schemaItem.timePrecision,
     inputRef,

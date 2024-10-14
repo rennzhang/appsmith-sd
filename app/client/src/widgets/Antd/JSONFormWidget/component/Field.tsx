@@ -51,7 +51,7 @@ function Field<TValue>({
   tooltip,
 }: FieldProps<TValue>) {
   const refDefaultValue = useRef<TValue>();
-  const { setValue } = useFormContext();
+  // const { setValue } = useFormContext();
 
   useUpdateAccessor({ accessor });
 
@@ -60,11 +60,11 @@ function Field<TValue>({
       refDefaultValue.current = defaultValue;
 
       // Follow the comment in Form component above reset(convertedFormData);
-      setTimeout(() => {
-        setValue(name, klona(defaultValue));
-      }, 0);
+      // setTimeout(() => {
+      //   setValue(name, klona(defaultValue));
+      // }, 0);
     }
-  }, [defaultValue, setValue]);
+  }, [defaultValue /* setValue */]);
 
   const direction = inlineLabel ? "row" : "column";
 
@@ -74,29 +74,6 @@ function Field<TValue>({
       direction={direction}
     >
       {children}
-    </StyledWrapper>
-  );
-  return (
-    <StyledWrapper
-      className={`t--jsonformfield-${fieldClassName}`}
-      direction={direction}
-    >
-      {hideLabel ? (
-        children
-      ) : (
-        <FieldLabel
-          alignField={alignField}
-          direction={direction}
-          isRequiredField={isRequiredField}
-          label={label}
-          labelStyle={labelStyle}
-          labelTextColor={labelTextColor}
-          labelTextSize={labelTextSize}
-          tooltip={tooltip}
-        >
-          {children}
-        </FieldLabel>
-      )}
     </StyledWrapper>
   );
 }

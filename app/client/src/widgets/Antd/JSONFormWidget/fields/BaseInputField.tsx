@@ -9,12 +9,10 @@ import React, {
 import styled from "styled-components";
 import type { Alignment, IconName } from "@blueprintjs/core";
 import { isNil } from "lodash";
-import { useController } from "react-hook-form";
 
 import Field from "../component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useBlurAndFocusEvents";
-import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   createMessage,
@@ -80,12 +78,6 @@ const COMPONENT_DEFAULT_VALUES = {
   labelText: "",
 };
 
-// This is to compensate the lack of Resizable Component which gives Input widget's height.
-const StyledInputWrapper = styled.div<StyledInputWrapperProps>`
-  height: ${({ multiline }) => (multiline ? "100px" : "32px")};
-  width: 100%;
-`;
-
 // REGEX origin https://github.com/manishsaraan/email-validator/blob/master/index.js
 export const EMAIL_REGEX = new RegExp(
   /^[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/,
@@ -136,15 +128,13 @@ function isValidType(value: string, options?: IsValidOptions) {
 
 function BaseInputField<TSchemaItem extends SchemaItem>({
   fieldClassName,
-  isValid,
   leftIcon,
   name,
   passedDefaultValue,
   schemaItem,
-  transformValue,
 }: BaseInputFieldProps<TSchemaItem>) {
-  const isNilSetByField = useRef(false);
-  const { executeAction } = useContext(FormContext);
+  const { executeAction, formIsRequird, formRef, updateFormData } =
+    useContext(FormContext);
   const inputDefaultValue = (() => {
     if (passedDefaultValue === undefined) {
       return schemaItem.defaultValue;
@@ -153,95 +143,55 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     return passedDefaultValue;
   })();
 
-  const [isFocused, setIsFocused] = useState(false);
-  const [inputText, setInputText] = useState<string | undefined | null>("");
+  useEffect(() => {
+    console.log("BaseInputField useEffect", {
+      formRef,
+      schemaItem,
+    });
+    updateFormData({
+      [name]: inputDefaultValue,
+    });
+  }, [schemaItem.defaultValue]);
 
-  const {
-    field: { onBlur, onChange, value },
-    fieldState: { isDirty },
-  } = useController({
-    name,
-  });
+  useEffect(() => {
+    console.log(
+      "BaseInputField useEffect",
+      {
+        formRef,
+      },
+      formRef?.current?.isFieldTouched(name),
+    );
+  }, [formRef]);
 
   const { onBlur: onBlurDynamicString, onFocus: onFocusDynamicString } =
     schemaItem;
 
-  useEffect(() => {
-    const stringifiedValue = isNil(inputDefaultValue)
-      ? inputDefaultValue
-      : `${inputDefaultValue}`;
-    setInputText(stringifiedValue);
-  }, [inputDefaultValue]);
-
-  /**
-   * Objective - Use value from useController as source of truth for the
-   * value of the component.
-   *
-   * Reason - If an when the value changes from outside the field like during
-   * reset or default value change, the component would react accordingly.
-   *
-   * Problem - The base input components always expects a string value and this
-   * is ok for all types expect the number type which has an edge case.
-   * If the number typed out is "1.0" and we run Number("1.0") on it, it returns 1
-   * and this is what we save in the "value" of useController but in the field component
-   * we need to "1.0" as that is what it was typed out.
-   *
-   * Solution - We have a state called inputText which always stores the textual form of
-   * the base input component value. As the main problem are number types we check if
-   * the inputText and the actual value are same then the inputText can be used and
-   * if for some reason the value is null (due to invalid number) then we check if the
-   * null/undefined if set buy the onChange method or the null/undefined came from
-   * resetting the field.
-   */
-  const text = useMemo(() => {
-    if (isNil(value)) {
-      if (isNilSetByField.current) {
-        isNilSetByField.current = false;
-        return inputText;
-      }
-
-      return value;
-    }
-
-    if (!isNil(value)) {
-      if (typeof value === "number") {
-        if (Number(inputText) === value) {
-          return inputText;
-        } else {
-          return `${value}`;
-        }
-      }
-
-      return `${value}`;
-    }
-
-    return value;
-  }, [value, inputText]);
-
-  const isValueValid = isValid(schemaItem, text);
-
-  useRegisterFieldValidity({
-    fieldName: name,
-    fieldType: schemaItem.fieldType,
-    isValid: isValueValid,
-  });
-
-  const { inputRef } = useEvents<HTMLInputElement | HTMLTextAreaElement>({
-    fieldBlurHandler: onBlur,
+  const { inputRef, onBlurHandler, onFocusHandler } = useEvents<
+    HTMLInputElement | HTMLTextAreaElement
+  >({
     onBlurDynamicString,
     onFocusDynamicString,
   });
 
   const inputType = schemaItem.inputType;
 
+  const focusChangeHandler = useCallback(
+    (isFocused: boolean) => {
+      if (isFocused) {
+        onFocusHandler();
+      } else {
+        onBlurHandler();
+      }
+    },
+    [formRef, onBlurHandler, onFocusHandler],
+  );
   const keyDownHandler = useCallback(
     (
       e:
         | React.KeyboardEvent<HTMLTextAreaElement>
         | React.KeyboardEvent<HTMLInputElement>,
-      fieldOnChangeHandler: (...event: any[]) => void,
-      isValueValid: boolean,
     ) => {
+      const isValueValid = formRef?.current?.getFieldError(name)?.length === 0;
       const { onEnterKeyPress, onSubmit } = schemaItem;
       const isEnterKey = e.key === "Enter";
       console.log("keyDownHandler", {
@@ -256,33 +206,17 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
           dynamicString: onSubmit,
           event: {
             type: EventType.ON_ENTER_KEY_PRESS,
-            callback: () =>
-              onTextChangeHandler("", fieldOnChangeHandler, "onSubmit"),
+            callback: () => onTextChangeHandler("", "onSubmit"),
           },
         });
       }
     },
-    [schemaItem.onEnterKeyPress, isValueValid, schemaItem.onSubmit],
+    [schemaItem.onEnterKeyPress, schemaItem.onSubmit],
   );
 
   const onTextChangeHandler = useCallback(
-    (
-      inputValue: string,
-      fieldOnChangeHandler: (...event: any[]) => void,
-      triggerPropertyName = "onTextChange",
-    ) => {
+    (inputValue: string, triggerPropertyName = "onTextChange") => {
       const { onTextChanged } = schemaItem;
-      // text - what we show in the component
-      // value - what we store in the formData
-      const { text, value } = transformValue(inputValue, inputText || "");
-
-      if (isNil(value)) {
-        isNilSetByField.current = true;
-      }
-
-      fieldOnChangeHandler(value);
-      setInputText(text);
-
       if (onTextChanged && executeAction) {
         executeAction({
           triggerPropertyName,
@@ -294,122 +228,55 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         });
       }
     },
-    [schemaItem.onTextChanged, transformValue, executeAction, inputText],
+    [schemaItem.onTextChanged, executeAction],
   );
 
-  const conditionalProps = useMemo(() => {
-    const { errorMessage, isRequired, maxChars } = schemaItem;
-    const isInvalid = !isValueValid; // valid property in property pane
-    const props = {
-      errorMessage,
-      isInvalid: false,
-      maxChars: undefined as number | undefined,
-    };
-
-    if (isDirty && isInvalid) {
-      props.isInvalid = true;
-
-      if (isDirty && isRequired && !inputText?.toString()?.trim()?.length) {
-        props.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
-      }
-    }
-
-    if (inputType === InputTypes.TEXT_INPUT && maxChars) {
-      props.maxChars = maxChars;
-
-      if (
-        inputDefaultValue &&
-        typeof inputDefaultValue === "string" &&
-        inputDefaultValue?.toString()?.length > maxChars
-      ) {
-        props.isInvalid = true;
-        props.errorMessage = createMessage(
-          INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
-          maxChars,
-        );
-      } else if (
-        inputText &&
-        typeof inputText === "string" &&
-        inputDefaultValue !== inputText &&
-        inputText?.toString()?.length > maxChars
-      ) {
-        props.isInvalid = true;
-        props.errorMessage = createMessage(INPUT_TEXT_MAX_CHAR_ERROR, maxChars);
-      }
-    }
-
-    return props;
-  }, [schemaItem, isDirty, isValueValid, inputText]);
-
   console.log("JSONFormWidget BaseInputField", {
-    conditionalProps,
     inputType,
-    isValueValid,
     schemaItem,
+    formIsRequird,
   });
+  useEffect(() => {
+    console.log("BaseInputField useEffect", {
+      formIsRequird,
+    });
+  }, [formIsRequird]);
 
   const fieldComponent = useMemo(() => {
     if (schemaItem.fieldType === FieldType.AUTOCOMPLETE_INPUT) {
       return (
         <AntdAutoCompleteComponent
           {...schemaItem}
-          {...conditionalProps}
           inputRef={inputRef}
-          onFocusChange={setIsFocused}
-          onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) =>
-            keyDownHandler(e, onChange, isValueValid)
-          }
-          onValueChange={(value: string) =>
-            onTextChangeHandler(value, onChange)
-          }
+          isInForm
+          isRequired={formIsRequird || schemaItem.isRequired}
+          onFocusChange={focusChangeHandler}
+          onKeyDown={keyDownHandler}
+          onValueChange={(value: string) => onTextChangeHandler(value)}
         />
       );
     }
     return (
       <AntdInputComponent
         {...schemaItem}
-        {...conditionalProps}
         inputRef={inputRef}
-        onFocusChange={setIsFocused}
-        onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) =>
-          keyDownHandler(e, onChange, isValueValid)
-        }
-        onValueChange={(value: string) => onTextChangeHandler(value, onChange)}
+        isInForm
+        isRequired={formIsRequird || schemaItem.isRequired}
+        onFocusChange={focusChangeHandler}
+        onKeyDown={keyDownHandler}
+        onValueChange={(value: string) => onTextChangeHandler(value)}
       />
     );
   }, [
-    conditionalProps,
-    // inputHTMLType,
     inputRef,
-    isFocused,
     keyDownHandler,
     leftIcon,
     onTextChangeHandler,
     schemaItem,
-    setIsFocused,
-    value,
+    formIsRequird,
   ]);
 
-  return (
-    <Field
-      accessor={schemaItem.accessor}
-      defaultValue={inputDefaultValue}
-      fieldClassName={fieldClassName}
-      isRequiredField={schemaItem.isRequired}
-      label={schemaItem.labelText}
-      labelStyle={schemaItem.labelStyle}
-      labelTextColor={schemaItem.labelTextColor}
-      labelTextSize={schemaItem.labelTextSize}
-      name={name}
-      tooltip={schemaItem.tooltip}
-    >
-      <StyledInputWrapper
-        multiline={schemaItem.fieldType === FieldType.MULTILINE_TEXT_INPUT}
-      >
-        {fieldComponent}
-      </StyledInputWrapper>
-    </Field>
-  );
+  return fieldComponent;
 }
 
 BaseInputField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;

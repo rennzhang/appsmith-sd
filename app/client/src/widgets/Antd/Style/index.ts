@@ -9,7 +9,19 @@ import styled from "styled-components";
 
 export const AntdProformContainer = styled.div<{
   labelAlign?: string;
+  backgroundColor?: string;
+  borderRadius?: string;
 }>`
+  &.antd-pro-form-jsonform {
+    padding: 16px;
+    background-color: ${({ backgroundColor }) => backgroundColor};
+    border-radius: ${({ borderRadius }) => borderRadius};
+  }
+  .antd-pro-form-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 16px;
+  }
   .antd-pro-form-container-styled
     form.ant-form-vertical.ant-form.ant-pro-form
     div.ant-form-item

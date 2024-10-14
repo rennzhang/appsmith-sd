@@ -48,6 +48,7 @@ export interface InputComponentProps extends AntdInputWidgetProps {
   addonBeforeColor?: string;
   addonAfterColor?: string;
   searchLoading?: boolean;
+  isInForm?: boolean;
 }
 
 type InputDataType = number | string | undefined;
@@ -75,6 +76,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     inputRef,
     inputType,
     isDisabled,
+    isInForm,
     isRequired,
     keyboard,
     labelAlignment,
@@ -147,26 +149,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
         }),
     };
 
-    if (
-      isNumber(maxChars) &&
-      (value?.toString()?.length || 0) > (maxChars || 0)
-    ) {
-      validateData.validateStatus = "error";
-      validateData.help = `最多输入${maxChars}个字符`;
-      validateData.rules?.push({
-        max: maxChars,
-        message: `最多输入${maxChars}个字符`,
-      });
-    }
-    // ruleRegexMemo && (ruleRegexMemo.lastIndex = 0);
-
-    if (isRequired && !value?.toString()?.trim()?.length) {
-      validateData.validateStatus = "error";
-      validateData.help = errorMessage;
-    }
-
-    // // ruleRegexMemo 正则校验，直接校验如果失败，则显示错误信息
-    if (value && ruleRegexMemo && !ruleRegexMemo.test(value.toString())) {
+    ruleRegexMemo &&
       validateData.rules?.push({
         required: true,
         pattern: ruleRegexMemo,
@@ -174,8 +157,32 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
         validateTrigger: ["onChange", "onBlur"],
         type: "string",
       });
-      validateData.validateStatus = "error";
-      validateData.help = "无效输入";
+    maxChars &&
+      validateData.rules?.push({
+        max: maxChars,
+        message: `最多输入${maxChars}个字符`,
+      });
+
+    if (!isInForm) {
+      if (
+        isNumber(maxChars) &&
+        (value?.toString()?.length || 0) > (maxChars || 0)
+      ) {
+        validateData.validateStatus = "error";
+        validateData.help = `最多输入${maxChars}个字符`;
+      }
+      // ruleRegexMemo && (ruleRegexMemo.lastIndex = 0);
+
+      if (isRequired && !value?.toString()?.trim()?.length) {
+        validateData.validateStatus = "error";
+        validateData.help = errorMessage;
+      }
+
+      // // ruleRegexMemo 正则校验，直接校验如果失败，则显示错误信息
+      if (value && ruleRegexMemo && !ruleRegexMemo.test(value.toString())) {
+        validateData.validateStatus = "error";
+        validateData.help = "无效输入";
+      }
     }
     return validateData;
   }, [
@@ -186,6 +193,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     ruleRegexMemo,
     inputType,
     value,
+    isInForm,
   ]);
 
   const colLayoutMemo = useMemo(

@@ -38,6 +38,7 @@ type ParserOptions = {
   fieldThemeStylesheets?: FieldThemeStylesheet;
   fieldType?: FieldType;
   isCustomField?: boolean;
+  isRequired?: boolean;
   prevSchema?: Schema;
   schemaItem?: SchemaItem;
   modifiedSchemaItems: Record<string, unknown>; // Key value pairs of paths and schemaItem which updated.
@@ -65,6 +66,7 @@ type GetKeysFromSchemaOptions = {
 };
 
 type ParseOptions = {
+  isRequired?: boolean;
   currSourceData?: unknown;
   schema?: Schema;
   fieldThemeStylesheets?: FieldThemeStylesheet;

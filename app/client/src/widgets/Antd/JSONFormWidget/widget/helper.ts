@@ -41,6 +41,7 @@ type ComputedSchema = {
 };
 
 type ComputeSchemaProps = {
+  isRequired?: boolean;
   currSourceData?: JSON;
   prevSourceData?: JSON;
   prevSchema?: Schema;

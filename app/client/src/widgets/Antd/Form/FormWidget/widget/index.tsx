@@ -76,6 +76,7 @@ class FormWidget extends ContainerWidget {
       // isRequired: this.props.isRequired,
       controlSize: this.props.controlSize,
       isRequired: this.props.isRequired,
+      isInForm: true,
     };
 
     if (isNewWdget && this.props.isFullWidth) {
@@ -321,6 +322,7 @@ class FormWidget extends ContainerWidget {
   static getPropertyPaneContentConfig() {
     return [
       {
+        sortOrder: 100,
         sectionName: "功能",
         children: [
           {
@@ -338,6 +340,7 @@ class FormWidget extends ContainerWidget {
       },
       // 校验
       {
+        sortOrder: 200,
         sectionName: "校验",
         children: [
           {
@@ -351,17 +354,17 @@ class FormWidget extends ContainerWidget {
             isJSConvertible: true,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          // validateOnly
-          {
-            helpText: "仅校验内容而不会将错误信息展示到 UI 上",
-            propertyName: "validateOnly",
-            label: "不展示错误信息",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            isJSConvertible: true,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
+          // // validateOnly
+          // {
+          //   helpText: "仅校验内容而不会将错误信息展示到 UI 上",
+          //   propertyName: "validateOnly",
+          //   label: "不展示错误信息",
+          //   controlType: "SWITCH",
+          //   isBindProperty: false,
+          //   isTriggerProperty: false,
+          //   isJSConvertible: true,
+          //   validation: { type: ValidationTypes.BOOLEAN },
+          // },
           // 失败时弹出提示的内容
           {
             helpText: "校验失败时的提示信息，不填写时不会出现任何提示",
@@ -433,6 +436,7 @@ class FormWidget extends ContainerWidget {
     return mergeWidgetConfig(
       [
         {
+          sortOrder: -9999,
           sectionName: "样式",
           children: [
             // controlSize 控制
@@ -470,6 +474,8 @@ class FormWidget extends ContainerWidget {
               isTriggerProperty: false,
               isJSConvertible: true,
               validation: { type: ValidationTypes.BOOLEAN },
+              hidden: (props: FormWidgetProps) =>
+                props.type === "ANTD_JSON_FORM_WIDGET",
             },
             // 表单布局控制
             {

@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useMemo, useRef } from "react";
 import styled from "styled-components";
 import type { LabelInValueType, DraftValueType } from "rc-select/lib/Select";
-import { useController } from "react-hook-form";
+// import { useController } from "react-hook-form";
 import { isNil } from "lodash";
 
 import Field from "../component/Field";
@@ -106,29 +106,29 @@ function MultiSelectField({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { executeAction } = useContext(FormContext);
 
-  const {
-    field: { onBlur, onChange, value },
-    fieldState: { isDirty },
-  } = useController({
-    name,
-  });
+  // const {
+  //   field: { onBlur, onChange, value },
+  //   fieldState: { isDirty },
+  // } = useController({
+  //   name,
+  // });
 
-  const inputValue: LabelInValueType["value"][] =
-    (Array.isArray(value) && value) || [];
+  // const inputValue: LabelInValueType["value"][] =
+  //   (Array.isArray(value) && value) || [];
 
   const { onBlurHandler, onFocusHandler } = useEvents<HTMLInputElement>({
-    fieldBlurHandler: onBlur,
+    // fieldBlurHandler: onBlur,
     onFocusDynamicString,
     onBlurDynamicString,
   });
 
-  const isValueValid = isValid(schemaItem, inputValue);
+  // const isValueValid = isValid(schemaItem, inputValue);
 
-  useRegisterFieldValidity({
-    isValid: isValueValid,
-    fieldName: name,
-    fieldType,
-  });
+  // useRegisterFieldValidity({
+  //   isValid: isValueValid,
+  //   fieldName: name,
+  //   fieldType,
+  // });
 
   const [updateFilterText] = useUpdateInternalMetaState({
     propertyName: `${name}.filterText`,
@@ -157,7 +157,7 @@ function MultiSelectField({
     }
   }, [schemaItem.defaultValue, passedDefaultValue]);
 
-  const componentValues = fieldValuesToComponentValues(inputValue, options);
+  // const componentValues = fieldValuesToComponentValues(inputValue, options);
 
   const onFilterChange = useCallback(
     (value: string) => {
@@ -178,7 +178,7 @@ function MultiSelectField({
 
   const onOptionChange = useCallback(
     (values: DraftValueType) => {
-      onChange(componentValuesToFieldValues(values as LabelInValueType[]));
+      // onChange(componentValuesToFieldValues(values as LabelInValueType[]));
 
       if (schemaItem.onOptionChange && executeAction) {
         executeAction({
@@ -208,7 +208,7 @@ function MultiSelectField({
           dropDownWidth={dropdownWidth || 100}
           dropdownStyle={DEFAULT_DROPDOWN_STYLES}
           isFilterable={schemaItem.isFilterable}
-          isValid={isDirty ? isValueValid : true}
+          // isValid={isDirty ? isValueValid : true}
           labelText=""
           loading={false}
           onBlur={onBlurHandler}
@@ -218,16 +218,16 @@ function MultiSelectField({
           options={options}
           placeholder={schemaItem.placeholderText || ""}
           serverSideFiltering={schemaItem.serverSideFiltering}
-          value={componentValues}
+          // value={componentValues}
           widgetId={fieldClassName}
           width={10}
         />
       </StyledMultiSelectWrapper>
     );
   }, [
-    componentValues,
-    isDirty,
-    isValueValid,
+    // componentValues,
+    // isDirty,
+    // isValueValid,
     onBlurHandler,
     onFilterChange,
     onFocusHandler,

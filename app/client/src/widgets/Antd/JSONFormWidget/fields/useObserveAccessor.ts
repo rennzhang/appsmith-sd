@@ -14,15 +14,15 @@ type UseUpdateAccessorProps = {
 
 function useUpdateAccessor({ accessor }: UseUpdateAccessorProps) {
   const accessorRef = useRef(accessor);
-  const { getValues } = useFormContext();
+  // const { getValues } = useFormContext();
   const { updateFormData } = useContext(FormContext);
 
   useEffect(() => {
     if (accessorRef.current !== accessor) {
       accessorRef.current = accessor;
-      const values = getValues();
+      // const values = getValues();
 
-      updateFormData(values);
+      // updateFormData(values);
     }
   }, [accessor]);
 }

@@ -1,5 +1,11 @@
 import type { PropsWithChildren } from "react";
-import React, { Fragment } from "react";
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import styled from "styled-components";
 import { Text } from "@blueprintjs/core";
 
@@ -15,12 +21,18 @@ import type { RenderMode } from "constants/WidgetConstants";
 import { RenderModes, TEXT_SIZES } from "constants/WidgetConstants";
 import type { Action, JSONFormWidgetState } from "../widget";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
+import AntProFormComponent from "./AntdForm";
+import type { ProFormInstance } from "@ant-design/pro-components";
 
 type StyledContainerProps = {
   backgroundColor?: string;
 };
 
 export type JSONFormComponentProps<TValues = any> = {
+  disabled?: boolean;
+  validateOnly?: boolean;
+  isKeyPressSubmit?: boolean;
+  isRequired?: boolean;
   backgroundColor?: string;
   borderColor?: Color;
   borderRadius?: number;
@@ -36,7 +48,7 @@ export type JSONFormComponentProps<TValues = any> = {
   isWidgetMounting: boolean;
   isSubmitting: boolean;
   onFormValidityUpdate: (isValid: boolean) => void;
-  onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  onSubmit: (values: TValues) => void;
   registerResetObserver: (callback: () => void) => void;
   renderMode: RenderMode;
   resetButtonLabel: string;
@@ -55,6 +67,9 @@ export type JSONFormComponentProps<TValues = any> = {
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
   widgetId: string;
+  widgetName: string;
+  validateMessage?: string;
+  initialValues?: Record<string, any>;
 };
 
 const StyledContainer = styled(WidgetStyleContainer)<StyledContainerProps>`
@@ -102,15 +117,22 @@ function InfoMessage({
 }
 
 function JSONFormComponent<TValues>(
-  {
+  props: JSONFormComponentProps<TValues>,
+  ref: React.RefObject<ProFormInstance<any>> | null,
+) {
+  const {
     backgroundColor,
     executeAction,
     fieldLimitExceeded,
     fixMessageHeight,
+    formData,
     getFormData,
+    initialValues,
+    isKeyPressSubmit,
     isSubmitting,
     isWidgetMounting,
     onFormValidityUpdate,
+    onSubmit,
     registerResetObserver,
     renderMode,
     resetButtonLabel,
@@ -122,12 +144,7 @@ function JSONFormComponent<TValues>(
     updateWidgetMetaProperty,
     updateWidgetProperty,
     ...rest
-  }: JSONFormComponentProps<TValues>,
-  ref:
-    | ((instance: HTMLDivElement | null) => void)
-    | React.MutableRefObject<HTMLDivElement | null>
-    | null,
-) {
+  } = props;
   const isSchemaEmpty = isEmpty(schema);
   const styleProps = pick(rest, [
     "borderColor",
@@ -138,10 +155,14 @@ function JSONFormComponent<TValues>(
     "widgetId",
   ]);
 
-  const renderRootField = () => {
+  const renderRootField = useCallback(() => {
     const rootSchemaItem = schema[ROOT_SCHEMA_KEY];
     const RootField = FIELD_MAP[rootSchemaItem.fieldType] || Fragment;
     const propertyPath = `schema.${ROOT_SCHEMA_KEY}`;
+
+    console.log("renderRootField", {
+      ref,
+    });
 
     return (
       <RootField
@@ -152,16 +173,16 @@ function JSONFormComponent<TValues>(
         schemaItem={rootSchemaItem}
       />
     );
-  };
+  }, [ref, schema]);
 
-  const renderComponent = (() => {
+  const renderComponent = useMemo(() => {
     if (fieldLimitExceeded) {
       return (
         <InfoMessage fixHeight={fixMessageHeight}>
           Source data exceeds {MAX_ALLOWED_FIELDS} fields.&nbsp;
           {renderMode === RenderModes.PAGE
-            ? "Please contact your developer for more information"
-            : "Please update the source data."}
+            ? "请联系您的开发人员以获取更多信息"
+            : "请更新源数据"}
         </InfoMessage>
       );
     }
@@ -174,47 +195,87 @@ function JSONFormComponent<TValues>(
     }
 
     return renderRootField();
-  })();
+  }, [fieldLimitExceeded, isSchemaEmpty, renderMode, renderRootField]);
 
   const hideFooter = fieldLimitExceeded || isSchemaEmpty;
+
+  // formRef console.log();
+
+  useEffect(() => {
+    console.log("JSONFormWidget formRef", ref);
+  }, [ref]);
+
+  const formItems = useMemo(() => {
+    return Object.values(schema[ROOT_SCHEMA_KEY]?.children || {}).map(
+      (item) => ({
+        ...item,
+        name: item.accessor,
+        label: item.labelText,
+      }),
+    );
+  }, [schema]);
+
+  console.log("JSONFormWidget ", schema[ROOT_SCHEMA_KEY], {
+    schema,
+    formItems,
+    props,
+  });
 
   return (
     <FormContextProvider
       executeAction={executeAction}
+      formIsRequird={rest.isRequired}
+      formRef={ref}
       renderMode={renderMode}
       setMetaInternalFieldState={setMetaInternalFieldState}
       updateFormData={updateFormData}
       updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}
     >
-      <StyledContainer backgroundColor={backgroundColor} {...styleProps}>
+      <AntProFormComponent
+        backgroundColor={backgroundColor}
+        disabled={rest.disabled}
+        formItems={formItems}
+        formRef={ref}
+        getFormData={getFormData}
+        hideFooter={hideFooter}
+        initialValues={initialValues}
+        isKeyPressSubmit={isKeyPressSubmit}
+        onSubmit={onSubmit}
+        submitButtonLabel={submitButtonLabel}
+        title={rest.title}
+        updateWidgetProps={updateWidgetProperty}
+        validateMessage={rest.validateMessage}
+        validateOnly={rest.validateOnly}
+        widgetId={rest.widgetId}
+        widgetName={rest.widgetName}
+        isSubmitting={isSubmitting}
+        // onSubmit={rest.onSubmit}
+        resetButtonLabel={resetButtonLabel}
+        disabledWhenInvalid={rest.disabledWhenInvalid}
+
+        // submitButtonStyles={rest.submitButtonStyles}
+        showReset={rest.showReset}
+        // resetButtonStyles={rest.resetButtonStyles}
+        updateFormData={updateFormData}
+      >
+        {renderComponent}
+      </AntProFormComponent>
+      {/* <StyledContainer backgroundColor={backgroundColor} {...styleProps}>
         <Form
-          backgroundColor={backgroundColor}
           disabledWhenInvalid={rest.disabledWhenInvalid}
           fixedFooter={rest.fixedFooter}
-          getFormData={getFormData}
-          hideFooter={hideFooter}
-          isSubmitting={isSubmitting}
           isWidgetMounting={isWidgetMounting}
           onFormValidityUpdate={onFormValidityUpdate}
-          onSubmit={rest.onSubmit}
-          ref={ref}
           registerResetObserver={registerResetObserver}
-          resetButtonLabel={resetButtonLabel}
-          resetButtonStyles={rest.resetButtonStyles}
           schema={schema}
           scrollContents={rest.scrollContents}
-          showReset={rest.showReset}
           stretchBodyVertically={isSchemaEmpty}
-          submitButtonLabel={submitButtonLabel}
-          submitButtonStyles={rest.submitButtonStyles}
-          title={rest.title}
           unregisterResetObserver={unregisterResetObserver}
-          updateFormData={updateFormData}
         >
           {renderComponent}
         </Form>
-      </StyledContainer>
+      </StyledContainer> */}
     </FormContextProvider>
   );
 }

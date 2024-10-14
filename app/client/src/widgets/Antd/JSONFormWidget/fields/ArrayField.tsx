@@ -162,7 +162,7 @@ function ArrayField({
   propertyPath,
   schemaItem,
 }: ArrayFieldProps) {
-  const { getValues, setValue, watch } = useFormContext();
+  // const { getValues, setValue, watch } = useFormContext();
   const keysRef = useRef<string[]>([]);
   const removedKeys = useRef<string[]>([]);
   const defaultValue = getDefaultValue(schemaItem, passedDefaultValue);
@@ -190,18 +190,20 @@ function ArrayField({
   const { setMetaInternalFieldState } = useContext(FormContext);
 
   const add = () => {
-    let values = klona(getValues(name));
+    // let values = klona(getValues(name));
+    let values = klona(defaultValue);
     if (values && values.length) {
       values.push({});
     } else {
       values = [{}];
     }
-    setValue(name, values);
+    // setValue(name, values);
   };
 
   const remove = useCallback(
     (removedKey: string) => {
-      const values = klona(getValues(name));
+      // const values = klona(getValues(name));
+      const values = klona(defaultValue);
       if (values === undefined) {
         return;
       }
@@ -233,9 +235,9 @@ function ArrayField({
 
       removedKeys.current = [removedKey];
 
-      setValue(name, newValues);
+      // setValue(name, newValues);
     },
-    [cachedDefaultValue, keysRef, setValue, getValues],
+    [cachedDefaultValue, keysRef, setValue,],
   );
 
   const itemKeys = useMemo(() => {

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import type { BaseInputComponentProps } from "./BaseInputField";
 import BaseInputField, { EMAIL_REGEX, parseRegex } from "./BaseInputField";
@@ -124,6 +124,7 @@ function isValidType(value: string, options?: IsValidOptions) {
 
 function InputField({
   fieldClassName,
+  formIsRequird,
   name,
   passedDefaultValue,
   propertyPath,
@@ -162,9 +163,16 @@ function InputField({
     [schemaItem.fieldType],
   );
 
+  useEffect(() => {
+    console.log("BaseInputField useEffect", {
+      formIsRequird,
+    });
+  }, [formIsRequird]);
+
   return (
     <BaseInputField
       fieldClassName={fieldClassName}
+      formIsRequird={formIsRequird}
       isValid={isValid}
       name={name}
       passedDefaultValue={passedDefaultValue}

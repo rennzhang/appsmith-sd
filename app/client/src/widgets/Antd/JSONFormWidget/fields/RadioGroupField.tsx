@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from "react";
 import { Alignment } from "@blueprintjs/core";
 import { isNumber } from "lodash";
-import { useController } from "react-hook-form";
+// import { useController } from "react-hook-form";
 
 import FormContext from "../FormContext";
 import Field from "widgets/Antd/JSONFormWidget/component/Field";
@@ -52,20 +52,20 @@ function RadioGroupField({
   schemaItem,
 }: RadioGroupFieldProps) {
   const { executeAction } = useContext(FormContext);
-  const {
-    field: { onChange, value },
-  } = useController({
-    name,
-  });
+  // const {
+  //   field: { onChange, value },
+  // } = useController({
+  //   name,
+  // });
 
-  const isValueValid = isValid(schemaItem, value);
+  // const isValueValid = isValid(schemaItem, value);
   const isOptionsValueNumeric = isNumber(schemaItem.options[0]?.value);
 
-  useRegisterFieldValidity({
-    isValid: isValueValid,
-    fieldName: name,
-    fieldType: schemaItem.fieldType,
-  });
+  // useRegisterFieldValidity({
+  //   isValid: isValueValid,
+  //   fieldName: name,
+  //   fieldType: schemaItem.fieldType,
+  // });
 
   const onSelectionChange = useCallback(
     (selectedValue: string) => {
@@ -73,7 +73,7 @@ function RadioGroupField({
         ? parseFloat(selectedValue)
         : selectedValue;
 
-      onChange(value);
+      // onChange(value);
 
       if (schemaItem.onSelectionChange && executeAction) {
         executeAction({
@@ -87,7 +87,7 @@ function RadioGroupField({
       }
     },
     [
-      onChange,
+      // onChange,
       executeAction,
       schemaItem.onSelectionChange,
       isOptionsValueNumeric,
@@ -118,7 +118,7 @@ function RadioGroupField({
         loading={false}
         onRadioSelectionChange={onSelectionChange}
         options={schemaItem.options || []}
-        selectedOptionValue={value}
+        // selectedOptionValue={value}
         widgetId=""
       />
     </Field>

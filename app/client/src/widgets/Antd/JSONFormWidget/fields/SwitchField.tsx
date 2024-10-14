@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useMemo } from "react";
-import { useController } from "react-hook-form";
+// import { useController } from "react-hook-form";
 
 import FormContext from "../FormContext";
 import Field from "widgets/Antd/JSONFormWidget/component/Field";
@@ -51,29 +51,29 @@ function SwitchField({
     schemaItem;
   const { executeAction } = useContext(FormContext);
 
-  const {
-    field: { onBlur, onChange, value },
-  } = useController({
-    name,
-  });
+  // const {
+  //   field: { onBlur, onChange, value },
+  // } = useController({
+  //   name,
+  // });
 
   const { inputRef } = useEvents<HTMLInputElement>({
-    fieldBlurHandler: onBlur,
+    // fieldBlurHandler: onBlur,
     onFocusDynamicString,
     onBlurDynamicString,
   });
 
-  const isValueValid = isValid(value, schemaItem);
+  // const isValueValid = isValid(value, schemaItem);
 
-  useRegisterFieldValidity({
-    fieldName: name,
-    fieldType: schemaItem.fieldType,
-    isValid: isValueValid,
-  });
+  // useRegisterFieldValidity({
+  //   fieldName: name,
+  //   fieldType: schemaItem.fieldType,
+  //   isValid: isValueValid,
+  // });
 
   const onSwitchChange = useCallback(
     (value: boolean) => {
-      onChange(value);
+      // onChange(value);
 
       if (schemaItem.onChange && executeAction) {
         executeAction({
@@ -86,7 +86,7 @@ function SwitchField({
         });
       }
     },
-    [onChange, executeAction, schemaItem.onChange],
+    [/* onChange, */ executeAction, schemaItem.onChange],
   );
 
   const fieldComponent = useMemo(
@@ -97,7 +97,7 @@ function SwitchField({
         inputRef={(e) => (inputRef.current = e)}
         isDisabled={schemaItem.isDisabled}
         isLoading={false}
-        isSwitchedOn={value ?? false}
+        // isSwitchedOn={value ?? false}
         label=""
         labelPosition={LabelPosition.Left}
         onChange={onSwitchChange}
@@ -109,7 +109,7 @@ function SwitchField({
       schemaItem.accentColor,
       schemaItem.isDisabled,
       onSwitchChange,
-      value,
+      // value,
     ],
   );
 

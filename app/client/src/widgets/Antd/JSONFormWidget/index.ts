@@ -8,6 +8,7 @@ import {
   type SnipingModeProperty,
   type PropertyUpdates,
 } from "widgets/constants";
+import { CONFIG as ANTD_FORM_WIDGET_CONFIG } from "widgets/Antd/Form/FormWidget";
 
 import IconSVG from "./icon.svg";
 import type { JSONFormWidgetProps } from "./widget";
@@ -37,6 +38,7 @@ export const CONFIG = {
   tags: [WIDGET_TAGS.INPUTS, WIDGET_TAGS.ANTD, WIDGET_TAGS.ANTD_FORM],
   needsMeta: true,
   defaults: {
+    ...ANTD_FORM_WIDGET_CONFIG.defaults,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     useSourceData: false,

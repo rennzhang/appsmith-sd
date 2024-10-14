@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useMemo, useRef } from "react";
 import styled from "styled-components";
-import { useController } from "react-hook-form";
+// import { useController } from "react-hook-form";
 
 import Field from "widgets/Antd/JSONFormWidget/component/Field";
 import FormContext from "../FormContext";
@@ -86,11 +86,11 @@ function SelectField({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const isDirtyRef = useRef<boolean>(false);
   const { executeAction } = useContext(FormContext);
-  const {
-    field: { onChange, value },
-  } = useController({
-    name,
-  });
+  // const {
+  //   field: { onChange, value },
+  // } = useController({
+  //   name,
+  // });
 
   const isValueValid = isValid(schemaItem, value);
   const options = Array.isArray(schemaItem.options) ? schemaItem.options : [];
@@ -127,15 +127,15 @@ function SelectField({
     [executeAction, schemaItem.onFilterUpdate],
   );
 
-  const selectedOptionIndex = options.findIndex(
-    (option) => option.value === value,
-  );
-  const selectedIndex =
-    selectedOptionIndex > -1 ? selectedOptionIndex : undefined;
+  // const selectedOptionIndex = options.findIndex(
+  //   (option) => option.value === value,
+  // );
+  // const selectedIndex =
+  //   selectedOptionIndex > -1 ? selectedOptionIndex : undefined;
 
   const onOptionSelected = useCallback(
     (option: DropdownOption) => {
-      onChange(option.value);
+      // onChange(option.value);
 
       if (!isDirtyRef.current) {
         isDirtyRef.current = true;
@@ -152,7 +152,7 @@ function SelectField({
         });
       }
     },
-    [onChange, schemaItem.onOptionChange, executeAction],
+    [/* onChange, */ schemaItem.onOptionChange, executeAction],
   );
 
   const dropdownWidth = wrapperRef.current?.clientWidth;
@@ -176,16 +176,16 @@ function SelectField({
           onOptionSelected={onOptionSelected}
           options={options}
           placeholder={schemaItem.placeholderText}
-          selectedIndex={selectedIndex}
+          // selectedIndex={selectedIndex}
           serverSideFiltering={schemaItem.serverSideFiltering}
-          value={options[selectedOptionIndex]?.value?.toString()}
+          // value={options[selectedOptionIndex]?.value?.toString()}
           widgetId={fieldClassName}
           width={10}
         />
       </StyledSelectWrapper>
     ),
     [
-      selectedOptionIndex,
+      // selectedOptionIndex,
       schemaItem.serverSideFiltering,
       schemaItem.placeholderText,
       schemaItem.accentColor,
@@ -199,7 +199,7 @@ function SelectField({
       wrapperRef,
       isValueValid,
       onOptionSelected,
-      selectedIndex,
+      // selectedIndex,
       dropdownWidth,
       fieldClassName,
     ],

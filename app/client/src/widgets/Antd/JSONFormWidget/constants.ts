@@ -102,6 +102,7 @@ import {
   SwitchField,
 } from "./fields";
 import type { InputType } from "zlib";
+import type { ProFormInstance } from "@ant-design/pro-components";
 // export enum FieldTypeNew {
 //   INPUT = AntdInputWidget.getWidgetType() as any,
 //   AUTOCOMPLETE = AutoCompleteWidget.getWidgetType() as any,
@@ -294,6 +295,7 @@ export type BaseFieldComponentProps<TProps = any> = {
   isRootField?: boolean;
   fieldClassName: string;
   name: ControllerRenderProps["name"];
+  formIsRequird?: boolean;
   propertyPath: string;
   passedDefaultValue?: unknown;
   schemaItem: SchemaItem & TProps;

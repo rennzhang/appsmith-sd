@@ -19,16 +19,17 @@ import {
 import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { INSTANCE_INVALID_VALUE } from "../../CONST/DEFAULT_CONFIG";
 import { isNumber } from "lodash";
 import type { FieldError } from "rc-field-form/lib/interface";
 
 export interface ProformContainerComponentProps
   extends WidgetStyleContainerProps {
+  hideFooter?: boolean;
+  formRef: React.RefObject<ProFormInstance<any>> | null;
+  updateFormData: (values: any, skipConversion?: boolean) => void;
   validateOnly?: boolean;
   validateFieldsParams?: any;
   getFormData: (formWidget: ContainerWidgetProps<WidgetProps>) => any;
-  getChildContainer: () => ContainerWidgetProps<WidgetProps>;
   children: ReactNode;
   backgroundImage?: string;
   shouldScrollContents?: boolean;
@@ -64,30 +65,47 @@ export interface ProformContainerComponentProps
   validateFieldsParamsChange?: number;
   validateMessage?: string;
   formItems: { name: string; label: string }[];
+  isSubmitting: boolean;
+  resetButtonLabel?: string;
+  submitButtonLabel?: string;
+  showReset?: boolean;
+  title?: string;
+  onSubmit?: (values: any) => void;
+  disabledWhenInvalid?: boolean;
 }
 
 type InputDataType = string | undefined;
 const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   const {
+    backgroundColor,
     borderRadius,
     boxShadow,
     children,
     disabled,
+    disabledWhenInvalid,
     formItems,
     formLayout,
-    getChildContainer,
+    formRef,
     getFormData,
+    hideFooter,
     initialValues,
     isKeyPressSubmit,
+    isSubmitting,
     labelAlign,
     labelCol,
     labelFlex,
     labelWidth,
     labelWrap,
+    onSubmit,
+    resetButtonLabel,
+    showReset,
+
     size,
+    submitButtonLabel,
+    title,
+    updateFormData,
     updateWidgetProps,
     validateFieldsParams: __vfp,
-
     validateMessage,
     widgetName,
     wrapperCol,
@@ -95,9 +113,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
 
   // 是否校验中
   const [validating, setValidating] = useState<boolean>(false);
-
-  const formRef = useRef<ProFormInstance<any>>();
-
+  const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
   const updateErrorFidlds = (errorFields?: FieldError[]) => {
     // 按照formItems的顺序排序，返回格式和errorFields一致，并在每个item中增加label字段，只返回有错误的字段
 
@@ -132,7 +148,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     const opt = { validateOnly: props.validateOnly } as any;
     const params = namePath?.length ? [namePath, opt] : [opt];
 
-    const values = await formRef.current
+    const values = await formRef?.current
       ?.validateFields(...params)
       .finally(async () => {
         const errorFields = formRef.current
@@ -186,35 +202,46 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   const handleFinsh = async (values: any) => {
     console.group("表单组件 handleFinsh");
     console.log("handleFinsh values", values);
-    console.log("getFormData", getFormData(getChildContainer?.()));
+    // console.log("getFormData", getFormData(getChildContainer?.()));
 
-    console.log(" formRef.current", formRef.current);
+    console.log(" formRef.current", formRef?.current);
     console.log(
       " formRef.current getFieldsError",
-      formRef.current?.getFieldsError(),
+      formRef?.current?.getFieldsError(),
     );
     const val1 = await handleValidateFields();
     console.log("validateFields:", val1);
-    const val2 = await formRef.current?.validateFieldsReturnFormatValue?.();
+    const val2 = await formRef?.current?.validateFieldsReturnFormatValue?.();
+    console.log("validateFieldsReturnFormatValue:", val2);
+    console.groupEnd();
+
+    onSubmit?.(values);
+  };
+  const handleFinishFailed = async (values: any) => {
+    console.group("表单组件 handleFinishFailed");
+    console.log("handleFinishFailed values", values);
+    // console.log("getFormData", getFormData(getChildContainer?.()));
+
+    setFieldErrors(formRef?.current?.getFieldsError() || []);
+    console.log(" formRef.current", formRef?.current);
+    console.log(
+      " formRef.current getFieldsError",
+      formRef?.current?.getFieldsError(),
+    );
+    const val1 = await handleValidateFields();
+    console.log("validateFields:", val1);
+    const val2 = await formRef?.current?.validateFieldsReturnFormatValue?.();
     console.log("validateFieldsReturnFormatValue:", val2);
     console.groupEnd();
   };
-  // const handleFinishFailed = async (values: any) => {
-  //   console.group("表单组件 handleFinishFailed");
-  //   console.log("handleFinishFailed values", values);
-  //   console.log("getFormData", getFormData(getChildContainer?.()));
 
-  //   console.log(" formRef.current", formRef.current);
-  //   console.log(
-  //     " formRef.current getFieldsError",
-  //     formRef.current?.getFieldsError(),
-  //   );
-  //   const val1 = await handleValidateFields();
-  //   console.log("validateFields:", val1);
-  //   const val2 = await formRef.current?.validateFieldsReturnFormatValue?.();
-  //   console.log("validateFieldsReturnFormatValue:", val2);
-  //   console.groupEnd();
-  // };
+  const isFormValid = useMemo(() => {
+    return fieldErrors.length === 0;
+  }, [fieldErrors]);
+
+  const isSubmitDisabled = useMemo(() => {
+    return disabledWhenInvalid && !isFormValid;
+  }, [disabledWhenInvalid, isFormValid]);
 
   // const handleSubmit = async (values: any) => {
   //   console.group("表单组件 handleSubmit");
@@ -238,7 +265,9 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   console.groupEnd();
   return (
     <AntdProformContainer
-      className={"antd-pro-form-container-styled"}
+      backgroundColor={backgroundColor}
+      borderRadius={borderRadius as unknown as string}
+      className={"antd-pro-form-container-styled antd-pro-form-jsonform"}
       labelAlign={labelAlign}
     >
       <ConfigProvider
@@ -251,13 +280,14 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
           },
         }}
       >
+        {/* title */}
+        {title && <div className="antd-pro-form-title">{title}</div>}
         <ProForm
           className={
             labelAlign?.toLowerCase() === "right" ? "ant-form-label-right" : ""
           }
           disabled={disabled}
-          fields={[{ name: "roleName" }]}
-          formRef={formRef}
+          formRef={formRef || undefined}
           initialValues={initialValues}
           isKeyPressSubmit={isKeyPressSubmit}
           labelAlign={labelAlign}
@@ -265,10 +295,29 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
           layout={formLayout}
           name={widgetName}
           onFinish={handleFinsh}
-          // onFinishFailed={handleFinishFailed}
+          onFinishFailed={handleFinishFailed}
           size={size}
           style={{ maxWidth: "100%" }}
-          submitter={false}
+          submitter={
+            hideFooter
+              ? false
+              : {
+                  searchConfig: {
+                    submitText: submitButtonLabel,
+                    resetText: resetButtonLabel,
+                  },
+                  submitButtonProps: {
+                    loading: isSubmitting,
+                    disabled: isSubmitDisabled,
+                  },
+                  resetButtonProps: showReset
+                    ? {
+                        loading: isSubmitting,
+                      }
+                    : false,
+                }
+          }
+          title={title}
           {...formItemLayoutMemo}
         >
           {children}

@@ -31,6 +31,7 @@ import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import type { ProFormInstance } from "@ant-design/pro-components";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -95,7 +96,7 @@ class JSONFormWidget extends BaseWidget<
     this.isWidgetMounting = true;
     this.actionQueue = [];
   }
-  formRef = React.createRef<HTMLDivElement>();
+  formRef = React.createRef<ProFormInstance<any>>();
 
   state = {
     resetObserverCallback: noop,
@@ -277,6 +278,8 @@ class JSONFormWidget extends BaseWidget<
     }
 
     const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
+    console.log("componentDidUpdateschema", schema, this.props.isRequired);
+
     this.debouncedParseAndSaveFieldState(
       this.state.metaInternalFieldState,
       schema,
@@ -436,10 +439,7 @@ class JSONFormWidget extends BaseWidget<
     }
   };
 
-  onSubmit = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-    event.stopPropagation();
-    event.preventDefault();
-
+  onSubmit = (values: any) => {
     if (this.props.onSubmit) {
       this.setState({
         isSubmitting: true,
@@ -451,6 +451,9 @@ class JSONFormWidget extends BaseWidget<
         event: {
           type: EventType.ON_SUBMIT,
           callback: this.handleSubmitResult,
+        },
+        globalContext: {
+          formData: values,
         },
       });
     }
@@ -551,12 +554,16 @@ class JSONFormWidget extends BaseWidget<
         borderWidth={this.props.borderWidth}
         boxShadow={this.props.boxShadow}
         boxShadowColor={this.props.boxShadowColor}
+        disabled={this.props.disabled}
         disabledWhenInvalid={this.props.disabledWhenInvalid}
         executeAction={this.onExecuteAction}
         fieldLimitExceeded={this.props.fieldLimitExceeded}
         fixMessageHeight={isAutoHeightEnabled}
         fixedFooter={this.props.fixedFooter}
+        initialValues={this.props.sourceData}
         getFormData={this.getFormData}
+        isKeyPressSubmit={this.props.isKeyPressSubmit}
+        isRequired={this.props.isRequired}
         isSubmitting={this.state.isSubmitting}
         isWidgetMounting={this.isWidgetMounting}
         onFormValidityUpdate={this.onFormValidityUpdate}
@@ -577,7 +584,10 @@ class JSONFormWidget extends BaseWidget<
         updateFormData={this.updateFormData}
         updateWidgetMetaProperty={this.onUpdateWidgetMetaProperty}
         updateWidgetProperty={this.onUpdateWidgetProperty}
+        validateMessage={this.props.validateMessage}
+        validateOnly={this.props.validateOnly}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
       />
     );
   }
