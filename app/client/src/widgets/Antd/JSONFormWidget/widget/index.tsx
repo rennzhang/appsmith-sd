@@ -32,6 +32,8 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import type { ProFormInstance } from "@ant-design/pro-components";
+import { CONFIG as ANTD_BUTTON_WIDGET_CONFIG } from "widgets/Antd/ButtonWidget";
+import { ButtonVariantTypes } from "components/constants";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -133,15 +135,18 @@ class JSONFormWidget extends BaseWidget<
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
 
       submitButtonStyles: {
-        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
-        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "none",
+        // buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        // borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        // boxShadow: "none",
+        ...(ANTD_BUTTON_WIDGET_CONFIG.defaults as any),
       },
 
       resetButtonStyles: {
-        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
-        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-        boxShadow: "none",
+        // buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        // borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        // boxShadow: "none",
+        ...(ANTD_BUTTON_WIDGET_CONFIG.defaults as any),
+        buttonVariant: ButtonVariantTypes.SECONDARY,
       },
 
       childStylesheet: {
@@ -548,20 +553,21 @@ class JSONFormWidget extends BaseWidget<
       // it would lead to severe performance degradation due to frequent
       // re-rendering.
       <JSONFormComponent
+        {...this.props}
         backgroundColor={this.props.backgroundColor}
         borderColor={this.props.borderColor}
         borderRadius={this.props.borderRadius}
         borderWidth={this.props.borderWidth}
         boxShadow={this.props.boxShadow}
         boxShadowColor={this.props.boxShadowColor}
-        disabled={this.props.disabled}
         disabledWhenInvalid={this.props.disabledWhenInvalid}
         executeAction={this.onExecuteAction}
         fieldLimitExceeded={this.props.fieldLimitExceeded}
         fixMessageHeight={isAutoHeightEnabled}
         fixedFooter={this.props.fixedFooter}
-        initialValues={this.props.sourceData}
         getFormData={this.getFormData}
+        initialValues={this.props.sourceData}
+        isDisabled={this.props.isDisabled}
         isKeyPressSubmit={this.props.isKeyPressSubmit}
         isRequired={this.props.isRequired}
         isSubmitting={this.state.isSubmitting}

@@ -53,8 +53,8 @@ export const useButtonRender = () => {
   };
   const renderMenuButton = ({
     button,
-    isHide,
     configToken,
+    isHide,
     onClick,
   }: RenderMenuButtonProps) => {
     const isHidden = isHide ? isHide(button) : false;
@@ -102,14 +102,15 @@ export const useButtonRender = () => {
   };
   const renderActionButton = ({
     button,
-    isHide,
     configToken,
+    isHide,
     onClick,
   }: RenderButtonProps) => {
     const isHidden = isHide ? isHide(button) : false;
     return (
       !isHidden && (
         <ButtonComponent
+          {...button}
           borderRadius={button.borderRadius}
           boxShadow={button.boxShadow}
           buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
@@ -119,23 +120,25 @@ export const useButtonRender = () => {
           iconAlign={button.iconAlign}
           iconColor={button.iconColor}
           iconName={
-            button.buttonType === ButtonTypes.BUTTON
+            button.buttonType === ButtonTypes.BUTTON || !button.buttonType
               ? button.iconName
               : button.btnIconName
           }
           isDisabled={button.isDisabled}
           key={button.id}
+          loading={button.loading}
           onClick={() => {
             onClick(button);
             // handleButtonClick(button, props, record, recordIndex, action);
           }}
-          placement="CENTER"
+          placement={button.placement || "CENTER"}
           popconfirmMessage={button.popconfirmMessage}
           text={
             button.buttonType === ButtonTypes.ICON_BUTTON
               ? ""
               : button.buttonLabel
           }
+          textColor={button.textColor}
           tooltip={button.tooltip}
           widgetId={button.widgetId}
         />
@@ -160,6 +163,7 @@ export const useButtonRender = () => {
     );
   };
   return {
+    renderActionButton,
     getTableButtonRender,
   };
 };

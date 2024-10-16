@@ -10,6 +10,7 @@ import Widget from "./widget";
 import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import { borderRadius } from "react-select/src/theme";
 
 export const CONFIG = {
   dynamicHeight: DynamicHeight.AUTO_HEIGHT,
@@ -20,6 +21,8 @@ export const CONFIG = {
   needsMeta: true,
   searchTags: ["click", "submit", "button"],
   defaults: {
+    borderRadius: "4px",
+    boxShadow: "none",
     dynamicHeight: DynamicHeight.AUTO_HEIGHT,
     animateLoading: false,
     text: "提交",

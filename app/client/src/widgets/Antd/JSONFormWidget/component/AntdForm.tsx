@@ -1,11 +1,15 @@
 // import { AutoComplete } from "antd";
 // import React from "react";
-import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
+import type {
+  ProFormInstance,
+  ProFormProps,
+  SubmitterProps,
+} from "@ant-design/pro-components";
 import { ProForm } from "@ant-design/pro-components";
 import { AntdProformContainer } from "widgets/Antd/Style";
 // export default InputComponent;
 import type { ValidateFields } from "rc-field-form/es/interface";
-import { ConfigProvider, message } from "antd";
+import { ConfigProvider, message, theme } from "antd";
 import type { WidgetStyleContainerProps } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { MouseEventHandler, ReactNode } from "react";
 import {
@@ -21,6 +25,11 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { isNumber } from "lodash";
 import type { FieldError } from "rc-field-form/lib/interface";
+import useTableButtonRender from "widgets/Antd/TableWidget/component/hooks/useTableButtonRender";
+import {
+  CheckboxGroupAlignmentTypes,
+  type CheckboxGroupAlignment,
+} from "components/constants";
 
 export interface ProformContainerComponentProps
   extends WidgetStyleContainerProps {
@@ -72,13 +81,19 @@ export interface ProformContainerComponentProps
   title?: string;
   onSubmit?: (values: any) => void;
   disabledWhenInvalid?: boolean;
+  primaryColor?: string;
+  titleColor?: string;
+  submitButtonStyles?: any;
+  resetButtonStyles?: any;
+  buttonAlignment?: CheckboxGroupAlignment;
 }
 
-type InputDataType = string | undefined;
 const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   const {
     backgroundColor,
+    borderColor,
     borderRadius,
+    borderWidth,
     boxShadow,
     children,
     disabled,
@@ -97,12 +112,14 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     labelWidth,
     labelWrap,
     onSubmit,
+    primaryColor,
     resetButtonLabel,
     showReset,
-
     size,
+
     submitButtonLabel,
     title,
+    titleColor,
     updateFormData,
     updateWidgetProps,
     validateFieldsParams: __vfp,
@@ -111,6 +128,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     wrapperCol,
   } = props;
 
+  const { renderActionButton } = useTableButtonRender();
   // 是否校验中
   const [validating, setValidating] = useState<boolean>(false);
   const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
@@ -181,7 +199,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
 
   const formItemLayoutMemo = useMemo(() => {
     if (formLayout == "vertical") {
-      return { labelCol: { span: 24 }, wrapperCol: { span: 24 } };
+      return null;
     }
     if (labelWrap) {
       return {
@@ -240,8 +258,8 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   }, [fieldErrors]);
 
   const isSubmitDisabled = useMemo(() => {
-    return disabledWhenInvalid && !isFormValid;
-  }, [disabledWhenInvalid, isFormValid]);
+    return (disabledWhenInvalid && !isFormValid) || disabled;
+  }, [disabledWhenInvalid, isFormValid, disabled]);
 
   // const handleSubmit = async (values: any) => {
   //   console.group("表单组件 handleSubmit");
@@ -259,6 +277,91 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   //   console.groupEnd();
   // };
 
+  const [submitButtonColor, setSubmitButtonColor] = useState<string>("");
+  useEffect(() => {
+    setSubmitButtonColor(primaryColor || "");
+  }, [primaryColor]);
+  useEffect(() => {
+    setSubmitButtonColor(props.submitButtonStyles?.buttonColor);
+  }, [props.submitButtonStyles?.buttonColor]);
+
+  const [resetButtonColor, setResetButtonColor] = useState<string>("");
+  useEffect(() => {
+    setResetButtonColor(primaryColor || "");
+  }, [primaryColor]);
+  useEffect(() => {
+    setResetButtonColor(props.resetButtonStyles?.buttonColor);
+  }, [props.resetButtonStyles?.buttonColor]);
+
+  const submitterMome = useMemo<SubmitterProps>(() => {
+    return {
+      render: ({ onReset, onSubmit }) => (
+        <div
+          className="antd-pro-form-submitter"
+          style={{
+            display: "flex",
+            gap: "8px",
+            alignItems: "center",
+            justifyContent: props.buttonAlignment,
+          }}
+        >
+          {renderActionButton({
+            button: {
+              ...props.resetButtonStyles,
+              buttonColor: resetButtonColor,
+              buttonLabel: resetButtonLabel,
+              loading: isSubmitting,
+              buttonSize: props.resetButtonStyles?.controlSize,
+            },
+            onClick: onReset as any,
+            configToken: {},
+          })}
+          {renderActionButton({
+            button: {
+              ...props.submitButtonStyles,
+              buttonColor: submitButtonColor,
+              buttonLabel: submitButtonLabel,
+              isDisabled: isSubmitDisabled,
+              loading: isSubmitting,
+              buttonSize: props.submitButtonStyles?.controlSize,
+            },
+            onClick: onSubmit as any,
+            configToken: {},
+          })}
+        </div>
+      ),
+    };
+    // return hideFooter
+    //   ? false
+    //   : {
+    //       searchConfig: {
+    //         submitText: submitButtonLabel,
+    //         resetText: resetButtonLabel,
+    //       },
+    //       submitButtonProps: {
+    //         loading: isSubmitting,
+    //         disabled: isSubmitDisabled,
+    //       },
+    //       resetButtonProps: showReset
+    //         ? {
+    //             loading: isSubmitting,
+    //           }
+    //         : false,
+    //     };
+  }, [
+    hideFooter,
+    isSubmitting,
+    isSubmitDisabled,
+    resetButtonLabel,
+    showReset,
+    submitButtonLabel,
+    props.submitButtonStyles,
+    props.resetButtonStyles,
+    submitButtonColor,
+    resetButtonColor,
+    props.buttonAlignment,
+  ]);
+
   console.group("表单组件 AntdForm");
   console.log("表单组件 props", props);
   console.log(" formItemLayoutMemo", formItemLayoutMemo);
@@ -266,22 +369,37 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   return (
     <AntdProformContainer
       backgroundColor={backgroundColor}
+      borderColor={borderColor}
       borderRadius={borderRadius as unknown as string}
+      borderWidth={borderWidth as unknown as string}
+      boxShadow={boxShadow}
       className={"antd-pro-form-container-styled antd-pro-form-jsonform"}
       labelAlign={labelAlign}
     >
       <ConfigProvider
         theme={{
+          token: {
+            colorPrimary: primaryColor || theme.defaultSeed.colorPrimary,
+          },
           components: {
             Form: {
               // labelColor: labelTextColor,
               // labelFontSize: parseInt(labelTextSize || "0"),
             },
+            Button: {
+              colorPrimary: primaryColor || theme.defaultSeed.colorPrimary,
+            },
           },
         }}
       >
-        {/* title */}
-        {title && <div className="antd-pro-form-title">{title}</div>}
+        {title && (
+          <div
+            className="antd-pro-form-title"
+            style={{ color: titleColor || "unset" }}
+          >
+            {title}
+          </div>
+        )}
         <ProForm
           className={
             labelAlign?.toLowerCase() === "right" ? "ant-form-label-right" : ""
@@ -298,25 +416,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
           onFinishFailed={handleFinishFailed}
           size={size}
           style={{ maxWidth: "100%" }}
-          submitter={
-            hideFooter
-              ? false
-              : {
-                  searchConfig: {
-                    submitText: submitButtonLabel,
-                    resetText: resetButtonLabel,
-                  },
-                  submitButtonProps: {
-                    loading: isSubmitting,
-                    disabled: isSubmitDisabled,
-                  },
-                  resetButtonProps: showReset
-                    ? {
-                        loading: isSubmitting,
-                      }
-                    : false,
-                }
-          }
+          submitter={submitterMome}
           title={title}
           {...formItemLayoutMemo}
         >

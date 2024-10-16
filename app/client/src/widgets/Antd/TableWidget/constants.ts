@@ -15,6 +15,7 @@ import { IconNames } from "@blueprintjs/icons";
 import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import type { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
+import type { ButtonPlacementTypes } from "components/constants";
 import { ButtonVariantTypes, type ButtonVariant } from "components/constants";
 import type { Row } from "react-table";
 import type { Key } from "@ant-design/pro-components";
@@ -239,6 +240,9 @@ export type MenuItemAction = {
 };
 
 export interface ButtonAction {
+  placement?: ButtonPlacementTypes;
+  textColor: string;
+  loading?: boolean;
   iconColor: string;
   popconfirmMessage: string;
   btnIconName: IconName;

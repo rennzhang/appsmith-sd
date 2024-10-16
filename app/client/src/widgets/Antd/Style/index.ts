@@ -11,12 +11,24 @@ export const AntdProformContainer = styled.div<{
   labelAlign?: string;
   backgroundColor?: string;
   borderRadius?: string;
+  borderColor?: string;
+  borderWidth?: string;
+  boxShadow?: string;
 }>`
   &.antd-pro-form-jsonform {
     padding: 16px;
     background-color: ${({ backgroundColor }) => backgroundColor};
     border-radius: ${({ borderRadius }) => borderRadius};
+    border: ${({ borderWidth }) => borderWidth}px solid
+      ${({ borderColor }) => borderColor};
+    box-shadow: ${({ boxShadow }) => boxShadow};
   }
+  .ant-form-vertical {
+    div.ant-form-item div.ant-form-item-label.ant-col label {
+      // height: auto;
+    }
+  }
+
   .antd-pro-form-title {
     font-size: 20px;
     font-weight: bold;
@@ -71,7 +83,10 @@ export const AntdFormItemContainer = styled.div<{
     overflow: ${({ labelPosition }) =>
       labelPosition == AntdLabelPosition.Left ? "unset" : "hidden"};
   }
-  div.ant-form-item div.ant-form-item-label-wrap label {
+  div.ant-form-item
+    div.ant-row.ant-form-item-row
+    div.ant-form-item-label-wrap
+    label {
     height: auto;
   }
   .ant-form-item-control .ant-form-item-control-input .ant-select-selector,

@@ -8,12 +8,15 @@ import {
   type SnipingModeProperty,
   type PropertyUpdates,
 } from "widgets/constants";
+
 import { CONFIG as ANTD_FORM_WIDGET_CONFIG } from "widgets/Antd/Form/FormWidget";
 
 import IconSVG from "./icon.svg";
 import type { JSONFormWidgetProps } from "./widget";
 import Widget from "./widget";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { theme } from "antd";
+import { CONFIG as ANTD_BUTTON_WIDGET_CONFIG } from "widgets/Antd/ButtonWidget";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -39,6 +42,9 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     ...ANTD_FORM_WIDGET_CONFIG.defaults,
+    buttonAlignment: "flex-start",
+    labelAlignment: "left",
+    primaryColor: theme.defaultSeed.colorPrimary,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     useSourceData: false,
@@ -65,37 +71,50 @@ export const CONFIG = {
     },
     submitButtonLabel: "提交",
     resetButtonLabel: "重置",
-    blueprint: {
-      operations: [
-        {
-          type: BlueprintOperationTypes.MODIFY_PROPS,
-          fn: (widget: JSONFormWidgetProps) => {
-            /**
-             * As submitButtonStyles are objects, the tend to override the submitButtonStyles
-             * present in the defaults so a merge is necessary to incorporate non theme related props.
-             */
-            return [
-              {
-                widgetId: widget.widgetId,
-                propertyName: "submitButtonStyles",
-                propertyValue: {
-                  ...widget.submitButtonStyles,
-                  ...SUBMIT_BUTTON_DEFAULT_STYLES,
-                },
-              },
-              {
-                widgetId: widget.widgetId,
-                propertyName: "resetButtonStyles",
-                propertyValue: {
-                  ...widget.resetButtonStyles,
-                  ...RESET_BUTTON_DEFAULT_STYLES,
-                },
-              },
-            ];
-          },
-        },
-      ],
+    submitButtonStyles: {
+      buttonColor: "#553DE9",
+      ...ANTD_BUTTON_WIDGET_CONFIG.defaults,
+      borderRadius: "0.375rem",
+      boxShadow: "none",
     },
+    resetButtonStyles: {
+      buttonColor: "#553DE9",
+      ...ANTD_BUTTON_WIDGET_CONFIG.defaults,
+      buttonVariant: ButtonVariantTypes.SECONDARY,
+      borderRadius: "0.375rem",
+      boxShadow: "none",
+    },
+    // blueprint: {
+    //   operations: [
+    //     {
+    //       type: BlueprintOperationTypes.MODIFY_PROPS,
+    //       fn: (widget: JSONFormWidgetProps) => {
+    //         /**
+    //          * As submitButtonStyles are objects, the tend to override the submitButtonStyles
+    //          * present in the defaults so a merge is necessary to incorporate non theme related props.
+    //          */
+    //         return [
+    //           {
+    //             widgetId: widget.widgetId,
+    //             propertyName: "submitButtonStyles",
+    //             propertyValue: {
+    //               ...widget.submitButtonStyles,
+    //               ...SUBMIT_BUTTON_DEFAULT_STYLES,
+    //             },
+    //           },
+    //           {
+    //             widgetId: widget.widgetId,
+    //             propertyName: "resetButtonStyles",
+    //             propertyValue: {
+    //               ...widget.resetButtonStyles,
+    //               ...RESET_BUTTON_DEFAULT_STYLES,
+    //             },
+    //           },
+    //         ];
+    //       },
+    //     },
+    //   ],
+    // },
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

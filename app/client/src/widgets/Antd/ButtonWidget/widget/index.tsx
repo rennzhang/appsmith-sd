@@ -78,6 +78,18 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       {
         sectionName: "属性",
         children: [
+          // isGhost
+          {
+            helpText:
+              "幽灵按钮将按钮的内容反色，背景变为透明，常用在有色背景上",
+            propertyName: "isGhost",
+            label: "幽灵按钮",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
           {
             helpText: "鼠标交互时显示的提示信息",
             propertyName: "tooltip",
@@ -228,6 +240,19 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
               type: ValidationTypes.TEXT,
             },
           },
+          // 按钮宽度
+          {
+            helpText: "设置按钮宽度",
+            defaultValue: "auto",
+            placeholderText: "auto",
+            propertyName: "buttonWidth",
+            label: "按钮宽度",
+            controlType: "INPUT_TEXT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
         ],
       },
 
@@ -299,12 +324,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
                 value: ButtonPlacementTypes.START,
               },
               {
-                label: "两边对齐",
-                value: ButtonPlacementTypes.BETWEEN,
-              },
-              {
                 label: "居中对齐",
                 value: ButtonPlacementTypes.CENTER,
+              },
+              {
+                label: "两边对齐",
+                value: ButtonPlacementTypes.BETWEEN,
               },
             ],
             defaultValue: ButtonPlacementTypes.CENTER,
@@ -375,7 +400,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isBindProperty: true,
             isJSConvertible: true,
             isTriggerProperty: false,
-            defaultValue: "none",
             validation: {
               type: ValidationTypes.TEXT,
             },
@@ -384,7 +408,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             propertyName: "boxShadow",
             label: "阴影",
             helpText: "组件轮廓投影",
-            defaultValue: "none",
             controlType: "BOX_SHADOW_OPTIONS",
             isJSConvertible: true,
             isBindProperty: true,

@@ -388,8 +388,6 @@ class FormWidget extends ContainerWidget {
                 },
               },
             },
-            hidden: (props: FormWidgetProps) => !props.isRequired,
-            dependencies: ["isRequired"],
           },
         ],
       },
@@ -410,7 +408,7 @@ class FormWidget extends ContainerWidget {
             propertyName: "isDisabled",
             label: "禁用",
             controlType: "SWITCH",
-            helpText: "让组件不可交互",
+            helpText: "禁用所有表单项、按钮等",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -498,6 +496,19 @@ class FormWidget extends ContainerWidget {
               isTriggerProperty: false,
               isJSConvertible: true,
               validation: { type: ValidationTypes.TEXT },
+              updateHook: (
+                props: FormWidgetProps,
+                propertyPath: string,
+                propertyValue: string,
+              ) => {
+                return [
+                  {
+                    propertyPath: "labelAlignment",
+                    propertyValue:
+                      propertyValue === "horizontal" ? "right" : "left",
+                  },
+                ];
+              },
             },
 
             // labelAlignment
@@ -521,8 +532,6 @@ class FormWidget extends ContainerWidget {
               isJSConvertible: true,
               validation: { type: ValidationTypes.TEXT },
               dependencies: ["formLayout"],
-              hidden: (props: FormWidgetProps) =>
-                props.formLayout === "vertical",
             },
 
             // labelWrap 控制

@@ -3,9 +3,13 @@ import React, { createContext, useMemo } from "react";
 import type { RenderMode } from "constants/WidgetConstants";
 import type { Action, JSONFormWidgetState } from "./widget";
 import type { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
-import type { ProFormInstance } from "@ant-design/pro-components";
+import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
 
 type FormContextProps<TValues = any> = React.PropsWithChildren<{
+  formControlSize: ProFormProps["size"];
+  formIsDisabled?: boolean;
+  formLayout?: "horizontal" | "vertical";
+  formLabelAlign?: "left" | "right";
   formIsRequird?: boolean;
   executeAction: (action: Action) => void;
   formRef: React.RefObject<ProFormInstance<any>> | null;
@@ -26,9 +30,13 @@ const FormContext = createContext<FormContextValueProps>(
 );
 
 export function FormContextProvider({
+  formLabelAlign,
   children,
   executeAction,
+  formControlSize,
+  formIsDisabled,
   formIsRequird,
+  formLayout,
   formRef,
   renderMode,
   setMetaInternalFieldState,
@@ -38,7 +46,11 @@ export function FormContextProvider({
 }: FormContextProps) {
   const value = useMemo(
     () => ({
+      formLayout,
+      formLabelAlign,
+      formControlSize,
       formIsRequird,
+      formIsDisabled,
       executeAction,
       formRef,
       renderMode,
@@ -47,7 +59,14 @@ export function FormContextProvider({
       updateWidgetMetaProperty,
       updateWidgetProperty,
     }),
-    [formRef, formIsRequird],
+    [
+      formRef,
+      formIsRequird,
+      formIsDisabled,
+      formControlSize,
+      formLayout,
+      formLabelAlign,
+    ],
   );
   return <FormContext.Provider value={value}>{children}</FormContext.Provider>;
 }

@@ -133,8 +133,16 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   passedDefaultValue,
   schemaItem,
 }: BaseInputFieldProps<TSchemaItem>) {
-  const { executeAction, formIsRequird, formRef, updateFormData } =
-    useContext(FormContext);
+  const {
+    executeAction,
+    formControlSize,
+    formIsDisabled,
+    formIsRequird,
+    formLabelAlign,
+    formLayout,
+    formRef,
+    updateFormData,
+  } = useContext(FormContext);
   const inputDefaultValue = (() => {
     if (passedDefaultValue === undefined) {
       return schemaItem.defaultValue;
@@ -247,9 +255,12 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       return (
         <AntdAutoCompleteComponent
           {...schemaItem}
+          formLayout={formLayout}
           inputRef={inputRef}
+          isDisabled={formIsDisabled || schemaItem.isDisabled}
           isInForm
           isRequired={formIsRequird || schemaItem.isRequired}
+          labelAlignment={formLabelAlign || schemaItem.labelAlign}
           onFocusChange={focusChangeHandler}
           onKeyDown={keyDownHandler}
           onValueChange={(value: string) => onTextChangeHandler(value)}
@@ -259,9 +270,13 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     return (
       <AntdInputComponent
         {...schemaItem}
+        controlSize={formControlSize || schemaItem.controlSize}
+        formLayout={formLayout}
         inputRef={inputRef}
+        isDisabled={formIsDisabled || schemaItem.isDisabled}
         isInForm
         isRequired={formIsRequird || schemaItem.isRequired}
+        labelAlignment={formLabelAlign || schemaItem.labelAlign}
         onFocusChange={focusChangeHandler}
         onKeyDown={keyDownHandler}
         onValueChange={(value: string) => onTextChangeHandler(value)}
@@ -274,6 +289,10 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     onTextChangeHandler,
     schemaItem,
     formIsRequird,
+    formIsDisabled,
+    formControlSize,
+    formLayout,
+    formLabelAlign,
   ]);
 
   return fieldComponent;

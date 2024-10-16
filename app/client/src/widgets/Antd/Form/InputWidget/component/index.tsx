@@ -49,6 +49,7 @@ export interface InputComponentProps extends AntdInputWidgetProps {
   addonAfterColor?: string;
   searchLoading?: boolean;
   isInForm?: boolean;
+  formLayout?: "horizontal" | "vertical";
 }
 
 type InputDataType = number | string | undefined;
@@ -73,6 +74,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     decimalSeparator,
     defaultValue,
     errorMessage,
+    formLayout,
     inputRef,
     inputType,
     isDisabled,
@@ -196,16 +198,20 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     isInForm,
   ]);
 
-  const colLayoutMemo = useMemo(
-    () =>
-      labelPosition === AntdLabelPosition.Left
-        ? {
-            labelCol: { sm: { span: labelWidth } },
-            wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
-          }
-        : {},
-    [labelPosition, labelWidth],
-  );
+  const labelPositionMemo = useMemo(() => {
+    if (formLayout === "vertical") {
+      return AntdLabelPosition.Top;
+    }
+    return labelPosition;
+  }, [labelPosition, formLayout]);
+  const colLayoutMemo = useMemo(() => {
+    return labelPositionMemo === AntdLabelPosition.Left
+      ? {
+          labelCol: { sm: { span: labelWidth } },
+          wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
+        }
+      : {};
+  }, [labelPositionMemo, labelWidth, formLayout]);
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -271,6 +277,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     value,
     ruleRegexMemo,
     validateProps,
+    colLayoutMemo,
   });
   const getInputComponent = useCallback(() => {
     switch (inputType) {
@@ -343,7 +350,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     <AntdFormItemContainer
       boxShadow={boxShadow}
       className="antd-input-container"
-      labelPosition={labelPosition}
+      labelPosition={labelPositionMemo}
       labelStyle={labelStyle}
     >
       <ConfigProvider

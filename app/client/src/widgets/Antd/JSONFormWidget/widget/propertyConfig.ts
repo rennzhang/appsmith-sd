@@ -1,6 +1,10 @@
 import { Alignment } from "@blueprintjs/core";
 
-import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
+import {
+  ButtonPlacementTypes,
+  ButtonVariantTypes,
+  CheckboxGroupAlignmentTypes,
+} from "components/constants";
 import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -14,7 +18,7 @@ import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyC
 import { CONFIG as ANTD_FORM_WIDGET_CONFIG } from "widgets/Antd/Form/FormWidget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { cloneDeep } from "lodash";
-
+import { CONFIG as ANTD_BUTTON_WIDGET_CONFIG } from "widgets/Antd/ButtonWidget";
 const MAX_NESTING_LEVEL = 5;
 
 const panelConfig = generatePanelPropertyConfig(MAX_NESTING_LEVEL);
@@ -489,28 +493,70 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
     ],
   },
 ];
+// ANTD_BUTTON_WIDGET_CONFIG
+const generateButtonStyleControlsV2For1 = (prefix: string) => {
+  return cloneDeep(ANTD_BUTTON_WIDGET_CONFIG.properties.styleConfig).map(
+    (item) => {
+      return {
+        ...item,
+        children: item.children.map((child) => {
+          return {
+            ...child,
+            propertyName: `${prefix}.${child.propertyName}`,
+          };
+        }),
+      };
+    },
+  );
+};
 
 export const styleConfig = mergeWidgetConfig(
   [
     {
+      sectionName: "样式",
+      children: [
+        // 按钮位置
+        {
+          propertyName: "buttonAlignment",
+          helpText: "表单按钮对齐方式",
+          label: "按钮对齐",
+          controlType: "ICON_TABS",
+          options: [
+            {
+              label: "左对齐",
+              value: CheckboxGroupAlignmentTypes.START,
+            },
+            {
+              label: "居中",
+              value: CheckboxGroupAlignmentTypes.CENTER,
+            },
+            {
+              label: "右对齐",
+              value: CheckboxGroupAlignmentTypes.END,
+            },
+          ],
+        },
+      ],
+    },
+    {
       sectionName: "颜色配置",
       children: [
+        // 表单主色 primaryColor
         {
-          propertyName: "backgroundColor",
-          helpText: "使用 html 颜色名称，HEX，RGB 或者 RGBA 值",
-          placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-          label: "背景颜色",
+          propertyName: "primaryColor",
+          helpText: "表单主色",
+          label: "主色",
           controlType: "COLOR_PICKER",
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.TEXT },
         },
+        // 标题颜色
         {
-          propertyName: "borderColor",
-          helpText: "使用 html 颜色名称，HEX，RGB 或者 RGBA 值",
-          placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-          label: "边框颜色",
+          propertyName: "titleColor",
+          helpText: "表单标题颜色",
+          label: "标题颜色",
           controlType: "COLOR_PICKER",
           isJSConvertible: true,
           isBindProperty: true,
@@ -519,23 +565,19 @@ export const styleConfig = mergeWidgetConfig(
         },
       ],
     },
+
     {
-      sectionName: "轮廓样式",
+      sectionName: "提交按钮样式",
+      children: generateButtonStyleControlsV2For1("submitButtonStyles"),
+    },
+    {
+      sectionName: "重置按钮样式",
       children: [
+        ...generateButtonStyleControlsV2For1("resetButtonStyles"),
         {
-          propertyName: "borderWidth",
-          helpText: "输入边框宽度",
-          label: "边框宽度",
-          placeholderText: "以 px 为单位",
-          controlType: "INPUT_TEXT",
-          isBindProperty: true,
-          isTriggerProperty: false,
-          validation: { type: ValidationTypes.NUMBER },
-        },
-        {
-          propertyName: "borderRadius",
-          helpText: "Enter value for border radius",
+          propertyName: `resetborderRadius`,
           label: "边框圆角",
+          helpText: "边框圆角样式",
           controlType: "BORDER_RADIUS_OPTIONS",
           isJSConvertible: true,
           isBindProperty: true,
@@ -543,24 +585,18 @@ export const styleConfig = mergeWidgetConfig(
           validation: { type: ValidationTypes.TEXT },
         },
         {
-          propertyName: "boxShadow",
+          propertyName: `resboxShadow`,
           label: "阴影",
           helpText: "组件轮廓投影",
           controlType: "BOX_SHADOW_OPTIONS",
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
-          validation: { type: ValidationTypes.TEXT },
+          validation: {
+            type: ValidationTypes.TEXT,
+          },
         },
       ],
-    },
-    {
-      sectionName: "提交按钮样式",
-      children: generateButtonStyleControlsV2For("submitButtonStyles"),
-    },
-    {
-      sectionName: "重置按钮样式",
-      children: generateButtonStyleControlsV2For("resetButtonStyles"),
       dependencies: ["showReset"],
       hidden: (props: JSONFormWidgetProps) => !props.showReset,
     },

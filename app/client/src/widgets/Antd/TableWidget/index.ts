@@ -31,6 +31,7 @@ export const CONFIG = {
   needsHeightForContent: true,
 
   defaults: {
+
     tablePrimaryColor: theme.defaultSeed.colorPrimary,
     tableType: "normal",
     addNewRowText: "新增一行",
