@@ -406,6 +406,15 @@ class JSONFormWidget extends BaseWidget<
       });
     }
 
+    console.log("updateFormData", {
+      values,
+      skipConversion,
+      rootSchemaItem,
+      useSourceData,
+      sourceData,
+      formData,
+    });
+
     this.props.updateWidgetMetaProperty("formData", formData);
 
     if (this.actionQueue.length) {

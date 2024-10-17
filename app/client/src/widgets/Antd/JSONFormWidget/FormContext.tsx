@@ -55,7 +55,12 @@ export function FormContextProvider({
       formRef,
       renderMode,
       setMetaInternalFieldState,
-      updateFormData,
+      updateFormData: (values: any) => {
+        updateFormData({
+          ...formRef?.current?.getFieldsValue(),
+          ...values,
+        });
+      },
       updateWidgetMetaProperty,
       updateWidgetProperty,
     }),

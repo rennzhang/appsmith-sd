@@ -28,6 +28,7 @@ import { get, merge, uniq } from "lodash";
 import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
 import type { ProFormItemProps } from "@ant-design/pro-components";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
+import type { TextSize } from "constants/WidgetConstants";
 
 // 如果是对象，递归可选
 type DeepPartial<T> = T extends object
@@ -52,7 +53,7 @@ export const DEFAULT_CONFIG = {
     valueKey: "value",
     optionsKey: "options",
     childrenKey: "children",
-    labelTextSize: "0.875rem",
+    labelTextSize: "0.875rem" as TextSize,
     dynamicHeight: DynamicHeight.AUTO_HEIGHT,
     errorMessage: "必填字段",
     rows: 8,
@@ -100,8 +101,7 @@ export const FORM_LABEL_CONTENT_CONFIG = {
         if (props.type === "ANTD_JSON_FORM_WIDGET") {
           return true;
         }
-        console.log("labelPosition hidden", props);
-        // return isAutoLayout(props);
+        return false;
       },
       options: [
         { label: "自动", value: AntdLabelPosition.Auto },

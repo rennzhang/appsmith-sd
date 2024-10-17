@@ -27,7 +27,6 @@ export const CONFIG = {
   searchTags: ["form", "text input", "number", "textarea"],
   defaults: {
     ...DEFAULT_CONFIG.defaults,
-    ...BaseConfig.defaults,
     labelWidth: 6,
     labelPosition: AntdLabelPosition.Auto,
     dynamicHeight: DynamicHeight.AUTO_HEIGHT,

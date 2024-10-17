@@ -77,6 +77,7 @@ export default [
           "saveDataSourceText",
           "saveDataSourceTooltip",
           "saveDataSourceOnClick",
+          "primaryColumns",
         ],
         updateHook: (
           props: TableWidgetProps,
@@ -115,6 +116,20 @@ export default [
               },
             },
           ];
+
+          const { primaryColumns } = props;
+          // const propertiesToAdd: Record<string, unknown> = {};
+          Object.keys(primaryColumns).forEach((columnId) => {
+            // propertiesToAdd[`primaryColumns.${columnId}.isEditable`] = true;
+            propertiesToUpdate.push({
+              propertyPath: `primaryColumns.${columnId}.isCellEditable`,
+              propertyValue: isEdit,
+            });
+            propertiesToUpdate.push({
+              propertyPath: `primaryColumns.${columnId}.isEditable`,
+              propertyValue: isEdit,
+            });
+          });
           return propertiesToUpdate;
         },
       },

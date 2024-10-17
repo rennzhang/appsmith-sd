@@ -127,24 +127,11 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     updateFormData,
   } = useContext(FormContext);
   // controlSize, isDisabled, isRequired, labelAlignment
-  const commonProps = useFieldPropsHandler(schemaItem);
-  const inputDefaultValue = (() => {
-    if (passedDefaultValue === undefined) {
-      return schemaItem.defaultValue;
-    }
-
-    return passedDefaultValue;
-  })();
-
-  useEffect(() => {
-    console.log("BaseInputField useEffect", {
-      formRef,
-      schemaItem,
-    });
-    updateFormData({
-      [name]: inputDefaultValue,
-    });
-  }, [schemaItem.defaultValue]);
+  const commonProps = useFieldPropsHandler({
+    name,
+    schemaItem,
+    passedDefaultValue,
+  });
 
   useEffect(() => {
     console.log(
@@ -209,6 +196,9 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
 
   const onTextChangeHandler = useCallback(
     (inputValue: string, triggerPropertyName = "onTextChange") => {
+      updateFormData({
+        [name]: inputValue,
+      });
       const { onTextChanged } = schemaItem;
       if (onTextChanged && executeAction) {
         executeAction({

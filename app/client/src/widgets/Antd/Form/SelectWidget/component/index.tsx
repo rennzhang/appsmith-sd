@@ -42,7 +42,8 @@ export interface TreeSelectComponentProps {
   disabled?: boolean;
   loading?: boolean;
   placeholderText?: string;
-  onValueChange: (value: any, label: any) => void;
+  onOptionSearch?: string;
+  onValueChange?: string;
   updateSelectInfo?: (selectInfo: any) => void;
   // expandAll: boolean;
   labelText: string;
@@ -53,14 +54,14 @@ export interface TreeSelectComponentProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   labelTooltip?: string;
-  compactMode: boolean;
-  width: number;
-  isValid: boolean;
-  isDynamicHeightEnabled: boolean;
+  compactMode?: boolean;
+  width?: number;
+  isValid?: boolean;
+  isDynamicHeightEnabled?: boolean;
   borderRadius: string;
   boxShadow?: string;
-  accentColor: string;
-  widgetId: string;
+  accentColor?: string;
+  widgetId?: string;
   filterText?: string;
   renderMode?: RenderMode;
   options?: SelectProps["options"];
@@ -77,6 +78,7 @@ export interface TreeSelectComponentProps {
   selectedValue?: string | string[];
   tokenSeparators?: string[];
   handleSearch?: (value: string) => void;
+  handleValueChange?: (value: any, label: any) => void;
 }
 
 function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
@@ -93,6 +95,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     disabled,
     errorMessage,
     filterText,
+    handleValueChange,
     isDynamicHeightEnabled,
     isValid,
     labelAlignment,
@@ -221,7 +224,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
       ...changeExtraInfo,
     };
 
-    onValueChange?.(value, label);
+    handleValueChange?.(value, label);
   };
 
   const handleSearch = (val: string) => {

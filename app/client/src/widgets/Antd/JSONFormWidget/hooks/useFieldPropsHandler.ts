@@ -2,12 +2,42 @@ import FormContext from "../FormContext";
 import { useContext, useEffect, useMemo, useRef } from "react";
 import type { SchemaItem } from "../constants";
 import { AntdLabelPosition } from "components/constants";
+import type { FormInstance } from "redux-form";
 
-export const useFieldPropsHandler = (schemaItem: SchemaItem) => {
+type UseFieldPropsHandlerProps = {
+  name: string;
+  schemaItem: SchemaItem;
+  passedDefaultValue: any;
+};
+export const useFieldPropsHandler = ({
+  name,
+  passedDefaultValue,
+  schemaItem,
+}: UseFieldPropsHandlerProps) => {
   const formContext = useContext(FormContext);
+  const { formRef, updateFormData } = formContext;
   const prevSchemaItemRef = useRef(schemaItem);
   const prevFormContextRef = useRef(formContext);
+  const inputDefaultValue = (() => {
+    if (passedDefaultValue === undefined) {
+      return schemaItem.defaultValue;
+    }
 
+    return passedDefaultValue;
+  })();
+
+  useEffect(() => {
+    console.log("defult useEffect", {
+      formRef,
+      schemaItem,
+    });
+    formRef?.current?.setFieldsValue({
+      [name]: inputDefaultValue,
+    });
+    updateFormData({
+      [name]: inputDefaultValue,
+    });
+  }, [schemaItem.defaultValue]);
   const fieldProps = useMemo(() => {
     const getUpdatedValue = <T>(
       schemaValue: T,
@@ -67,6 +97,7 @@ export const useFieldPropsHandler = (schemaItem: SchemaItem) => {
       labelAlignment,
       labelPosition,
       isInForm: true,
+      formRef,
     };
   }, [schemaItem, formContext]);
 

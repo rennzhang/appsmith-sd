@@ -24,6 +24,7 @@ import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
 
 export interface AntdTableProps extends ProTableProps<any, any> {
+  updateNewTableData: (value: any[]) => void;
   configProviderTheme: any;
   tablePrimaryColor: string;
   toolBarActions: Record<string, ButtonAction>;

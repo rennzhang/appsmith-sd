@@ -186,6 +186,7 @@ const ProtableRender = React.memo(function ProtableRender(
             request: undefined,
             onChange: (value) => {
               setDataSource(value as any);
+              props?.updateNewTableData(value as any[]);
               console.log("antd 表格 onChange editableProps ", value);
             },
             recordCreatorProps: {
@@ -200,6 +201,7 @@ const ProtableRender = React.memo(function ProtableRender(
           }
         : {},
     [
+      props.updateNewTableData,
       dataSource,
       isEditType,
       props.creatorButtonText,

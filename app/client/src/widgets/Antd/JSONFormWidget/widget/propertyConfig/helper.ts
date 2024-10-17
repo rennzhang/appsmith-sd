@@ -17,7 +17,7 @@ import type {
   ChildStylesheet,
   Stylesheet,
 } from "entities/AppTheming";
-import { processSchemaItemAutocomplete } from "components/propertyControls/JSONFormComputeControl";
+import { processSchemaItemAutocomplete } from "components/propertyControls/AntdJSONFormComputeControl";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
 
@@ -124,16 +124,21 @@ export const getStylesheetValue = (
 };
 
 export const getAutocompleteProperties = (props: JSONFormWidgetProps) => {
-  const { schema } = props;
+  const { isDisabled, isRequired, schema } = props;
   const rootSchemaItem = schema[ROOT_SCHEMA_KEY] || {};
-  const { sourceData } = rootSchemaItem;
+  const { sourceData } = rootSchemaItem as SchemaItem;
 
-  const formData = processSchemaItemAutocomplete(rootSchemaItem);
+  const formData = processSchemaItemAutocomplete(rootSchemaItem, {
+    isVisible: true,
+    isDisabled: isDisabled,
+    isRequired: isRequired,
+    isValid: true,
+  });
 
   const fieldState = processSchemaItemAutocomplete(rootSchemaItem, {
     isVisible: true,
-    isDisabled: true,
-    isRequired: true,
+    isDisabled: isDisabled,
+    isRequired: isRequired,
     isValid: true,
   });
 

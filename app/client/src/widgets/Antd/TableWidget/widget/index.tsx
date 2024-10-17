@@ -257,6 +257,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         // currentRecord: generateTypeDef(widget.currentRecord),
         updatedRow: generateTypeDef(widget.updatedRow),
         tableData: generateTypeDef(widget.tableData, extraDefsToDefine),
+        newTableData: generateTypeDef(widget.newTableData, extraDefsToDefine),
         pageNo: "number",
         pageSize: "number",
         isVisible: DefaultAutocompleteDefinitions.isVisible,
@@ -727,8 +728,12 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pageSize,
       primaryColumns = {},
       serverSidePaginationEnabled,
+      tableType,
       totalRecordsCount,
     } = this.props;
+    // if (tableType === "edit") {
+    //   this.updateAllColumnsEditable(true);
+    // }
     // defaultPageSize
     if (defaultPageSize !== prevProps.defaultPageSize) {
       this.updatePageSize(defaultPageSize);
@@ -868,7 +873,20 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
   };
+  updateAllColumnsEditable = (isEditable: boolean) => {
+    const { primaryColumns } = this.props;
+    const propertiesToAdd: Record<string, unknown> = {};
 
+    Object.keys(primaryColumns).forEach((columnId) => {
+      propertiesToAdd[`primaryColumns.${columnId}.isEditable`] = isEditable;
+    });
+
+    const propertiesToUpdate = {
+      modify: propertiesToAdd,
+    };
+
+    super.batchUpdateWidgetProperty(propertiesToUpdate);
+  };
   updateFilters = (filters: ReactTableFilter[]) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
@@ -1296,6 +1314,10 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
     commitBatchMetaUpdates();
   };
+  updateNewTableData = (value: any[]) => {
+    this.props.updateWidgetMetaProperty("newTableData", value);
+    console.log("Antd 表格 updateNewTableData", value);
+  };
 
   getPageView() {
     const {
@@ -1394,6 +1416,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           tableData={finalTableData}
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
+          updateNewTableData={this.updateNewTableData}
           updatePageNo={this.updatePageNumber}
           updatePageSize={this.updatePageSize}
           variant={this.props.variant}

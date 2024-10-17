@@ -277,11 +277,11 @@ function generatePanelPropertyConfig(
     //     );
     //   },
     // },
-    {
-      sectionName: "颜色配置",
-      children: [...COMMON_PROPERTIES.style.color],
-      hidden: isFieldTypeArrayOrObject,
-    },
+    // {
+    //   sectionName: "颜色配置",
+    //   children: [...COMMON_PROPERTIES.style.color],
+    //   hidden: isFieldTypeArrayOrObject,
+    // },
     // {
     //   sectionName: "轮廓样式",
     //   children: [...COMMON_PROPERTIES.style.borderShadow],

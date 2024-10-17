@@ -35,7 +35,6 @@ const COMPONENT_DEFAULT_VALUES = {
   isRequired: false,
   isSpellCheck: false,
   isVisible: true,
-  labelTextSize: BASE_LABEL_TEXT_SIZE,
   labelText: "",
   type: AntdInputWidgetConfig.type,
 };

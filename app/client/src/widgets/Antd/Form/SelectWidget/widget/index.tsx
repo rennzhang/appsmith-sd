@@ -368,6 +368,7 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             helpText: "最多显示的标签数量",
             controlType: "NUMERIC_INPUT",
             isBindProperty: true,
+            placeholderText: "请输入最大标签数量",
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
             hidden: (props: SelectWidgetProps, propertyPath: string) => {
@@ -383,9 +384,15 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             label: "最大标签文本长度",
             helpText: "最大显示的 tag 文本长度",
             controlType: "INPUT_TEXT",
+            placeholderText: "请输入最大标签文本长度",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                allowedVoid: true,
+              },
+            },
             hidden: (props: SelectWidgetProps, propertyPath: string) => {
               const _propertyPath = getParentPropertyPath(propertyPath);
               const propsData = get(props, _propertyPath) || props;
@@ -530,7 +537,10 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     }
 
     if (this.props.defaultValue !== prevProps.defaultValue) {
-      this?.onValueChange?.(this.props.defaultValue, this.props.defaultLabel);
+      this?.handleValueChange?.(
+        this.props.defaultValue,
+        this.props.defaultLabel,
+      );
     }
 
     if (mode !== prevProps.mode) {
@@ -590,7 +600,7 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         width={componentWidth}
         {...this.props}
         handleSearch={this.handleSearch}
-        onValueChange={this.onValueChange}
+        handleValueChange={this.handleValueChange}
         updateSelectInfo={this.updateSelectInfo}
       />
     );
@@ -618,8 +628,11 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("selectedInfo", selectInfo);
   };
 
-  onValueChange = (value?: string | string[], label?: string | string[]) => {
-    console.log("树选择组件 onValueChange", value, label);
+  handleValueChange = (
+    value?: string | string[],
+    label?: string | string[],
+  ) => {
+    console.log("树选择组件 handleValueChange", value, label);
 
     if (this.props.selectedValue !== value) {
       if (!this.props.isDirty) {
@@ -674,7 +687,10 @@ export interface SelectWidgetProps extends WidgetProps {
   placeholderText?: string;
   selectedIndex?: number;
   options?: SelectProps["options"];
-  onValueChange: (value?: string | string[], label?: string | string[]) => void;
+  handleValueChange: (
+    value?: string | string[],
+    label?: string | string[],
+  ) => void;
   handleSearch: (searchText: string) => void;
   updateSelectInfo: (selectInfo: any) => void;
 

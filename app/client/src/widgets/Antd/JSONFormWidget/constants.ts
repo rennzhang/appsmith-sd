@@ -105,6 +105,7 @@ import {
 import type { InputType } from "zlib";
 import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
 import type { AntdLabelPosition } from "components/constants";
+import type { TextSize } from "constants/WidgetConstants";
 // export enum FieldTypeNew {
 //   INPUT = AntdInputWidget.getWidgetType() as any,
 //   AUTOCOMPLETE = AutoCompleteWidget.getWidgetType() as any,
@@ -191,61 +192,35 @@ export const fieldTypeOptions = [
     label: "自动完成输入框",
     value: FieldType.AUTOCOMPLETE_INPUT,
   },
-  // {
-  //   label: "多行文本输入",
-  //   value: FieldType.MULTILINE_TEXT_INPUT,
-  // },
-  // {
-  //   label: "密码输入",
-  //   value: FieldType.PASSWORD_INPUT,
-  // },
-  // {
-  //   label: "货币输入",
-  //   value: FieldType.CURRENCY_INPUT,
-  // },
-  // {
-  //   label: "搜索输入",
-  //   value: FieldType.SEARCH_INPUT,
-  // },
-  // {
-  //   label: "数字输入",
-  //   value: FieldType.NUMBER_INPUT,
-  // },
-  // {
-  //   label: "电话号码输入",
-  //   value: FieldType.PHONE_NUMBER_INPUT,
-  // },
-  // {
-  //   label: "邮箱输入",
-  //   value: FieldType.EMAIL_INPUT,
-  // },
+  {
+    label: "选择器",
+    value: FieldType.MULTISELECT,
+  },
   {
     label: "复选框",
     value: FieldType.CHECKBOX,
+  },
+
+  {
+    label: "单选",
+    value: FieldType.RADIO_GROUP,
+  },
+
+  {
+    label: "开关",
+    value: FieldType.SWITCH,
   },
   {
     label: "日期选择器",
     value: FieldType.DATEPICKER,
   },
   {
-    label: "多选",
-    value: FieldType.MULTISELECT,
-  },
-  {
     label: "对象",
     value: FieldType.OBJECT,
   },
   {
-    label: "单选",
-    value: FieldType.RADIO_GROUP,
-  },
-  {
-    label: "选择器",
-    value: FieldType.MULTISELECT,
-  },
-  {
-    label: "开关",
-    value: FieldType.SWITCH,
+    label: "数组",
+    value: FieldType.ARRAY,
   },
 ];
 
@@ -286,8 +261,9 @@ export type FieldComponentBaseProps = {
   labelText: string;
   labelStyle?: string;
   labelTextColor?: string;
-  labelTextSize?: string;
+  labelTextSize?: TextSize;
   tooltip?: string;
+  label?: string;
 };
 
 export type FieldEventProps = {

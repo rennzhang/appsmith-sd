@@ -37,7 +37,6 @@ export const CONFIG = {
     labelWidth: 6,
     labelPosition: AntdLabelPosition.Auto,
     dynamicHeight: DynamicHeight.AUTO_HEIGHT,
-    labelTextSize: "0.875rem",
     defaultValue: "",
     rows: 8,
     columns: 16,
@@ -47,7 +46,6 @@ export const CONFIG = {
     showStepArrows: false,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
-
     prefixType: "none",
     suffixType: "none",
     prefixIcon: "",

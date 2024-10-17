@@ -6,6 +6,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { InputTypes } from "widgets/Antd/Form/InputWidget/constants";
 import { NumberInputStepButtonPosition } from "widgets/Antd/Form/InputWidget/constants";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
+import type { TextSize } from "constants/WidgetConstants";
 export interface AntdInputWidgetProps extends WidgetProps {
   defaultValue?: string | number;
   maxChars?: number;
@@ -26,7 +27,7 @@ export interface AntdInputWidgetProps extends WidgetProps {
   labelAlignment?: ProFormItemProps["labelAlign"];
   labelWidth?: number;
   labelTextColor?: string;
-  labelTextSize?: string;
+  labelTextSize?: TextSize;
   labelStyle?: string;
   isValid: boolean;
   focusIndex?: number;

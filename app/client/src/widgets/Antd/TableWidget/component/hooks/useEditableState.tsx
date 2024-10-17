@@ -69,11 +69,22 @@ export const useEditableState = (
     tableData,
     tableInlineEditType,
   } = props;
+
   useEffect(() => {
     const keys = propsEditableKeys?.length > 0 ? propsEditableKeys : [];
 
     setEditableKeys(keys as Key[]);
   }, [props.editableKeys, props.tableData, props.primaryColumnId]);
+
+  useEffect(() => {
+    if (props.tableType === "edit") {
+      setEditableKeys(
+        tableData.map((item) => item[props.primaryColumnId] as Key),
+      );
+    } else {
+      setEditableKeys([]);
+    }
+  }, [props.tableType, tableData]);
 
   const handleAddNewRow = useCallback(() => {
     const newId = Date.now();
