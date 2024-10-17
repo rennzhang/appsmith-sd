@@ -427,7 +427,7 @@ class FormWidget extends ContainerWidget {
           },
         ],
       },
-      AntdFormInstanceProps,
+      // AntdFormInstanceProps,
     ];
   }
   static getPropertyPaneStyleConfig() {

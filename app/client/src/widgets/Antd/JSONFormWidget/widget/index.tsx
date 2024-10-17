@@ -31,11 +31,13 @@ import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import type { ProFormInstance } from "@ant-design/pro-components";
+import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
 import { CONFIG as ANTD_BUTTON_WIDGET_CONFIG } from "widgets/Antd/ButtonWidget";
 import { ButtonVariantTypes } from "components/constants";
-
+console.log(` contentConfig`, contentConfig);
 export interface JSONFormWidgetProps extends WidgetProps {
+  controlSize: ProFormProps["size"];
+
   autoGenerateForm?: boolean;
   borderColor?: string;
   borderRadius?: number;

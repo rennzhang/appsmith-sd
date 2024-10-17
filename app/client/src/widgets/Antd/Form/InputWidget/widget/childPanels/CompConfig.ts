@@ -20,8 +20,6 @@ export function minValueValidation(
   const propertyPathChunks = propertyPath?.split(".") || [];
   const parentPath = propertyPathChunks.slice(0, -1).join(".");
   const propsData = _.get(props, parentPath) || props;
-  const propertyName = propertyPathChunks.slice(-1)[0];
-  const widgetName = props.widgetName;
   console.log("minValueValidation", {
     min,
     props,
@@ -29,8 +27,6 @@ export function minValueValidation(
     propertyPath,
     test,
     propsData,
-    propertyName,
-    widgetName,
   });
 
   const max = propsData.maxNum;

@@ -1,11 +1,11 @@
 import { Alignment } from "@blueprintjs/core";
-import { AntdLabelPosition } from "components/constants";
+import type { AntdLabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TextSize, WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { isArray, last } from "lodash";
+import { get, isArray, last } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -24,6 +24,7 @@ import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
 import {
   DEFAULT_STYLE_PANEL_CONFIG,
+  FORM_LABEL_CONTENT_CONFIG,
   getDefaultValueDropdownPropConfig,
   getFieldNamesPropConfig,
 } from "../../CONST/DEFAULT_CONFIG";
@@ -34,6 +35,7 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
 function getTypeDefOfTreeSelectInfo(isCheck?: boolean): string | Def {
   const def: Def = {
     event: "string",
@@ -146,123 +148,18 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
-          // {
-          //   helpText: "默认选中的值",
-          //   propertyName: "defaultValue",
-          //   label: "默认值",
-          //   controlType: "INPUT_TEXT",
-          //   placeholderText: "请输入选项数据",
-          //   isJSConvertible: true,
-          //   isBindProperty: true,
-          //   isTriggerProperty: false,
-          //   validation: {
-          //     type: ValidationTypes.FUNCTION,
-          //     params: {
-          //       fn: SelectValidator.defaultValueValidation,
-          //       expected: {
-          //         type: "value",
-          //         example: [`value1`],
-          //         autocompleteDataType: AutocompleteDataType.ARRAY,
-          //       },
-          //     },
-          //   },
-          // },
+
           getDefaultValueDropdownPropConfig({
             placeholderText: "请输入选项数据",
             dependencies: ["mode", "isMultiSelect"],
             defaultValue: undefined,
-
-            // validation: {
-            //   type: ValidationTypes.FUNCTION,
-            //   params: {
-            //     fn: SelectValidator.defaultValueValidation,
-            //     // expected: {
-            //     //   type: "value",
-            //     //   example: [`value1`],
-            //     //   autocompleteDataType: AutocompleteDataType.ARRAY,
-            //     // },
-            //   },
-            // },
           }),
           getFieldNamesPropConfig("label"),
           getFieldNamesPropConfig("value"),
           // getFieldNamesPropConfig("options"),
         ],
       },
-      {
-        sectionName: "标签",
-        children: [
-          {
-            helpText: "设置组件标签文本",
-            propertyName: "labelText",
-            label: "文本",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入文本内容",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "设置组件标签位置",
-            propertyName: "labelPosition",
-            label: "位置",
-            controlType: "ICON_TABS",
-            fullWidth: false,
-            hidden: isAutoLayout,
-            options: [
-              { label: "自动", value: AntdLabelPosition.Auto },
-              { label: "左", value: AntdLabelPosition.Left },
-              { label: "上", value: AntdLabelPosition.Top },
-            ],
-            defaultValue: AntdLabelPosition.Left,
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "设置组件标签的对齐方式",
-            propertyName: "labelAlignment",
-            label: "对齐",
-            controlType: "LABEL_ALIGNMENT_OPTIONS",
-            fullWidth: false,
-            options: [
-              {
-                startIcon: "align-left",
-                value: Alignment.LEFT,
-              },
-              {
-                startIcon: "align-right",
-                value: Alignment.RIGHT,
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            hidden: (props: SelectWidgetProps) =>
-              props.labelPosition !== AntdLabelPosition.Left,
-            dependencies: ["labelPosition"],
-          },
-          {
-            helpText: "设置组件标签占用的列数",
-            propertyName: "labelWidth",
-            label: "宽度（所占列数）",
-            controlType: "NUMERIC_INPUT",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            min: 0,
-            validation: {
-              type: ValidationTypes.NUMBER,
-              params: {
-                natural: true,
-              },
-            },
-            hidden: (props: SelectWidgetProps) =>
-              props.labelPosition !== AntdLabelPosition.Left,
-            dependencies: ["labelPosition"],
-          },
-        ],
-      },
+      FORM_LABEL_CONTENT_CONFIG,
       {
         sectionName: "校验",
         children: [
@@ -409,7 +306,11 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                 },
               },
             },
-            hidden: (props: SelectWidgetProps) => props.mode !== "tags",
+            hidden: (props: SelectWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return propsData.mode !== "tags";
+            },
             dependencies: ["mode"],
           },
           // 模式
@@ -469,7 +370,11 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
-            hidden: (props: SelectWidgetProps) => props.mode == "void 0",
+            hidden: (props: SelectWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return propsData.mode == "void 0";
+            },
             dependencies: ["mode"],
           },
           // maxTagTextLength
@@ -481,7 +386,11 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
-            hidden: (props: SelectWidgetProps) => props.mode == "void 0",
+            hidden: (props: SelectWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return propsData.mode == "void 0";
+            },
             dependencies: ["mode"],
           },
         ],

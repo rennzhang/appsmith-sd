@@ -1,36 +1,18 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import styled from "styled-components";
-import type { Alignment, IconName } from "@blueprintjs/core";
-import { isNil } from "lodash";
+import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import type { IconName } from "@blueprintjs/core";
 
-import Field from "../component/Field";
 import FormContext from "../FormContext";
 import useEvents from "./useBlurAndFocusEvents";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  createMessage,
-  FIELD_REQUIRED_ERROR,
-  INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
-  INPUT_TEXT_MAX_CHAR_ERROR,
-} from "@appsmith/constants/messages";
 import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
-  INPUT_TYPES,
   SchemaItem,
 } from "../constants";
 import {
   ActionUpdateDependency,
   FieldType,
-  INPUT_FIELD_TYPE,
   AntdInputWidgetConfig,
   AutoCompleteWidgetConfig,
 } from "../constants";
@@ -39,6 +21,7 @@ import AntdInputComponent from "widgets/Antd/Form/InputWidget/component";
 import AntdAutoCompleteComponent from "widgets/Antd/Form/AutoCompleteWidget/component";
 import type { AntdInputWidgetProps } from "widgets/Antd/Form/InputWidget/types";
 import { InputTypes } from "widgets/Antd/Form/InputWidget/constants";
+import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
 export type BaseInputComponentProps = FieldComponentBaseProps &
   FieldEventProps &
   AntdInputWidgetProps;
@@ -143,6 +126,8 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     formRef,
     updateFormData,
   } = useContext(FormContext);
+  // controlSize, isDisabled, isRequired, labelAlignment
+  const commonProps = useFieldPropsHandler(schemaItem);
   const inputDefaultValue = (() => {
     if (passedDefaultValue === undefined) {
       return schemaItem.defaultValue;
@@ -242,6 +227,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   console.log("JSONFormWidget BaseInputField", {
     inputType,
     schemaItem,
+    commonProps,
     formIsRequird,
   });
   useEffect(() => {
@@ -255,12 +241,8 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       return (
         <AntdAutoCompleteComponent
           {...schemaItem}
-          formLayout={formLayout}
+          {...commonProps}
           inputRef={inputRef}
-          isDisabled={formIsDisabled || schemaItem.isDisabled}
-          isInForm
-          isRequired={formIsRequird || schemaItem.isRequired}
-          labelAlignment={formLabelAlign || schemaItem.labelAlign}
           onFocusChange={focusChangeHandler}
           onKeyDown={keyDownHandler}
           onValueChange={(value: string) => onTextChangeHandler(value)}
@@ -270,13 +252,8 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     return (
       <AntdInputComponent
         {...schemaItem}
-        controlSize={formControlSize || schemaItem.controlSize}
-        formLayout={formLayout}
+        {...commonProps}
         inputRef={inputRef}
-        isDisabled={formIsDisabled || schemaItem.isDisabled}
-        isInForm
-        isRequired={formIsRequird || schemaItem.isRequired}
-        labelAlignment={formLabelAlign || schemaItem.labelAlign}
         onFocusChange={focusChangeHandler}
         onKeyDown={keyDownHandler}
         onValueChange={(value: string) => onTextChangeHandler(value)}

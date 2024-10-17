@@ -8,6 +8,8 @@ import {
 import styled from "styled-components";
 
 export const AntdProformContainer = styled.div<{
+  fixedFooter?: boolean;
+  scrollContents?: boolean;
   labelAlign?: string;
   backgroundColor?: string;
   borderRadius?: string;
@@ -16,12 +18,38 @@ export const AntdProformContainer = styled.div<{
   boxShadow?: string;
 }>`
   &.antd-pro-form-jsonform {
+    height: 100%;
     padding: 16px;
     background-color: ${({ backgroundColor }) => backgroundColor};
     border-radius: ${({ borderRadius }) => borderRadius};
     border: ${({ borderWidth }) => borderWidth}px solid
       ${({ borderColor }) => borderColor};
     box-shadow: ${({ boxShadow }) => boxShadow};
+    overflow: hidden;
+
+    .ant-form {
+      ${({ fixedFooter, scrollContents }) =>
+        scrollContents ? "display: flex; flex-direction: column;" : ""};
+      justify-content: ${({ fixedFooter }) =>
+        fixedFooter ? "space-between" : ""};
+      height: 100%;
+      overflow: ${({ fixedFooter, scrollContents }) =>
+        fixedFooter ? "hidden" : scrollContents ? "auto" : "hidden"};
+    }
+
+    .antd-pro-form-content {
+      overflow: ${({ fixedFooter }) => (fixedFooter ? "auto" : "")};
+    }
+    .t--jsonformfield-root {
+      overflow: ${({ fixedFooter, scrollContents }) =>
+        fixedFooter ? "auto" : scrollContents ? "auto" : ""};
+    }
+    .antd-pro-form-submitter {
+      padding-top: ${({ fixedFooter }) => (fixedFooter ? "10px" : "")};
+      background-color: ${({ backgroundColor }) => backgroundColor};
+      ${({ fixedFooter }) =>
+        fixedFooter ? "position: sticky; bottom: 0;" : ""};
+    }
   }
   .ant-form-vertical {
     div.ant-form-item div.ant-form-item-label.ant-col label {

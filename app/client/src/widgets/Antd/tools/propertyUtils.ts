@@ -6,6 +6,16 @@ import type { SelectWidgetProps } from "../Form/SelectWidget/widget";
 
 export function getDefaultValueOptions(widget: WidgetProps) {
   let sourceData = get(widget, `${EVAL_VALUE_PATH}.options`);
+  let jsonFormPath = "";
+  if (widget.type === "ANTD_JSON_FORM_WIDGET") {
+    // "AntdJSONForm1.schema.__root_schema__.children.name.defaultValue" => schema.__root_schema__.children.name 截取第一个点和最后一个点之前的字符
+    jsonFormPath =
+      widget.dataTreePath?.split(".")?.slice(1, -1)?.join(".") || "";
+    sourceData = get(widget, `${jsonFormPath}.options`);
+  }
+
+  console.log("getDefaultValueOptions", widget, jsonFormPath);
+
   let labelKey = widget.labelKey || "label";
   let valueKey = widget.valueKey || "value";
   if (widget.type === "ANTD_PRO_TABLE_WIDGET") {
@@ -45,6 +55,14 @@ export function getLabelValueKeyOptions(widget: WidgetProps) {
   console.log("getLabelValueKeyOptions", widget);
 
   let sourceData = get(widget, `${EVAL_VALUE_PATH}.options`);
+  let jsonFormPath = "";
+  if (widget.type === "ANTD_JSON_FORM_WIDGET") {
+    // "AntdJSONForm1.schema.__root_schema__.children.name.defaultValue" => schema.__root_schema__.children.name 截取第一个点和最后一个点之前的字符
+    jsonFormPath =
+      widget.dataTreePath?.split(".")?.slice(1, -1)?.join(".") || "";
+    sourceData = get(widget, `${jsonFormPath}.options`);
+  }
+
   if (widget.type === "ANTD_PRO_TABLE_WIDGET") {
     sourceData =
       (widget?.__evaluation__?.evaluatedValues as any)?.orderedTableColumns?.[
@@ -108,7 +126,12 @@ export function defaultOptionValueValidation(
   value: unknown,
   props: SelectWidgetProps,
   _: any,
+  __: any,
+  propertyPath: string,
 ): ValidationResponse {
+  // const propertyPathChunks = propertyPath?.split(".") || [];
+  // const parentPath = propertyPathChunks.slice(0, -1).join(".");
+  // const propsData = _.get(props, parentPath) || props;
   let isValid;
   let parsed;
   let message = { name: "", message: "" };

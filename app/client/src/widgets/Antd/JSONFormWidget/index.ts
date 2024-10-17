@@ -61,7 +61,7 @@ export const CONFIG = {
     version: 1,
     borderWidth: "1",
     borderColor: Colors.GREY_5,
-    widgetName: "JSONForm",
+    widgetName: "AntdJSONForm",
     autoGenerateForm: true,
     fieldLimitExceeded: false,
     sourceData: {

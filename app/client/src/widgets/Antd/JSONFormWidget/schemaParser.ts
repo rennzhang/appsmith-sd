@@ -29,6 +29,7 @@ import {
 } from "./constants";
 import { getFieldStylesheet } from "./helper";
 import { InputTypes as AntdInputTypes } from "widgets/Antd/Form/InputWidget/constants";
+import { AntdLabelPosition } from "components/constants";
 
 type Obj = Record<string, unknown>;
 
@@ -596,6 +597,8 @@ class SchemaParser {
       return {
         inputType: AntdInputTypes.TEXT_INPUT,
         ...defaultValues,
+        labelAlignment: "left" as any,
+        labelPosition: AntdLabelPosition.Top,
         labelText: startCase(key) || key || defaultValues?.labelText || "",
       };
     })();

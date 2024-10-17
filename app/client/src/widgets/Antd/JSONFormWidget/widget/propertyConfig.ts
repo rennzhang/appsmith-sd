@@ -322,179 +322,8 @@ export const contentConfig = mergeWidgetConfig(
   cloneDeep(ANTD_FORM_WIDGET_CONFIG.properties.contentConfig),
 );
 
-const generateButtonStyleControlsV2For = (prefix: string) => [
-  {
-    sectionName: "属性",
-    collapsible: false,
-    children: [
-      {
-        propertyName: `${prefix}.buttonColor`,
-        helpText: "修改按钮颜色",
-        label: "按钮颜色",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
-        propertyName: `${prefix}.buttonVariant`,
-        label: "按钮类型",
-        controlType: "ICON_TABS",
-        defaultValue: ButtonVariantTypes.PRIMARY,
-        fullWidth: true,
-        helpText: "设置图标按钮类型",
-        options: [
-          {
-            label: "主按钮",
-            value: ButtonVariantTypes.PRIMARY,
-          },
-          {
-            label: "次级按钮",
-            value: ButtonVariantTypes.SECONDARY,
-          },
-          {
-            label: "文本按钮",
-            value: ButtonVariantTypes.TERTIARY,
-          },
-        ],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: [
-              ButtonVariantTypes.PRIMARY,
-              ButtonVariantTypes.SECONDARY,
-              ButtonVariantTypes.TERTIARY,
-            ],
-            default: ButtonVariantTypes.PRIMARY,
-          },
-        },
-      },
-      {
-        propertyName: `${prefix}.borderRadius`,
-        label: "边框圆角",
-        helpText: "边框圆角样式",
-        controlType: "BORDER_RADIUS_OPTIONS",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
-        propertyName: `${prefix}.boxShadow`,
-        label: "阴影",
-        helpText: "组件轮廓投影",
-        controlType: "BOX_SHADOW_OPTIONS",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-        },
-      },
-    ],
-  },
-  {
-    sectionName: "图标配置",
-    collapsible: false,
-    children: [
-      {
-        propertyName: `${prefix}.iconName`,
-        label: "图标",
-        helpText: "设置按钮图标",
-        controlType: "ICON_SELECT",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        updateHook: (
-          props: ButtonWidgetProps,
-          propertyPath: string,
-          propertyValue: string,
-        ) => {
-          const propertiesToUpdate = [{ propertyPath, propertyValue }];
-          if (!props.iconAlign) {
-            propertiesToUpdate.push({
-              propertyPath: `${prefix}.iconAlign`,
-              propertyValue: Alignment.LEFT,
-            });
-          }
-          return propertiesToUpdate;
-        },
-        validation: {
-          type: ValidationTypes.TEXT,
-        },
-      },
-      {
-        propertyName: `${prefix}.iconAlign`,
-        label: "位置",
-        helpText: "设置按钮图标对齐方向",
-        controlType: "ICON_TABS",
-        defaultValue: "left",
-        fullWidth: false,
-        options: [
-          {
-            startIcon: "skip-left-line",
-            value: "left",
-          },
-          {
-            startIcon: "skip-right-line",
-            value: "right",
-          },
-        ],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: ["center", "left", "right"],
-          },
-        },
-      },
-      {
-        propertyName: `${prefix}.placement`,
-        label: "排列方式",
-        controlType: "ICON_TABS",
-        fullWidth: true,
-        helpText: "设置图标与标签的排列方式",
-        options: [
-          {
-            label: "向前对齐",
-            value: ButtonPlacementTypes.START,
-          },
-          {
-            label: "两边对齐",
-            value: ButtonPlacementTypes.BETWEEN,
-          },
-          {
-            label: "居中对齐",
-            value: ButtonPlacementTypes.CENTER,
-          },
-        ],
-        defaultValue: ButtonPlacementTypes.CENTER,
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: [
-              ButtonPlacementTypes.START,
-              ButtonPlacementTypes.BETWEEN,
-              ButtonPlacementTypes.CENTER,
-            ],
-            default: ButtonPlacementTypes.CENTER,
-          },
-        },
-      },
-    ],
-  },
-];
 // ANTD_BUTTON_WIDGET_CONFIG
-const generateButtonStyleControlsV2For1 = (prefix: string) => {
+const generateButtonStyleControlsV2For = (prefix: string) => {
   return cloneDeep(ANTD_BUTTON_WIDGET_CONFIG.properties.styleConfig).map(
     (item) => {
       return {
@@ -568,36 +397,15 @@ export const styleConfig = mergeWidgetConfig(
 
     {
       sectionName: "提交按钮样式",
-      children: generateButtonStyleControlsV2For1("submitButtonStyles"),
+      children: generateButtonStyleControlsV2For("submitButtonStyles"),
+      dependencies: ["submitButtonStyles"],
+      evaluatedDependencies: ["submitButtonStyles"],
     },
     {
       sectionName: "重置按钮样式",
-      children: [
-        ...generateButtonStyleControlsV2For1("resetButtonStyles"),
-        {
-          propertyName: `resetborderRadius`,
-          label: "边框圆角",
-          helpText: "边框圆角样式",
-          controlType: "BORDER_RADIUS_OPTIONS",
-          isJSConvertible: true,
-          isBindProperty: true,
-          isTriggerProperty: false,
-          validation: { type: ValidationTypes.TEXT },
-        },
-        {
-          propertyName: `resboxShadow`,
-          label: "阴影",
-          helpText: "组件轮廓投影",
-          controlType: "BOX_SHADOW_OPTIONS",
-          isJSConvertible: true,
-          isBindProperty: true,
-          isTriggerProperty: false,
-          validation: {
-            type: ValidationTypes.TEXT,
-          },
-        },
-      ],
-      dependencies: ["showReset"],
+      children: [...generateButtonStyleControlsV2For("resetButtonStyles")],
+      dependencies: ["showReset", "resetButtonStyles"],
+      evaluatedDependencies: ["showReset", "resetButtonStyles"],
       hidden: (props: JSONFormWidgetProps) => !props.showReset,
     },
   ],

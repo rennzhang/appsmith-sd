@@ -68,6 +68,7 @@ export const CONFIG = {
     minWidth: FILL_WIDGET_MIN_WIDTH,
     mode: "void 0",
     tokenSeparators: [","],
+    showSearch: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

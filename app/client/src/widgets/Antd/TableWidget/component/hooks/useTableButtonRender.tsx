@@ -128,8 +128,7 @@ export const useButtonRender = () => {
           key={button.id}
           loading={button.loading}
           onClick={() => {
-            onClick(button);
-            // handleButtonClick(button, props, record, recordIndex, action);
+            onClick?.(button);
           }}
           placement={button.placement || "CENTER"}
           popconfirmMessage={button.popconfirmMessage}

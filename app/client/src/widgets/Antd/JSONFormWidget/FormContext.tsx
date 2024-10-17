@@ -8,7 +8,7 @@ import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
 type FormContextProps<TValues = any> = React.PropsWithChildren<{
   formControlSize: ProFormProps["size"];
   formIsDisabled?: boolean;
-  formLayout?: "horizontal" | "vertical";
+  formLayout?: "horizontal" | "vertical" | "inline";
   formLabelAlign?: "left" | "right";
   formIsRequird?: boolean;
   executeAction: (action: Action) => void;
@@ -30,12 +30,12 @@ const FormContext = createContext<FormContextValueProps>(
 );
 
 export function FormContextProvider({
-  formLabelAlign,
   children,
   executeAction,
   formControlSize,
   formIsDisabled,
   formIsRequird,
+  formLabelAlign,
   formLayout,
   formRef,
   renderMode,

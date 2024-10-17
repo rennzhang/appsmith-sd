@@ -46,7 +46,7 @@ import {
 const AntdInputWidgetPropertyPaneConfig = cloneDeep(
   AntdInputWidgetConfig.properties.contentConfig,
 );
-console.log("AntdInputWidget", AntdInputWidget.getPropertyPaneContentConfig());
+// console.log("AntdInputWidget", AntdInputWidget.getPropertyPaneContentConfig());
 
 // 转换PropertyPaneContentConfig，合并 hidden 属性
 const transConfig = (config: any[], types: FieldType[]) => {
@@ -60,6 +60,13 @@ const transConfig = (config: any[], types: FieldType[]) => {
       // 去重
       dependencies: [
         ...new Set([...(item.dependencies || []), "schema", "sourceData"]),
+      ],
+      evaluatedDependencies: [
+        ...new Set([
+          ...(item.evaluatedDependencies || []),
+          "schema",
+          "sourceData",
+        ]),
       ],
       hidden: (...args: HiddenFnParams) => {
         let originHiddenRes = null;
@@ -116,6 +123,7 @@ const transConfig = (config: any[], types: FieldType[]) => {
 const comTypesMap = {
   [AntdInputWidgetConfig.type]: INPUT_TYPES,
   [AutoCompleteWidgetConfig.type]: [FieldType.AUTOCOMPLETE_INPUT],
+  [SelectWidgetConfig.type]: [FieldType.SELECT, FieldType.MULTISELECT],
 };
 const allItemPropertyPaneConfig: Map<string, any[]> = new Map();
 const allItemStylePaneConfig: Map<string, any[]> = new Map();
@@ -165,12 +173,12 @@ function generatePanelPropertyConfig(
       children: [
         ...COMMON_PROPERTIES.content.data,
         // ...INPUT_PROPERTIES.content.data,
-        ...SWITCH_PROPERTIES.content.data,
-        ...SELECT_PROPERTIES.content.data,
-        ...RADIO_GROUP_PROPERTIES.content.data,
-        ...MULTI_SELECT_PROPERTIES.content.data,
+        // ...SWITCH_PROPERTIES.content.data,
+        // ...SELECT_PROPERTIES.content.data,
+        // ...RADIO_GROUP_PROPERTIES.content.data,
+        // ...MULTI_SELECT_PROPERTIES.content.data,
         ...DATE_PROPERTIES.content.data,
-        ...CHECKBOX_PROPERTIES.content.data,
+        // ...CHECKBOX_PROPERTIES.content.data,
         ...ARRAY_PROPERTIES.content.data,
         {
           propertyName: "children",
@@ -196,24 +204,24 @@ function generatePanelPropertyConfig(
       sectionName: "标签",
       children: [
         // ...COMMON_PROPERTIES.content.label,
-        ...CHECKBOX_PROPERTIES.content.label,
-        ...SWITCH_PROPERTIES.content.label,
+        // ...CHECKBOX_PROPERTIES.content.label,
+        // ...SWITCH_PROPERTIES.content.label,
       ],
     },
-    {
-      sectionName: "搜索过滤",
-      children: [
-        ...SELECT_PROPERTIES.content.searchAndFilters,
-        ...MULTI_SELECT_PROPERTIES.content.searchAndFilters,
-      ],
-      hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
-        const schemaItem: SchemaItem = get(props, propertyPath, {});
-        return !(
-          schemaItem.fieldType === FieldType.SELECT ||
-          schemaItem.fieldType === FieldType.MULTISELECT
-        );
-      },
-    },
+    // {
+    //   sectionName: "搜索过滤",
+    //   children: [
+    //     ...SELECT_PROPERTIES.content.searchAndFilters,
+    //     ...MULTI_SELECT_PROPERTIES.content.searchAndFilters,
+    //   ],
+    //   hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
+    //     const schemaItem: SchemaItem = get(props, propertyPath, {});
+    //     return !(
+    //       schemaItem.fieldType === FieldType.SELECT ||
+    //       schemaItem.fieldType === FieldType.MULTISELECT
+    //     );
+    //   },
+    // },
     {
       sectionName: "校验",
       children: [
@@ -239,14 +247,14 @@ function generatePanelPropertyConfig(
       sortOrder: 99999,
       sectionName: "事件",
       children: [
-        ...CHECKBOX_PROPERTIES.content.events,
-        ...DATE_PROPERTIES.content.events,
-        ...MULTI_SELECT_PROPERTIES.content.events,
+        // ...CHECKBOX_PROPERTIES.content.events,
+        // ...DATE_PROPERTIES.content.events,
+        // ...MULTI_SELECT_PROPERTIES.content.events,
         // ...INPUT_PROPERTIES.content.events,
-        ...SWITCH_PROPERTIES.content.events,
-        ...SELECT_PROPERTIES.content.events,
+        // ...SWITCH_PROPERTIES.content.events,
+        // ...SELECT_PROPERTIES.content.events,
         // ...COMMON_PROPERTIES.content.events,
-        ...RADIO_GROUP_PROPERTIES.content.events,
+        // ...RADIO_GROUP_PROPERTIES.content.events,
       ],
       hidden: isFieldTypeArrayOrObject,
     },

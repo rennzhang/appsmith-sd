@@ -24,69 +24,36 @@ import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import AntProFormComponent from "./AntdForm";
 import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
 import type { CheckboxGroupAlignment } from "components/constants";
+import type { ProformContainerComponentProps } from "./AntdForm";
 
-type StyledContainerProps = {
-  backgroundColor?: string;
-};
-
-export type JSONFormComponentProps<TValues = any> = {
-  buttonAlignment?: CheckboxGroupAlignment;
-  labelAlignment?: "left" | "right";
-  labelCol?: string;
-  wrapperCol?: string;
-  labelWrap?: boolean;
-  labelFlex?: number;
-  formLayout?: "horizontal" | "vertical";
-  titleColor?: string;
-  primaryColor?: string;
+export interface JSONFormComponentProps<TValues = any>
+  extends Omit<
+    ProformContainerComponentProps,
+    "formItems" | "formRef" | "updateWidgetProps" | "children"
+  > {
   isDisabled?: boolean;
-  validateOnly?: boolean;
-  isKeyPressSubmit?: boolean;
   isRequired?: boolean;
-  backgroundColor?: string;
-  borderColor?: Color;
-  borderRadius?: number;
-  borderWidth?: number;
-  boxShadow?: BoxShadow;
-  boxShadowColor?: string;
-  disabledWhenInvalid?: boolean;
+  labelAlignment?: "left" | "right";
   executeAction: (action: Action) => void;
   fieldLimitExceeded: boolean;
-  fixedFooter: boolean;
   getFormData: () => TValues;
   fixMessageHeight: boolean;
   isWidgetMounting: boolean;
-  isSubmitting: boolean;
   onFormValidityUpdate: (isValid: boolean) => void;
   onSubmit: (values: TValues) => void;
   registerResetObserver: (callback: () => void) => void;
   renderMode: RenderMode;
-  resetButtonLabel: string;
-  resetButtonStyles: ButtonStyleProps;
   schema: Schema;
-  scrollContents: boolean;
-  submitButtonLabel: string;
   unregisterResetObserver: () => void;
   setMetaInternalFieldState: (
     cb: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
   ) => void;
-  showReset: boolean;
-  submitButtonStyles: ButtonStyleProps;
-  title: string;
   updateFormData: (values: TValues) => void;
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
+  controlSize: ProFormProps["size"];
   widgetId: string;
-  widgetName: string;
-  validateMessage?: string;
-  initialValues?: Record<string, any>;
-  controlSize?: ProFormProps["size"];
-};
-
-const StyledContainer = styled(WidgetStyleContainer)<StyledContainerProps>`
-  background: ${({ backgroundColor }) => backgroundColor || "#fff"};
-  overflow-y: auto;
-`;
+}
 
 const MessageStateWrapper = styled.div<{ $fixHeight: boolean }>`
   align-items: center;
@@ -250,50 +217,25 @@ function JSONFormComponent<TValues>(
     >
       <AntProFormComponent
         {...styleProps}
-        backgroundColor={backgroundColor}
-        buttonAlignment={rest.buttonAlignment}
-        disabled={rest.isDisabled}
-        disabledWhenInvalid={rest.disabledWhenInvalid}
+        {...props}
+        fixedFooter={rest.fixedFooter}
         formItems={formItems}
-        formLayout={rest.formLayout}
         formRef={ref}
         getFormData={getFormData}
         hideFooter={hideFooter}
-        initialValues={initialValues}
-        isKeyPressSubmit={isKeyPressSubmit}
-        isSubmitting={isSubmitting}
-        labelAlign={rest.labelAlignment}
-        labelCol={rest.labelCol}
-        labelFlex={rest.labelFlex}
-        labelWrap={rest.labelWrap}
         onSubmit={onSubmit}
-        primaryColor={rest.primaryColor}
-        resetButtonLabel={resetButtonLabel}
-        resetButtonStyles={rest.resetButtonStyles}
-        showReset={rest.showReset}
         size={controlSize}
-        submitButtonLabel={submitButtonLabel}
-        submitButtonStyles={rest.submitButtonStyles}
-        title={rest.title}
         updateFormData={updateFormData}
         updateWidgetProps={updateWidgetProperty}
-        validateMessage={rest.validateMessage}
-        validateOnly={rest.validateOnly}
-        widgetId={rest.widgetId}
-        widgetName={rest.widgetName}
-        wrapperCol={rest.wrapperCol}
       >
         {renderComponent}
       </AntProFormComponent>
       {/* <StyledContainer backgroundColor={backgroundColor} {...styleProps}>
         <Form
-          disabledWhenInvalid={rest.disabledWhenInvalid}
-          fixedFooter={rest.fixedFooter}
           isWidgetMounting={isWidgetMounting}
           onFormValidityUpdate={onFormValidityUpdate}
           registerResetObserver={registerResetObserver}
           schema={schema}
-          scrollContents={rest.scrollContents}
           stretchBodyVertically={isSchemaEmpty}
           unregisterResetObserver={unregisterResetObserver}
         >

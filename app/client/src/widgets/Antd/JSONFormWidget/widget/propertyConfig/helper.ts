@@ -78,12 +78,6 @@ export const getSchemaItem = <TSchemaItem extends SchemaItem>(
     : getParentPropertyPath(propertyPath);
   const schemaItem: TSchemaItem = get(props, parentPropertyPath, {});
   const propertyName = propertyPath.split(".").slice(-1)[0]; // schema.__root_schema__.age.borderRadius -> borderRadius
-  console.log("getSchemaItem", parentPropertyPath, {
-    props,
-    parentPropertyPath,
-    propertyPath,
-    schemaItem,
-  });
 
   const fieldTypeMatches = (fieldType: FieldType) =>
     fieldType === schemaItem.fieldType;

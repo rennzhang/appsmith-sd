@@ -49,7 +49,7 @@ export interface InputComponentProps extends AntdInputWidgetProps {
   addonAfterColor?: string;
   searchLoading?: boolean;
   isInForm?: boolean;
-  formLayout?: "horizontal" | "vertical";
+  formLayout?: "vertical" | "horizontal" | "inline";
 }
 
 type InputDataType = number | string | undefined;
@@ -198,20 +198,14 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     isInForm,
   ]);
 
-  const labelPositionMemo = useMemo(() => {
-    if (formLayout === "vertical") {
-      return AntdLabelPosition.Top;
-    }
-    return labelPosition;
-  }, [labelPosition, formLayout]);
   const colLayoutMemo = useMemo(() => {
-    return labelPositionMemo === AntdLabelPosition.Left
+    return labelPosition === AntdLabelPosition.Left
       ? {
           labelCol: { sm: { span: labelWidth } },
           wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
         }
       : {};
-  }, [labelPositionMemo, labelWidth, formLayout]);
+  }, [labelPosition, labelWidth]);
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -350,7 +344,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     <AntdFormItemContainer
       boxShadow={boxShadow}
       className="antd-input-container"
-      labelPosition={labelPositionMemo}
+      labelPosition={labelPosition}
       labelStyle={labelStyle}
     >
       <ConfigProvider

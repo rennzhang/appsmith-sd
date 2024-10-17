@@ -43,7 +43,7 @@ const FIELDS_WITH_ACCENT_COLOR = [
   FieldType.CHECKBOX,
   // FieldType.CURRENCY_INPUT,
   FieldType.DATEPICKER,
-  FieldType.EMAIL_INPUT,
+  // FieldType.EMAIL_INPUT,
   FieldType.MULTILINE_TEXT_INPUT,
   FieldType.MULTISELECT,
   FieldType.NUMBER_INPUT,
@@ -170,49 +170,49 @@ const COMMON_PROPERTIES = {
         },
         dependencies: ["schema"],
       },
-      {
-        propertyName: "options",
-        helpText: "用户可选项，选项值必须唯一",
-        label: "选项",
-        controlType: "INPUT_TEXT",
-        placeholderText: '[{ "label": "选项1", "value": "选项2" }]',
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.ARRAY,
-          params: {
-            unique: ["value"],
-            children: {
-              type: ValidationTypes.OBJECT,
-              params: {
-                required: true,
-                allowedKeys: [
-                  {
-                    name: "label",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "",
-                      required: true,
-                    },
-                  },
-                  {
-                    name: "value",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "",
-                      required: true,
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        },
-        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeNotIncludes(FIELD_EXPECTING_OPTIONS),
-        dependencies: ["schema", "sourceData"],
-      },
+      // {
+      //   propertyName: "options",
+      //   helpText: "用户可选项，选项值必须唯一",
+      //   label: "选项",
+      //   controlType: "INPUT_TEXT",
+      //   placeholderText: '[{ "label": "选项1", "value": "选项2" }]',
+      //   isBindProperty: true,
+      //   isTriggerProperty: false,
+      //   validation: {
+      //     type: ValidationTypes.ARRAY,
+      //     params: {
+      //       unique: ["value"],
+      //       children: {
+      //         type: ValidationTypes.OBJECT,
+      //         params: {
+      //           required: true,
+      //           allowedKeys: [
+      //             {
+      //               name: "label",
+      //               type: ValidationTypes.TEXT,
+      //               params: {
+      //                 default: "",
+      //                 required: true,
+      //               },
+      //             },
+      //             {
+      //               name: "value",
+      //               type: ValidationTypes.TEXT,
+      //               params: {
+      //                 default: "",
+      //                 required: true,
+      //               },
+      //             },
+      //           ],
+      //         },
+      //       },
+      //     },
+      //   },
+      //   evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      //   hidden: (...args: HiddenFnParams) =>
+      //     getSchemaItem(...args).fieldTypeNotIncludes(FIELD_EXPECTING_OPTIONS),
+      //   dependencies: ["schema", "sourceData"],
+      // },
     ],
     label: [
       {

@@ -96,7 +96,13 @@ export const FORM_LABEL_CONTENT_CONFIG = {
       label: "位置",
       controlType: "ICON_TABS",
       fullWidth: true,
-      hidden: isAutoLayout,
+      hidden: (props: AntdInputWidgetProps) => {
+        if (props.type === "ANTD_JSON_FORM_WIDGET") {
+          return true;
+        }
+        console.log("labelPosition hidden", props);
+        // return isAutoLayout(props);
+      },
       options: [
         { label: "自动", value: AntdLabelPosition.Auto },
         { label: "左", value: AntdLabelPosition.Left },
@@ -145,6 +151,9 @@ export const FORM_LABEL_CONTENT_CONFIG = {
         },
       },
       hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
+        if (props.type === "ANTD_JSON_FORM_WIDGET") {
+          return false;
+        }
         const _propertyPath = getParentPropertyPath(propertyPath);
         const propsData = get(props, _propertyPath) || props;
         return propsData.labelPosition !== AntdLabelPosition.Left;

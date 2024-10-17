@@ -159,10 +159,8 @@ export function childrenKeyValidation(
   __?: any,
   path?: string,
 ): ValidationResponse {
-  let _value = value || props[path || ""];
-  if (props.type === "ANTD_PRO_TABLE_WIDGET") {
-    _value = _.get(props, path || "");
-  }
+  const _value = value || _.get(props, path || "");
+
   let sourceData: any = [];
 
   let parsedValue: any[] | undefined;
@@ -171,6 +169,10 @@ export function childrenKeyValidation(
     sourceData =
       props.orderedTableColumns?.[props.editingColumnIndex]?.options || [];
   }
+  if (props.type === "ANTD_JSON_FORM_WIDGET") {
+    // sourceData = props.schema?.properties?.options?.items?.properties?.children;
+  }
+
   parsedValue = sourceData;
   if (_.isString(sourceData)) {
     try {
@@ -265,10 +267,8 @@ export function labelKeyValidation(
   __: any,
   path?: string,
 ) {
-  let _value = value || props[path || ""];
-  if (props.type === "ANTD_PRO_TABLE_WIDGET") {
-    _value = _.get(props, path || "");
-  }
+  const _value = value || _.get(props, path || "");
+
   /*
    * Validation rules
    *  1. Can be a string.
@@ -332,10 +332,7 @@ export function valueKeyValidation(
   __?: any,
   path?: string,
 ) {
-  let _value = value || props[path || ""];
-  if (props.type === "ANTD_PRO_TABLE_WIDGET") {
-    _value = _.get(props, path || "");
-  }
+  const _value = value || _.get(props, path || "");
 
   if (!path?.includes(props.editingColumnId)) {
     return {

@@ -5,7 +5,7 @@ import type {
   ProFormProps,
   SubmitterProps,
 } from "@ant-design/pro-components";
-import { ProForm } from "@ant-design/pro-components";
+import { ProForm, ProFormText } from "@ant-design/pro-components";
 import { AntdProformContainer } from "widgets/Antd/Style";
 // export default InputComponent;
 import type { ValidateFields } from "rc-field-form/es/interface";
@@ -30,9 +30,17 @@ import {
   CheckboxGroupAlignmentTypes,
   type CheckboxGroupAlignment,
 } from "components/constants";
+import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { Color } from "constants/Colors";
 
-export interface ProformContainerComponentProps
-  extends WidgetStyleContainerProps {
+export interface ProformContainerComponentProps {
+  scrollContents: boolean;
+  initialValues?: Record<string, any>;
+  borderColor?: Color;
+  borderRadius?: number;
+  borderWidth?: number;
+  boxShadow?: BoxShadow;
+  boxShadowColor?: string;
   hideFooter?: boolean;
   formRef: React.RefObject<ProFormInstance<any>> | null;
   updateFormData: (values: any, skipConversion?: boolean) => void;
@@ -83,6 +91,7 @@ export interface ProformContainerComponentProps
   disabledWhenInvalid?: boolean;
   primaryColor?: string;
   titleColor?: string;
+  fixedFooter: boolean;
   submitButtonStyles?: any;
   resetButtonStyles?: any;
   buttonAlignment?: CheckboxGroupAlignment;
@@ -98,6 +107,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     children,
     disabled,
     disabledWhenInvalid,
+    fixedFooter,
     formItems,
     formLayout,
     formRef,
@@ -114,9 +124,10 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     onSubmit,
     primaryColor,
     resetButtonLabel,
+    scrollContents,
     showReset,
-    size,
 
+    size,
     submitButtonLabel,
     title,
     titleColor,
@@ -313,7 +324,11 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
               loading: isSubmitting,
               buttonSize: props.resetButtonStyles?.controlSize,
             },
-            onClick: onReset as any,
+            onClick: () => {
+              formRef?.current?.resetFields();
+              // onReset?.();
+              // updateFormData({});
+            },
             configToken: {},
           })}
           {renderActionButton({
@@ -325,29 +340,16 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
               loading: isSubmitting,
               buttonSize: props.submitButtonStyles?.controlSize,
             },
-            onClick: onSubmit as any,
+            onClick: () => {
+              formRef?.current?.submit();
+              // onSubmit?.();
+              // updateFormData({});
+            },
             configToken: {},
           })}
         </div>
       ),
     };
-    // return hideFooter
-    //   ? false
-    //   : {
-    //       searchConfig: {
-    //         submitText: submitButtonLabel,
-    //         resetText: resetButtonLabel,
-    //       },
-    //       submitButtonProps: {
-    //         loading: isSubmitting,
-    //         disabled: isSubmitDisabled,
-    //       },
-    //       resetButtonProps: showReset
-    //         ? {
-    //             loading: isSubmitting,
-    //           }
-    //         : false,
-    //     };
   }, [
     hideFooter,
     isSubmitting,
@@ -374,7 +376,9 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
       borderWidth={borderWidth as unknown as string}
       boxShadow={boxShadow}
       className={"antd-pro-form-container-styled antd-pro-form-jsonform"}
+      fixedFooter={fixedFooter}
       labelAlign={labelAlign}
+      scrollContents={scrollContents}
     >
       <ConfigProvider
         theme={{
@@ -392,14 +396,6 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
           },
         }}
       >
-        {title && (
-          <div
-            className="antd-pro-form-title"
-            style={{ color: titleColor || "unset" }}
-          >
-            {title}
-          </div>
-        )}
         <ProForm
           className={
             labelAlign?.toLowerCase() === "right" ? "ant-form-label-right" : ""
@@ -420,7 +416,18 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
           title={title}
           {...formItemLayoutMemo}
         >
-          {children}
+          <div className="antd-pro-form-content">
+            {title && (
+              <div
+                className="antd-pro-form-title"
+                style={{ color: titleColor || "unset" }}
+              >
+                {title}
+              </div>
+            )}
+
+            {children}
+          </div>
         </ProForm>
       </ConfigProvider>
     </AntdProformContainer>

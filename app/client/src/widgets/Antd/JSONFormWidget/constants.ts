@@ -95,6 +95,7 @@ import {
   DateField,
   InputField,
   MultiSelectField,
+  AntdSelectField,
   ObjectField,
   PhoneInputField,
   RadioGroupField,
@@ -102,7 +103,8 @@ import {
   SwitchField,
 } from "./fields";
 import type { InputType } from "zlib";
-import type { ProFormInstance } from "@ant-design/pro-components";
+import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
+import type { AntdLabelPosition } from "components/constants";
 // export enum FieldTypeNew {
 //   INPUT = AntdInputWidget.getWidgetType() as any,
 //   AUTOCOMPLETE = AutoCompleteWidget.getWidgetType() as any,
@@ -239,7 +241,7 @@ export const fieldTypeOptions = [
   },
   {
     label: "选择器",
-    value: FieldType.SELECT,
+    value: FieldType.MULTISELECT,
   },
   {
     label: "开关",
@@ -274,6 +276,9 @@ export type Obj = Record<string, any>;
 export type JSON = Obj | Obj[];
 
 export type FieldComponentBaseProps = {
+  labelAlignment?: "left" | "right";
+  controlSize?: ProFormProps["size"];
+  labelPosition?: AntdLabelPosition;
   defaultValue?: string | number;
   isDisabled: boolean;
   isRequired?: boolean;
@@ -394,7 +399,7 @@ export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.CHECKBOX]: CheckboxField,
 
   [FieldType.DATEPICKER]: DateField,
-  [FieldType.MULTISELECT]: MultiSelectField,
+  [FieldType.MULTISELECT]: AntdSelectField,
   [FieldType.OBJECT]: ObjectField,
   [FieldType.RADIO_GROUP]: RadioGroupField,
   [FieldType.SELECT]: SelectField,
