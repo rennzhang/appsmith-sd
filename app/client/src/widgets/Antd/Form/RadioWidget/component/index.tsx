@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { type Alignment } from "@blueprintjs/core";
@@ -13,6 +13,7 @@ import {
   ProFormRadio,
 } from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
+import type { TextSize, TextSizes } from "constants/WidgetConstants";
 export interface RadioGroupContainerProps {
   compactMode: boolean;
   labelPosition?: AntdLabelPosition;
@@ -22,25 +23,27 @@ export interface StyledRadioGroupProps {
   alignment: Alignment;
   compactMode: boolean;
   height?: number;
-  inline: boolean;
+  isInline: boolean;
   labelPosition?: AntdLabelPosition;
   optionCount: number;
-  accentColor: string;
+  colorPrimary: string;
   isDynamicHeightEnabled?: boolean;
   children?: React.ReactNode;
 }
 
 function RadioGroupComponent(props: RadioGroupComponentProps) {
   const {
-    accentColor,
+    accessor,
     alignment,
     animateLoading,
+    colorPrimary,
     compactMode,
     controlSize,
+    defaultValue,
     disabled,
     height,
-    inline,
     isDynamicHeightEnabled,
+    isInline,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -50,14 +53,25 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     labelTooltip,
     labelWidth,
     loading,
-    onRadioSelectionChange,
+    onChange,
     options,
     radioButtonStyle,
     radioType,
     required,
-    value,
     widgetName,
   } = props;
+
+  const [value, setValue] = useState(props.value);
+  useEffect(() => {
+    setValue(props.value);
+  }, [props.value]);
+
+  useEffect(() => {
+    if (defaultValue) {
+      setValue(defaultValue);
+    }
+  }, [defaultValue]);
+
   const fieldNamesValue = useMemo(() => {
     const defaultFieldNames = {
       value: props.valueKey || "value",
@@ -76,12 +90,12 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     }
     return {};
   }, [labelPosition, labelWidth]);
-  const handleChange = useCallback(
-    (e: RadioChangeEvent) => {
-      onRadioSelectionChange(e.target.value);
-    },
-    [onRadioSelectionChange],
-  );
+
+  const handleChange = (e: RadioChangeEvent) => {
+    console.log("e.target.value", e);
+    setValue(e.target.value);
+    onChange?.(e.target.value);
+  };
 
   const RadioComponent = useMemo(() => {
     return options.map((option) => {
@@ -93,6 +107,8 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
       );
     });
   }, [options, fieldNamesValue]);
+
+  console.log("AntdRadioGroupComponent", props, value);
 
   return (
     <AntdFormItemContainer
@@ -106,18 +122,19 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
           components: {
             Form: {
               labelColor: labelTextColor,
-              labelFontSize: labelTextSize,
+              labelFontSize: labelTextSize as unknown as number,
             },
             Radio: {
-              colorPrimary: accentColor,
+              colorPrimary: colorPrimary,
             },
+            Button: {},
           },
         }}
       >
         <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
-          name={widgetName}
+          name={accessor || widgetName}
           rules={[{ required: required, message: `此项为必填项` }]}
           tooltip={labelTooltip}
           {...colLayoutMemo}
@@ -125,7 +142,6 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
           <Radio.Group
             buttonStyle={radioButtonStyle ? "solid" : "outline"}
             disabled={disabled}
-            name={widgetName}
             onChange={handleChange}
             optionType={radioType === "button" ? "button" : "default"}
             options={radioType === "button" ? options : undefined}
@@ -137,13 +153,13 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
             value={value}
           >
             {radioType !== "button" && (
-              <Space direction={inline ? "horizontal" : "vertical"}>
-                {RadioComponent}
-                {/* {options.map((option) => (
+              <Space direction={isInline ? "horizontal" : "vertical"}>
+                {/* {RadioComponent} */}
+                {options.map((option) => (
                   <Radio key={option.value} value={option.value}>
                     {option.label}
                   </Radio>
-                ))} */}
+                ))}
               </Space>
             )}
           </Radio.Group>
@@ -153,31 +169,35 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
   );
 }
 
-export interface RadioGroupComponentProps extends ComponentProps {
+export interface RadioGroupComponentProps {
+  accessor?: string;
+  defaultValue?: string;
+  onSelectionChange?: string;
+  widgetName?: string;
   valueKey: string;
   labelKey: string;
   childrenKey: string;
   radioButtonStyle?: boolean;
   options: RadioOption[];
-  onRadioSelectionChange: (updatedOptionValue: string) => void;
-  value: string;
-  disabled: boolean;
-  loading: boolean;
+  onChange?: (updatedOptionValue: string) => void;
+  value?: string;
+  disabled?: boolean;
+  loading?: boolean;
   isDynamicHeightEnabled?: boolean;
-  inline: boolean;
-  alignment: Alignment;
-  compactMode: boolean;
+  isInline?: boolean;
+  alignment?: Alignment;
+  compactMode?: boolean;
   labelText: string;
   labelPosition?: AntdLabelPosition;
   labelAlignment?: "left" | "right";
   labelTextColor?: string;
-  labelTextSize?: number;
+  labelTextSize?: TextSize;
   labelStyle?: string;
   labelWidth?: number;
   labelTooltip?: string;
-  widgetId: string;
+  widgetId?: string;
   height?: number;
-  accentColor: string;
+  colorPrimary?: string;
   required?: boolean;
   animateLoading?: boolean;
   radioType?: "button" | "radio";

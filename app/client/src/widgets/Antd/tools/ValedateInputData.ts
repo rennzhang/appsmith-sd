@@ -324,6 +324,41 @@ export function labelKeyValidation(
     };
   }
 }
+export function validationDefaultWithOptionComponent(
+  value: unknown,
+  props: any,
+  _: LoDashStatic,
+  __?: any,
+  path?: string,
+) {
+  //取 path 第一个点和最后一个点之间的内容
+  const targetPath = path?.split(".").slice(0, -1).join(".");
+  const propsData = _.get(props, targetPath || "") || props;
+
+  if (
+    value &&
+    _.isArray(propsData.options) &&
+    propsData.options?.length > 0 &&
+    !propsData.options.find((item: any) => item[propsData.valueKey] === value)
+  ) {
+    return {
+      parsed: value,
+      isValid: false,
+      messages: [
+        {
+          name: "ValidationError",
+          message: `默认值必须存在于源数据中`,
+        },
+      ],
+    };
+  }
+
+  return {
+    parsed: value,
+    isValid: true,
+    messages: [],
+  };
+}
 
 export function valueKeyValidation(
   value: unknown,

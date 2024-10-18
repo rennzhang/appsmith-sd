@@ -79,11 +79,13 @@ export interface TreeSelectComponentProps {
   tokenSeparators?: string[];
   handleSearch?: (value: string) => void;
   handleValueChange?: (value: any, label: any) => void;
+  accessor?: string;
 }
 
 function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
   const {
     accentColor,
+    accessor,
     allowClear,
     borderRadius,
     boxShadow,
@@ -263,7 +265,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
         <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
-          name={widgetName}
+          name={accessor || widgetName}
           tooltip={labelTooltip}
           {...validateProps}
           {...colLayoutMemo}

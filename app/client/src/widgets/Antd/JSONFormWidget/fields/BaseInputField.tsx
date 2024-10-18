@@ -220,11 +220,6 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     commonProps,
     formIsRequird,
   });
-  useEffect(() => {
-    console.log("BaseInputField useEffect", {
-      formIsRequird,
-    });
-  }, [formIsRequird]);
 
   const fieldComponent = useMemo(() => {
     if (schemaItem.fieldType === FieldType.AUTOCOMPLETE_INPUT) {

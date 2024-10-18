@@ -191,7 +191,7 @@ export const contentConfig = mergeWidgetConfig(
           propertyName: `schema.${ROOT_SCHEMA_KEY}.children`,
           helpText: "字段配置",
           label: "字段配置",
-          controlType: "FIELD_CONFIGURATION",
+          controlType: "ANTD_FIELD_CONFIGURATION",
           isBindProperty: false,
           isTriggerProperty: false,
           panelConfig,

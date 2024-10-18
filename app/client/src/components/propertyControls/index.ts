@@ -52,6 +52,7 @@ import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
 import BorderRadiusOptionsControl from "./BorderRadiusOptionsControl";
 import ButtonBorderRadiusOptionsControl from "./ButtonBorderRadiusControl";
 import FieldConfigurationControl from "components/propertyControls/FieldConfigurationControl";
+import AntdFieldConfigurationControl from "components/propertyControls/AntdFieldConfigurationControl";
 import JSONFormComputeControl from "./JSONFormComputeControl";
 import ButtonControl from "./ButtonControl";
 import LabelAlignmentOptionsControl from "./LabelAlignmentOptionsControl";
@@ -122,6 +123,7 @@ export const PropertyControls = {
   BorderRadiusOptionsControl,
   ButtonBorderRadiusOptionsControl,
   FieldConfigurationControl,
+  AntdFieldConfigurationControl,
   JSONFormComputeControl,
   ButtonControl,
   LabelAlignmentOptionsControl,

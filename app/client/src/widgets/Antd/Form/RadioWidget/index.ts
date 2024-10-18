@@ -21,13 +21,11 @@ export const CONFIG = {
   searchTags: ["choice", "radio group"],
   defaults: {
     ...DEFAULT_CONFIG.defaults,
-
+    radioType: "radio" as "button" | "radio",
     rows: 6,
     columns: 20,
     animateLoading: false,
-    label: "标签",
     labelPosition: AntdLabelPosition.Auto,
-    labelTextSize: 14,
     labelWidth: 6,
     options: [
       { label: "是", value: "Y" },

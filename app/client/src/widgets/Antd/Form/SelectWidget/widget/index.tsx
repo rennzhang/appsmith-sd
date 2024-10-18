@@ -29,7 +29,10 @@ import {
   getFieldNamesPropConfig,
 } from "../../CONST/DEFAULT_CONFIG";
 import type { Def } from "tern";
-import { SelectValidator } from "widgets/Antd/tools";
+import {
+  SelectValidator,
+  validationDefaultWithOptionComponent,
+} from "widgets/Antd/tools";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
@@ -153,6 +156,13 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             placeholderText: "请输入选项数据",
             dependencies: ["mode", "isMultiSelect"],
             defaultValue: undefined,
+            // validation: {
+            //   dependentPaths: ["options", "valueKey"],
+            //   type: ValidationTypes.FUNCTION,
+            //   params: {
+            //     fn: validationDefaultWithOptionComponent,
+            //   },
+            // },
           }),
           getFieldNamesPropConfig("label"),
           getFieldNamesPropConfig("value"),

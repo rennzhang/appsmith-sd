@@ -8,7 +8,6 @@ import type { SegmentedControlOption } from "design-system";
 
 class OptionControl extends BaseControl<ControlProps> {
   render() {
-    console.log("KeyValueComponent this.props", this.props);
     return (
       <KeyValueComponent
         pairs={this.props.propertyValue}
@@ -21,7 +20,9 @@ class OptionControl extends BaseControl<ControlProps> {
     options: SegmentedControlOption[],
     isUpdatedViaKeyboard = false,
   ) => {
-    this.updateProperty("options", options, isUpdatedViaKeyboard);
+    const updatePath =
+      this.props.dataTreePath?.split(".").slice(1).join(".") || "options";
+    this.updateProperty(updatePath, options, isUpdatedViaKeyboard);
   };
 
   static getControlType() {

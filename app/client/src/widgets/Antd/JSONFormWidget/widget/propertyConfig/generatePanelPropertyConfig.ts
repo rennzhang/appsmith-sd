@@ -43,9 +43,6 @@ import {
   TreeWidgetConfig,
   UploadWidgetConfig,
 } from "../../constants";
-const AntdInputWidgetPropertyPaneConfig = cloneDeep(
-  AntdInputWidgetConfig.properties.contentConfig,
-);
 // console.log("AntdInputWidget", AntdInputWidget.getPropertyPaneContentConfig());
 
 // 转换PropertyPaneContentConfig，合并 hidden 属性
@@ -124,6 +121,7 @@ const comTypesMap = {
   [AntdInputWidgetConfig.type]: INPUT_TYPES,
   [AutoCompleteWidgetConfig.type]: [FieldType.AUTOCOMPLETE_INPUT],
   [SelectWidgetConfig.type]: [FieldType.SELECT, FieldType.MULTISELECT],
+  [RadioWidgetConfig.type]: [FieldType.RADIO_GROUP],
 };
 const allItemPropertyPaneConfig: Map<string, any[]> = new Map();
 const allItemStylePaneConfig: Map<string, any[]> = new Map();

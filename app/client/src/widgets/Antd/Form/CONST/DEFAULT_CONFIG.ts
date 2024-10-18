@@ -29,6 +29,7 @@ import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
 import type { ProFormItemProps } from "@ant-design/pro-components";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TextSize } from "constants/WidgetConstants";
+import { theme } from "antd";
 
 // 如果是对象，递归可选
 type DeepPartial<T> = T extends object
@@ -47,6 +48,7 @@ export const DEFAULT_CONFIG = {
     },
   },
   defaults: {
+    colorPrimary: theme.defaultSeed.colorPrimary,
     boxShadow: "none",
     borderRadius: "0.375rem",
     labelKey: "label",
@@ -184,11 +186,15 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         validation: {
           type: ValidationTypes.TEXT,
         },
-        dependencies: ["type"],
+        dependencies: ["type", "radioType"],
         //ANTD_TREE_WIDGET、ANTD_SWITCH_WIDGET ANTD_TEXT_WIDGET ANTD_SLIDER_WIDGET 不显示
         hidden: (props: any, propertyPath: string) => {
           const _propertyPath = getParentPropertyPath(propertyPath);
           const propsData = get(props, _propertyPath) || props;
+          console.log("controlSize hidden", propsData);
+          if (propsData.type === "ANTD_RADIO_WIDGET") {
+            return propsData.radioType === "radio";
+          }
           console.log(
             "controlSize hidden",
             [
@@ -326,10 +332,14 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        dependencies: ["type", "radioType"],
         //ANTD_SWITCH_WIDGET 显示
         hidden: (props: any, propertyPath: string) => {
           const _propertyPath = getParentPropertyPath(propertyPath);
           const propsData = get(props, _propertyPath) || props;
+          if (propsData.type === "ANTD_RADIO_WIDGET") {
+            return true;
+          }
           return !["ANTD_SWITCH_WIDGET"].includes(propsData.type);
         },
       },
@@ -342,6 +352,7 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        dependencies: ["type", "radioType"],
         hidden: (props: any, propertyPath: string) => {
           const _propertyPath = getParentPropertyPath(propertyPath);
           const propsData = get(props, _propertyPath) || props;
@@ -360,9 +371,13 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
         //ANTD_TREE_WIDGET、ANTD_SWITCH_WIDGET 不显示
+        dependencies: ["type", "radioType"],
         hidden: (props: any, propertyPath: string) => {
           const _propertyPath = getParentPropertyPath(propertyPath);
           const propsData = get(props, _propertyPath) || props;
+          if (propsData.type === "ANTD_RADIO_WIDGET") {
+            return true;
+          }
           return [
             "ANTD_TREE_WIDGET",
             "ANTD_SWITCH_WIDGET",
@@ -379,9 +394,13 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        dependencies: ["type", "radioType"],
         hidden: (props: any, propertyPath: string) => {
           const _propertyPath = getParentPropertyPath(propertyPath);
           const propsData = get(props, _propertyPath) || props;
+          if (propsData.type === "ANTD_RADIO_WIDGET") {
+            return propsData.radioType === "radio";
+          }
           return ["ANTD_TEXT_WIDGET"].includes(propsData.type);
         },
       },
@@ -415,7 +434,7 @@ export const getDefaultValueDropdownPropConfig = (
       isJSConvertible: true,
       options: getDefaultValueOptions,
       validation: {
-        type: ValidationTypes.UNION,
+        type: ValidationTypes.FUNCTION,
         params: {
           types: [
             {

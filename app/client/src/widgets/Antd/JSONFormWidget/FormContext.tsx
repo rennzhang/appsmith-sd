@@ -60,6 +60,10 @@ export function FormContextProvider({
           ...formRef?.current?.getFieldsValue(),
           ...values,
         });
+        console.log(
+          "updateFormData result",
+          formRef?.current?.getFieldsValue(),
+        );
       },
       updateWidgetMetaProperty,
       updateWidgetProperty,

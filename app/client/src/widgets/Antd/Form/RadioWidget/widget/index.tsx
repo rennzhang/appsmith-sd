@@ -1,8 +1,8 @@
-import { Alignment } from "@blueprintjs/core";
-import { compact, isArray, isNumber } from "lodash";
+import type { Alignment } from "@blueprintjs/core";
+import { compact, get, isArray, isNumber } from "lodash";
 import React from "react";
 
-import { AntdLabelPosition } from "components/constants";
+import type { AntdLabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TextSize, WidgetType } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
@@ -24,9 +24,14 @@ import BaseWidget from "widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import {
+  DEFAULT_STYLE_PANEL_CONFIG,
+  FORM_LABEL_CONTENT_CONFIG,
   getDefaultValueDropdownPropConfig,
   getFieldNamesPropConfig,
 } from "../../CONST/DEFAULT_CONFIG";
+import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
+import { mergeWidgetConfig } from "utils/helpers";
+import { validationDefaultWithOptionComponent } from "widgets/Antd/tools";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -79,88 +84,19 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           getDefaultValueDropdownPropConfig({
             placeholderText: "Y",
             validation: {
-              type: ValidationTypes.TEXT,
+              dependentPaths: ["options", "valueKey"],
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: validationDefaultWithOptionComponent,
+              },
             },
           }),
           getFieldNamesPropConfig("label"),
           getFieldNamesPropConfig("value"),
         ],
       },
-      {
-        sectionName: "标签",
-        children: [
-          {
-            helpText: "设置组件标签文本",
-            propertyName: "labelText",
-            label: "文本",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入文本内容",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          // !暂不支持，需要配合 form 组件
-          {
-            helpText: "设置组件标签位置",
-            propertyName: "labelPosition",
-            label: "位置",
-            controlType: "ICON_TABS",
-            fullWidth: true,
-            hidden: isAutoLayout,
-            options: [
-              { label: "自动", value: AntdLabelPosition.Auto },
-              { label: "左", value: AntdLabelPosition.Left },
-              { label: "上", value: AntdLabelPosition.Top },
-            ],
-            defaultValue: AntdLabelPosition.Left,
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "设置组件标签的对齐方式",
-            propertyName: "labelAlignment",
-            label: "对齐",
-            controlType: "LABEL_ALIGNMENT_OPTIONS",
-            fullWidth: false,
-            options: [
-              {
-                startIcon: "align-left",
-                value: Alignment.LEFT,
-              },
-              {
-                startIcon: "align-right",
-                value: Alignment.RIGHT,
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            hidden: (props: RadioGroupWidgetProps) =>
-              props.labelPosition !== AntdLabelPosition.Left,
-            dependencies: ["labelPosition"],
-          },
-          {
-            helpText: "设置组件标签占用的列数",
-            propertyName: "labelWidth",
-            label: "宽度（所占列数）",
-            controlType: "NUMERIC_INPUT",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            min: 0,
-            validation: {
-              type: ValidationTypes.NUMBER,
-              params: {
-                natural: true,
-              },
-            },
-            hidden: (props: RadioGroupWidgetProps) =>
-              props.labelPosition !== AntdLabelPosition.Left,
-            dependencies: ["labelPosition"],
-          },
-        ],
-      },
+      FORM_LABEL_CONTENT_CONFIG,
+
       {
         sectionName: "校验",
         children: [
@@ -211,18 +147,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           },
 
           {
-            propertyName: "isInline",
-            helpText: "单向框是否水平排列",
-            label: "行排列",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-            hidden: (props: RadioGroupWidgetProps) =>
-              props.radioType === "button",
-          },
-          {
             propertyName: "animateLoading",
             label: "加载时显示动画",
             controlType: "SWITCH",
@@ -241,7 +165,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           {
             helpText: "选中项改变时触发",
             propertyName: "onSelectionChange",
-            label: "onSelectionChange",
+            label: "onChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -253,7 +177,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneStyleConfig() {
-    return [
+    return mergeWidgetConfig(DEFAULT_STYLE_PANEL_CONFIG, [
       {
         sectionName: "属性",
         children: [
@@ -277,33 +201,56 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
               },
             ],
           },
+          // {
+          //   propertyName: "controlSize",
+          //   label: "尺寸",
+          //   controlType: "ICON_TABS",
+          //   helpText: "设置控件的大小",
+          //   defaultValue: "middle",
+          //   options: [
+          //     {
+          //       label: "小",
+          //       value: "small",
+          //     },
+          //     {
+          //       label: "中等",
+          //       value: "middle",
+          //     },
+          //     {
+          //       label: "大",
+          //       value: "large",
+          //     },
+          //   ],
+          //   // isJSConvertible: true,
+          //   isBindProperty: true,
+          //   isTriggerProperty: false,
+          //   validation: {
+          //     type: ValidationTypes.TEXT,
+          //   },
+          //   dependencies: ["radioType"],
+          //   hidden: (props: any, propertyPath: string) => {
+          //     const _propertyPath = getParentPropertyPath(propertyPath);
+          //     const propsData = get(props, _propertyPath) || props;
+          //     return propsData.radioType === "radio";
+          //   },
+          // },
           {
-            propertyName: "controlSize",
-            label: "尺寸",
-            controlType: "ICON_TABS",
-            helpText: "设置控件的大小",
-            defaultValue: "middle",
-            options: [
-              {
-                label: "小",
-                value: "small",
-              },
-              {
-                label: "中等",
-                value: "middle",
-              },
-              {
-                label: "大",
-                value: "large",
-              },
-            ],
-            // isJSConvertible: true,
+            propertyName: "isInline",
+            helpText: "单向框是否水平排列",
+            label: "行排列",
+            controlType: "SWITCH",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
+            validation: { type: ValidationTypes.BOOLEAN },
+            dependencies: ["radioType"],
+            hidden: (props: RadioGroupWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              console.log("radioType propsData", propsData);
+
+              return propsData.radioType === "button";
             },
-            hidden: (props: any) => props.radioType === "radio",
           },
           {
             propertyName: "radioButtonStyle",
@@ -314,84 +261,49 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             fullWidth: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            hidden: (props: any) => props.radioType === "radio",
+            dependencies: ["radioType"],
+            hidden: (props: any, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return propsData.radioType === "radio";
+            },
           },
-          {
-            propertyName: "alignment",
-            helpText: "设置组件对齐方式",
-            label: "对齐",
-            controlType: "ICON_TABS",
-            defaultValue: Alignment.LEFT,
-            fullWidth: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            options: [
-              {
-                label: "左对齐",
-                value: Alignment.LEFT,
-              },
-              {
-                label: "右对齐",
-                value: Alignment.RIGHT,
-              },
-            ],
-            hidden: (props: any) => props.radioType === "button",
-          },
+          // {
+          //   propertyName: "alignment",
+          //   helpText: "设置组件对齐方式",
+          //   label: "对齐",
+          //   controlType: "ICON_TABS",
+          //   defaultValue: Alignment.LEFT,
+          //   fullWidth: true,
+          //   isBindProperty: true,
+          //   isTriggerProperty: false,
+          //   options: [
+          //     {
+          //       label: "左对齐",
+          //       value: Alignment.LEFT,
+          //     },
+          //     {
+          //       label: "右对齐",
+          //       value: Alignment.RIGHT,
+          //     },
+          //   ],
+          //   dependencies: ["radioType"],
+          //   hidden: (props: any, propertyPath: string) => {
+          //     const _propertyPath = getParentPropertyPath(propertyPath);
+          //     const propsData = get(props, _propertyPath) || props;
+          //     return propsData.radioType !== "button";
+          //   },
+          // },
         ],
       },
-      {
-        sectionName: "标签样式",
-        children: [
-          {
-            propertyName: "labelTextColor",
-            label: "字体颜色",
-            helpText: "设置标签字体颜色",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "labelTextSize",
-            label: "字体大小",
-            helpText: "设置标签字体大小",
-            controlType: "INPUT_TEXT",
-            defaultValue: 14,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "labelStyle",
-            label: "强调",
-            helpText: "设置标签字体是否加粗或斜体",
-            controlType: "BUTTON_GROUP",
-            options: [
-              {
-                icon: "text-bold",
-                value: "BOLD",
-              },
-              {
-                icon: "text-italic",
-                value: "ITALIC",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-
       {
         sectionName: "颜色配置",
         children: [
           {
-            propertyName: "accentColor",
+            propertyName: "colorPrimary",
             helpText: "设置单选框选中态的颜色",
             label: "强调色",
+            defaultValue: "{{appsmith.theme.colors.primaryColor}}",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -400,7 +312,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           },
         ],
       },
-    ];
+    ]);
   }
 
   static getDerivedPropertiesMap() {
@@ -426,7 +338,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
   static getStylesheetConfig(): Stylesheet {
     return {
-      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      colorPrimary: "{{appsmith.theme.colors.primaryColor}}",
       boxShadow: "none",
     };
   }
@@ -491,15 +403,15 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     return (
       <RadioGroupComponent
         {...this.props}
-        accentColor={this.props.accentColor}
         alignment={alignment}
         animateLoading={animateLoading}
+        colorPrimary={this.props.colorPrimary}
         compactMode={!((bottomRow - topRow) / GRID_DENSITY_MIGRATION_V1 > 1)}
         controlSize={controlSize}
         disabled={isDisabled}
         height={componentHeight}
-        inline={Boolean(isInline)}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
+        isInline={Boolean(isInline)}
         key={widgetId}
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}
@@ -510,7 +422,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         labelTooltip={this.props.labelTooltip}
         labelWidth={this.props.labelWidth}
         loading={isLoading}
-        onRadioSelectionChange={this.onRadioSelectionChange}
+        onChange={this.onRadioSelectionChange}
         options={isArray(options) ? compact(options) : []}
         radioButtonStyle={radioButtonStyle}
         radioType={radioType}
@@ -565,10 +477,10 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   labelAlignment?: "left" | "right";
   labelWidth?: number;
   labelTextColor?: string;
-  labelTextSize?: number;
+  labelTextSize?: TextSize;
   labelStyle?: string;
   isDirty: boolean;
-  accentColor: string;
+  colorPrimary: string;
 }
 
 export default RadioGroupWidget;

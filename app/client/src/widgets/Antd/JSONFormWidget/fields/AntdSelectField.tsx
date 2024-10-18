@@ -30,6 +30,7 @@ const COMPONENT_DEFAULT_VALUES: SelectComponentProps = {
   isRequired: false,
   isVisible: true,
   labelText: "",
+  type: SelectWidgetConfig.type,
 };
 
 const isValid = (

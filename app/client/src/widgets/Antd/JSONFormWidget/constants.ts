@@ -251,6 +251,7 @@ export type Obj = Record<string, any>;
 export type JSON = Obj | Obj[];
 
 export type FieldComponentBaseProps = {
+  type: string;
   labelAlignment?: "left" | "right";
   controlSize?: ProFormProps["size"];
   labelPosition?: AntdLabelPosition;

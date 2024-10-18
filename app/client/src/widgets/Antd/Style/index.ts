@@ -122,7 +122,8 @@ export const AntdFormItemContainer = styled.div<{
   .antd-input,
   .ant-picker,
   .ant-switch,
-  div.ant-upload.ant-upload-select {
+  div.ant-upload.ant-upload-select,
+  .ant-radio-group-outline {
     box-shadow: ${({ boxShadow }) => boxShadow};
     overflow: hidden;
   }

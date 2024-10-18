@@ -1,5 +1,5 @@
 import FormContext from "../FormContext";
-import { useContext, useEffect, useMemo, useRef } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { SchemaItem } from "../constants";
 import { AntdLabelPosition } from "components/constants";
 import type { FormInstance } from "redux-form";
@@ -18,6 +18,9 @@ export const useFieldPropsHandler = ({
   const { formRef, updateFormData } = formContext;
   const prevSchemaItemRef = useRef(schemaItem);
   const prevFormContextRef = useRef(formContext);
+  const [defaultValue, setDefaultValue] = useState<any>(
+    schemaItem.defaultValue,
+  );
   const inputDefaultValue = (() => {
     if (passedDefaultValue === undefined) {
       return schemaItem.defaultValue;
@@ -30,6 +33,7 @@ export const useFieldPropsHandler = ({
     console.log("defult useEffect", {
       formRef,
       schemaItem,
+      inputDefaultValue,
     });
     formRef?.current?.setFieldsValue({
       [name]: inputDefaultValue,
@@ -37,6 +41,7 @@ export const useFieldPropsHandler = ({
     updateFormData({
       [name]: inputDefaultValue,
     });
+    setDefaultValue(inputDefaultValue);
   }, [schemaItem.defaultValue]);
   const fieldProps = useMemo(() => {
     const getUpdatedValue = <T>(
@@ -82,10 +87,12 @@ export const useFieldPropsHandler = ({
     const labelPosition = getUpdatedValue(
       schemaItem.labelPosition,
       prevSchemaItemRef.current.labelPosition,
-      formContext.formLayout === "vertical" ? AntdLabelPosition.Top : "auto",
+      formContext.formLayout === "vertical"
+        ? AntdLabelPosition.Top
+        : AntdLabelPosition.Auto,
       prevFormContextRef.current.formLayout === "vertical"
         ? AntdLabelPosition.Top
-        : "auto",
+        : AntdLabelPosition.Auto,
     );
 
     return {
@@ -98,8 +105,10 @@ export const useFieldPropsHandler = ({
       labelPosition,
       isInForm: true,
       formRef,
+      defaultValue,
+      value: defaultValue,
     };
-  }, [schemaItem, formContext]);
+  }, [schemaItem, formContext, defaultValue]);
 
   useEffect(() => {
     prevSchemaItemRef.current = schemaItem;

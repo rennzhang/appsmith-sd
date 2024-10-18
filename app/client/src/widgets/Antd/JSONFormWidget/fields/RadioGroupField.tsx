@@ -1,49 +1,37 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useContext, useMemo } from "react";
 import { Alignment } from "@blueprintjs/core";
-import { isNumber } from "lodash";
-// import { useController } from "react-hook-form";
+import { isNumber, omit } from "lodash";
 
 import FormContext from "../FormContext";
-import Field from "widgets/Antd/JSONFormWidget/component/Field";
-import RadioGroupComponent from "widgets/RadioGroupWidget/component";
-import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import type { RadioOption } from "widgets/RadioGroupWidget/constants";
+import type { RadioGroupComponentProps as AntdRadioGroupComponentProps } from "widgets/Antd/Form/RadioWidget/component";
+import RadioGroupComponent from "widgets/Antd/Form/RadioWidget/component";
+import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
+  FieldEventProps,
 } from "../constants";
-import { ActionUpdateDependency } from "../constants";
+import { ActionUpdateDependency, RadioWidgetConfig } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
+import type { RadioOption } from "widgets/RadioGroupWidget/constants";
 
-type RadioGroupComponentProps = FieldComponentBaseProps & {
-  options: RadioOption[];
-  onSelectionChange?: string;
-  accentColor?: string;
-};
+type RadioGroupComponentProps = FieldComponentBaseProps &
+  FieldEventProps &
+  AntdRadioGroupComponentProps;
 
 export type RadioGroupFieldProps =
   BaseFieldComponentProps<RadioGroupComponentProps>;
 
-const DEFAULT_BG_COLOR = Colors.GREEN;
-
 const COMPONENT_DEFAULT_VALUES: RadioGroupComponentProps = {
+  ...omit(RadioWidgetConfig.defaults, "defaultValue"),
   isDisabled: false,
   isRequired: false,
   isVisible: true,
-  labelText: "",
-  labelTextSize: BASE_LABEL_TEXT_SIZE,
-  options: [
-    { label: "Yes", value: "Y" },
-    { label: "No", value: "N" },
-  ],
+  type: RadioWidgetConfig.type,
 };
-
-const isValid = (
-  schemaItem: RadioGroupFieldProps["schemaItem"],
-  value?: string,
-) => !schemaItem.isRequired || Boolean(value);
 
 function RadioGroupField({
   fieldClassName,
@@ -51,29 +39,30 @@ function RadioGroupField({
   passedDefaultValue,
   schemaItem,
 }: RadioGroupFieldProps) {
-  const { executeAction } = useContext(FormContext);
-  // const {
-  //   field: { onChange, value },
-  // } = useController({
-  //   name,
-  // });
+  const { executeAction, updateFormData } = useContext(FormContext);
 
-  // const isValueValid = isValid(schemaItem, value);
+  const commonProps = useFieldPropsHandler({
+    name,
+    schemaItem,
+    passedDefaultValue,
+  });
+
+  const [updateSelectedValue] = useUpdateInternalMetaState({
+    propertyName: `${name}.selectedValue`,
+  });
+
   const isOptionsValueNumeric = isNumber(schemaItem.options[0]?.value);
-
-  // useRegisterFieldValidity({
-  //   isValid: isValueValid,
-  //   fieldName: name,
-  //   fieldType: schemaItem.fieldType,
-  // });
 
   const onSelectionChange = useCallback(
     (selectedValue: string) => {
-      const value = isOptionsValueNumeric
-        ? parseFloat(selectedValue)
-        : selectedValue;
+      const value = selectedValue;
+      console.log("onSelectionChange", value);
 
-      // onChange(value);
+      updateFormData({
+        [name]: value,
+      });
+
+      updateSelectedValue(value);
 
       if (schemaItem.onSelectionChange && executeAction) {
         executeAction({
@@ -87,42 +76,26 @@ function RadioGroupField({
       }
     },
     [
-      // onChange,
       executeAction,
+      name,
       schemaItem.onSelectionChange,
       isOptionsValueNumeric,
+      updateFormData,
+      updateSelectedValue,
     ],
   );
 
-  return (
-    <Field
-      accessor={schemaItem.accessor}
-      defaultValue={passedDefaultValue ?? schemaItem.defaultValue}
-      fieldClassName={fieldClassName}
-      isRequiredField={schemaItem.isRequired}
-      label={schemaItem.labelText}
-      labelStyle={schemaItem.labelStyle}
-      labelTextColor={schemaItem.labelTextColor}
-      labelTextSize={schemaItem.labelTextSize}
-      name={name}
-      tooltip={schemaItem.tooltip}
-    >
+  const fieldComponent = useMemo(() => {
+    return (
       <RadioGroupComponent
-        accentColor={schemaItem.accentColor || DEFAULT_BG_COLOR}
-        alignment={Alignment.LEFT}
-        compactMode={false}
-        disabled={schemaItem.isDisabled}
-        inline={false}
-        isDisabled={schemaItem.isDisabled}
-        labelText=""
-        loading={false}
-        onRadioSelectionChange={onSelectionChange}
-        options={schemaItem.options || []}
-        // selectedOptionValue={value}
-        widgetId=""
+        {...schemaItem}
+        {...commonProps}
+        onChange={onSelectionChange}
       />
-    </Field>
-  );
+    );
+  }, [schemaItem, commonProps, onSelectionChange, fieldClassName]);
+
+  return fieldComponent;
 }
 
 RadioGroupField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
