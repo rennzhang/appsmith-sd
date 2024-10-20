@@ -60,7 +60,7 @@ export interface TreeSelectComponentProps {
   isDynamicHeightEnabled?: boolean;
   borderRadius: string;
   boxShadow?: string;
-  accentColor?: string;
+  colorPrimary?: string;
   widgetId?: string;
   filterText?: string;
   renderMode?: RenderMode;
@@ -84,11 +84,11 @@ export interface TreeSelectComponentProps {
 
 function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
   const {
-    accentColor,
     accessor,
     allowClear,
     borderRadius,
     boxShadow,
+    colorPrimary,
     // expandAll,
     compactMode,
     controlSize,
@@ -258,6 +258,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
             Select: {
               borderRadius: (borderRadius as unknown as number) || 0,
               boxShadow: boxShadow,
+              colorPrimary: colorPrimary,
             },
           },
         }}

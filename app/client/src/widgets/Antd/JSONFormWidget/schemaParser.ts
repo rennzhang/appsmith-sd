@@ -17,6 +17,7 @@ import type {
   FieldThemeStylesheet,
 } from "./constants";
 import {
+  AntdInputWidgetConfig,
   ARRAY_ITEM_KEY,
   DATA_TYPE_POTENTIAL_FIELD,
   DataType,
@@ -491,6 +492,10 @@ class SchemaParser {
       "originalIdentifier",
       "position",
     ]);
+    console.log("oldSchemaItemProperties", {
+      newSchemaItem,
+      oldSchemaItemProperties,
+    });
 
     if (schemaItem.isCustomField) {
       newSchemaItem.defaultValue = currSourceData;
@@ -535,6 +540,17 @@ class SchemaParser {
       fieldType,
       fieldThemeStylesheets,
     );
+    console.log("getSchemaItemFor", {
+      currSourceData,
+      fieldType,
+      dataType,
+      baseSchemaPath,
+      isCustomField,
+      skipDefaultValueProcessing,
+      sourceDataPath,
+      widgetName,
+      bindingTemplate,
+    });
 
     const defaultValue = (() => {
       if (isCustomField || skipDefaultValueProcessing) return;
@@ -585,6 +601,7 @@ class SchemaParser {
           isRequired: false,
           isVisible: true,
           labelText: "",
+          type: AntdInputWidgetConfig.type,
         };
       } else {
         defaultValues = componentDefaultValues;

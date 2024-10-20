@@ -162,11 +162,19 @@ function ArrayField({
   propertyPath,
   schemaItem,
 }: ArrayFieldProps) {
+  console.log("ArrayField", {
+    name,
+    passedDefaultValue,
+    propertyPath,
+    schemaItem,
+  });
+
   // const { getValues, setValue, watch } = useFormContext();
   const keysRef = useRef<string[]>([]);
   const removedKeys = useRef<string[]>([]);
   const defaultValue = getDefaultValue(schemaItem, passedDefaultValue);
-  const value = watch(name);
+  // const value = watch(name);
+  const value = "[]";
   /**
    * parsedArrayValue is a patch that parses a stringified array.
    * We are doing this because we want to avoid creation of multiple children fields when the ArrayField recieves value as a stringified array.
@@ -237,7 +245,7 @@ function ArrayField({
 
       // setValue(name, newValues);
     },
-    [cachedDefaultValue, keysRef, setValue,],
+    [cachedDefaultValue, keysRef /* setValue */],
   );
 
   const itemKeys = useMemo(() => {
@@ -268,7 +276,7 @@ function ArrayField({
   }, [valueLength]);
 
   useDeepEffect(() => {
-    setValue(name, klona(defaultValue));
+    // setValue(name, klona(defaultValue));
     setCachedDefaultValue(klona(defaultValue));
   }, [defaultValue]);
 

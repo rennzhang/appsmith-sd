@@ -89,7 +89,7 @@ export interface ProformContainerComponentProps {
   title?: string;
   onSubmit?: (values: any) => void;
   disabledWhenInvalid?: boolean;
-  primaryColor?: string;
+  colorPrimary?: string;
   titleColor?: string;
   fixedFooter: boolean;
   submitButtonStyles?: any;
@@ -105,6 +105,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     borderWidth,
     boxShadow,
     children,
+    colorPrimary,
     disabled,
     disabledWhenInvalid,
     fixedFooter,
@@ -122,7 +123,6 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     labelWidth,
     labelWrap,
     onSubmit,
-    primaryColor,
     resetButtonLabel,
     scrollContents,
     showReset,
@@ -290,16 +290,16 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
 
   const [submitButtonColor, setSubmitButtonColor] = useState<string>("");
   useEffect(() => {
-    setSubmitButtonColor(primaryColor || "");
-  }, [primaryColor]);
+    setSubmitButtonColor(colorPrimary || "");
+  }, [colorPrimary]);
   useEffect(() => {
     setSubmitButtonColor(props.submitButtonStyles?.buttonColor);
   }, [props.submitButtonStyles?.buttonColor]);
 
   const [resetButtonColor, setResetButtonColor] = useState<string>("");
   useEffect(() => {
-    setResetButtonColor(primaryColor || "");
-  }, [primaryColor]);
+    setResetButtonColor(colorPrimary || "");
+  }, [colorPrimary]);
   useEffect(() => {
     setResetButtonColor(props.resetButtonStyles?.buttonColor);
   }, [props.resetButtonStyles?.buttonColor]);
@@ -383,7 +383,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
       <ConfigProvider
         theme={{
           token: {
-            colorPrimary: primaryColor || theme.defaultSeed.colorPrimary,
+            colorPrimary: colorPrimary || theme.defaultSeed.colorPrimary,
           },
           components: {
             Form: {
@@ -391,7 +391,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
               // labelFontSize: parseInt(labelTextSize || "0"),
             },
             Button: {
-              colorPrimary: primaryColor || theme.defaultSeed.colorPrimary,
+              colorPrimary: colorPrimary || theme.defaultSeed.colorPrimary,
             },
           },
         }}

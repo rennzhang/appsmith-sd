@@ -94,12 +94,10 @@ import {
   CurrencyInputField,
   DateField,
   InputField,
-  MultiSelectField,
   AntdSelectField,
   ObjectField,
   PhoneInputField,
   RadioGroupField,
-  SelectField,
   SwitchField,
 } from "./fields";
 import type { InputType } from "zlib";
@@ -169,7 +167,7 @@ export enum FieldType {
   MULTISELECT = "Multiselect",
   OBJECT = "Object",
   RADIO_GROUP = "Radio Group",
-  SELECT = "Select",
+  // SELECT = "Select",
   SWITCH = "Switch",
   // 未实现类型
   // AUTOCOMPLETE = "Auto Complete",
@@ -197,13 +195,12 @@ export const fieldTypeOptions = [
     value: FieldType.MULTISELECT,
   },
   {
+    label: "单选框",
+    value: FieldType.RADIO_GROUP,
+  },
+  {
     label: "复选框",
     value: FieldType.CHECKBOX,
-  },
-
-  {
-    label: "单选",
-    value: FieldType.RADIO_GROUP,
   },
 
   {
@@ -303,6 +300,7 @@ export type Schema = Record<string, SchemaItem>;
  *    name property intact for data sanity.
  */
 export type SchemaItem = FieldComponentBaseProps & {
+  colorPrimary?: string;
   accessor: string;
   children: Schema;
   dataType: DataType;
@@ -379,7 +377,6 @@ export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.MULTISELECT]: AntdSelectField,
   [FieldType.OBJECT]: ObjectField,
   [FieldType.RADIO_GROUP]: RadioGroupField,
-  [FieldType.SELECT]: SelectField,
   [FieldType.SWITCH]: SwitchField,
 };
 
@@ -413,7 +410,7 @@ export const INPUT_FIELD_TYPE: Record<(typeof INPUT_TYPES)[number], InputType> =
 
 export const FIELD_EXPECTING_OPTIONS = [
   FieldType.MULTISELECT,
-  FieldType.SELECT,
+  // FieldType.SELECT,
 ];
 
 export const DATA_TYPE_POTENTIAL_FIELD = {
@@ -445,7 +442,7 @@ export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   [FieldType.OBJECT]: {},
   [FieldType.PASSWORD_INPUT]: "",
   [FieldType.RADIO_GROUP]: "",
-  [FieldType.SELECT]: "",
+  // [FieldType.SELECT]: "",
   [FieldType.SWITCH]: true,
   [FieldType.TEXT_INPUT]: "",
   [FieldType.SEARCH_INPUT]: "",
@@ -484,7 +481,7 @@ export const AUTO_JS_ENABLED_FIELDS: Record<
   [FieldType.PASSWORD_INPUT]: null,
   // [FieldType.PHONE_NUMBER_INPUT]: null,
   [FieldType.RADIO_GROUP]: null,
-  [FieldType.SELECT]: null,
+  // [FieldType.SELECT]: null,
   [FieldType.TEXT_INPUT]: null,
   [FieldType.AUTOCOMPLETE_INPUT]: null,
   [FieldType.SEARCH_INPUT]: null,

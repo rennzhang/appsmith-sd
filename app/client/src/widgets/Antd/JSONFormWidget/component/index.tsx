@@ -203,6 +203,7 @@ function JSONFormComponent<TValues>(
   return (
     <FormContextProvider
       executeAction={executeAction}
+      formColorPrimary={rest.colorPrimary}
       formControlSize={controlSize}
       formIsDisabled={rest.isDisabled}
       formIsRequird={rest.isRequired}

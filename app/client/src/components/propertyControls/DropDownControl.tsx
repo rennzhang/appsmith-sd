@@ -94,7 +94,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     let selected: string | string[];
 
     if (isMultiSelect) {
-      const propertyValueSet = new Set(this.props.propertyValue);
+      let propertyValue: any[] = (this.props.propertyValue as any) || [];
+      if (!Array.isArray(propertyValue)) {
+        propertyValue = [propertyValue];
+      }
+      const propertyValueSet = new Set(propertyValue);
       selected = options
         .filter((option) => propertyValueSet.has(option.value))
         .map((option) => option.value);

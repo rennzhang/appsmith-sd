@@ -1,6 +1,6 @@
 import FormContext from "../FormContext";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import type { SchemaItem } from "../constants";
+import { FieldType, type SchemaItem } from "../constants";
 import { AntdLabelPosition } from "components/constants";
 import type { FormInstance } from "redux-form";
 
@@ -35,6 +35,13 @@ export const useFieldPropsHandler = ({
       schemaItem,
       inputDefaultValue,
     });
+    // if (schemaItem.fieldType === FieldType.CHECKBOX) {
+    //   if (!inputDefaultValue) {
+    //     inputDefaultValue = [];
+    //   } else if (!Array.isArray(inputDefaultValue)) {
+    //     inputDefaultValue = [inputDefaultValue];
+    //   }
+    // }
     formRef?.current?.setFieldsValue({
       [name]: inputDefaultValue,
     });
@@ -95,7 +102,15 @@ export const useFieldPropsHandler = ({
         : AntdLabelPosition.Auto,
     );
 
+    const colorPrimary = getUpdatedValue(
+      schemaItem.colorPrimary,
+      prevSchemaItemRef.current.colorPrimary,
+      formContext.formColorPrimary,
+      prevFormContextRef.current.formColorPrimary,
+    );
+
     return {
+      colorPrimary,
       required: isRequired,
       disabled: isDisabled,
       controlSize,

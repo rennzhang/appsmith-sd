@@ -25,7 +25,6 @@ export const CONFIG = {
     rows: 6,
     columns: 20,
     animateLoading: false,
-    label: "标签",
     labelWidth: 6,
     options: [
       { label: "红", value: "red" },

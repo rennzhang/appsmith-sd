@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { type Alignment } from "@blueprintjs/core";
@@ -14,6 +14,7 @@ import type { ProFormItemProps } from "@ant-design/pro-components";
 import { ProFormItem, ProFormRadio } from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { CheckboxProps } from "antd/lib";
+import type { TextSize } from "constants/WidgetConstants";
 export interface RadioGroupContainerProps {
   compactMode: boolean;
   labelPosition?: AntdLabelPosition;
@@ -23,24 +24,26 @@ export interface StyledRadioGroupProps {
   alignment: Alignment;
   compactMode: boolean;
   height?: number;
-  inline: boolean;
+  isInline: boolean;
   labelPosition?: AntdLabelPosition;
   optionCount: number;
-  accentColor: string;
+  colorPrimary: string;
   isDynamicHeightEnabled?: boolean;
   children?: React.ReactNode;
 }
 
-function CheckboxGroupComponent(props: RadioGroupComponentProps) {
+function CheckboxGroupComponent(props: CheckboxComponentProps) {
   const {
-    accentColor,
+    accessor,
     alignment,
     animateLoading,
+    colorPrimary,
     compactMode,
+    defaultValue,
     disabled,
     height,
-    inline,
     isDynamicHeightEnabled,
+    isInline,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -50,13 +53,21 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
     labelTooltip,
     labelWidth,
     loading,
-    onValueChange,
+    onChange,
     options,
     required,
-    value,
     widgetName,
   } = props;
+  const [value, setValue] = useState(props.value);
+  useEffect(() => {
+    setValue(props.value);
+  }, [props.value]);
 
+  useEffect(() => {
+    if (defaultValue) {
+      setValue(defaultValue);
+    }
+  }, [defaultValue]);
   const fieldNamesValue = useMemo(() => {
     const defaultFieldNames = {
       value: props.valueKey || "value",
@@ -80,19 +91,12 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
     console.log("多选框 onChange");
     console.log(" checkedValue", checkedValue);
     console.groupEnd();
-    onValueChange(checkedValue);
+    setValue(checkedValue);
+    onChange?.(checkedValue);
   };
 
   const CheckBoxComponent = useMemo(() => {
     return options.map((option) => {
-      const { label, value } = fieldNamesValue;
-      console.log(
-        "勾选组件 111111option",
-        { option, value, fieldNamesValue, label },
-        option[value],
-        option[label],
-      );
-
       return (
         <Checkbox
           key={option[fieldNamesValue.value]}
@@ -119,7 +123,7 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
               labelFontSize: (labelTextSize as unknown as number) || 0,
             },
             Checkbox: {
-              colorPrimary: accentColor,
+              // colorPrimary: colorPrimary,
             },
           },
         }}
@@ -127,14 +131,14 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
         <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
-          name={widgetName}
+          name={accessor || widgetName}
           rules={[{ required: required, message: `此项为必填项` }]}
           tooltip={labelTooltip}
           {...colLayoutMemo}
         >
           <Checkbox.Group
             disabled={disabled}
-            name={widgetName}
+            name={accessor || widgetName}
             onChange={handleChange}
             style={{
               marginBottom: 0,
@@ -142,7 +146,7 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
             }}
             value={value}
           >
-            <Space direction={inline ? "horizontal" : "vertical"}>
+            <Space direction={isInline ? "horizontal" : "vertical"}>
               {CheckBoxComponent}
             </Space>
           </Checkbox.Group>
@@ -152,32 +156,36 @@ function CheckboxGroupComponent(props: RadioGroupComponentProps) {
   );
 }
 
-export interface RadioGroupComponentProps extends ComponentProps {
-  valueKey: string;
-  labelKey: string;
-  childrenKey: string;
+export interface CheckboxComponentProps {
+  defaultValue?: any;
+  accessor?: string;
+  valueKey?: string;
+  labelKey?: string;
+  childrenKey?: string;
+  onValueChange?: string;
   options: { value: string; label: string; [key: string]: any }[];
-  onValueChange: (value: CheckboxValueType[]) => void;
-  value: CheckboxProps["value"];
-  disabled: boolean;
-  loading: boolean;
+  onChange?: (value: CheckboxValueType[]) => void;
+  value?: CheckboxProps["value"];
+  disabled?: boolean;
+  loading?: boolean;
   isDynamicHeightEnabled?: boolean;
-  inline: boolean;
+  isInline?: boolean;
   alignment: Alignment;
-  compactMode: boolean;
+  compactMode?: boolean;
   labelText: string;
   labelPosition?: AntdLabelPosition;
   labelAlignment?: "left" | "right";
   labelTextColor?: string;
-  labelTextSize?: number;
+  labelTextSize?: TextSize;
   labelStyle?: string;
   labelWidth?: number;
   labelTooltip?: string;
-  widgetId: string;
+  widgetId?: string;
   height?: number;
-  accentColor: string;
+  colorPrimary?: string;
   required?: boolean;
   animateLoading?: boolean;
+  widgetName?: string;
 }
 
 export default CheckboxGroupComponent;

@@ -370,9 +370,9 @@ export const styleConfig = mergeWidgetConfig(
     {
       sectionName: "颜色配置",
       children: [
-        // 表单主色 primaryColor
+        // 表单主色 colorPrimary
         {
-          propertyName: "primaryColor",
+          propertyName: "colorPrimary",
           helpText: "表单主色",
           label: "主色",
           controlType: "COLOR_PICKER",

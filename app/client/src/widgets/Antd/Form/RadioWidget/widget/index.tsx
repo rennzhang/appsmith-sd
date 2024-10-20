@@ -177,142 +177,145 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneStyleConfig() {
-    return mergeWidgetConfig(DEFAULT_STYLE_PANEL_CONFIG, [
-      {
-        sectionName: "属性",
-        children: [
-          {
-            propertyName: "radioType",
-            helpText: "设置单选组合的样式",
-            label: "单选样式",
-            controlType: "ICON_TABS",
-            defaultValue: "radio",
-            fullWidth: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            options: [
-              {
-                label: "常规",
-                value: "radio",
-              },
-              {
-                label: "按钮",
-                value: "button",
-              },
-            ],
-          },
-          // {
-          //   propertyName: "controlSize",
-          //   label: "尺寸",
-          //   controlType: "ICON_TABS",
-          //   helpText: "设置控件的大小",
-          //   defaultValue: "middle",
-          //   options: [
-          //     {
-          //       label: "小",
-          //       value: "small",
-          //     },
-          //     {
-          //       label: "中等",
-          //       value: "middle",
-          //     },
-          //     {
-          //       label: "大",
-          //       value: "large",
-          //     },
-          //   ],
-          //   // isJSConvertible: true,
-          //   isBindProperty: true,
-          //   isTriggerProperty: false,
-          //   validation: {
-          //     type: ValidationTypes.TEXT,
-          //   },
-          //   dependencies: ["radioType"],
-          //   hidden: (props: any, propertyPath: string) => {
-          //     const _propertyPath = getParentPropertyPath(propertyPath);
-          //     const propsData = get(props, _propertyPath) || props;
-          //     return propsData.radioType === "radio";
-          //   },
-          // },
-          {
-            propertyName: "isInline",
-            helpText: "单向框是否水平排列",
-            label: "行排列",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-            dependencies: ["radioType"],
-            hidden: (props: RadioGroupWidgetProps, propertyPath: string) => {
-              const _propertyPath = getParentPropertyPath(propertyPath);
-              const propsData = get(props, _propertyPath) || props;
-              console.log("radioType propsData", propsData);
+    return mergeWidgetConfig(
+      [
+        {
+          sectionName: "属性",
+          children: [
+            {
+              propertyName: "radioType",
+              helpText: "设置单选组合的样式",
+              label: "单选样式",
+              controlType: "ICON_TABS",
+              defaultValue: "radio",
+              fullWidth: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              options: [
+                {
+                  label: "常规",
+                  value: "radio",
+                },
+                {
+                  label: "按钮",
+                  value: "button",
+                },
+              ],
+            },
+            // {
+            //   propertyName: "controlSize",
+            //   label: "尺寸",
+            //   controlType: "ICON_TABS",
+            //   helpText: "设置控件的大小",
+            //   defaultValue: "middle",
+            //   options: [
+            //     {
+            //       label: "小",
+            //       value: "small",
+            //     },
+            //     {
+            //       label: "中等",
+            //       value: "middle",
+            //     },
+            //     {
+            //       label: "大",
+            //       value: "large",
+            //     },
+            //   ],
+            //   // isJSConvertible: true,
+            //   isBindProperty: true,
+            //   isTriggerProperty: false,
+            //   validation: {
+            //     type: ValidationTypes.TEXT,
+            //   },
+            //   dependencies: ["radioType"],
+            //   hidden: (props: any, propertyPath: string) => {
+            //     const _propertyPath = getParentPropertyPath(propertyPath);
+            //     const propsData = get(props, _propertyPath) || props;
+            //     return propsData.radioType === "radio";
+            //   },
+            // },
+            {
+              propertyName: "isInline",
+              helpText: "单向框是否水平排列",
+              label: "行排列",
+              controlType: "SWITCH",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+              dependencies: ["radioType"],
+              hidden: (props: RadioGroupWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                console.log("radioType propsData", propsData);
 
-              return propsData.radioType === "button";
+                return propsData.radioType === "button";
+              },
             },
-          },
-          {
-            propertyName: "radioButtonStyle",
-            helpText: "填充按钮背景颜色(强调色)",
-            label: "是否填充按钮背景",
-            controlType: "SWITCH",
-            defaultValue: false,
-            fullWidth: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            dependencies: ["radioType"],
-            hidden: (props: any, propertyPath: string) => {
-              const _propertyPath = getParentPropertyPath(propertyPath);
-              const propsData = get(props, _propertyPath) || props;
-              return propsData.radioType === "radio";
+            {
+              propertyName: "radioButtonStyle",
+              helpText: "填充按钮背景颜色(强调色)",
+              label: "是否填充按钮背景",
+              controlType: "SWITCH",
+              defaultValue: false,
+              fullWidth: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              dependencies: ["radioType"],
+              hidden: (props: any, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+                return propsData.radioType === "radio";
+              },
             },
-          },
-          // {
-          //   propertyName: "alignment",
-          //   helpText: "设置组件对齐方式",
-          //   label: "对齐",
-          //   controlType: "ICON_TABS",
-          //   defaultValue: Alignment.LEFT,
-          //   fullWidth: true,
-          //   isBindProperty: true,
-          //   isTriggerProperty: false,
-          //   options: [
-          //     {
-          //       label: "左对齐",
-          //       value: Alignment.LEFT,
-          //     },
-          //     {
-          //       label: "右对齐",
-          //       value: Alignment.RIGHT,
-          //     },
-          //   ],
-          //   dependencies: ["radioType"],
-          //   hidden: (props: any, propertyPath: string) => {
-          //     const _propertyPath = getParentPropertyPath(propertyPath);
-          //     const propsData = get(props, _propertyPath) || props;
-          //     return propsData.radioType !== "button";
-          //   },
-          // },
-        ],
-      },
-      {
-        sectionName: "颜色配置",
-        children: [
-          {
-            propertyName: "colorPrimary",
-            helpText: "设置单选框选中态的颜色",
-            label: "强调色",
-            defaultValue: "{{appsmith.theme.colors.primaryColor}}",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-    ]);
+            // {
+            //   propertyName: "alignment",
+            //   helpText: "设置组件对齐方式",
+            //   label: "对齐",
+            //   controlType: "ICON_TABS",
+            //   defaultValue: Alignment.LEFT,
+            //   fullWidth: true,
+            //   isBindProperty: true,
+            //   isTriggerProperty: false,
+            //   options: [
+            //     {
+            //       label: "左对齐",
+            //       value: Alignment.LEFT,
+            //     },
+            //     {
+            //       label: "右对齐",
+            //       value: Alignment.RIGHT,
+            //     },
+            //   ],
+            //   dependencies: ["radioType"],
+            //   hidden: (props: any, propertyPath: string) => {
+            //     const _propertyPath = getParentPropertyPath(propertyPath);
+            //     const propsData = get(props, _propertyPath) || props;
+            //     return propsData.radioType !== "button";
+            //   },
+            // },
+          ],
+        },
+        {
+          sectionName: "颜色配置",
+          children: [
+            {
+              propertyName: "colorPrimary",
+              helpText: "设置单选框选中态的颜色",
+              label: "强调色",
+              defaultValue: "{{appsmith.theme.colors.primaryColor}}",
+              controlType: "COLOR_PICKER",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+            },
+          ],
+        },
+      ],
+      DEFAULT_STYLE_PANEL_CONFIG,
+    );
   }
 
   static getDerivedPropertiesMap() {

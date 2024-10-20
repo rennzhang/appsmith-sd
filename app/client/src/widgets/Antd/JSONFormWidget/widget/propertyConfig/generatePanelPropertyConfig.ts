@@ -120,8 +120,9 @@ const transConfig = (config: any[], types: FieldType[]) => {
 const comTypesMap = {
   [AntdInputWidgetConfig.type]: INPUT_TYPES,
   [AutoCompleteWidgetConfig.type]: [FieldType.AUTOCOMPLETE_INPUT],
-  [SelectWidgetConfig.type]: [FieldType.SELECT, FieldType.MULTISELECT],
+  [SelectWidgetConfig.type]: [FieldType.MULTISELECT],
   [RadioWidgetConfig.type]: [FieldType.RADIO_GROUP],
+  [CheckboxWidgetConfig.type]: [FieldType.CHECKBOX],
 };
 const allItemPropertyPaneConfig: Map<string, any[]> = new Map();
 const allItemStylePaneConfig: Map<string, any[]> = new Map();
@@ -167,7 +168,7 @@ function generatePanelPropertyConfig(
   if (nestingLevel === 0) return;
   const contentChildren = [
     {
-      sectionName: "数据",
+      sectionName: "基本配置",
       children: [
         ...COMMON_PROPERTIES.content.data,
         // ...INPUT_PROPERTIES.content.data,
@@ -197,64 +198,6 @@ function generatePanelPropertyConfig(
           dependencies: ["schema", "childStylesheet"],
         },
       ],
-    },
-    {
-      sectionName: "标签",
-      children: [
-        // ...COMMON_PROPERTIES.content.label,
-        // ...CHECKBOX_PROPERTIES.content.label,
-        // ...SWITCH_PROPERTIES.content.label,
-      ],
-    },
-    // {
-    //   sectionName: "搜索过滤",
-    //   children: [
-    //     ...SELECT_PROPERTIES.content.searchAndFilters,
-    //     ...MULTI_SELECT_PROPERTIES.content.searchAndFilters,
-    //   ],
-    //   hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
-    //     const schemaItem: SchemaItem = get(props, propertyPath, {});
-    //     return !(
-    //       schemaItem.fieldType === FieldType.SELECT ||
-    //       schemaItem.fieldType === FieldType.MULTISELECT
-    //     );
-    //   },
-    // },
-    {
-      sectionName: "校验",
-      children: [
-        // ...INPUT_PROPERTIES.content.validation,
-        ...DATE_PROPERTIES.content.validation,
-      ],
-      hidden: isFieldTypeArrayOrObject,
-    },
-    {
-      sectionName: "属性",
-      children: [
-        // ...COMMON_PROPERTIES.content.general,
-        // ...INPUT_PROPERTIES.content.general,
-        // ...SELECT_PROPERTIES.content.general,
-        // ...MULTI_SELECT_PROPERTIES.content.general,
-        // ...COMMON_PROPERTIES.content.generalSwitch,
-        // ...MULTI_SELECT_PROPERTIES.content.toggles,
-        ...DATE_PROPERTIES.content.general,
-        ...ARRAY_PROPERTIES.content.general,
-      ],
-    },
-    {
-      sortOrder: 99999,
-      sectionName: "事件",
-      children: [
-        // ...CHECKBOX_PROPERTIES.content.events,
-        // ...DATE_PROPERTIES.content.events,
-        // ...MULTI_SELECT_PROPERTIES.content.events,
-        // ...INPUT_PROPERTIES.content.events,
-        // ...SWITCH_PROPERTIES.content.events,
-        // ...SELECT_PROPERTIES.content.events,
-        // ...COMMON_PROPERTIES.content.events,
-        // ...RADIO_GROUP_PROPERTIES.content.events,
-      ],
-      hidden: isFieldTypeArrayOrObject,
     },
   ];
   const styleChildren = [
@@ -296,7 +239,7 @@ function generatePanelPropertyConfig(
     ...OBJECT_PROPERTIES.style.root,
     ...ARRAY_PROPERTIES.style.root,
   ];
-  const mergedContentChildren = getAllItemPaneConfig(contentChildren);
+  const mergedContentChildren = getAllItemPaneConfig([]);
   const mergedStyleChildren = getAllItemPaneConfig(styleChildren, true);
 
   console.log("contentChildren", mergedContentChildren);
@@ -306,7 +249,7 @@ function generatePanelPropertyConfig(
     editableTitle: true,
     titlePropertyName: "labelText",
     panelIdPropertyName: "identifier",
-    contentChildren: mergedContentChildren,
+    contentChildren: [...contentChildren, ...mergedContentChildren],
     styleChildren: mergedStyleChildren,
   } as PanelConfig;
 }

@@ -207,6 +207,7 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
           );
 
           return [
+            "ANTD_CHECKBOX_WIDGET",
             "ANTD_SLIDER_WIDGET",
             "ANTD_TREE_WIDGET",
             "ANTD_SWITCH_WIDGET",
@@ -320,29 +321,25 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
     ],
   },
   {
-    sortOrder: 2000,
-
-    sectionName: "轮廓样式",
+    sectionName: "颜色配置",
     children: [
       {
-        propertyName: "accentColor",
-        label: "强调色",
+        propertyName: "colorPrimary",
+        helpText: "设置组件的主色",
+        label: "主色调",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
-        dependencies: ["type", "radioType"],
-        //ANTD_SWITCH_WIDGET 显示
-        hidden: (props: any, propertyPath: string) => {
-          const _propertyPath = getParentPropertyPath(propertyPath);
-          const propsData = get(props, _propertyPath) || props;
-          if (propsData.type === "ANTD_RADIO_WIDGET") {
-            return true;
-          }
-          return !["ANTD_SWITCH_WIDGET"].includes(propsData.type);
-        },
       },
+    ],
+  },
+  {
+    sortOrder: 2000,
+
+    sectionName: "轮廓样式",
+    children: [
       // hoverColor
       {
         propertyName: "hoverColor",
@@ -379,6 +376,7 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
             return true;
           }
           return [
+            "ANTD_CHECKBOX_WIDGET",
             "ANTD_TREE_WIDGET",
             "ANTD_SWITCH_WIDGET",
             "ANTD_TEXT_WIDGET",
@@ -401,7 +399,9 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
           if (propsData.type === "ANTD_RADIO_WIDGET") {
             return propsData.radioType === "radio";
           }
-          return ["ANTD_TEXT_WIDGET"].includes(propsData.type);
+          return ["ANTD_TEXT_WIDGET", "ANTD_CHECKBOX_WIDGET"].includes(
+            propsData.type,
+          );
         },
       },
     ],

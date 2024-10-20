@@ -441,7 +441,7 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   static getStylesheetConfig(): Stylesheet {
     return {
-      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      colorPrimary: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",
     };
@@ -719,7 +719,7 @@ export interface SelectWidgetProps extends WidgetProps {
   labelStyle?: string;
   borderRadius: string;
   boxShadow?: string;
-  accentColor: string;
+  colorPrimary: string;
   isDirty?: boolean;
 }
 

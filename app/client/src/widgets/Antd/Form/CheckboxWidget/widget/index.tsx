@@ -24,9 +24,11 @@ import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { CheckboxValueType } from "antd/es/checkbox/Group";
 import {
+  DEFAULT_STYLE_PANEL_CONFIG,
   getDefaultValueDropdownPropConfig,
   getFieldNamesPropConfig,
 } from "../../CONST/DEFAULT_CONFIG";
+import { mergeWidgetConfig } from "utils/helpers";
 class CheckBoxGroupWidget extends BaseWidget<
   CheckBoxGroupWidgetProps,
   WidgetState
@@ -85,7 +87,7 @@ class CheckBoxGroupWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
-                required: true,
+                // required: true,
               },
             },
           }),
@@ -216,17 +218,6 @@ class CheckBoxGroupWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-
-          {
-            propertyName: "isInline",
-            helpText: "单向框是否水平排列",
-            label: "行排列",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
           {
             propertyName: "animateLoading",
             label: "加载时显示动画",
@@ -246,7 +237,7 @@ class CheckBoxGroupWidget extends BaseWidget<
           {
             helpText: "选中项改变时触发",
             propertyName: "onValueChange",
-            label: "onValueChange",
+            label: "onChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -258,128 +249,26 @@ class CheckBoxGroupWidget extends BaseWidget<
   }
 
   static getPropertyPaneStyleConfig() {
-    return [
-      {
-        sectionName: "属性",
-        children: [
-          {
-            propertyName: "alignment",
-            helpText: "设置组件对齐方式",
-            label: "对齐",
-            controlType: "ICON_TABS",
-            defaultValue: Alignment.LEFT,
-            fullWidth: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            options: [
-              {
-                label: "左对齐",
-                value: Alignment.LEFT,
-              },
-              {
-                label: "右对齐",
-                value: Alignment.RIGHT,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        sectionName: "标签样式",
-        children: [
-          {
-            propertyName: "labelTextColor",
-            label: "字体颜色",
-            helpText: "设置标签字体颜色",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "labelTextSize",
-            label: "字体大小",
-            helpText: "设置标签字体大小",
-            controlType: "DROP_DOWN",
-            defaultValue: "0.875rem",
-            hidden: isAutoLayout,
-            options: [
-              {
-                label: "S",
-                value: "0.875rem",
-                subText: "0.875rem",
-              },
-              {
-                label: "M",
-                value: "1rem",
-                subText: "1rem",
-              },
-              {
-                label: "L",
-                value: "1.25rem",
-                subText: "1.25rem",
-              },
-              {
-                label: "XL",
-                value: "1.875rem",
-                subText: "1.875rem",
-              },
-              {
-                label: "XXL",
-                value: "3rem",
-                subText: "3rem",
-              },
-              {
-                label: "3XL",
-                value: "3.75rem",
-                subText: "3.75rem",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "labelStyle",
-            label: "强调",
-            helpText: "设置标签字体是否加粗或斜体",
-            controlType: "BUTTON_GROUP",
-            options: [
-              {
-                icon: "text-bold",
-                value: "BOLD",
-              },
-              {
-                icon: "text-italic",
-                value: "ITALIC",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-
-      {
-        sectionName: "颜色配置",
-        children: [
-          {
-            propertyName: "accentColor",
-            helpText: "设置单选框选中态的颜色",
-            label: "强调色",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-    ];
+    return mergeWidgetConfig(
+      [
+        {
+          sectionName: "属性",
+          children: [
+            {
+              propertyName: "isInline",
+              helpText: "单向框是否水平排列",
+              label: "行排列",
+              controlType: "SWITCH",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
+          ],
+        },
+      ],
+      DEFAULT_STYLE_PANEL_CONFIG,
+    );
   }
 
   static getDerivedPropertiesMap() {
@@ -408,7 +297,7 @@ class CheckBoxGroupWidget extends BaseWidget<
 
   static getStylesheetConfig(): Stylesheet {
     return {
-      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      colorPrimary: "{{appsmith.theme.colors.primaryColor}}",
       boxShadow: "none",
     };
   }
@@ -422,7 +311,7 @@ class CheckBoxGroupWidget extends BaseWidget<
     }
 
     if (this.props.defaultValue !== prevProps.defaultValue) {
-      this?.onValueChange?.(this.props.defaultValue);
+      this?.handleValueChange?.(this.props.defaultValue);
     }
   }
 
@@ -474,14 +363,14 @@ class CheckBoxGroupWidget extends BaseWidget<
     return (
       <CheckBoxGroupComponent
         {...this.props}
-        accentColor={this.props.accentColor}
         alignment={alignment}
         animateLoading={animateLoading}
+        colorPrimary={this.props.colorPrimary}
         compactMode={!((bottomRow - topRow) / GRID_DENSITY_MIGRATION_V1 > 1)}
         disabled={isDisabled}
         height={componentHeight}
-        inline={Boolean(isInline)}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
+        isInline={Boolean(isInline)}
         key={widgetId}
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}
@@ -492,7 +381,7 @@ class CheckBoxGroupWidget extends BaseWidget<
         labelTooltip={this.props.labelTooltip}
         labelWidth={this.props.labelWidth}
         loading={isLoading}
-        onValueChange={this.onValueChange}
+        onChange={this.handleValueChange}
         options={isArray(options) ? compact(options) : []}
         required={this.props.isRequired}
         value={value}
@@ -510,7 +399,7 @@ class CheckBoxGroupWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("selectedOptions", selectedOptions);
     return selectedOptions.map((option) => option.label);
   };
-  onValueChange = (value: CheckboxValueType[]) => {
+  handleValueChange = (value: CheckboxValueType[]) => {
     console.log(" this.props", this.props);
     // Set isDirty to true when the selection changes
     if (this.props.selectedValue !== value) {
@@ -554,10 +443,10 @@ export interface CheckBoxGroupWidgetProps extends WidgetProps {
   labelAlignment?: "left" | "right";
   labelWidth?: number;
   labelTextColor?: string;
-  labelTextSize?: number;
+  labelTextSize?: TextSize;
   labelStyle?: string;
   isDirty: boolean;
-  accentColor: string;
+  colorPrimary: string;
 }
 
 export default CheckBoxGroupWidget;

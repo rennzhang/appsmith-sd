@@ -14,7 +14,7 @@ export interface InputComponentProps extends AntdInputWidgetProps {
   minNum?: number;
   borderRadius?: string;
   boxShadow?: string;
-  accentColor?: string;
+  colorPrimary?: string;
   required?: boolean;
   emailOptions?: string[];
   options?: string | string[];
@@ -36,6 +36,7 @@ const mockVal = (str: InputDataType, repeat = 1) => ({
 type InputDataType = string | undefined;
 const AntdAutoComplete = (props: InputComponentProps) => {
   const {
+    accessor,
     autoFocus,
     borderRadius,
     boxShadow,
@@ -245,7 +246,7 @@ const AntdAutoComplete = (props: InputComponentProps) => {
         <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
-          name={widgetName}
+          name={accessor || widgetName}
           tooltip={tooltip}
           {...colLayoutMemo}
           {...validateProps}

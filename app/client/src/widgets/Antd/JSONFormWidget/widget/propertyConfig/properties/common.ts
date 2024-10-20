@@ -50,7 +50,7 @@ const FIELDS_WITH_ACCENT_COLOR = [
   FieldType.PASSWORD_INPUT,
   // FieldType.PHONE_NUMBER_INPUT,
   FieldType.RADIO_GROUP,
-  FieldType.SELECT,
+  // FieldType.SELECT,
   FieldType.SWITCH,
   FieldType.TEXT_INPUT,
 ];

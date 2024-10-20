@@ -44,7 +44,7 @@ export const CONFIG = {
     ...ANTD_FORM_WIDGET_CONFIG.defaults,
     buttonAlignment: "flex-start",
     labelAlignment: "left",
-    primaryColor: theme.defaultSeed.colorPrimary,
+    colorPrimary: theme.defaultSeed.colorPrimary,
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
     useSourceData: false,

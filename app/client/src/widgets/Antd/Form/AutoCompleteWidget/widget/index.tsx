@@ -407,7 +407,7 @@ class AutoCompleteWidget extends AntdInputWidget<
 
   static getStylesheetConfig(): Stylesheet {
     return {
-      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      colorPrimary: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",
     };
@@ -687,7 +687,7 @@ class AutoCompleteWidget extends AntdInputWidget<
         stepSize={1}
         tooltip={this.props.tooltip}
         value={value}
-        accentColor={this.props.accentColor}
+        colorPrimary={this.props.colorPrimary}
         // show label and Input side by side if true
         autoFocus={this.props.autoFocus}
         {...this.props}

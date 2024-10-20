@@ -6,6 +6,7 @@ import type { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
 
 type FormContextProps<TValues = any> = React.PropsWithChildren<{
+  formColorPrimary?: string;
   formControlSize: ProFormProps["size"];
   formIsDisabled?: boolean;
   formLayout?: "horizontal" | "vertical" | "inline";
@@ -32,6 +33,7 @@ const FormContext = createContext<FormContextValueProps>(
 export function FormContextProvider({
   children,
   executeAction,
+  formColorPrimary,
   formControlSize,
   formIsDisabled,
   formIsRequird,
@@ -46,6 +48,7 @@ export function FormContextProvider({
 }: FormContextProps) {
   const value = useMemo(
     () => ({
+      formColorPrimary,
       formLayout,
       formLabelAlign,
       formControlSize,
