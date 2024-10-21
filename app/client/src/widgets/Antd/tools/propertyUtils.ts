@@ -5,19 +5,20 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { SelectWidgetProps } from "../Form/SelectWidget/widget";
 
 export function getDefaultValueOptions(widget: WidgetProps) {
-  let sourceData = get(widget, `${EVAL_VALUE_PATH}.options`);
-  let jsonFormPath = "";
-  if (widget.type === "ANTD_JSON_FORM_WIDGET") {
-    // "AntdJSONForm1.schema.__root_schema__.children.name.defaultValue" => schema.__root_schema__.children.name 截取第一个点和最后一个点之前的字符
-    jsonFormPath =
-      widget.dataTreePath?.split(".")?.slice(1, -1)?.join(".") || "";
-    sourceData = get(widget, `${jsonFormPath}.options`);
-  }
+  const targetPath =
+    widget.dataTreePath?.split(".")?.slice(1, -1)?.join(".") || "";
+  const propsData = get(widget, targetPath) || widget;
+  let sourceData = get(propsData, `options`);
 
-  console.log("getDefaultValueOptions", widget, jsonFormPath);
+  console.log("getDefaultValueOptions", {
+    targetPath,
+    propsData,
+    widget,
+    sourceData,
+  });
 
-  let labelKey = widget.labelKey || "label";
-  let valueKey = widget.valueKey || "value";
+  let labelKey = propsData.labelKey || "label";
+  let valueKey = propsData.valueKey || "value";
   if (widget.type === "ANTD_PRO_TABLE_WIDGET") {
     sourceData =
       (widget?.__evaluation__?.evaluatedValues as any)?.orderedTableColumns?.[

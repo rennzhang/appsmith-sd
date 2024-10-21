@@ -7,6 +7,7 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { DEFAULT_CONFIG } from "../CONST/DEFAULT_CONFIG";
+import type { TreeSelectProps } from "antd";
 
 export const CONFIG = {
   features: {
@@ -24,31 +25,12 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     ...DEFAULT_CONFIG.defaults,
-    treeExpandAction: "click",
+    treeExpandAction: "click" as TreeSelectProps["treeExpandAction"],
     treeLine: false,
     errorMessage: "必填字段",
     rows: 8,
     columns: 20,
     animateLoading: false,
-    labelPosition: AntdLabelPosition.Auto,
-    // options: [
-    //   {
-    //     label: "蓝",
-    //     value: "BLUE",
-    //     children: [
-    //       {
-    //         label: "深蓝",
-    //         value: "DARK BLUE",
-    //       },
-    //       {
-    //         label: "浅蓝",
-    //         value: "LIGHT BLUE",
-    //       },
-    //     ],
-    //   },
-    //   { label: "绿", value: "GREEN" },
-    //   { label: "红", value: "RED" },
-    // ],
     options: [
       {
         value: "parent 1",
@@ -96,9 +78,10 @@ export const CONFIG = {
     placeholderText: "请选择",
     labelText: "标签",
     labelWidth: 6,
-    labelTextSize: "0.875rem",
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
+    showSearch: true,
+    treeDefaultExpandAll: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

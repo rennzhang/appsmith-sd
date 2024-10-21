@@ -376,11 +376,16 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             propertyName: "maxTagCount",
             label: "最大标签数量",
             helpText: "最多显示的标签数量",
-            controlType: "NUMERIC_INPUT",
+            controlType: "INPUT_TEXT",
+            isJSConvertible: true,
+
             isBindProperty: true,
             placeholderText: "请输入最大标签数量",
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { allowedVoid: true },
+            },
             hidden: (props: SelectWidgetProps, propertyPath: string) => {
               const _propertyPath = getParentPropertyPath(propertyPath);
               const propsData = get(props, _propertyPath) || props;

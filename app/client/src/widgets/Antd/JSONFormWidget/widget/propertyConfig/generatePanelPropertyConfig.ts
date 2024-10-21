@@ -125,6 +125,7 @@ const comTypesMap = {
   [CheckboxWidgetConfig.type]: [FieldType.CHECKBOX],
   [SwitchWidgetConfig.type]: [FieldType.SWITCH],
   [TextWidgetConfig.type]: [FieldType.TEXT],
+  [TreeSelectWidgetConfig.type]: [FieldType.TREESELECT],
 };
 const allItemPropertyPaneConfig: Map<string, any[]> = new Map();
 const allItemStylePaneConfig: Map<string, any[]> = new Map();

@@ -36,14 +36,15 @@ import { cloneDeep } from "lodash";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
 
 export interface TreeSelectComponentProps {
-  valueKey: string;
-  labelKey: string;
-  childrenKey: string;
-  widgetName: string;
+  valueKey?: string;
+  labelKey?: string;
+  childrenKey?: string;
+  widgetName?: string;
   disabled?: boolean;
   loading?: boolean;
   placeholderText?: string;
-  onValueChange: (value: any, label: any) => void;
+  onTreeSelectValueChange?: string;
+  onChange?: (value: any, label: any) => void;
   updateSelectInfo?: (selectInfo: any) => void;
   // expandAll: boolean;
   labelText: string;
@@ -54,14 +55,14 @@ export interface TreeSelectComponentProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   labelTooltip?: string;
-  compactMode: boolean;
-  width: number;
-  isValid: boolean;
-  isDynamicHeightEnabled: boolean;
-  borderRadius: string;
+  compactMode?: boolean;
+  width?: number;
+  isValid?: boolean;
+  isDynamicHeightEnabled?: boolean;
+  borderRadius?: string;
   boxShadow?: string;
-  accentColor: string;
-  widgetId: string;
+  colorPrimary?: string;
+  widgetId?: string;
   filterText?: string;
   renderMode?: RenderMode;
   options?: TreeSelectProps["treeData"];
@@ -81,17 +82,21 @@ export interface TreeSelectComponentProps {
   treeDefaultExpandAll?: boolean;
   treeExpandAction?: TreeSelectProps["treeExpandAction"];
   treeLine?: boolean;
-  selectedValue?: string | string[];
+  selectedValue?: DefaultValueType;
+  accessor?: string;
+  onSearch?: (value: string) => void;
+  onTreeSelectSearch?: string;
 }
 
 function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
   const {
-    accentColor,
+    accessor,
     allowClear,
     borderRadius,
     boxShadow,
-    // expandAll,
     checkable,
+    // expandAll,
+    colorPrimary,
     compactMode,
     controlSize,
     defaultExpandAll,
@@ -113,7 +118,6 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     loading,
     maxTagCount,
     maxTagTextLength,
-    onValueChange,
     options,
     placeholderText,
     renderMode,
@@ -129,6 +133,17 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     widgetName,
     // height
   } = props;
+
+  const [value, setValue] = useState(props.selectedValue);
+  useEffect(() => {
+    setValue(selectedValue);
+  }, [selectedValue]);
+
+  useEffect(() => {
+    if (defaultValue) {
+      setValue(defaultValue);
+    }
+  }, [defaultValue]);
 
   const colLayoutMemo = useMemo(() => {
     if (labelPosition === AntdLabelPosition.Left) {
@@ -241,6 +256,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     console.log(" label", label);
     console.log(" ChangeEventExtra", ChangeEventExtra);
     console.groupEnd();
+    setValue(value);
 
     changeExtraInfo = {
       ...changeExtraInfo,
@@ -250,7 +266,12 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
       onSelect(null, null as any);
     }
 
-    onValueChange?.(value, label);
+    props.onChange?.(value, label);
+  };
+
+  const onSearch: TreeSelectProps["onSearch"] = (value) => {
+    console.log("onSearch", value);
+    props.onSearch?.(value);
   };
 
   console.group("Antd 树选择组件");
@@ -268,6 +289,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
         theme={{
           components: {
             Form: {
+              colorPrimary: colorPrimary,
               labelColor: labelTextColor,
               labelFontSize: (labelTextSize as unknown as number) || 0,
             },
@@ -276,6 +298,12 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
               boxShadow: boxShadow,
             },
             Select: {
+              colorPrimary: colorPrimary,
+              borderRadius: (borderRadius as unknown as number) || 0,
+              boxShadow: boxShadow,
+            },
+            TreeSelect: {
+              colorPrimary: colorPrimary,
               borderRadius: (borderRadius as unknown as number) || 0,
               boxShadow: boxShadow,
             },
@@ -285,7 +313,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
         <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
-          name={widgetName}
+          name={accessor || widgetName}
           tooltip={labelTooltip}
           {...validateProps}
           {...colLayoutMemo}
@@ -300,6 +328,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
             maxTagTextLength={maxTagTextLength}
             multiple={props.isMultiple}
             onChange={onChange}
+            onSearch={onSearch}
             onSelect={onSelect}
             onTreeExpand={onExpand}
             placeholder={placeholderText}
@@ -312,7 +341,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
             treeCheckable={checkable}
             treeData={options}
             treeLine={treeLine}
-            value={selectedValue || undefined}
+            value={value || undefined}
             labelInValue
             // listHeight={height}
             treeDefaultExpandAll={treeDefaultExpandAll}

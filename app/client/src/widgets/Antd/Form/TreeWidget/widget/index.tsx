@@ -229,25 +229,31 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.FUNCTION,
+              type: ValidationTypes.OBJECT_ARRAY,
               params: {
-                fn: optionValidation,
-                expected: {
-                  type: "value",
-                  example: `[{ "title": "title1", "key": "key1", "children": [{ "title": "title2", "key": "key2" }] }]`,
-                  autocompleteDataType: AutocompleteDataType.ARRAY,
-                },
+                default: [],
               },
-              dependentPaths: ["labelKey", "valueKey", "childrenKey"],
             },
-            dependencies: ["labelKey", "valueKey", "childrenKey"],
+            // validation: {
+            //   type: ValidationTypes.FUNCTION,
+            //   params: {
+            //     fn: optionValidation,
+            //     expected: {
+            //       type: "value",
+            //       example: `[{ "title": "title1", "key": "key1", "children": [{ "title": "title2", "key": "key2" }] }]`,
+            //       autocompleteDataType: AutocompleteDataType.ARRAY,
+            //     },
+            //   },
+            //   dependentPaths: ["labelKey", "valueKey", "childrenKey"],
+            // },
+            // dependencies: ["labelKey", "valueKey", "childrenKey"],
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
             helpText: "默认选中复选框的值",
             propertyName: "defaultCheckedKeys",
-            label: "默认值",
+            label: "默认勾选值",
             controlType: "INPUT_TEXT",
             placeholderText: "请输入选项数据",
             isBindProperty: true,
@@ -268,7 +274,7 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
           {
             helpText: "默认选中的值（defaultSelectedKeys）",
             propertyName: "defaultSelectedKeys",
-            label: "默认选中的值",
+            label: "默认选中值",
             controlType: "INPUT_TEXT",
             placeholderText: "请输入选项数据",
             isBindProperty: true,

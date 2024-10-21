@@ -159,34 +159,30 @@ export function childrenKeyValidation(
   __?: any,
   path?: string,
 ): ValidationResponse {
+  const targetPath = path?.split(".").slice(0, -1).join(".");
+  const propsData = _.get(props, targetPath || "") || props;
   const _value = value || _.get(props, path || "");
 
-  let sourceData: any = [];
-
+  let sourceData: any = propsData.options;
+  console.log("childrenKeyValidation", propsData.options, {
+    sourceData,
+    value,
+    _value,
+    path,
+    props,
+    propsData,
+  });
   let parsedValue: any[] | undefined;
-  sourceData = props.options;
   if (props.type === "ANTD_PRO_TABLE_WIDGET") {
     sourceData =
       props.orderedTableColumns?.[props.editingColumnIndex]?.options || [];
   }
-  if (props.type === "ANTD_JSON_FORM_WIDGET") {
-    // sourceData = props.schema?.properties?.options?.items?.properties?.children;
-  }
-
   parsedValue = sourceData;
   if (_.isString(sourceData)) {
     try {
       parsedValue = JSON.parse(sourceData);
     } catch (e) {}
   }
-
-  console.log("childrenKeyValidation", {
-    value,
-    parsedValue,
-    _value,
-    path,
-    props,
-  });
 
   // children 必须是数组，判断parsedValue数据中children字段是否为数组
   if (!_.isArray(parsedValue)) {
@@ -233,8 +229,8 @@ export function childrenKeyValidation(
     if (item.hasOwnProperty("children")) {
       return item.children.every(
         (child: any) =>
-          child.hasOwnProperty(props.labelKey) &&
-          child.hasOwnProperty(props.valueKey),
+          child.hasOwnProperty(propsData.labelKey) &&
+          child.hasOwnProperty(propsData.valueKey),
       );
     }
     return true;

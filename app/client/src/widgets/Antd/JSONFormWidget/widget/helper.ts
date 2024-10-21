@@ -26,7 +26,10 @@ type FieldStateItem = {
   isVisible?: boolean;
   isDisabled?: boolean;
   isValid?: boolean;
-  filterText?: string;
+  searchText?: string;
+  selectedLabel?: any;
+  selectedValue?: any;
+  selectedInfo?: any;
 };
 
 type MetaFieldState = FieldState<FieldStateItem>;
@@ -161,9 +164,19 @@ const processFieldSchemaItem = (
       fieldState.isValid = metaInternalFieldState.isValid;
     }
 
-    if (typeof metaInternalFieldState.filterText === "string") {
-      fieldState.filterText = metaInternalFieldState.filterText;
+    if (typeof metaInternalFieldState.searchText === "string") {
+      fieldState.searchText = metaInternalFieldState.searchText;
     }
+    const keysToProcess: (keyof FieldStateItem)[] = [
+      "selectedLabel",
+      "selectedValue",
+      "selectedInfo",
+    ];
+    keysToProcess.forEach((key) => {
+      if ((metaInternalFieldState as any)[key]) {
+        fieldState[key] = (metaInternalFieldState as any)[key];
+      }
+    });
   }
 
   return fieldState;

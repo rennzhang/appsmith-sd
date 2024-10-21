@@ -1,5 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
-import { AntdLabelPosition } from "components/constants";
+import type { AntdLabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
 import type { TextSize, WidgetType } from "constants/WidgetConstants";
@@ -7,7 +7,7 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { isArray, last } from "lodash";
+import { get, isArray, last } from "lodash";
 import type {
   ChangeEventExtra,
   DefaultValueType,
@@ -33,10 +33,12 @@ import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
 import {
   DEFAULT_STYLE_PANEL_CONFIG,
+  FORM_LABEL_CONTENT_CONFIG,
   getFieldNamesPropConfig,
 } from "../../CONST/DEFAULT_CONFIG";
 import type { Def } from "tern";
 import type { DefaultOptionType } from "rc-select/lib/Select";
+import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
 
 function getTypeDefOfTreeSelectInfo(isCheck?: boolean): string | Def {
   const def: Def = {
@@ -189,6 +191,7 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
             placeholderText: "请输入选项数据",
             isBindProperty: true,
             isTriggerProperty: false,
+            isJSConvertible: true,
             validation: {
               type: ValidationTypes.FUNCTION,
               params: {
@@ -206,80 +209,7 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
           getFieldNamesPropConfig("children"),
         ],
       },
-      {
-        sectionName: "标签",
-        children: [
-          {
-            helpText: "设置组件标签文本",
-            propertyName: "labelText",
-            label: "文本",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入文本内容",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "设置组件标签位置",
-            propertyName: "labelPosition",
-            label: "位置",
-            controlType: "ICON_TABS",
-            fullWidth: false,
-            hidden: isAutoLayout,
-            options: [
-              { label: "自动", value: AntdLabelPosition.Auto },
-              { label: "左", value: AntdLabelPosition.Left },
-              { label: "上", value: AntdLabelPosition.Top },
-            ],
-            defaultValue: AntdLabelPosition.Left,
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "设置组件标签的对齐方式",
-            propertyName: "labelAlignment",
-            label: "对齐",
-            controlType: "LABEL_ALIGNMENT_OPTIONS",
-            fullWidth: false,
-            options: [
-              {
-                startIcon: "align-left",
-                value: Alignment.LEFT,
-              },
-              {
-                startIcon: "align-right",
-                value: Alignment.RIGHT,
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            hidden: (props: TreeWidgetProps) =>
-              props.labelPosition !== AntdLabelPosition.Left,
-            dependencies: ["labelPosition"],
-          },
-          {
-            helpText: "设置组件标签占用的列数",
-            propertyName: "labelWidth",
-            label: "宽度（所占列数）",
-            controlType: "NUMERIC_INPUT",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            min: 0,
-            validation: {
-              type: ValidationTypes.NUMBER,
-              params: {
-                natural: true,
-              },
-            },
-            hidden: (props: TreeWidgetProps) =>
-              props.labelPosition !== AntdLabelPosition.Left,
-            dependencies: ["labelPosition"],
-          },
-        ],
-      },
+      FORM_LABEL_CONTENT_CONFIG,
       {
         sectionName: "校验",
         children: [
@@ -445,7 +375,11 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
-            hidden: (props: TreeWidgetProps) => !props.isMultiple,
+            hidden: (props: TreeWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.isMultiple;
+            },
             dependencies: ["isMultiple"],
           },
           // treeCheckStrictly
@@ -458,33 +392,54 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
-            hidden: (props: TreeWidgetProps) =>
-              !props.isMultiple || !props.checkable,
+            hidden: (props: TreeWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.isMultiple || !propsData.checkable;
+            },
             dependencies: ["isMultiple", "checkable"],
           },
 
           // maxTagCount
           {
+            placeholderText: "请输入最大标签数量",
             propertyName: "maxTagCount",
             label: "最大标签数量",
             helpText: "最多显示的标签数量",
-            controlType: "NUMERIC_INPUT",
+            controlType: "INPUT_TEXT",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
-            hidden: (props: TreeWidgetProps) => !props.isMultiple,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { allowedVoid: true },
+            },
+            hidden: (props: TreeWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.isMultiple;
+            },
             dependencies: ["isMultiple"],
           },
           // maxTagTextLength
           {
+            placeholderText: "请输入最大标签文本长度",
             propertyName: "maxTagTextLength",
             label: "最大标签文本长度",
             helpText: "最大显示的 tag 文本长度",
             controlType: "INPUT_TEXT",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
-            hidden: (props: TreeWidgetProps) => !props.isMultiple,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { allowedVoid: true },
+            },
+            hidden: (props: TreeWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.isMultiple;
+            },
             dependencies: ["isMultiple"],
           },
         ],
@@ -494,8 +449,17 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
         children: [
           {
             helpText: "选中值变化时触发",
-            propertyName: "onValueChange",
-            label: "onValueChange",
+            propertyName: "onTreeSelectValueChange",
+            label: "onChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "搜索时触发",
+            propertyName: "onTreeSelectSearch",
+            label: "onSearch",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -508,7 +472,7 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
 
   static getStylesheetConfig(): Stylesheet {
     return {
-      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      colorPrimary: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",
     };
@@ -636,7 +600,10 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
     }
 
     if (this.props.defaultValue !== prevProps.defaultValue) {
-      this?.onValueChange?.(this.props.defaultValue, this.props.defaultLabel);
+      this?.handleValueChange?.(
+        this.props.defaultValue,
+        this.props.defaultLabel,
+      );
     }
 
     if (this.props.checkable !== prevProps.checkable) {
@@ -700,7 +667,8 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
         required={this.props.isRequired}
         width={componentWidth}
         {...this.props}
-        onValueChange={this.onValueChange}
+        onChange={this.handleValueChange}
+        onSearch={this.handleSearch}
         updateSelectInfo={this.updateSelectInfo}
       />
     );
@@ -732,9 +700,22 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
     // selectedInfo
     this.props.updateWidgetMetaProperty("selectedInfo", selectInfo);
   };
+  handleSearch = (value: string) => {
+    console.log("树选择组件 handleSearch", value);
+    this.props.updateWidgetMetaProperty("searchValue", value, {
+      triggerPropertyName: "onTreeSelectSearch",
+      dynamicString: this.props.onTreeSelectSearch,
+      event: {
+        type: EventType.ON_OPTION_CHANGE,
+      },
+    });
+  };
 
-  onValueChange = (value?: string | string[], label?: string | string[]) => {
-    console.log("树选择组件 onValueChange", value, label);
+  handleValueChange = (
+    value?: string | string[],
+    label?: string | string[],
+  ) => {
+    console.log("树选择组件 handleValueChange", value, label);
 
     if (this.props.selectedValue !== value) {
       if (!this.props.isDirty) {
@@ -744,8 +725,8 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
 
       this.props.updateWidgetMetaProperty("selectedValue", value);
       this.props.updateWidgetMetaProperty("selectedLabel", label, {
-        triggerPropertyName: "onValueChange",
-        dynamicString: this.props.onValueChange,
+        triggerPropertyName: "onTreeSelectValueChange",
+        dynamicString: this.props.onTreeSelectValueChange,
         event: {
           type: EventType.ON_OPTION_CHANGE,
         },
@@ -775,7 +756,10 @@ export interface TreeWidgetProps extends WidgetProps {
   placeholderText?: string;
   selectedIndex?: number;
   options?: TreeProps["treeData"];
-  onValueChange: (value?: string | string[], label?: string | string[]) => void;
+  handleValueChange: (
+    value?: string | string[],
+    label?: string | string[],
+  ) => void;
   updateSelectInfo: (selectInfo: any) => void;
 
   defaultValue: string[];
@@ -793,7 +777,7 @@ export interface TreeWidgetProps extends WidgetProps {
   labelStyle?: string;
   borderRadius: string;
   boxShadow?: string;
-  accentColor: string;
+  colorPrimary: string;
   isDirty?: boolean;
 }
 

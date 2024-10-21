@@ -19,7 +19,6 @@ export const AntdProformContainer = styled.div<{
 }>`
   &.antd-pro-form-jsonform {
     height: 100%;
-    padding: 16px;
     background-color: ${({ backgroundColor }) => backgroundColor};
     border-radius: ${({ borderRadius }) => borderRadius};
     border: ${({ borderWidth }) => borderWidth}px solid
@@ -40,11 +39,20 @@ export const AntdProformContainer = styled.div<{
     .antd-pro-form-content {
       overflow: ${({ fixedFooter }) => (fixedFooter ? "auto" : "")};
     }
+    .antd-pro-form-title {
+      padding-inline: 16px;
+    }
     .t--jsonformfield-root {
+      padding-inline: 16px;
+      padding-bottom: 16px;
+      margin-bottom: 0;
       overflow: ${({ fixedFooter, scrollContents }) =>
         fixedFooter ? "auto" : scrollContents ? "auto" : ""};
     }
     .antd-pro-form-submitter {
+      padding-inline: 16px;
+      padding-bottom: 16px;
+
       padding-top: ${({ fixedFooter }) => (fixedFooter ? "10px" : "")};
       background-color: ${({ backgroundColor }) => backgroundColor};
       ${({ fixedFooter }) =>

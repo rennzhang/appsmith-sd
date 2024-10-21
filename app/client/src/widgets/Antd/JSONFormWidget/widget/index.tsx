@@ -66,7 +66,10 @@ export interface JSONFormWidgetProps extends WidgetProps {
 
 export type MetaInternalFieldState = FieldState<{
   isValid: boolean;
-  filterText?: string;
+  searchText?: string;
+  selectedLabel?: string;
+  selectedValue?: string;
+  selectedInfo?: any;
 }>;
 
 export type JSONFormWidgetState = {

@@ -63,7 +63,7 @@ function AntdSelectField({
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const [updateFilterText] = useUpdateInternalMetaState({
-    propertyName: `${name}.filterText`,
+    propertyName: `${name}.searchText`,
   });
 
   // const fieldDefaultValue = useMemo(() => {

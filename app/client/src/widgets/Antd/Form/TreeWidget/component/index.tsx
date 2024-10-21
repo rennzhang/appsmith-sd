@@ -32,9 +32,9 @@ import { Icon } from "@blueprintjs/core";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
 
 export interface TreeComponentProps extends TreeProps {
-  valueKey: string;
-  labelKey: string;
-  childrenKey: string;
+  valueKey?: string;
+  labelKey?: string;
+  childrenKey?: string;
   widgetName: string;
   defaultCheckedKeys?: string[];
   disabled?: boolean;

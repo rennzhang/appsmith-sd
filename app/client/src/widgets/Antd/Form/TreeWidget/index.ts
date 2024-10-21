@@ -32,21 +32,27 @@ export const CONFIG = {
     labelPosition: AntdLabelPosition.Auto,
     options: [
       {
-        title: "蓝",
-        key: "BLUE",
+        label: "蓝",
+        value: "BLUE",
         children: [
           {
-            title: "深蓝",
-            key: "DARK BLUE",
+            label: "深蓝",
+            value: "DARK BLUE",
           },
           {
-            title: "浅蓝",
-            key: "LIGHT BLUE",
+            label: "浅蓝",
+            value: "LIGHT BLUE",
           },
         ],
       },
-      { title: "绿", key: "GREEN" },
-      { title: "红", key: "RED" },
+      {
+        label: "绿",
+        value: "GREEN",
+      },
+      {
+        label: "红",
+        value: "RED",
+      },
     ],
     widgetName: "AntdTree",
     defaultValue: ["BLUE"],

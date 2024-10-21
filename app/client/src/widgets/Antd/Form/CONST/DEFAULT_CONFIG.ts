@@ -442,7 +442,7 @@ export const getDefaultValueDropdownPropConfig = (
       isJSConvertible: true,
       options: getDefaultValueOptions,
       validation: {
-        type: ValidationTypes.FUNCTION,
+        type: ValidationTypes.UNION,
         params: {
           types: [
             {

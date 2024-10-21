@@ -95,6 +95,7 @@ import {
   DateField,
   InputField,
   AntdSelectField,
+  AntdTreeSelectField,
   ObjectField,
   PhoneInputField,
   RadioGroupField,
@@ -167,6 +168,7 @@ export enum FieldType {
   CHECKBOX = "Checkbox",
   DATEPICKER = "Datepicker",
   MULTISELECT = "Multiselect",
+  TREESELECT = "TreeSelect",
   OBJECT = "Object",
   RADIO_GROUP = "Radio Group",
   // SELECT = "Select",
@@ -212,6 +214,10 @@ export const fieldTypeOptions = [
   {
     label: "开关",
     value: FieldType.SWITCH,
+  },
+  {
+    label: "树选择器",
+    value: FieldType.TREESELECT,
   },
   {
     label: "日期选择器",
@@ -381,6 +387,7 @@ export const FIELD_MAP: Record<FieldType, FieldComponent> = {
 
   [FieldType.DATEPICKER]: DateField,
   [FieldType.MULTISELECT]: AntdSelectField,
+  [FieldType.TREESELECT]: AntdTreeSelectField,
   [FieldType.OBJECT]: ObjectField,
   [FieldType.RADIO_GROUP]: RadioGroupField,
   [FieldType.SWITCH]: SwitchField,
@@ -438,6 +445,7 @@ export const DATA_TYPE_POTENTIAL_FIELD = {
 // using schemaParser.
 export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   [FieldType.ARRAY]: [{ firstField: "" }],
+  [FieldType.TREESELECT]: [],
   [FieldType.CHECKBOX]: true,
   // [FieldType.CURRENCY_INPUT]: "",
   // [FieldType.PHONE_NUMBER_INPUT]: "",
@@ -476,6 +484,7 @@ export const AUTO_JS_ENABLED_FIELDS: Record<
   FieldType,
   (keyof SchemaItem)[] | null
 > = {
+  [FieldType.TREESELECT]: ["defaultValue"],
   [FieldType.TEXT]: ["defaultValue"],
   [FieldType.DATEPICKER]: ["defaultValue"],
   [FieldType.SWITCH]: ["defaultValue"],
