@@ -57,6 +57,7 @@ class AntdInputWidget<
               label: "显示文本",
               controlType: "INPUT_TEXT",
               placeholderText: "请输入显示文本",
+              isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
               validation: {
@@ -119,20 +120,20 @@ class AntdInputWidget<
             },
           ],
         },
-        {
-          sectionName: "事件",
-          children: [
-            {
-              helpText: "提交时触发（用户按了回车）",
-              propertyName: "onSubmit",
-              label: "onSubmit",
-              controlType: "ACTION_SELECTOR",
-              isJSConvertible: true,
-              isBindProperty: true,
-              isTriggerProperty: true,
-            },
-          ],
-        },
+        // {
+        //   sectionName: "事件",
+        //   children: [
+        //     {
+        //       helpText: "提交时触发（用户按了回车）",
+        //       propertyName: "onSubmit",
+        //       label: "onSubmit",
+        //       controlType: "ACTION_SELECTOR",
+        //       isJSConvertible: true,
+        //       isBindProperty: true,
+        //       isTriggerProperty: true,
+        //     },
+        //   ],
+        // },
       ],
     );
   }

@@ -1,5 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
-import { compact, isArray } from "lodash";
+import { compact, get, isArray } from "lodash";
 
 import { AntdLabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -22,7 +22,11 @@ import BaseWidget from "widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
-import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
+import {
+  DEFAULT_STYLE_PANEL_CONFIG,
+  FORM_LABEL_CONTENT_CONFIG,
+} from "../../CONST/DEFAULT_CONFIG";
+import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -73,80 +77,8 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
           },
         ],
       },
-      {
-        sectionName: "标签",
-        children: [
-          {
-            helpText: "设置组件标签文本",
-            propertyName: "labelText",
-            label: "文本",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入文本内容",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "设置组件标签位置",
-            propertyName: "labelPosition",
-            label: "位置",
-            controlType: "ICON_TABS",
-            fullWidth: true,
-            hidden: isAutoLayout,
-            options: [
-              { label: "自动", value: AntdLabelPosition.Auto },
-              { label: "左", value: AntdLabelPosition.Left },
-              { label: "上", value: AntdLabelPosition.Top },
-            ],
-            defaultValue: AntdLabelPosition.Left,
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "设置组件标签的对齐方式",
-            propertyName: "labelAlignment",
-            label: "对齐",
-            controlType: "LABEL_ALIGNMENT_OPTIONS",
-            fullWidth: false,
-            options: [
-              {
-                startIcon: "align-left",
-                value: Alignment.LEFT,
-              },
-              {
-                startIcon: "align-right",
-                value: Alignment.RIGHT,
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            hidden: (props: SwitchWidgetProps) =>
-              props.labelPosition !== AntdLabelPosition.Left,
-            dependencies: ["labelPosition"],
-          },
-          {
-            helpText: "设置组件标签占用的列数",
-            propertyName: "labelWidth",
-            label: "宽度（所占列数）",
-            controlType: "NUMERIC_INPUT",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            min: 0,
-            validation: {
-              type: ValidationTypes.NUMBER,
-              params: {
-                natural: true,
-              },
-            },
-            hidden: (props: SwitchWidgetProps) =>
-              props.labelPosition !== AntdLabelPosition.Left,
-            dependencies: ["labelPosition"],
-          },
-        ],
-      },
+      FORM_LABEL_CONTENT_CONFIG,
+
       {
         sectionName: "校验",
         children: [
@@ -214,7 +146,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         children: [
           {
             helpText: "选中项改变时触发",
-            propertyName: "onChange",
+            propertyName: "onSwitchChange",
             label: "onChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
@@ -224,7 +156,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
           // onClick
           {
             helpText: "点击时触发",
-            propertyName: "onClick",
+            propertyName: "onSwitchClick",
             label: "onClick",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
@@ -269,8 +201,12 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
               isBindProperty: false,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.TEXT },
-              hidden: (props: SwitchWidgetProps) =>
-                props.displayContent !== "icon",
+              hidden: (props: SwitchWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+
+                return propsData.displayContent !== "icon";
+              },
               dependencies: ["displayContent"],
             },
             // 未选中时显示的图标
@@ -283,8 +219,12 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
               isBindProperty: false,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.TEXT },
-              hidden: (props: SwitchWidgetProps) =>
-                props.displayContent !== "icon",
+              hidden: (props: SwitchWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+
+                return propsData.displayContent !== "icon";
+              },
               dependencies: ["displayContent"],
             },
             // 选中时显示的文本
@@ -297,8 +237,12 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
               isBindProperty: false,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.TEXT },
-              hidden: (props: SwitchWidgetProps) =>
-                props.displayContent !== "text",
+              hidden: (props: SwitchWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+
+                return propsData.displayContent !== "text";
+              },
               dependencies: ["displayContent"],
             },
             // 未选中时显示的文本
@@ -311,8 +255,12 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
               isBindProperty: false,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.TEXT },
-              hidden: (props: SwitchWidgetProps) =>
-                props.displayContent !== "text",
+              hidden: (props: SwitchWidgetProps, propertyPath: string) => {
+                const _propertyPath = getParentPropertyPath(propertyPath);
+                const propsData = get(props, _propertyPath) || props;
+
+                return propsData.displayContent !== "text";
+              },
               dependencies: ["displayContent"],
             },
           ],
@@ -344,7 +292,6 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
 
   static getStylesheetConfig(): Stylesheet {
     return {
-      accentColor: "{{appsmith.theme.colors.primaryColor}}",
       boxShadow: "none",
     };
   }
@@ -407,7 +354,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         disabled={!!isDisabled}
         handelClick={this.handelClick}
         loading={this.props.loading}
-        onValueChange={this.onChange}
+        onChange={this.onChange}
         value={value}
         widgetName={this.props.widgetName}
       />
@@ -419,8 +366,8 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
     this.props.updateWidgetMetaProperty("value", value, {
-      triggerPropertyName: "onClick",
-      dynamicString: this.props.onClick,
+      triggerPropertyName: "onSwitchClick",
+      dynamicString: this.props.onSwitchClick,
       event: {
         type: EventType.ON_CLICK,
       },
@@ -435,8 +382,8 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     }
 
     this.props.updateWidgetMetaProperty("value1", value, {
-      triggerPropertyName: "onChange",
-      dynamicString: this.props.onChange,
+      triggerPropertyName: "onSwitchChange",
+      dynamicString: this.props.onSwitchChange,
       event: {
         type: EventType.ON_SWITCH_CHANGE,
       },

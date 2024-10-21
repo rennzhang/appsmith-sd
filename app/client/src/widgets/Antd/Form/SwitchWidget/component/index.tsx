@@ -1,13 +1,14 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { type Alignment } from "@blueprintjs/core";
 import { AntdLabelPosition } from "components/constants";
 import type { SwitchProps } from "antd";
-import { ConfigProvider, Switch } from "antd";
+import { ConfigProvider, Switch, theme } from "antd";
 import { ProFormItem } from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
-import {  type IconName } from "@blueprintjs/icons";
+import { type IconName } from "@blueprintjs/icons";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
+import type { TextSize } from "constants/WidgetConstants";
 export interface RadioGroupContainerProps {
   labelPosition?: AntdLabelPosition;
 }
@@ -17,19 +18,19 @@ export interface StyledRadioGroupProps {
   height?: number;
   labelPosition?: AntdLabelPosition;
   optionCount: number;
-  accentColor: string;
+  colorPrimary: string;
   isDynamicHeightEnabled?: boolean;
   children?: React.ReactNode;
 }
 
 function SwitchComponent(props: SwitchComponentProps) {
   const {
-    accentColor,
     alignment,
     animateLoading,
     boxShadow,
     checkedIconName,
     checkedText,
+    colorPrimary,
     controlSize,
     defaultValue,
     disabled,
@@ -47,13 +48,23 @@ function SwitchComponent(props: SwitchComponentProps) {
     labelTooltip,
     labelWidth,
     loading,
-    onValueChange,
+    onChange,
     required,
     uncheckedIconName,
     uncheckedText,
-    value,
+
     widgetName,
   } = props;
+  const [value, setValue] = useState(props.value);
+  useEffect(() => {
+    setValue(props.value);
+  }, [props.value]);
+
+  useEffect(() => {
+    if (defaultValue) {
+      setValue(defaultValue);
+    }
+  }, [defaultValue]);
 
   const colLayoutMemo = useMemo(() => {
     if (labelPosition === AntdLabelPosition.Left) {
@@ -66,7 +77,8 @@ function SwitchComponent(props: SwitchComponentProps) {
   }, [labelPosition, labelWidth]);
 
   const handleChange: SwitchProps["onChange"] = (val) => {
-    onValueChange(val);
+    setValue(val);
+    onChange?.(val);
   };
 
   const checkedChildrenMemo = useMemo(() => {
@@ -97,7 +109,7 @@ function SwitchComponent(props: SwitchComponentProps) {
 
   /** @description  */
   const handelClick: SwitchProps["onClick"] = (val, e) => {
-    props.handelClick(val, e);
+    props.handelClick?.(val, e);
     console.log("开关组件 SwitchComponent handelClick", { val, e });
   };
 
@@ -106,7 +118,6 @@ function SwitchComponent(props: SwitchComponentProps) {
   console.groupEnd();
   return (
     <AntdFormItemContainer
-      accentColor={accentColor}
       alignment={alignment}
       boxShadow={boxShadow}
       className="antd-switch-container"
@@ -118,11 +129,11 @@ function SwitchComponent(props: SwitchComponentProps) {
           components: {
             Form: {
               labelColor: labelTextColor,
-              labelFontSize: labelTextSize,
+              labelFontSize: labelTextSize as unknown as number,
             },
             Switch: {
-              colorPrimary: accentColor,
-              colorPrimaryHover: hoverColor,
+              colorPrimary: colorPrimary,
+              colorPrimaryHover: hoverColor || "#4096ff",
             },
           },
         }}
@@ -152,38 +163,43 @@ function SwitchComponent(props: SwitchComponentProps) {
   );
 }
 
-type SwitchComponentPropsExtends = SwitchProps & ComponentProps;
+type SwitchComponentPropsExtends = SwitchProps & Partial<ComponentProps>;
 
-export interface SwitchComponentProps extends SwitchComponentPropsExtends {
-  onValueChange: (updatedValue: boolean) => void;
-  handelClick: (val: boolean, e: React.MouseEvent) => void;
-  loading: boolean;
+export type SwitchComponentProps = SwitchComponentPropsExtends & {
+  onSwitchClick?: string;
+  onSwitchChange?: string;
+  onChange?: (updatedValue: boolean) => void;
+  handelClick?: (val: boolean, e: React.MouseEvent) => void;
+  loading?: boolean;
   isDynamicHeightEnabled?: boolean;
-  alignment: Alignment;
+  alignment?: Alignment;
   labelText: string;
   labelPosition?: AntdLabelPosition;
   labelAlignment?: "left" | "right";
   labelTextColor?: string;
-  labelTextSize?: number;
+  labelTextSize?: TextSize;
   labelStyle?: string;
   labelWidth?: number;
   labelTooltip?: string;
-  widgetId: string;
+  widgetId?: string;
   height?: number;
-  accentColor: string;
+  colorPrimary?: string;
   required?: boolean;
   animateLoading?: boolean;
-  iconName: IconName;
+  iconName?: IconName;
   displayContent?: "icon" | "text" | "none";
-  value: boolean;
-  defaultValue: boolean;
-  controlSize: "small" | "default";
-  checkedText: string;
-  uncheckedText: string;
-  checkedIconName: IconName;
-  uncheckedIconName: IconName;
-  hoverColor: string;
-  boxShadow: string;
-}
+  value?: boolean;
+  defaultValue?: boolean;
+  controlSize?: "small" | "default";
+  checkedText?: string;
+  uncheckedText?: string;
+  checkedIconName?: IconName;
+  uncheckedIconName?: IconName;
+  hoverColor?: string;
+  boxShadow?: string;
+  isDisabled?: boolean;
+  isRequired?: boolean;
+  isVisible?: boolean;
+};
 
 export default SwitchComponent;

@@ -24,13 +24,14 @@ export const CONFIG = {
   searchTags: ["form", "text display"],
   defaults: {
     ...DEFAULT_CONFIG.defaults,
-
+    textSize: "0.875rem",
+    textColor: "#000000",
+    textStyle: "normal",
     rows: 4,
     columns: 16,
     labelWidth: 6,
     labelPosition: AntdLabelPosition.Auto,
     dynamicHeight: DynamicHeight.AUTO_HEIGHT,
-    labelTextSize: "0.875rem",
     defaultValue: "",
     widgetName: "AntdTextDisplay",
     version: 1,

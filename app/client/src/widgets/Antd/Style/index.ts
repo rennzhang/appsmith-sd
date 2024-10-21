@@ -90,7 +90,7 @@ export const AntdFormItemContainer = styled.div<{
   boxShadow?: string;
   borderRadius?: string;
   labelPosition?: AntdLabelPosition;
-  accentColor?: string;
+  colorPrimary?: string;
 }>`
   width: 100%;
   .ant-form-item {
@@ -157,7 +157,7 @@ export const AntdFormItemContainer = styled.div<{
   }
 
   .ant-rate {
-    color: ${({ accentColor }) => accentColor};
+    color: ${({ colorPrimary }) => colorPrimary};
   }
 
   .ant-rate .bp3-icon.antd-rate-icon,

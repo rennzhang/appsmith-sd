@@ -123,6 +123,8 @@ const comTypesMap = {
   [SelectWidgetConfig.type]: [FieldType.MULTISELECT],
   [RadioWidgetConfig.type]: [FieldType.RADIO_GROUP],
   [CheckboxWidgetConfig.type]: [FieldType.CHECKBOX],
+  [SwitchWidgetConfig.type]: [FieldType.SWITCH],
+  [TextWidgetConfig.type]: [FieldType.TEXT],
 };
 const allItemPropertyPaneConfig: Map<string, any[]> = new Map();
 const allItemStylePaneConfig: Map<string, any[]> = new Map();

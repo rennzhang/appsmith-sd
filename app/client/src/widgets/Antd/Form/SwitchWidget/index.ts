@@ -1,3 +1,4 @@
+import type { IconName } from "@blueprintjs/core";
 import { Alignment } from "@blueprintjs/core";
 import { AntdLabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
@@ -24,11 +25,7 @@ export const CONFIG = {
     rows: 6,
     columns: 20,
     animateLoading: false,
-    label: "标签",
-    labelPosition: AntdLabelPosition.Auto,
-    labelTextSize: 14,
     labelWidth: 6,
-
     defaultValue: false,
     isRequired: false,
     isDisabled: false,
@@ -36,10 +33,8 @@ export const CONFIG = {
     alignment: Alignment.LEFT,
     widgetName: "AntdSwitch",
     version: 1,
-    accentColor: Colors.ROYAL_BLUE_2,
-    hoverColor: Colors.ROYAL_BLUE,
-    iconName: "star",
-    displayContent: "none",
+    iconName: "star" as IconName,
+    displayContent: "none" as "none" | "icon" | "text",
     customText: "好",
     controlSize: "default",
     checkedText: "开启",

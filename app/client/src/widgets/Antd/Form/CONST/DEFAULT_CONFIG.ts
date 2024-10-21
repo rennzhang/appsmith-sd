@@ -49,6 +49,7 @@ export const DEFAULT_CONFIG = {
   },
   defaults: {
     colorPrimary: theme.defaultSeed.colorPrimary,
+    hoverColor: "#4096ff",
     boxShadow: "none",
     borderRadius: "0.375rem",
     labelKey: "label",
@@ -324,6 +325,7 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
     sectionName: "颜色配置",
     children: [
       {
+        defaultValue: DEFAULT_CONFIG.defaults.colorPrimary,
         propertyName: "colorPrimary",
         helpText: "设置组件的主色",
         label: "主色调",
@@ -332,16 +334,16 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        dependencies: ["type"],
+        hidden: (props: any, propertyPath: string) => {
+          const _propertyPath = getParentPropertyPath(propertyPath);
+          const propsData = get(props, _propertyPath) || props;
+          return ["ANTD_TEXT_WIDGET"].includes(propsData.type);
+        },
       },
-    ],
-  },
-  {
-    sortOrder: 2000,
-
-    sectionName: "轮廓样式",
-    children: [
       // hoverColor
       {
+        defaultValue: DEFAULT_CONFIG.defaults.hoverColor,
         propertyName: "hoverColor",
         label: "悬停颜色",
         controlType: "COLOR_PICKER",
@@ -356,7 +358,13 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
           return !["ANTD_SWITCH_WIDGET"].includes(propsData.type);
         },
       },
+    ],
+  },
+  {
+    sortOrder: 2000,
 
+    sectionName: "轮廓样式",
+    children: [
       {
         propertyName: "borderRadius",
         label: "边框圆角",

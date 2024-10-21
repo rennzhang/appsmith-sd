@@ -1,45 +1,37 @@
 import React, { useCallback, useContext, useMemo } from "react";
-// import { useController } from "react-hook-form";
+import { omit } from "lodash";
 
 import FormContext from "../FormContext";
 import Field from "widgets/Antd/JSONFormWidget/component/Field";
-import useEvents from "./useBlurAndFocusEvents";
-import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import type { AlignWidget, AlignWidgetTypes } from "widgets/constants";
+import type { SwitchComponentProps as AntdSwitchComponentProps } from "widgets/Antd/Form/SwitchWidget/component";
+import SwitchComponent from "widgets/Antd/Form/SwitchWidget/component";
 import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
-import { ActionUpdateDependency } from "../constants";
-import SwitchComponent from "widgets/SwitchWidget/component";
+import { ActionUpdateDependency, SwitchWidgetConfig } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
-import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
-import { LabelPosition } from "components/constants";
+import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
 
-type SwitchComponentOwnProps = FieldComponentBaseProps &
-  FieldEventProps & {
-    alignWidget: AlignWidget;
-    accentColor?: string;
-    onChange?: string;
-  };
+type Merge<T, U> = Omit<T, keyof U> & U;
 
-type SwitchFieldProps = BaseFieldComponentProps<SwitchComponentOwnProps>;
+type SwitchComponentProps = Merge<
+  FieldComponentBaseProps,
+  Omit<AntdSwitchComponentProps, "controlSize" | "defaultValue">
+>;
 
-const DEFAULT_BG_COLOR = Colors.GREEN;
+type SwitchFieldProps = BaseFieldComponentProps<SwitchComponentProps>;
 
-const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
-  alignWidget: "LEFT",
+const COMPONENT_DEFAULT_VALUES: SwitchComponentProps = {
+  ...omit(SwitchWidgetConfig.defaults, ["defaultValue", "controlSize"]),
   isDisabled: false,
   isRequired: false,
   isVisible: true,
-  labelTextSize: BASE_LABEL_TEXT_SIZE,
-  labelText: "",
+  type: SwitchWidgetConfig.type,
+  controlSize: "default" as any,
 };
-
-const isValid = (value: boolean, schemaItem: SwitchFieldProps["schemaItem"]) =>
-  !schemaItem.isRequired || value;
 
 function SwitchField({
   fieldClassName,
@@ -47,89 +39,71 @@ function SwitchField({
   passedDefaultValue,
   schemaItem,
 }: SwitchFieldProps) {
-  const { onBlur: onBlurDynamicString, onFocus: onFocusDynamicString } =
-    schemaItem;
-  const { executeAction } = useContext(FormContext);
+  const { executeAction, updateFormData } = useContext(FormContext);
 
-  // const {
-  //   field: { onBlur, onChange, value },
-  // } = useController({
-  //   name,
-  // });
-
-  const { inputRef } = useEvents<HTMLInputElement>({
-    // fieldBlurHandler: onBlur,
-    onFocusDynamicString,
-    onBlurDynamicString,
+  const commonProps = useFieldPropsHandler({
+    name,
+    schemaItem,
+    passedDefaultValue,
   });
-
-  // const isValueValid = isValid(value, schemaItem);
-
-  // useRegisterFieldValidity({
-  //   fieldName: name,
-  //   fieldType: schemaItem.fieldType,
-  //   isValid: isValueValid,
-  // });
 
   const onSwitchChange = useCallback(
     (value: boolean) => {
-      // onChange(value);
+      updateFormData({
+        [name]: value,
+      });
 
-      if (schemaItem.onChange && executeAction) {
+      if (schemaItem.onSwitchChange && executeAction) {
         executeAction({
-          triggerPropertyName: "onChange",
-          dynamicString: schemaItem.onChange,
+          triggerPropertyName: "onSwitchChange",
+          dynamicString: schemaItem.onSwitchChange,
           event: {
             type: EventType.ON_SWITCH_CHANGE,
+          },
+          globalContext: {
+            [name]: value,
           },
           updateDependencyType: ActionUpdateDependency.FORM_DATA,
         });
       }
     },
-    [/* onChange, */ executeAction, schemaItem.onChange],
+    [executeAction, name, schemaItem.onSwitchChange, updateFormData],
+  );
+
+  const onSwitchClick = useCallback(
+    (val: boolean, e: React.MouseEvent) => {
+      if (schemaItem.onSwitchClick && executeAction) {
+        executeAction({
+          triggerPropertyName: "onSwitchClick",
+          dynamicString: schemaItem.onSwitchClick,
+          event: {
+            type: EventType.ON_CLICK,
+          },
+          globalContext: {
+            [name]: val,
+          },
+          updateDependencyType: ActionUpdateDependency.FORM_DATA,
+        });
+      }
+    },
+    [executeAction, schemaItem.onSwitchClick],
   );
 
   const fieldComponent = useMemo(
     () => (
       <SwitchComponent
-        accentColor={schemaItem.accentColor || DEFAULT_BG_COLOR}
-        alignWidget={schemaItem.alignWidget as AlignWidgetTypes}
-        inputRef={(e) => (inputRef.current = e)}
-        isDisabled={schemaItem.isDisabled}
-        isLoading={false}
-        // isSwitchedOn={value ?? false}
-        label=""
-        labelPosition={LabelPosition.Left}
+        {...schemaItem}
+        {...commonProps}
+        controlSize={commonProps.controlSize === "small" ? "small" : "default"}
+        defaultValue={!!commonProps.defaultValue}
+        handelClick={onSwitchClick}
         onChange={onSwitchChange}
-        widgetId=""
       />
     ),
-    [
-      schemaItem.alignWidget,
-      schemaItem.accentColor,
-      schemaItem.isDisabled,
-      onSwitchChange,
-      // value,
-    ],
+    [schemaItem, commonProps, onSwitchChange],
   );
 
-  return (
-    <Field
-      accessor={schemaItem.accessor}
-      defaultValue={passedDefaultValue ?? schemaItem.defaultValue}
-      fieldClassName={fieldClassName}
-      inlineLabel
-      isRequiredField={schemaItem.isRequired}
-      label={schemaItem.labelText}
-      labelStyle={schemaItem.labelStyle}
-      labelTextColor={schemaItem.labelTextColor}
-      labelTextSize={schemaItem.labelTextSize}
-      name={name}
-      tooltip={schemaItem.tooltip}
-    >
-      {fieldComponent}
-    </Field>
-  );
+  return fieldComponent;
 }
 
 SwitchField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;

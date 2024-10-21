@@ -99,6 +99,7 @@ import {
   PhoneInputField,
   RadioGroupField,
   SwitchField,
+  TextField,
 } from "./fields";
 import type { InputType } from "zlib";
 import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
@@ -152,6 +153,7 @@ export const ComponentDefaultMap = {
 // eg fieldType === "Array" instead of fieldType === FieldType.ARRAY is taking place
 // and modified accordingly
 export enum FieldType {
+  TEXT = "Text",
   AUTOCOMPLETE_INPUT = "AUTOCOMPLETE_INPUT",
   TEXT_INPUT = InputTypes.TEXT_INPUT,
   MULTILINE_TEXT_INPUT = InputTypes.MULTI_LINE_TEXT,
@@ -182,6 +184,10 @@ export enum FieldType {
   // UPLOAD = "Upload",
 }
 export const fieldTypeOptions = [
+  {
+    label: "文本",
+    value: FieldType.TEXT,
+  },
   {
     label: "输入框",
     value: FieldType.TEXT_INPUT,
@@ -253,9 +259,9 @@ export type FieldComponentBaseProps = {
   controlSize?: ProFormProps["size"];
   labelPosition?: AntdLabelPosition;
   defaultValue?: string | number;
-  isDisabled: boolean;
+  isDisabled?: boolean;
   isRequired?: boolean;
-  isVisible: boolean;
+  isVisible?: boolean;
   labelText: string;
   labelStyle?: string;
   labelTextColor?: string;
@@ -378,6 +384,7 @@ export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.OBJECT]: ObjectField,
   [FieldType.RADIO_GROUP]: RadioGroupField,
   [FieldType.SWITCH]: SwitchField,
+  [FieldType.TEXT]: TextField,
 };
 
 export const INPUT_TYPES = [
@@ -447,6 +454,7 @@ export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   [FieldType.TEXT_INPUT]: "",
   [FieldType.SEARCH_INPUT]: "",
   [FieldType.AUTOCOMPLETE_INPUT]: "",
+  [FieldType.TEXT]: "",
 };
 
 export const FIELD_SUPPORTING_FOCUS_EVENTS = [
@@ -468,6 +476,7 @@ export const AUTO_JS_ENABLED_FIELDS: Record<
   FieldType,
   (keyof SchemaItem)[] | null
 > = {
+  [FieldType.TEXT]: ["defaultValue"],
   [FieldType.DATEPICKER]: ["defaultValue"],
   [FieldType.SWITCH]: ["defaultValue"],
   [FieldType.ARRAY]: null,
