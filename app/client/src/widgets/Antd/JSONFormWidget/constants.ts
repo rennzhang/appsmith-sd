@@ -101,6 +101,7 @@ import {
   RadioGroupField,
   SwitchField,
   TextField,
+  CascaderField,
 } from "./fields";
 import type { InputType } from "zlib";
 import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
@@ -173,6 +174,7 @@ export enum FieldType {
   RADIO_GROUP = "Radio Group",
   // SELECT = "Select",
   SWITCH = "Switch",
+  CASCADE = "Cascade",
   // 未实现类型
   // AUTOCOMPLETE = "Auto Complete",
   // CASCADER = "Cascader",
@@ -218,6 +220,10 @@ export const fieldTypeOptions = [
   {
     label: "树选择器",
     value: FieldType.TREESELECT,
+  },
+  {
+    label: "级联选择器",
+    value: FieldType.CASCADE,
   },
   {
     label: "日期选择器",
@@ -392,6 +398,7 @@ export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.RADIO_GROUP]: RadioGroupField,
   [FieldType.SWITCH]: SwitchField,
   [FieldType.TEXT]: TextField,
+  [FieldType.CASCADE]: CascaderField,
 };
 
 export const INPUT_TYPES = [
@@ -463,6 +470,7 @@ export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   [FieldType.SEARCH_INPUT]: "",
   [FieldType.AUTOCOMPLETE_INPUT]: "",
   [FieldType.TEXT]: "",
+  [FieldType.CASCADE]: [],
 };
 
 export const FIELD_SUPPORTING_FOCUS_EVENTS = [
@@ -503,6 +511,7 @@ export const AUTO_JS_ENABLED_FIELDS: Record<
   [FieldType.TEXT_INPUT]: null,
   [FieldType.AUTOCOMPLETE_INPUT]: null,
   [FieldType.SEARCH_INPUT]: null,
+  [FieldType.CASCADE]: null,
 };
 
 export const getBindingTemplate = (widgetName: string) => {

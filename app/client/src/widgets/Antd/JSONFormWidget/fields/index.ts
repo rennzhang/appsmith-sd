@@ -10,3 +10,4 @@ export { default as SwitchField } from "./SwitchField";
 export { default as TextField } from "./TextField";
 export { default as CurrencyInputField } from "./CurrencyInputField";
 export { default as PhoneInputField } from "./PhoneInputField";
+export { default as CascaderField } from "./AntdCascaderField";

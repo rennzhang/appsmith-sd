@@ -8,7 +8,9 @@ export function getDefaultValueOptions(widget: WidgetProps) {
   const targetPath =
     widget.dataTreePath?.split(".")?.slice(1, -1)?.join(".") || "";
   const propsData = get(widget, targetPath) || widget;
-  let sourceData = get(propsData, `options`);
+  let sourceData = targetPath
+    ? get(propsData, `options`)
+    : get(widget, `${EVAL_VALUE_PATH}.options`);
 
   console.log("getDefaultValueOptions", {
     targetPath,
@@ -52,17 +54,23 @@ export function getDefaultValueOptions(widget: WidgetProps) {
   });
 }
 
-export function getLabelValueKeyOptions(widget: WidgetProps) {
-  console.log("getLabelValueKeyOptions", widget);
+export function getLabelValueKeyOptions(
+  widget: WidgetProps,
+  type?: "value" | "label" | "options" | "children",
+) {
+  const targetPath =
+    widget.dataTreePath?.split(".")?.slice(1, -1)?.join(".") || "";
+  const propsData = get(widget, targetPath) || widget;
+  let sourceData = targetPath
+    ? get(propsData, `options`)
+    : get(widget, `${EVAL_VALUE_PATH}.options`);
 
-  let sourceData = get(widget, `${EVAL_VALUE_PATH}.options`);
-  let jsonFormPath = "";
-  if (widget.type === "ANTD_JSON_FORM_WIDGET") {
-    // "AntdJSONForm1.schema.__root_schema__.children.name.defaultValue" => schema.__root_schema__.children.name 截取第一个点和最后一个点之前的字符
-    jsonFormPath =
-      widget.dataTreePath?.split(".")?.slice(1, -1)?.join(".") || "";
-    sourceData = get(widget, `${jsonFormPath}.options`);
-  }
+  console.log("getLabelValueKeyOptions", {
+    widget,
+    sourceData,
+    targetPath,
+    propsData,
+  });
 
   if (widget.type === "ANTD_PRO_TABLE_WIDGET") {
     sourceData =
@@ -87,7 +95,7 @@ export function getLabelValueKeyOptions(widget: WidgetProps) {
             const valueIsArray = Array.isArray(value);
 
             const isChildrenKey =
-              "childrenKey" in widget || widget.propertyName === "childrenKey";
+              type === "children" || propsData.propertyName === "childrenKey";
             if (isChildrenKey && valueIsArray) {
               keys.push(key);
             } else if (!isChildrenKey && !valueIsArray) {

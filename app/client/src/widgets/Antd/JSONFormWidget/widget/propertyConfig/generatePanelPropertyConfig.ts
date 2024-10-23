@@ -126,6 +126,7 @@ const comTypesMap = {
   [SwitchWidgetConfig.type]: [FieldType.SWITCH],
   [TextWidgetConfig.type]: [FieldType.TEXT],
   [TreeSelectWidgetConfig.type]: [FieldType.TREESELECT],
+  [CascaderWidgetConfig.type]: [FieldType.CASCADE],
 };
 const allItemPropertyPaneConfig: Map<string, any[]> = new Map();
 const allItemStylePaneConfig: Map<string, any[]> = new Map();

@@ -1,5 +1,5 @@
 import { Alignment } from "@blueprintjs/core";
-import { AntdLabelPosition } from "components/constants";
+import type { AntdLabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Layers } from "constants/Layers";
 import type { TextSize, WidgetType } from "constants/WidgetConstants";
@@ -30,6 +30,7 @@ import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
 import {
   DEFAULT_STYLE_PANEL_CONFIG,
+  FORM_LABEL_CONTENT_CONFIG,
   getFieldNamesPropConfig,
 } from "../../CONST/DEFAULT_CONFIG";
 
@@ -78,7 +79,8 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
             propertyName: "defaultValue",
             label: "默认选中值",
             controlType: "INPUT_TEXT",
-            placeholderText: "请输入选项数据",
+            placeholderText: "请输入默认选中值",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -98,80 +100,7 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
           getFieldNamesPropConfig("children"),
         ],
       },
-      {
-        sectionName: "标签",
-        children: [
-          {
-            helpText: "设置组件标签文本",
-            propertyName: "labelText",
-            label: "文本",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入文本内容",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "设置组件标签位置",
-            propertyName: "labelPosition",
-            label: "位置",
-            controlType: "ICON_TABS",
-            fullWidth: false,
-            hidden: isAutoLayout,
-            options: [
-              { label: "自动", value: AntdLabelPosition.Auto },
-              { label: "左", value: AntdLabelPosition.Left },
-              { label: "上", value: AntdLabelPosition.Top },
-            ],
-            defaultValue: AntdLabelPosition.Left,
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "设置组件标签的对齐方式",
-            propertyName: "labelAlignment",
-            label: "对齐",
-            controlType: "LABEL_ALIGNMENT_OPTIONS",
-            fullWidth: false,
-            options: [
-              {
-                startIcon: "align-left",
-                value: Alignment.LEFT,
-              },
-              {
-                startIcon: "align-right",
-                value: Alignment.RIGHT,
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            hidden: (props: CascaderWidgetProps) =>
-              props.labelPosition !== AntdLabelPosition.Left,
-            dependencies: ["labelPosition"],
-          },
-          {
-            helpText: "设置组件标签占用的列数",
-            propertyName: "labelWidth",
-            label: "宽度（所占列数）",
-            controlType: "NUMERIC_INPUT",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            min: 0,
-            validation: {
-              type: ValidationTypes.NUMBER,
-              params: {
-                natural: true,
-              },
-            },
-            hidden: (props: CascaderWidgetProps) =>
-              props.labelPosition !== AntdLabelPosition.Left,
-            dependencies: ["labelPosition"],
-          },
-        ],
-      },
+      FORM_LABEL_CONTENT_CONFIG,
       {
         sectionName: "校验",
         children: [
@@ -328,30 +257,39 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
           {
             helpText: "用户选中一个选项时触发",
             propertyName: "onOptionChange",
-            label: "onOptionChange",
+            label: "onChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
           },
           {
-            helpText: "when the dropdown opens",
-            propertyName: "onDropdownOpen",
-            label: "onDropdownOpen",
+            helpText: "搜索时触发",
+            propertyName: "onCascaderSearch",
+            label: "onSearch",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
           },
-          {
-            helpText: "when the dropdown closes",
-            propertyName: "onDropdownClose",
-            label: "onDropdownClose",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
+          // {
+          //   helpText: "当下拉菜单打开时触发",
+          //   propertyName: "onDropdownOpen",
+          //   label: "onDropdownOpen",
+          //   controlType: "ACTION_SELECTOR",
+          //   isJSConvertible: true,
+          //   isBindProperty: true,
+          //   isTriggerProperty: true,
+          // },
+          // {
+          //   helpText: "当下拉菜单关闭时触发",
+          //   propertyName: "onDropdownClose",
+          //   label: "onDropdownClose",
+          //   controlType: "ACTION_SELECTOR",
+          //   isJSConvertible: true,
+          //   isBindProperty: true,
+          //   isTriggerProperty: true,
+          // },
         ],
       },
     ];
@@ -359,7 +297,7 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
 
   static getStylesheetConfig(): Stylesheet {
     return {
-      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      colorPrimary: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",
     };
@@ -406,6 +344,7 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
         isDisabled: "bool",
         isValid: generateTypeDef(widget.isValid, extraDefsToDefine),
         options: generateTypeDef(widget.options, extraDefsToDefine),
+        searchText: generateTypeDef(widget.searchText, extraDefsToDefine),
       };
     };
   }
@@ -420,6 +359,7 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
+      searchText: "",
       value: "selectedOption",
       selectedOption: "defaultValue",
       selectedLabel: "defaultLabel",
@@ -466,7 +406,6 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
         disabled={this.props.isDisabled ?? false}
         errorMessage={this.props.errorMessage}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
-        isFilterable
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
@@ -488,10 +427,11 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
         placeholder={this.props.placeholderText as string}
         required={this.props.isRequired}
         status={this.props.status}
-        width={componentWidth}
+        // width={componentWidth}
         {...this.props}
         onDropdownClose={this.onDropdownClose}
         onDropdownOpen={this.onDropdownOpen}
+        onSearch={this.onCascaderSearch}
       />
     );
   }
@@ -505,6 +445,15 @@ class CascaderWidget extends BaseWidget<CascaderWidgetProps, WidgetState> {
       return selectedOptionLabels;
     }
     return [];
+  };
+  onCascaderSearch = (value: string) => {
+    this.props.updateWidgetMetaProperty("searchText", value, {
+      triggerPropertyName: "onCascaderSearch",
+      dynamicString: this.props.onCascaderSearch,
+      event: {
+        type: EventType.ON_SEARCH,
+      },
+    });
   };
 
   onOptionChange = (value?: DefaultValueType, labelList?: ReactNode[]) => {
@@ -575,7 +524,7 @@ export interface CascaderWidgetProps extends WidgetProps {
   onOptionChange: string;
   onDropdownOpen?: string;
   onDropdownClose?: string;
-  defaultValue: string;
+  defaultValue: CascaderProps["value"];
   isRequired: boolean;
   isLoading: boolean;
   allowClear: boolean;
@@ -591,7 +540,7 @@ export interface CascaderWidgetProps extends WidgetProps {
   labelStyle?: string;
   borderRadius: string;
   boxShadow?: string;
-  accentColor: string;
+  colorPrimary: string;
   isDirty?: boolean;
 }
 

@@ -26,13 +26,14 @@ export interface CascaderComponentProps {
   labelKey: string;
   childrenKey: string;
   widgetName: string;
-  defaultValue?: string;
+  defaultValue?: CascaderProps["value"];
   allowClear?: boolean;
   disabled?: boolean;
   placeholder?: string;
   loading?: boolean;
   dropdownStyle?: React.CSSProperties;
-  onChange: (value?: DefaultValueType, labelList?: ReactNode[]) => void;
+  onOptionChange?: string;
+  onChange?: (value?: DefaultValueType, labelList?: ReactNode[]) => void;
   // expandAll: boolean;
   labelText: string;
   labelPosition?: AntdLabelPosition;
@@ -44,16 +45,15 @@ export interface CascaderComponentProps {
   onDropdownClose?: () => void;
   labelStyle?: string;
   labelTooltip?: string;
-  compactMode: boolean;
-  width: number;
-  isValid: boolean;
-  isDynamicHeightEnabled: boolean;
-  borderRadius: string;
+  compactMode?: boolean;
+  width?: number;
+  isValid?: boolean;
+  isDynamicHeightEnabled?: boolean;
+  borderRadius?: string;
   boxShadow?: string;
-  accentColor: string;
-  widgetId: string;
+  colorPrimary?: string;
+  widgetId?: string;
   filterText?: string;
-  isFilterable: boolean;
   renderMode?: RenderMode;
   options?: DefaultOptionType[];
   required?: boolean;
@@ -64,16 +64,19 @@ export interface CascaderComponentProps {
   isMultiple?: boolean;
   errorMessage: string;
   controlSize?: SizeType;
+  onSearch?: (value: string) => void;
+  onCascaderSearch?: string;
+  value?: CascaderProps["value"];
 }
 
 function CascaderComponent(props: CascaderComponentProps): JSX.Element {
   console.log("级联选择 props", props);
 
   const {
-    accentColor,
     allowClear,
     borderRadius,
     boxShadow,
+    colorPrimary,
     compactMode,
     controlSize,
     defaultValue,
@@ -82,7 +85,6 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     errorMessage,
     filterText,
     isDynamicHeightEnabled,
-    isFilterable,
     isHoverExpand,
     isSearchable,
     isValid,
@@ -108,7 +110,19 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
     widgetName,
   } = props;
 
-  const [selectedValue, setSelectedValue] = useState<typeof selectedOption>([]);
+  const [selectedValue, setSelectedValue] = useState<CascaderProps["value"]>(
+    [],
+  );
+
+  useEffect(() => {
+    setSelectedValue(props.value || []);
+  }, [props.value]);
+
+  useEffect(() => {
+    if (defaultValue) {
+      setSelectedValue(defaultValue);
+    }
+  }, [defaultValue]);
 
   useEffect(() => {
     setSelectedValue(selectedOption || []);
@@ -141,6 +155,7 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
   }, [required, errorMessage]);
   const onSelectionChange = useCallback((value?: any[], labelList?: any[]) => {
     console.log("级联选择 onSelectionChange value", value, labelList);
+    setSelectedValue(value);
     onChange?.(value, labelList || []);
   }, []);
 
@@ -160,6 +175,12 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
           .toLowerCase()
           .indexOf(inputValue.toLowerCase()) > -1,
     );
+  console.log("AntdCascaderComponent", {
+    options,
+    selectedValue,
+    props,
+  });
+
   return (
     <AntdFormItemContainer
       boxShadow={boxShadow}
@@ -175,12 +196,19 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
               labelFontSize: (labelTextSize as unknown as number) || 0,
             },
             Input: {
-              borderRadius: (borderRadius as unknown as number) || 0,
-              boxShadow: boxShadow,
+              colorPrimary: colorPrimary,
             },
             Select: {
+              colorPrimary: colorPrimary,
+              borderRadius: (borderRadius as unknown as number) || 0,
+            },
+            Cascader: {
               borderRadius: (borderRadius as unknown as number) || 0,
               boxShadow: boxShadow,
+              colorPrimary: colorPrimary,
+            },
+            Dropdown: {
+              colorPrimary: colorPrimary,
             },
           },
         }}
@@ -204,7 +232,7 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
             onDropdownVisibleChange={(open) =>
               open ? onDropdownOpen?.() : onDropdownClose?.()
             }
-            onSearch={(value) => console.log(value)}
+            onSearch={(value) => props.onSearch?.(value)}
             options={options}
             placeholder={(placeholder as any) || "请选择"}
             showSearch={isSearchable ? { filter: handleFilter } : false}

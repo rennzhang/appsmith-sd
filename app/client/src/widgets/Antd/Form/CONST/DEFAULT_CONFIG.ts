@@ -30,6 +30,7 @@ import type { ProFormItemProps } from "@ant-design/pro-components";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TextSize } from "constants/WidgetConstants";
 import { theme } from "antd";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 // 如果是对象，递归可选
 type DeepPartial<T> = T extends object
@@ -541,7 +542,7 @@ export const getFieldNamesPropConfig = (
       isJSConvertible: true,
       evaluatedDependencies: ["options"],
       dependentPaths: ["options"],
-      options: getLabelValueKeyOptions,
+      options: (widget: WidgetProps) => getLabelValueKeyOptions(widget, type),
       alwaysShowSelected: true,
       validation: {
         type: ValidationTypes.FUNCTION,

@@ -56,14 +56,12 @@ export const CONFIG = {
     isDisabled: false,
     allowClear: true,
     expandAll: false,
+    isSearchable: true,
     isHoverExpand: false,
     placeholderText: "请选择",
-    labelText: "标签",
     labelWidth: 6,
-    labelTextSize: "0.875rem",
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
-    
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

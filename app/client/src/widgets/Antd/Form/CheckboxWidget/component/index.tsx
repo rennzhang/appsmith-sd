@@ -123,7 +123,7 @@ function CheckboxGroupComponent(props: CheckboxComponentProps) {
               labelFontSize: (labelTextSize as unknown as number) || 0,
             },
             Checkbox: {
-              // colorPrimary: colorPrimary,
+              colorPrimary: colorPrimary,
             },
           },
         }}

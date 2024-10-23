@@ -39,12 +39,9 @@ export const AntdProformContainer = styled.div<{
     .antd-pro-form-content {
       overflow: ${({ fixedFooter }) => (fixedFooter ? "auto" : "")};
     }
-    .antd-pro-form-title {
-      padding-inline: 16px;
-    }
     .t--jsonformfield-root {
       padding-inline: 16px;
-      padding-bottom: 16px;
+      padding-bottom: 0;
       margin-bottom: 0;
       overflow: ${({ fixedFooter, scrollContents }) =>
         fixedFooter ? "auto" : scrollContents ? "auto" : ""};
@@ -58,17 +55,24 @@ export const AntdProformContainer = styled.div<{
       ${({ fixedFooter }) =>
         fixedFooter ? "position: sticky; bottom: 0;" : ""};
     }
-  }
-  .ant-form-vertical {
-    div.ant-form-item div.ant-form-item-label.ant-col label {
-      // height: auto;
+
+    .ant-form-vertical
+      .ant-form-item:not(.ant-form-item-horizontal)
+      .ant-form-item-label
+      > label {
+      height: auto;
+    }
+
+    .ant-form-item-control {
+      margin-bottom: 16px;
     }
   }
 
   .antd-pro-form-title {
     font-size: 20px;
     font-weight: bold;
-    margin-bottom: 16px;
+    margin: 16px 0;
+    padding-inline: 16px;
   }
   .antd-pro-form-container-styled
     form.ant-form-vertical.ant-form.ant-pro-form
@@ -101,6 +105,7 @@ export const AntdFormItemContainer = styled.div<{
   colorPrimary?: string;
 }>`
   width: 100%;
+
   .ant-form-item {
     margin-bottom: 0;
   }
