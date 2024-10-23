@@ -1,10 +1,11 @@
 import { Alignment } from "@blueprintjs/core";
-import { AntdLabelPosition } from "components/constants";
+import type { AntdLabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TextSize, WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { isEqual } from "lodash";
+import type { LoDashStatic } from "lodash";
+import { get, isEqual } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -17,7 +18,10 @@ import type { AutocompletionDefinitions } from "widgets/constants";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { mergeWidgetConfig } from "utils/helpers";
-import { DEFAULT_STYLE_PANEL_CONFIG } from "../../CONST/DEFAULT_CONFIG";
+import {
+  DEFAULT_STYLE_PANEL_CONFIG,
+  FORM_LABEL_CONTENT_CONFIG,
+} from "../../CONST/DEFAULT_CONFIG";
 import { DatePickerValidator } from "widgets/Antd/tools";
 import { disabledTimeRuleConfig } from "./childrenConfig";
 import type { Dayjs } from "dayjs";
@@ -27,9 +31,11 @@ import {
   TimeFormatOptions,
   TimePresetsOptions,
 } from "./data";
+import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
+import type { SelectWidgetProps } from "widgets/SelectWidget/widget";
 
-class AntdDatePickerWidget extends BaseWidget<
-  DatePickerWidgetProps,
+class AntdTimePickerWidget extends BaseWidget<
+  TimePickerWidgetProps,
   WidgetState
 > {
   static getPropertyPaneContentConfig() {
@@ -53,14 +59,27 @@ class AntdDatePickerWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
             dependencies: ["placeholderText"],
             updateHook: (
-              props: DatePickerWidgetProps,
+              props: TimePickerWidgetProps,
               propertyPath: string,
               propertyValue: string,
             ) => {
+              const parentPath = propertyPath.slice(
+                0,
+                propertyPath.lastIndexOf("."),
+              );
+              const isJSONForm = props.type === "ANTD_JSON_FORM_WIDGET";
+              console.log(`isRangePicker updateHook`, {
+                propertyValue,
+                propertyPath,
+                props,
+                parentPath,
+              });
               const propertiesToUpdate = [
                 { propertyPath, propertyValue },
                 {
-                  propertyPath: "placeholderText",
+                  propertyPath: isJSONForm
+                    ? `${parentPath}.placeholderText`
+                    : "placeholderText",
                   propertyValue: propertyValue
                     ? JSON.stringify(["开始时间", "结束时间"])
                     : "请选择时间",
@@ -105,7 +124,11 @@ class AntdDatePickerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
-            hidden: (props: DatePickerWidgetProps) => props.isRangePicker,
+            hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return propsData.isRangePicker;
+            },
           },
           {
             helpText: "默认选中的值",
@@ -121,15 +144,16 @@ class AntdDatePickerWidget extends BaseWidget<
               type: ValidationTypes.FUNCTION,
               params: {
                 fn: DatePickerValidator.defaultValueValidation,
-                expected: {
-                  type: "value",
-                  example: [`value1`],
-                  autocompleteDataType: AutocompleteDataType.ARRAY,
-                },
               },
             },
-            helperText: (props: DatePickerWidgetProps) => {
-              return props.isRangePicker
+            helperText: (
+              props: TimePickerWidgetProps,
+              propertyPath: string,
+            ) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+
+              return propsData.isRangePicker
                 ? `时间组件默认值，请输入 ["YYYY-MM-dd", "YYYY-MM-dd"] 时间格式数据`
                 : "时间组件默认值，请输入 YYYY-MM-dd 时间格式数据";
             },
@@ -146,93 +170,26 @@ class AntdDatePickerWidget extends BaseWidget<
             label: "配置禁用时间",
             isBindProperty: false,
             isTriggerProperty: false,
-            panelConfig: disabledTimeRuleConfig,
-            helperText: (props: DatePickerWidgetProps) => {
+            // panelConfig: disabledTimeRuleConfig,
+            helperText: (
+              props: TimePickerWidgetProps,
+              propertyPath: string,
+            ) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
               return (
                 "当前规则：" +
                   DisabledRuleOptions.find(
                     (c) =>
-                      c.value === props.disabledTimeRule.config.disabledRule,
+                      c.value ===
+                      propsData.disabledTimeRule.config.disabledRule,
                   )?.label || "无"
               );
             },
           },
         ],
       },
-      {
-        sectionName: "标签",
-        children: [
-          {
-            helpText: "设置组件标签文本",
-            propertyName: "labelText",
-            label: "文本",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入文本内容",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "设置组件标签位置",
-            propertyName: "labelPosition",
-            label: "位置",
-            controlType: "ICON_TABS",
-            fullWidth: false,
-            hidden: isAutoLayout,
-            options: [
-              { label: "自动", value: AntdLabelPosition.Auto },
-              { label: "左", value: AntdLabelPosition.Left },
-              { label: "上", value: AntdLabelPosition.Top },
-            ],
-            defaultValue: AntdLabelPosition.Left,
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "设置组件标签的对齐方式",
-            propertyName: "labelAlignment",
-            label: "对齐",
-            controlType: "LABEL_ALIGNMENT_OPTIONS",
-            fullWidth: false,
-            options: [
-              {
-                startIcon: "align-left",
-                value: Alignment.LEFT,
-              },
-              {
-                startIcon: "align-right",
-                value: Alignment.RIGHT,
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            hidden: (props: DatePickerWidgetProps) =>
-              props.labelPosition !== AntdLabelPosition.Left,
-            dependencies: ["labelPosition"],
-          },
-          {
-            helpText: "设置组件标签占用的列数",
-            propertyName: "labelWidth",
-            label: "宽度（所占列数）",
-            controlType: "NUMERIC_INPUT",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            min: 0,
-            validation: {
-              type: ValidationTypes.NUMBER,
-              params: {
-                natural: true,
-              },
-            },
-            hidden: (props: DatePickerWidgetProps) =>
-              props.labelPosition !== AntdLabelPosition.Left,
-            dependencies: ["labelPosition"],
-          },
-        ],
-      },
+      FORM_LABEL_CONTENT_CONFIG,
       {
         sectionName: "校验",
         children: [
@@ -286,7 +243,11 @@ class AntdDatePickerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-            hidden: (props: DatePickerWidgetProps) => !props.isEnabledDateValid,
+            hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.isEnabledDateValid;
+            },
             dependencies: ["isEnabledDateValid"],
           },
           {
@@ -325,86 +286,49 @@ class AntdDatePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             dependencies: ["isRangePicker"],
             validation: {
-              type: ValidationTypes.FUNCTION,
-              params: {
-                fn: (value: any, props: DatePickerWidgetProps) => {
-                  const placeholderText = value || "";
+              type: ValidationTypes.TEXT,
+            },
+            hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return propsData.isRangePicker;
+            },
+          },
+          {
+            propertyName: "placeholderTextStart",
+            label: "开始时间占位符",
+            controlType: "INPUT_TEXT",
+            placeholderText: "请输入开始时间占位符",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isJSConvertible: true,
 
-                  if (props.isRangePicker) {
-                    let parsed;
-                    let isValid;
-                    let isArray;
-                    let errMessage;
-                    try {
-                      parsed = JSON.parse(placeholderText);
-                    } catch (error) {
-                      isValid = false;
-                      parsed = placeholderText;
-                      errMessage = "JSON 解析错误, 请提供正确的 JSON 格式数据";
-                      return {
-                        isValid,
-                        parsed,
-                        messages: [
-                          {
-                            name: "TypeError",
-                            message: errMessage,
-                          },
-                        ],
-                      };
-                    }
-                    isArray = isValid = Array.isArray(parsed);
-                    errMessage = isArray
-                      ? ""
-                      : "时间范围选择模式下，应提供数组格式数据";
-                    // 不能超过两个，并且每个元素都是字符串
-                    if (isValid) {
-                      isValid = parsed.length <= 2;
-                      if (isValid) {
-                        isValid = parsed.every(
-                          (item: any) => typeof item === "string",
-                        );
-                        errMessage = isValid
-                          ? ""
-                          : "请提供字符串格式数据，最大长度为 2";
-                      }
-                    }
-
-                    return {
-                      isValid,
-                      parsed,
-                      messages: isValid
-                        ? []
-                        : [
-                            {
-                              name: "TypeError",
-                              message: errMessage,
-                            },
-                          ],
-                    };
-                  }
-
-                  const isValidPlaceholder =
-                    typeof placeholderText === "string";
-                  return {
-                    isValid: isValidPlaceholder,
-                    parsed: placeholderText,
-                    messages: isValidPlaceholder
-                      ? []
-                      : [
-                          {
-                            name: "TypeError",
-                            message: "请输入占位文本",
-                          },
-                        ],
-                  };
-                },
-                expected: {
-                  type: "string | string[]",
-                  example: `请选择时间 | ["开始时间", "结束时间"]`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                  // autocompleteDataType: AutocompleteDataType.ARRAY,
-                },
-              },
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+            dependencies: ["isRangePicker"],
+            hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.isRangePicker;
+            },
+          },
+          {
+            propertyName: "placeholderTextEnd",
+            label: "结束时间占位符",
+            controlType: "INPUT_TEXT",
+            placeholderText: "请输入结束时间占位符",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+            dependencies: ["isRangePicker"],
+            hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.isRangePicker;
             },
           },
           {
@@ -445,53 +369,42 @@ class AntdDatePickerWidget extends BaseWidget<
         children: [
           // allowEmpty
           {
-            propertyName: "allowEmpty",
-            label: "允许留空",
+            propertyName: "allowEmptyStartTime",
+            label: "开始时间允许留空",
             helpText:
-              "在范围选择时，可以允许留空。这对于需要保留“至今”时间项颇为有用。",
-            controlType: "INPUT_TEXT",
+              "在范围选择时，开始时间可以允许留空。这对于需要保留“至今”时间项颇为有用。",
+            controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.FUNCTION,
-              params: {
-                expected: {
-                  type: "boolean[]",
-                  example: [false, true],
-                  autocompleteDataType: AutocompleteDataType.ARRAY,
-                },
-                // value 必须是一个数组，且长度为2，且每个元素都是布尔值，需要用 JSON.parse 解析
-                fn: (value: any) => {
-                  let val = value;
-                  const res = {
-                    isValid: false,
-                    parsed: val,
-                    messages: [
-                      {
-                        name: "TypeError",
-                        message: "请输入正确的值",
-                      },
-                    ],
-                  };
-                  try {
-                    val = JSON.parse(val);
-                    if (Array.isArray(val) && val.length === 2) {
-                      return {
-                        isValid: true,
-                        parsed: val,
-                        messages: [],
-                      };
-                    }
-                  } catch (error) {
-                    return res;
-                  }
-                  return res;
-                },
-              },
+              type: ValidationTypes.BOOLEAN,
             },
             dependencies: ["isRangePicker"],
-            hidden: (props: DatePickerWidgetProps) => !props.isRangePicker,
+            hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.isRangePicker;
+            },
+          },
+          {
+            propertyName: "allowEmptyEndTime",
+            label: "结束时间允许留空",
+            helpText:
+              "在范围选择时，结束时间可以允许留空。这对于需要保留“至今”时间项颇为有用。",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
+            dependencies: ["isRangePicker"],
+            hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.isRangePicker;
+            },
           },
 
           {
@@ -530,8 +443,11 @@ class AntdDatePickerWidget extends BaseWidget<
             isMultiSelect: true,
             dependencies: ["showPreset", "isRangePicker"],
             validation: { type: ValidationTypes.ARRAY },
-            hidden: (props: DatePickerWidgetProps) =>
-              !props.showPreset || props.isRangePicker,
+            hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.showPreset || propsData.isRangePicker;
+            },
           },
           // 范围选择 预设范围
           {
@@ -547,8 +463,11 @@ class AntdDatePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             dependencies: ["showPreset", "isRangePicker"],
             validation: { type: ValidationTypes.ARRAY },
-            hidden: (props: DatePickerWidgetProps) =>
-              !props.showPreset || !props.isRangePicker,
+            hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.showPreset || !propsData.isRangePicker;
+            },
           },
           // hourStep
           {
@@ -593,23 +512,23 @@ class AntdDatePickerWidget extends BaseWidget<
         children: [
           {
             helpText: "选中时间变化时触发，如果设置允许留空，则会多次触发",
-            propertyName: "onTimeSelected",
-            label: "onTimeSelected",
+            propertyName: "onTimeChange",
+            label: "onChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
           },
           // onOk
-          {
-            helpText: "点击确定按钮时触发",
-            propertyName: "onOk",
-            label: "onOk",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
+          // {
+          //   helpText: "点击确定按钮时触发",
+          //   propertyName: "onOkTriggerPropertyName",
+          //   label: "onOk",
+          //   controlType: "ACTION_SELECTOR",
+          //   isJSConvertible: true,
+          //   isBindProperty: true,
+          //   isTriggerProperty: true,
+          // },
         ],
       },
     ];
@@ -617,7 +536,7 @@ class AntdDatePickerWidget extends BaseWidget<
 
   static getStylesheetConfig(): Stylesheet {
     return {
-      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      colorPrimary: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",
     };
@@ -667,7 +586,7 @@ class AntdDatePickerWidget extends BaseWidget<
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (widget: DatePickerWidgetProps, extraDefsToDefine?: ExtraDef) => {
+    return (widget: TimePickerWidgetProps, extraDefsToDefine?: ExtraDef) => {
       return {
         "!doc":
           "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
@@ -702,7 +621,7 @@ class AntdDatePickerWidget extends BaseWidget<
     };
   }
 
-  componentDidUpdate(prevProps: DatePickerWidgetProps): void {
+  componentDidUpdate(prevProps: TimePickerWidgetProps): void {
     const { isRangePicker, updateWidgetMetaProperty } = this.props;
     console.log("时间选择组件 componentDidUpdate", this.props, prevProps);
 
@@ -756,8 +675,8 @@ class AntdDatePickerWidget extends BaseWidget<
         width={componentWidth}
         {...this.props}
         handleDateValid={this.handleDateValid}
-        onOk={this.onOk}
-        onTimeSelected={this.onTimeSelected}
+        onChange={this.handleTimeSelected}
+        // onOk={this.onOk}
         selectedValue={this.props.value}
       />
     );
@@ -767,28 +686,28 @@ class AntdDatePickerWidget extends BaseWidget<
 
     this.props.updateWidgetMetaProperty("isDateValid", validData);
   };
-  onOk = () => {
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
+  // onOk = () => {
+  //   if (!this.props.isDirty) {
+  //     this.props.updateWidgetMetaProperty("isDirty", true);
+  //   }
 
-    this.props.updateWidgetMetaProperty("isOk", true, {
-      triggerPropertyName: "onOk",
-      dynamicString: this.props.onOk,
-      event: {
-        type: EventType.ON_CLICK,
-      },
-    });
-  };
+  //   this.props.updateWidgetMetaProperty("isOk", true, {
+  //     triggerPropertyName: "onOkTriggerPropertyName",
+  //     dynamicString: this.props.onOkTriggerPropertyName,
+  //     event: {
+  //       type: EventType.ON_CLICK,
+  //     },
+  //   });
+  // };
 
-  onTimeSelected = <
+  handleTimeSelected = <
     T extends Dayjs | Dayjs[] | null,
     U extends string | string[],
   >(
     date?: T,
     dateString?: U,
   ) => {
-    console.log("时间选择组件 onTimeSelected", date, dateString);
+    console.log("时间选择组件 onTimeChange", date, dateString);
 
     if (!isEqual(this.props.selectedValue, dateString)) {
       if (!this.props.isDirty) {
@@ -796,8 +715,8 @@ class AntdDatePickerWidget extends BaseWidget<
       }
 
       this.props.updateWidgetMetaProperty("selectedValue", dateString, {
-        triggerPropertyName: "onTimeSelected",
-        dynamicString: this.props.onTimeSelected,
+        triggerPropertyName: "onTimeChange",
+        dynamicString: this.props.onTimeChange,
         event: {
           type: Array.isArray(dateString)
             ? EventType.ON_DATE_RANGE_SELECTED
@@ -819,7 +738,7 @@ export interface DropdownOption {
   children?: DropdownOption[];
 }
 
-export interface DatePickerWidgetProps extends WidgetProps {
+export interface TimePickerWidgetProps extends WidgetProps {
   placeholderText?: string;
   selectedIndex?: number;
   updateSelectInfo: (selectInfo: any) => void;
@@ -838,9 +757,9 @@ export interface DatePickerWidgetProps extends WidgetProps {
   labelStyle?: string;
   borderRadius: string;
   boxShadow?: string;
-  accentColor: string;
+  colorPrimary: string;
   isDirty?: boolean;
   isDateValid?: boolean | boolean[];
 }
 
-export default AntdDatePickerWidget;
+export default AntdTimePickerWidget;

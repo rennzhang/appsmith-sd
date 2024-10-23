@@ -127,6 +127,7 @@ const comTypesMap = {
   [TextWidgetConfig.type]: [FieldType.TEXT],
   [TreeSelectWidgetConfig.type]: [FieldType.TREESELECT],
   [CascaderWidgetConfig.type]: [FieldType.CASCADE],
+  [TimePickerWidgetConfig.type]: [FieldType.TIMEPICKER],
 };
 const allItemPropertyPaneConfig: Map<string, any[]> = new Map();
 const allItemStylePaneConfig: Map<string, any[]> = new Map();
@@ -187,7 +188,7 @@ function generatePanelPropertyConfig(
           propertyName: "children",
           label: "字段配置",
           helpText: "字段配置",
-          controlType: "FIELD_CONFIGURATION",
+          controlType: "ANTD_FIELD_CONFIGURATION",
           isBindProperty: false,
           isTriggerProperty: false,
           panelConfig: generatePanelPropertyConfig(nestingLevel - 1),

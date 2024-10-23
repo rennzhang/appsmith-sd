@@ -139,6 +139,7 @@ const COMMON_PROPERTIES = {
         isBindProperty: false,
         isTriggerProperty: false,
         options: fieldTypeOptions,
+        defaultValue: FieldType.TEXT_INPUT,
         dependencies: ["schema", "childStylesheet", "dynamicBindingPathList"],
         updateHook: fieldTypeUpdateHook,
       },

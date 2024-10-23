@@ -112,7 +112,7 @@ export interface ControlData
   parentPropertyValue: unknown;
   additionalDynamicData: AdditionalDynamicDataTree;
   label: string;
-  labelText: string;
+  labelText?: string;
   additionalControlData?: Record<string, unknown>;
 }
 export interface ControlFunctions {

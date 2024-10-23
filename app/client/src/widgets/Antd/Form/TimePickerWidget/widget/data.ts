@@ -14,10 +14,20 @@ const getLastMinutes = (minutes: number) =>
 const getNextMinutes = (minutes: number) =>
   dayjs().add(minutes, "minute").format("HH:mm:ss");
 
-const getLastHours = (hours: number) =>
-  dayjs().subtract(hours, "hour").format("HH:mm:ss");
-const getNextHours = (hours: number) =>
-  dayjs().add(hours, "hour").format("HH:mm:ss");
+const getLastHours = (hours: number) => {
+  const lastHours = dayjs().subtract(hours, "hour");
+  if (dayjs(lastHours).isBefore(dayjs("00:00:00", "HH:mm:ss"))) {
+    return "00:00:00";
+  }
+  return lastHours.format("HH:mm:ss");
+};
+const getNextHours = (hours: number) => {
+  const nextHours = dayjs().add(hours, "hour");
+  if (dayjs(nextHours).isAfter(dayjs("24:00:00", "HH:mm:ss"))) {
+    return "24:00:00";
+  }
+  return nextHours.format("HH:mm:ss");
+};
 export const DisabledRuleOptions = [
   { label: "无", value: "none" },
   {
@@ -35,15 +45,12 @@ export const DisabledRuleOptions = [
     label: "禁用上午",
     value: "am",
     getRangeValue: () => [`00:00:00-11:59:59`],
-    diabledHours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
   },
   {
     label: "禁用下午",
     value: "pm",
     getRangeValue: () => [`12:00:00-23:59:59`],
-    diabledHours: [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
   },
-  // 过去未来5分钟
   {
     label: "禁用过去5分钟",
     value: "last5Minutes_FIXED",
@@ -54,7 +61,6 @@ export const DisabledRuleOptions = [
     value: "next5Minutes_FIXED",
     getRangeValue: () => [`${getNow()}-${getNextMinutes(5)}`],
   },
-  // 过去未来10分钟
   {
     label: "禁用过去10分钟",
     value: "last10Minutes_FIXED",
@@ -65,11 +71,9 @@ export const DisabledRuleOptions = [
     value: "next10Minutes_FIXED",
     getRangeValue: () => [`${getNow()}-${getNextMinutes(10)}`],
   },
-  // 过去未来15分钟
   {
     label: "禁用过去15分钟",
     value: "last15Minutes_FIXED",
-    // getRangeValue: () => [dayjs().subtract(15, "minute"), dayjs()],
     getRangeValue: () => [`${getLastMinutes(15)}-${getNow()}`],
   },
   {
@@ -77,7 +81,6 @@ export const DisabledRuleOptions = [
     value: "next15Minutes_FIXED",
     getRangeValue: () => [`${getNow()}-${getNextMinutes(15)}`],
   },
-  // 过去未来30分钟
   {
     label: "禁用过去30分钟",
     value: "last30Minutes_FIXED",
@@ -88,7 +91,6 @@ export const DisabledRuleOptions = [
     value: "next30Minutes_FIXED",
     getRangeValue: () => [`${getNow()}-${getNextMinutes(30)}`],
   },
-  // 过去未来45分钟
   {
     label: "禁用过去45分钟",
     value: "last45Minutes_FIXED",
@@ -108,7 +110,7 @@ export const DisabledRuleOptions = [
   {
     label: "禁用未来1小时",
     value: "next1Hour_FIXED",
-    getRangeValue: () => [`${getNextHours(1)}-${getNow()}`],
+    getRangeValue: () => [`${getNow()}-${getNextHours(1)}`],
   },
   // 过去未来3小时
   {
@@ -119,9 +121,8 @@ export const DisabledRuleOptions = [
   {
     label: "禁用未来3小时",
     value: "next3Hours_FIXED",
-    getRangeValue: () => [`${getNextHours(3)}-${getNow()}`],
+    getRangeValue: () => [`${getNow()}-${getNextHours(3)}`],
   },
-  // 过去未来6小时
   {
     label: "禁用过去6小时",
     value: "last6Hours_FIXED",
@@ -130,9 +131,8 @@ export const DisabledRuleOptions = [
   {
     label: "禁用未来6小时",
     value: "next6Hours_FIXED",
-    getRangeValue: () => [`${getNextHours(6)}-${getNow()}`],
+    getRangeValue: () => [`${getNow()}-${getNextHours(6)}`],
   },
-  // 过去未来12小时
   {
     label: "禁用过去12小时",
     value: "last12Hours_FIXED",
@@ -141,7 +141,7 @@ export const DisabledRuleOptions = [
   {
     label: "禁用未来12小时",
     value: "next12Hours_FIXED",
-    getRangeValue: () => [`${getNextHours(12)}-${getNow()}`],
+    getRangeValue: () => [`${getNow()}-${getNextHours(12)}`],
   },
   // 禁用指定时分秒
   {

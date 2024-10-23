@@ -102,6 +102,7 @@ import {
   SwitchField,
   TextField,
   CascaderField,
+  AntdTimePickerField,
 } from "./fields";
 import type { InputType } from "zlib";
 import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
@@ -175,6 +176,7 @@ export enum FieldType {
   // SELECT = "Select",
   SWITCH = "Switch",
   CASCADE = "Cascade",
+  TIMEPICKER = "Time Picker", // 新增
   // 未实现类型
   // AUTOCOMPLETE = "Auto Complete",
   // CASCADER = "Cascader",
@@ -224,6 +226,10 @@ export const fieldTypeOptions = [
   {
     label: "级联选择器",
     value: FieldType.CASCADE,
+  },
+  {
+    label: "时间选择器",
+    value: FieldType.TIMEPICKER,
   },
   {
     label: "日期选择器",
@@ -399,6 +405,7 @@ export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.SWITCH]: SwitchField,
   [FieldType.TEXT]: TextField,
   [FieldType.CASCADE]: CascaderField,
+  [FieldType.TIMEPICKER]: AntdTimePickerField,
 };
 
 export const INPUT_TYPES = [
@@ -471,6 +478,7 @@ export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   [FieldType.AUTOCOMPLETE_INPUT]: "",
   [FieldType.TEXT]: "",
   [FieldType.CASCADE]: [],
+  [FieldType.TIMEPICKER]: null,
 };
 
 export const FIELD_SUPPORTING_FOCUS_EVENTS = [
@@ -512,6 +520,7 @@ export const AUTO_JS_ENABLED_FIELDS: Record<
   [FieldType.AUTOCOMPLETE_INPUT]: null,
   [FieldType.SEARCH_INPUT]: null,
   [FieldType.CASCADE]: null,
+  [FieldType.TIMEPICKER]: null,
 };
 
 export const getBindingTemplate = (widgetName: string) => {

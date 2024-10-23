@@ -121,14 +121,17 @@ type disabledTimeRule = {
     hideDisabledOptions: boolean;
   };
 };
-export interface DatePickerWidgetProps {
-  widgetName: string;
+export interface TimePickerWidgetProps {
+  allowEmptyStartTime?: boolean;
+  allowEmptyEndTime?: boolean;
+  accessor?: string;
+  widgetName?: string;
   disabled?: boolean;
   placeholderText?: string;
-  onTimeSelected: <
-    T extends Dayjs | Dayjs[] | null,
-    U extends string | string[],
-  >(
+  placeholderTextStart?: string;
+  placeholderTextEnd?: string;
+  onTimeChange?: string;
+  onChange: <T extends Dayjs | Dayjs[] | null, U extends string | string[]>(
     value: T,
     dateString: U,
   ) => void;
@@ -145,7 +148,7 @@ export interface DatePickerWidgetProps {
   isValid: boolean;
   borderRadius: string;
   boxShadow?: string;
-  accentColor: string;
+  colorPrimary?: string;
   widgetId: string;
   renderMode?: RenderMode;
   required?: boolean;
@@ -156,14 +159,14 @@ export interface DatePickerWidgetProps {
   format?: string;
   loading?: boolean;
   isRangePicker?: boolean;
-  allowEmpty?: boolean;
   disabledTimeRule?: disabledTimeRule;
   showPreset?: boolean;
   presetRange?: string[];
   presetSingle?: string[];
   showNow?: boolean;
   isEnabledDateValid?: boolean;
-  onOk: () => void;
+  onOkTriggerPropertyName?: string;
+  onOk?: () => void;
   selectedValue?: string | [string, string];
   handleDateValid: (value: any) => void;
   isDateValid?: boolean | boolean[];
@@ -174,13 +177,15 @@ export interface DatePickerWidgetProps {
   use12Hours?: boolean;
 }
 
-const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
+const AntdTimePickerWidget: React.FC<TimePickerWidgetProps> = (props) => {
   const {
-    accentColor,
+    accessor,
     allowClear,
-    allowEmpty,
+    allowEmptyEndTime,
+    allowEmptyStartTime,
     borderRadius,
     boxShadow,
+    colorPrimary,
     compactMode,
     controlSize,
     defaultValue,
@@ -203,8 +208,10 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     labelTooltip,
     labelWidth,
     minuteStep,
-    onTimeSelected,
+    onChange,
     placeholderText,
+    placeholderTextEnd,
+    placeholderTextStart,
     required,
     secondStep,
     selectedValue,
@@ -317,12 +324,12 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
   ]);
 
   const handleOk = () => {
-    props.onOk();
+    props?.onOk?.();
   };
   const handleChange: TimePickerProps["onChange"] = (date, dateString) => {
     console.log("时间选择 handleChange", date, dateString);
     setValue(date);
-    onTimeSelected?.(date, dateString);
+    onChange?.(date, dateString);
   };
   const handleRangeChange: RangePickerProps["onChange"] = (
     dates,
@@ -330,18 +337,19 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
   ) => {
     console.log("时间选择 handleChange", dates, dateStrings);
     setRangeValue(dates);
-    onTimeSelected?.(dates as any, dateStrings);
+    onChange?.(dates as any, dateStrings);
   };
 
   const disabledTimeMapMemo = useMemo(() => {
     let beforeTransRangeString: typeof customRanges = "";
     const { customRanges, disabledRule = "none" } =
       disabledTimeRule?.config || {};
-    if (disabledRule?.includes("_FIXED")) {
-      beforeTransRangeString = DisabledRuleOptions.find(
-        (c) => c.value === disabledTimeRule?.config.disabledRule,
-      )?.getRangeValue?.();
-    } else {
+
+    beforeTransRangeString = DisabledRuleOptions.find(
+      (c) => c.value === disabledTimeRule?.config.disabledRule,
+    )?.getRangeValue?.();
+
+    if (!beforeTransRangeString) {
       beforeTransRangeString = (disabledTimeRule?.config as any)?.[
         disabledRule
       ];
@@ -363,6 +371,7 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     const hVoid = h === undefined;
     const mVoid = m === undefined;
     const sVoid = s === undefined;
+
     return (
       disabledTimeMapMemo?.["HH"]?.includes(h) ||
       (!hVoid && !mVoid && disabledTimeMapMemo?.[h]?.includes(m)) ||
@@ -407,12 +416,6 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
         specificMinutes,
         specificSeconds,
       } = disabledTimeRule?.config || {};
-      if (["am", "pm"].includes(disabledRule)) {
-        return {
-          disabledHours: () =>
-            disabledRule === "am" ? range(0, 12) : range(12, 23),
-        };
-      }
 
       if (disabledRule === "specificHMS") {
         return {
@@ -431,6 +434,11 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
     },
     [disabledTimeRule, disabledTimeMapMemo],
   );
+  const placeholderTextMemo = useMemo(() => {
+    return isRangePicker
+      ? [placeholderTextStart, placeholderTextEnd]
+      : placeholderText;
+  }, [isRangePicker, placeholderTextStart, placeholderTextEnd]);
 
   console.group("Antd 时间选择框");
   console.log(" props", props);
@@ -451,10 +459,18 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
             Form: {
               labelColor: labelTextColor,
               labelFontSize: (labelTextSize as unknown as number) || 0,
+              colorPrimary,
             },
             DatePicker: {
+              colorPrimary,
               borderRadius: (borderRadius as unknown as number) || 0,
               boxShadow: boxShadow,
+            },
+            Button: {
+              colorPrimary,
+            },
+            Dropdown: {
+              colorPrimary,
             },
           },
         }}
@@ -462,13 +478,15 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
         <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
-          name={widgetName}
+          name={accessor || widgetName}
           tooltip={labelTooltip}
           {...validateProps}
           {...colLayoutMemo}
         >
           <PickerWithType
             allowClear={allowClear}
+            allowEmpty={[allowEmptyStartTime, allowEmptyEndTime]}
+            disabled={disabled}
             disabledTime={disabledTime}
             format={format}
             hideDisabledOptions={disabledTimeRule?.config?.hideDisabledOptions}
@@ -478,7 +496,7 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
             onChange={handleChange}
             onOk={handleOk}
             onRangeChange={handleRangeChange}
-            placeholder={placeholderText}
+            placeholder={placeholderTextMemo}
             presetRange={presetRange}
             presetSingle={presetSingle}
             rangeValue={rangeValue}
@@ -488,9 +506,6 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
             size={controlSize}
             use12Hours={use12Hours}
             value={value}
-            allowEmpty={allowEmpty}
-            // defaultValue={defaultValueMemo}
-            disabled={disabled}
           />
         </ProFormItem>
       </ConfigProvider>
@@ -512,14 +527,12 @@ const PickerWithType = (props: {
   [key: string]: any;
 }) => {
   const {
-    onChange,
     onOk,
     onRangeChange,
     presetRange,
     presetSingle,
     rangeValue,
     showPreset,
-    value,
   } = props;
   console.group("Antd 时间选择框 PickerWithType");
   console.log(" props", props);
@@ -559,4 +572,4 @@ const PickerWithType = (props: {
     />
   );
 };
-export default DatePickerWidget;
+export default AntdTimePickerWidget;

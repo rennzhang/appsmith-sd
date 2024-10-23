@@ -5,7 +5,9 @@ import type { MenuButtonWidgetProps } from "widgets/MenuButtonWidget/constants";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 import { ICON_NAMES } from "widgets/constants";
 import { DisabledRuleOptions } from "../data";
-
+import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
+import type { TimePickerWidgetProps } from "..";
+import { get } from "lodash";
 export const disabledTimeRuleConfig = {
   editableTitle: false,
   titlePropertyName: "label",
@@ -38,8 +40,13 @@ export const disabledTimeRuleConfig = {
           controlType: "SWITCH",
           isBindProperty: true,
           isTriggerProperty: false,
-          hidden: (props: any) =>
-            [props.disabledTimeRule?.config?.disabledRule]?.includes("none"),
+          hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
+            const propsData = get(props, _propertyPath) || props;
+            return [propsData.disabledTimeRule?.config?.disabledRule]?.includes(
+              "none",
+            );
+          },
         },
         {
           helpText: "设置禁用的小时",
@@ -81,10 +88,12 @@ export const disabledTimeRuleConfig = {
               ],
             },
           },
-          hidden: (props: any) => {
-            return ![props.disabledTimeRule.config.disabledRule]?.includes(
-              "specificHMS",
-            );
+          hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
+            const propsData = get(props, _propertyPath) || props;
+            return ![
+              propsData.disabledTimeRule?.config?.disabledRule,
+            ]?.includes("specificHMS");
           },
         },
         {
@@ -129,10 +138,12 @@ export const disabledTimeRuleConfig = {
               ],
             },
           },
-          hidden: (props: any) => {
-            return ![props.disabledTimeRule.config.disabledRule]?.includes(
-              "specificHMS",
-            );
+          hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
+            const propsData = get(props, _propertyPath) || props;
+            return ![
+              propsData.disabledTimeRule?.config?.disabledRule,
+            ]?.includes("specificHMS");
           },
         },
         {
@@ -176,10 +187,12 @@ export const disabledTimeRuleConfig = {
               ],
             },
           },
-          hidden: (props: any) => {
-            return ![props.disabledTimeRule.config.disabledRule]?.includes(
-              "specificHMS",
-            );
+          hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
+            const propsData = get(props, _propertyPath) || props;
+            return ![
+              propsData.disabledTimeRule?.config?.disabledRule,
+            ]?.includes("specificHMS");
           },
         },
         {
@@ -230,10 +243,12 @@ export const disabledTimeRuleConfig = {
               ],
             },
           },
-          hidden: (props: any) => {
-            return ![props.disabledTimeRule.config.disabledRule]?.includes(
-              "specificTime",
-            );
+          hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
+            const propsData = get(props, _propertyPath) || props;
+            return ![
+              propsData.disabledTimeRule?.config?.disabledRule,
+            ]?.includes("specificTime");
           },
         },
 
@@ -244,6 +259,8 @@ export const disabledTimeRuleConfig = {
           controlType: "JS_DATA",
           isBindProperty: true,
           isTriggerProperty: false,
+          isJSConvertible: true,
+
           dependencies: ["disabledTimeRule"],
           placeholderText: JSON.stringify([
             "08:00:00-10:00:00",
@@ -275,10 +292,13 @@ export const disabledTimeRuleConfig = {
               },
             },
           },
-          hidden: (props: any) =>
-            ![props.disabledTimeRule.config.disabledRule].includes(
-              "customRanges",
-            ),
+          hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
+            const propsData = get(props, _propertyPath) || props;
+            return ![
+              propsData.disabledTimeRule?.config?.disabledRule,
+            ]?.includes("customRanges");
+          },
         },
         // // 是否取交叉部分
         // {
@@ -348,10 +368,12 @@ export const disabledTimeRuleConfig = {
             },
           },
           dependencies: ["disabledTimeRule"],
-          hidden: (props: any) => {
-            return ![props.disabledTimeRule.config.disabledRule].includes(
-              "customFunc",
-            );
+          hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
+            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
+            const propsData = get(props, _propertyPath) || props;
+            return ![
+              propsData.disabledTimeRule?.config?.disabledRule,
+            ]?.includes("customFunc");
           },
           // hidden: (props: any) =>
           //   ![props.disabledTimeRule.config.disabledRule].includes(

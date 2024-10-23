@@ -620,7 +620,7 @@ const PropertyControl = memo((props: Props) => {
       : props.label;
 
     const helperText = isFunction(props.helperText)
-      ? props.helperText(widgetProperties)
+      ? props.helperText(widgetProperties, props.propertyName)
       : props.helperText;
 
     dataTreePath =
