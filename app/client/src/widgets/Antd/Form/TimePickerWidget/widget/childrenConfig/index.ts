@@ -2,12 +2,23 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { MenuButtonWidgetProps } from "widgets/MenuButtonWidget/constants";
-import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
-import { ICON_NAMES } from "widgets/constants";
 import { DisabledRuleOptions } from "../data";
-import { getParentPropertyPath } from "widgets/JSONFormWidget/widget/helper";
 import type { TimePickerWidgetProps } from "..";
 import { get } from "lodash";
+// 抽离获取propsData的通用函数
+const getPropsData = (props: any, propertyPath: string) => {
+  const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
+  const targetPath = _propertyPath == propertyPath ? "" : _propertyPath;
+  const data = get(props, targetPath) || props;
+  console.log("getPropsData 时间选择器", {
+    targetPath,
+    data,
+    propertyPath,
+    _propertyPath,
+  });
+
+  return data;
+};
 export const disabledTimeRuleConfig = {
   editableTitle: false,
   titlePropertyName: "label",
@@ -41,8 +52,7 @@ export const disabledTimeRuleConfig = {
           isBindProperty: true,
           isTriggerProperty: false,
           hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
-            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
-            const propsData = get(props, _propertyPath) || props;
+            const propsData = getPropsData(props, propertyPath);
             return [propsData.disabledTimeRule?.config?.disabledRule]?.includes(
               "none",
             );
@@ -89,8 +99,7 @@ export const disabledTimeRuleConfig = {
             },
           },
           hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
-            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
-            const propsData = get(props, _propertyPath) || props;
+            const propsData = getPropsData(props, propertyPath);
             return ![
               propsData.disabledTimeRule?.config?.disabledRule,
             ]?.includes("specificHMS");
@@ -139,8 +148,16 @@ export const disabledTimeRuleConfig = {
             },
           },
           hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
-            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
-            const propsData = get(props, _propertyPath) || props;
+            const propsData = getPropsData(props, propertyPath);
+            console.log(
+              "specificMinutes",
+              {
+                props,
+                propsData,
+                propertyPath,
+              },
+              propertyPath.split(".disabledTimeRule"),
+            );
             return ![
               propsData.disabledTimeRule?.config?.disabledRule,
             ]?.includes("specificHMS");
@@ -188,8 +205,8 @@ export const disabledTimeRuleConfig = {
             },
           },
           hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
-            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
-            const propsData = get(props, _propertyPath) || props;
+            const propsData = getPropsData(props, propertyPath);
+
             return ![
               propsData.disabledTimeRule?.config?.disabledRule,
             ]?.includes("specificHMS");
@@ -244,8 +261,8 @@ export const disabledTimeRuleConfig = {
             },
           },
           hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
-            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
-            const propsData = get(props, _propertyPath) || props;
+            const propsData = getPropsData(props, propertyPath);
+
             return ![
               propsData.disabledTimeRule?.config?.disabledRule,
             ]?.includes("specificTime");
@@ -293,8 +310,8 @@ export const disabledTimeRuleConfig = {
             },
           },
           hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
-            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
-            const propsData = get(props, _propertyPath) || props;
+            const propsData = getPropsData(props, propertyPath);
+
             return ![
               propsData.disabledTimeRule?.config?.disabledRule,
             ]?.includes("customRanges");
@@ -369,8 +386,8 @@ export const disabledTimeRuleConfig = {
           },
           dependencies: ["disabledTimeRule"],
           hidden: (props: TimePickerWidgetProps, propertyPath: string) => {
-            const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
-            const propsData = get(props, _propertyPath) || props;
+            const propsData = getPropsData(props, propertyPath);
+
             return ![
               propsData.disabledTimeRule?.config?.disabledRule,
             ]?.includes("customFunc");

@@ -1,6 +1,6 @@
 import lodashPackageJson from "lodash/package.json";
 import momentPackageJson from "moment-timezone/package.json";
-
+import dayjsPackageJson from "dayjs/package.json";
 export type TJSLibrary = {
   version?: string;
   docsURL: string;
@@ -15,6 +15,13 @@ export const defaultLibraries: TJSLibrary[] = [
     version: lodashPackageJson.version,
     docsURL: `https://lodash.com/docs/${lodashPackageJson.version}`,
     name: "lodash",
+  },
+
+  {
+    accessor: ["dayjs"],
+    version: dayjsPackageJson.version,
+    docsURL: `https://day.js.org/docs/zh-CN/installation/installation`,
+    name: "dayjs",
   },
   {
     accessor: ["moment"],

@@ -5,6 +5,16 @@ import type { MenuButtonWidgetProps } from "widgets/MenuButtonWidget/constants";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 import { ICON_NAMES } from "widgets/constants";
 import { DisabledRuleOptions } from "../data";
+import { get } from "lodash";
+
+// 抽离获取propsData的通用函数
+const getPropsData = (props: any, propertyPath: string) => {
+  const _propertyPath = propertyPath.split(".disabledDateRule")[0];
+  const targetPath = _propertyPath == propertyPath ? "" : _propertyPath;
+  const data = get(props, targetPath) || props;
+
+  return data;
+};
 
 export const disabledDateRuleConfig = {
   editableTitle: false,
@@ -84,10 +94,11 @@ export const disabledDateRuleConfig = {
           //     },
           //   },
           // },
-          hidden: (props: any) => {
-            return ![props.disabledDateRule.config.disabledRule]?.includes(
-              "specificYear",
-            );
+          hidden: (props: any, propertyPath: string) => {
+            const propsData = getPropsData(props, propertyPath);
+            return ![
+              propsData.disabledDateRule?.config?.disabledRule,
+            ]?.includes("specificYear");
           },
         },
         {
@@ -99,10 +110,12 @@ export const disabledDateRuleConfig = {
           placeholderText: "请选择季度",
           dependencies: ["disabledDateRule"],
           isMultiSelect: true,
-          hidden: (props: any) =>
-            ![props.disabledDateRule.config.disabledRule].includes(
+          hidden: (props: any, propertyPath: string) => {
+            const propsData = getPropsData(props, propertyPath);
+            return ![propsData.disabledDateRule?.config?.disabledRule].includes(
               "specificQuarters",
-            ),
+            );
+          },
           options: [
             { label: "第一季度", value: "1" },
             { label: "第二季度", value: "2" },
@@ -119,10 +132,12 @@ export const disabledDateRuleConfig = {
           dependencies: ["disabledDateRule"],
           isMultiSelect: true,
           placeholderText: "请选择月份",
-          hidden: (props: any) =>
-            ![props.disabledDateRule.config.disabledRule].includes(
+          hidden: (props: any, propertyPath: string) => {
+            const propsData = getPropsData(props, propertyPath);
+            return ![propsData.disabledDateRule?.config?.disabledRule].includes(
               "specificMonths",
-            ),
+            );
+          },
           options: [
             { label: "1月", value: "1" },
             { label: "2月", value: "2" },
@@ -147,10 +162,12 @@ export const disabledDateRuleConfig = {
           isTriggerProperty: false,
           dependencies: ["disabledDateRule"],
           placeholderText: "请选择星期几",
-          hidden: (props: any) =>
-            ![props.disabledDateRule.config.disabledRule].includes(
+          hidden: (props: any, propertyPath: string) => {
+            const propsData = getPropsData(props, propertyPath);
+            return ![propsData.disabledDateRule?.config?.disabledRule].includes(
               "specificDaysOfWeek",
-            ),
+            );
+          },
           options: [
             { label: "周一", value: "1" },
             { label: "周二", value: "2" },
@@ -167,7 +184,7 @@ export const disabledDateRuleConfig = {
           label: "指定日期",
           propertyName: "specificDates",
           controlType: "INPUT_TEXT",
-          placeholderText: ["2022-03-01", "2022-03-02"],
+          placeholderText: JSON.stringify(["2022-03-01", "2022-03-02"]),
           isBindProperty: true,
           isTriggerProperty: false,
           isJSConvertible: true,
@@ -187,10 +204,12 @@ export const disabledDateRuleConfig = {
               },
             },
           },
-          hidden: (props: any) =>
-            ![props.disabledDateRule.config.disabledRule].includes(
+          hidden: (props: any, propertyPath: string) => {
+            const propsData = getPropsData(props, propertyPath);
+            return ![propsData.disabledDateRule?.config?.disabledRule].includes(
               "specificDates",
-            ),
+            );
+          },
         },
         {
           helpText:
@@ -208,10 +227,12 @@ export const disabledDateRuleConfig = {
           validation: {
             type: ValidationTypes.TEXT,
           },
-          hidden: (props: any) =>
-            ![props.disabledDateRule.config.disabledRule].includes(
+          hidden: (props: any, propertyPath: string) => {
+            const propsData = getPropsData(props, propertyPath);
+            return ![propsData.disabledDateRule?.config?.disabledRule].includes(
               "specificDaysOfMonth",
-            ),
+            );
+          },
         },
         {
           label: "偏移量规则",
@@ -234,10 +255,12 @@ export const disabledDateRuleConfig = {
           isBindProperty: true,
           isTriggerProperty: false,
           dependencies: ["disabledDateRule"],
-          hidden: (props: any) =>
-            ![props.disabledDateRule.config.disabledRule].includes(
+          hidden: (props: any, propertyPath: string) => {
+            const propsData = getPropsData(props, propertyPath);
+            return ![propsData.disabledDateRule?.config?.disabledRule].includes(
               "offsetRange",
-            ),
+            );
+          },
         },
         // 前置偏移
         {
@@ -255,10 +278,14 @@ export const disabledDateRuleConfig = {
           validation: {
             type: ValidationTypes.NUMBER,
           },
-          hidden: (props: any) =>
-            ![props.disabledDateRule.config.disabledRule].includes(
-              "offsetRange",
-            ) || props.disabledDateRule.config.offsetWay == "back",
+          hidden: (props: any, propertyPath: string) => {
+            const propsData = getPropsData(props, propertyPath);
+            return (
+              ![propsData.disabledDateRule?.config?.disabledRule].includes(
+                "offsetRange",
+              ) || propsData.disabledDateRule?.config?.offsetWay == "back"
+            );
+          },
         },
         // 后置偏移
         {
@@ -276,10 +303,14 @@ export const disabledDateRuleConfig = {
           validation: {
             type: ValidationTypes.NUMBER,
           },
-          hidden: (props: any) =>
-            ![props.disabledDateRule.config.disabledRule].includes(
-              "offsetRange",
-            ) || props.disabledDateRule.config.offsetWay == "front",
+          hidden: (props: any, propertyPath: string) => {
+            const propsData = getPropsData(props, propertyPath);
+            return (
+              ![propsData.disabledDateRule?.config?.disabledRule].includes(
+                "offsetRange",
+              ) || propsData.disabledDateRule?.config?.offsetWay == "front"
+            );
+          },
         },
         // 是否取交叉部分
         {
@@ -290,10 +321,12 @@ export const disabledDateRuleConfig = {
           isBindProperty: true,
           isTriggerProperty: false,
           dependencies: ["disabledDateRule"],
-          hidden: (props: any) =>
-            ![props.disabledDateRule.config.disabledRule].includes(
+          hidden: (props: any, propertyPath: string) => {
+            const propsData = getPropsData(props, propertyPath);
+            return ![propsData.disabledDateRule?.config?.disabledRule].includes(
               "offsetRange",
-            ),
+            );
+          },
         },
         // disabledDateFunction
         {
@@ -349,8 +382,9 @@ export const disabledDateRuleConfig = {
             },
           },
           dependencies: ["disabledDateRule"],
-          hidden: (props: any) => {
-            return ![props.disabledDateRule.config.disabledRule].includes(
+          hidden: (props: any, propertyPath: string) => {
+            const propsData = getPropsData(props, propertyPath);
+            return ![propsData.disabledDateRule?.config?.disabledRule].includes(
               "customFunc",
             );
           },

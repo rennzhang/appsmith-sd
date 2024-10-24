@@ -48,7 +48,7 @@ class AntdTimePickerWidget extends BaseWidget<
             label: "选择模式",
             helpText: "是否使用范围选择",
             controlType: "ICON_TABS",
-            // isJSConvertible: true,
+            isJSConvertible: true,
             defaultValue: false,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -57,37 +57,6 @@ class AntdTimePickerWidget extends BaseWidget<
               { label: "范围", value: true },
             ],
             validation: { type: ValidationTypes.BOOLEAN },
-            dependencies: ["placeholderText"],
-            updateHook: (
-              props: TimePickerWidgetProps,
-              propertyPath: string,
-              propertyValue: string,
-            ) => {
-              const parentPath = propertyPath.slice(
-                0,
-                propertyPath.lastIndexOf("."),
-              );
-              const isJSONForm = props.type === "ANTD_JSON_FORM_WIDGET";
-              console.log(`isRangePicker updateHook`, {
-                propertyValue,
-                propertyPath,
-                props,
-                parentPath,
-              });
-              const propertiesToUpdate = [
-                { propertyPath, propertyValue },
-                {
-                  propertyPath: isJSONForm
-                    ? `${parentPath}.placeholderText`
-                    : "placeholderText",
-                  propertyValue: propertyValue
-                    ? JSON.stringify(["开始时间", "结束时间"])
-                    : "请选择时间",
-                },
-              ];
-
-              return propertiesToUpdate;
-            },
           },
           // format
           {
@@ -170,7 +139,7 @@ class AntdTimePickerWidget extends BaseWidget<
             label: "配置禁用时间",
             isBindProperty: false,
             isTriggerProperty: false,
-            // panelConfig: disabledTimeRuleConfig,
+            panelConfig: disabledTimeRuleConfig,
             helperText: (
               props: TimePickerWidgetProps,
               propertyPath: string,

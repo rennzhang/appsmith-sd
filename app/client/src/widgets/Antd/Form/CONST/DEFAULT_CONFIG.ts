@@ -468,7 +468,6 @@ export const getDefaultValueDropdownPropConfig = (
     },
   );
 
-  console.log("getDefaultValueDropdownPropConfig", mergedConfig);
   return mergedConfig;
 };
 
@@ -557,8 +556,6 @@ export const getFieldNamesPropConfig = (
       },
       additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
       hidden: (props: any) => {
-        console.log("getFieldNamesPropConfig hidden", props);
-
         // options 可能是 json需要先转换为对象
         let options = props.options;
         try {
@@ -589,8 +586,6 @@ export const getFieldNamesPropConfig = (
     typeConfigMap[type],
     config,
   );
-
-  console.log("getFieldNamesPropConfig", cfg);
 
   return cfg;
 };

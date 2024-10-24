@@ -11,18 +11,9 @@ import {
 } from "./helper";
 import {
   ARRAY_PROPERTIES,
-  CHECKBOX_PROPERTIES,
   COMMON_PROPERTIES,
-  DATE_PROPERTIES,
-  INPUT_PROPERTIES,
-  MULTI_SELECT_PROPERTIES,
   OBJECT_PROPERTIES,
-  RADIO_GROUP_PROPERTIES,
-  SELECT_PROPERTIES,
-  SWITCH_PROPERTIES,
 } from "./properties";
-import type { JSONFormWidgetProps } from "..";
-import AntdInputWidget from "widgets/Antd/Form/InputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import {
   AllAntdFormItems,
@@ -128,6 +119,7 @@ const comTypesMap = {
   [TreeSelectWidgetConfig.type]: [FieldType.TREESELECT],
   [CascaderWidgetConfig.type]: [FieldType.CASCADE],
   [TimePickerWidgetConfig.type]: [FieldType.TIMEPICKER],
+  [DatePickerWidgetConfig.type]: [FieldType.DATEPICKER],
 };
 const allItemPropertyPaneConfig: Map<string, any[]> = new Map();
 const allItemStylePaneConfig: Map<string, any[]> = new Map();
@@ -176,13 +168,6 @@ function generatePanelPropertyConfig(
       sectionName: "基本配置",
       children: [
         ...COMMON_PROPERTIES.content.data,
-        // ...INPUT_PROPERTIES.content.data,
-        // ...SWITCH_PROPERTIES.content.data,
-        // ...SELECT_PROPERTIES.content.data,
-        // ...RADIO_GROUP_PROPERTIES.content.data,
-        // ...MULTI_SELECT_PROPERTIES.content.data,
-        ...DATE_PROPERTIES.content.data,
-        // ...CHECKBOX_PROPERTIES.content.data,
         ...ARRAY_PROPERTIES.content.data,
         {
           propertyName: "children",
@@ -206,49 +191,14 @@ function generatePanelPropertyConfig(
     },
   ];
   const styleChildren = [
-    // {
-    //   sectionName: "标签样式",
-    //   children: [...COMMON_PROPERTIES.style.label],
-    // },
-    // {
-    //   sectionName: "图标配置",
-    //   children: [...INPUT_PROPERTIES.style.icon],
-    //   hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
-    //     const schemaItem: SchemaItem = get(props, propertyPath, {});
-    //     return !(
-    //       schemaItem.fieldType === FieldType.TEXT_INPUT ||
-    //       schemaItem.fieldType === FieldType.EMAIL_INPUT ||
-    //       schemaItem.fieldType === FieldType.PASSWORD_INPUT ||
-    //       schemaItem.fieldType === FieldType.NUMBER_INPUT
-    //     );
-    //   },
-    // },
-    // {
-    //   sectionName: "颜色配置",
-    //   children: [...COMMON_PROPERTIES.style.color],
-    //   hidden: isFieldTypeArrayOrObject,
-    // },
-    // {
-    //   sectionName: "轮廓样式",
-    //   children: [...COMMON_PROPERTIES.style.borderShadow],
-    //   hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
-    //     const schemaItem: SchemaItem = get(props, propertyPath, {});
-    //     return (
-    //       schemaItem.fieldType === FieldType.ARRAY ||
-    //       schemaItem.fieldType === FieldType.OBJECT ||
-    //       schemaItem.fieldType === FieldType.RADIO_GROUP ||
-    //       schemaItem.fieldType === FieldType.SWITCH
-    //     );
-    //   },
-    // },
     ...OBJECT_PROPERTIES.style.root,
     ...ARRAY_PROPERTIES.style.root,
   ];
   const mergedContentChildren = getAllItemPaneConfig([]);
   const mergedStyleChildren = getAllItemPaneConfig(styleChildren, true);
 
-  console.log("contentChildren", mergedContentChildren);
-  console.log("mergedStyleChildren", mergedStyleChildren);
+  // console.log("contentChildren", mergedContentChildren);
+  // console.log("mergedStyleChildren", mergedStyleChildren);
 
   return {
     editableTitle: true,

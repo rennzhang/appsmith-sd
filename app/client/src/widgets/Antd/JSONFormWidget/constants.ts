@@ -92,7 +92,7 @@ import {
   ArrayField,
   CheckboxField,
   CurrencyInputField,
-  DateField,
+  AntdDatePickerField,
   InputField,
   AntdSelectField,
   AntdTreeSelectField,
@@ -397,7 +397,7 @@ export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.ARRAY]: ArrayField,
   [FieldType.CHECKBOX]: CheckboxField,
 
-  [FieldType.DATEPICKER]: DateField,
+  [FieldType.DATEPICKER]: AntdDatePickerField,
   [FieldType.MULTISELECT]: AntdSelectField,
   [FieldType.TREESELECT]: AntdTreeSelectField,
   [FieldType.OBJECT]: ObjectField,

@@ -1,6 +1,5 @@
 export { default as ArrayField } from "./ArrayField";
 export { default as CheckboxField } from "./CheckboxField";
-export { default as DateField } from "./DateField";
 export { default as InputField } from "./InputField";
 export { default as AntdSelectField } from "./AntdSelectField";
 export { default as AntdTreeSelectField } from "./AntdTreeSelectField";
@@ -12,3 +11,4 @@ export { default as CurrencyInputField } from "./CurrencyInputField";
 export { default as PhoneInputField } from "./PhoneInputField";
 export { default as CascaderField } from "./AntdCascaderField";
 export { default as AntdTimePickerField } from "./AntdTimePickerField";
+export { default as AntdDatePickerField } from "./AntdDataPickerField";

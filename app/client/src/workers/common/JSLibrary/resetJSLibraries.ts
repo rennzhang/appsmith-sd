@@ -5,10 +5,12 @@ import forge from "node-forge";
 import { defaultLibraries } from "./index";
 import { JSLibraries, libraryReservedIdentifiers } from "./index";
 import { invalidEntityIdentifiers } from "../DependencyMap/utils";
+import dayjs from "dayjs";
 const defaultLibImplementations = {
   lodash: _,
   moment: moment,
   xmlParser: parser,
+  dayjs: dayjs,
   // We are removing some functionalities of node-forge because they wont
   // work in the worker thread
   forge: /*#__PURE*/ _.omit(forge, ["tls", "http", "xhr", "socket", "task"]),

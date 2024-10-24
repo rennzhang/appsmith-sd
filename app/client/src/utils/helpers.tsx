@@ -767,34 +767,6 @@ export function isValidColor(color: string) {
  *  Function to merge property pane config of a widget
  *
  */
-export const mergeWidgetConfig1 = (target: any, source: any) => {
-  const sectionMap: Record<string, any> = {};
-  const _target = cloneDeep(target);
-
-  _target.forEach((section: { sectionName: string }) => {
-    sectionMap[section.sectionName] = section;
-  });
-
-  source.forEach((section: { sectionName: string; children: any[] }) => {
-    const targetSection = sectionMap[section.sectionName];
-
-    if (targetSection) {
-      Array.prototype.push.apply(targetSection.children, section.children);
-    } else {
-      _target.push(section);
-    }
-  });
-  // 如果有sortOrder字段，则进行排序
-  _target.sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
-
-  console.log(" mergeWidgetConfig", { target, source, _target });
-
-  return _target;
-};
-/*
- *  Function to merge property pane config of a widget
- *
- */
 export const mergeWidgetConfig = (target: any, source: any) => {
   const sectionMap: Record<string, any> = {};
   // const _target = cloneDeep(target);
@@ -814,8 +786,6 @@ export const mergeWidgetConfig = (target: any, source: any) => {
   });
   // 如果有sortOrder字段，则进行排序
   target.sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
-
-  console.log(" mergeWidgetConfig", { target, source });
 
   return target;
 };
