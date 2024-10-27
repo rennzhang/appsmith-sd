@@ -86,17 +86,6 @@ class AntdInputWidget<
           sectionName: "属性",
           children: [
             {
-              helpText: "显示帮助信息或者当前输入的详情",
-              propertyName: "tooltip",
-              label: "提示",
-              controlType: "INPUT_TEXT",
-              placeholderText: "至少输入6个字符",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
-            },
-
-            {
               helpText: "控制组件的显示/隐藏",
               propertyName: "isVisible",
               label: "是否显示",

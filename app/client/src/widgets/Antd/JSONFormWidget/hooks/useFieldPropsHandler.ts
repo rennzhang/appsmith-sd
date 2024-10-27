@@ -122,6 +122,7 @@ export const useFieldPropsHandler = ({
       formRef,
       defaultValue,
       value: defaultValue,
+      accessor: name.split("."),
     };
   }, [schemaItem, formContext, defaultValue]);
 

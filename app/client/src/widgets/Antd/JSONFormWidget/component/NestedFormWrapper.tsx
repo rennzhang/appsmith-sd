@@ -9,6 +9,10 @@ type StyledWrapperProps = {
   borderWidth?: number;
   boxShadow?: string;
   withoutPadding?: boolean;
+  withBottomMargin?: boolean;
+  labelTextSize?: string;
+  labelTextColor?: string;
+  labelStyle?: string;
 };
 
 const NESTED_FORM_WRAPPER_PADDING = 10;
@@ -27,6 +31,15 @@ const NestedFormWrapper = styled.div<StyledWrapperProps>`
   border-radius: ${({ borderRadius }) => borderRadius || DEFAULT_BORDER_RADIUS};
   border-width: ${({ borderWidth }) => borderWidth || DEFAULT_BORDER_WIDTH}px;
   box-shadow: ${({ boxShadow }) => boxShadow || DEFAULT_BOX_SHADOW};
+  margin-bottom: 16px;
+
+  > div > .ant-form-item > .ant-form-item-row > .ant-form-item-label label {
+    font-size: ${({ labelTextSize }) => labelTextSize || "14px"};
+    ${({ labelTextColor }) => labelTextColor && `color: ${labelTextColor};`}
+    font-weight: ${({ labelStyle }) => labelStyle?.includes("BOLD") && "bold"};
+    font-style: ${({ labelStyle }) =>
+      labelStyle?.includes("ITALIC") && "italic"};
+  }
 `;
 
 export default NestedFormWrapper;

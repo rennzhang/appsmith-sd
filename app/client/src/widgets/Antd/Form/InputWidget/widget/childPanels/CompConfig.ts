@@ -316,16 +316,6 @@ export const InputControlProperty = [
     sectionName: "属性",
     children: [
       {
-        helpText: "显示帮助信息或者当前输入的详情",
-        propertyName: "tooltip",
-        label: "提示",
-        controlType: "INPUT_TEXT",
-        placeholderText: "至少输入6个字符",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
         helpText: "输入为空时显示的占位字符",
         propertyName: "placeholderText",
         label: "占位符",

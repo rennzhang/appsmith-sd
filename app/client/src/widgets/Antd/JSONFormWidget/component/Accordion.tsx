@@ -67,6 +67,9 @@ const StyledWrapper = styled.div<StyledWrapperProps>`
   &:last-of-type {
     margin-bottom: 0;
   }
+  & > :last-child {
+    margin-bottom: 0;
+  }
 `;
 
 function Accordion({

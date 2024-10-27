@@ -164,6 +164,95 @@ export const FORM_LABEL_CONTENT_CONFIG = {
       },
       dependencies: ["labelPosition"],
     },
+    {
+      helpText: "提示信息",
+      propertyName: "labelTooltip",
+      label: "提示",
+      controlType: "INPUT_TEXT",
+      placeholderText: "添加提示信息",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+    },
+  ],
+};
+export const DEFAULT_STYLE_PANEL_CONFIG_LABEL = {
+  sectionName: "标签样式",
+  children: [
+    {
+      propertyName: "labelTextColor",
+      label: "字体颜色",
+      helpText: "设置标签字体颜色",
+      controlType: "COLOR_PICKER",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+    },
+    {
+      propertyName: "labelTextSize",
+      label: "字体大小",
+      helpText: "设置标签字体大小",
+      controlType: "DROP_DOWN",
+      defaultValue: "0.875rem",
+      hidden: isAutoLayout,
+      options: [
+        {
+          label: "S",
+          value: "0.875rem",
+          subText: "0.875rem",
+        },
+        {
+          label: "M",
+          value: "1rem",
+          subText: "1rem",
+        },
+        {
+          label: "L",
+          value: "1.25rem",
+          subText: "1.25rem",
+        },
+        {
+          label: "XL",
+          value: "1.875rem",
+          subText: "1.875rem",
+        },
+        {
+          label: "XXL",
+          value: "3rem",
+          subText: "3rem",
+        },
+        {
+          label: "3XL",
+          value: "3.75rem",
+          subText: "3.75rem",
+        },
+      ],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+    },
+    {
+      propertyName: "labelStyle",
+      label: "强调",
+      helpText: "设置标签字体是否加粗或斜体",
+      controlType: "BUTTON_GROUP",
+      options: [
+        {
+          icon: "text-bold",
+          value: "BOLD",
+        },
+        {
+          icon: "text-italic",
+          value: "ITALIC",
+        },
+      ],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.TEXT },
+    },
   ],
 };
 export const DEFAULT_STYLE_PANEL_CONFIG = [
@@ -243,85 +332,7 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
       },
     ],
   },
-  {
-    sectionName: "标签样式",
-    children: [
-      {
-        propertyName: "labelTextColor",
-        label: "字体颜色",
-        helpText: "设置标签字体颜色",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
-        propertyName: "labelTextSize",
-        label: "字体大小",
-        helpText: "设置标签字体大小",
-        controlType: "DROP_DOWN",
-        defaultValue: "0.875rem",
-        hidden: isAutoLayout,
-        options: [
-          {
-            label: "S",
-            value: "0.875rem",
-            subText: "0.875rem",
-          },
-          {
-            label: "M",
-            value: "1rem",
-            subText: "1rem",
-          },
-          {
-            label: "L",
-            value: "1.25rem",
-            subText: "1.25rem",
-          },
-          {
-            label: "XL",
-            value: "1.875rem",
-            subText: "1.875rem",
-          },
-          {
-            label: "XXL",
-            value: "3rem",
-            subText: "3rem",
-          },
-          {
-            label: "3XL",
-            value: "3.75rem",
-            subText: "3.75rem",
-          },
-        ],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
-        propertyName: "labelStyle",
-        label: "强调",
-        helpText: "设置标签字体是否加粗或斜体",
-        controlType: "BUTTON_GROUP",
-        options: [
-          {
-            icon: "text-bold",
-            value: "BOLD",
-          },
-          {
-            icon: "text-italic",
-            value: "ITALIC",
-          },
-        ],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-    ],
-  },
+  DEFAULT_STYLE_PANEL_CONFIG_LABEL,
   {
     sectionName: "颜色配置",
     children: [

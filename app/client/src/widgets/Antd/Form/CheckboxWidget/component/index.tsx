@@ -158,7 +158,7 @@ function CheckboxGroupComponent(props: CheckboxComponentProps) {
 
 export interface CheckboxComponentProps {
   defaultValue?: any;
-  accessor?: string;
+  accessor?: string | string[];
   valueKey?: string;
   labelKey?: string;
   childrenKey?: string;

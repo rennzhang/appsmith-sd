@@ -304,7 +304,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     setResetButtonColor(props.resetButtonStyles?.buttonColor);
   }, [props.resetButtonStyles?.buttonColor]);
 
-  const submitterMome = useMemo<SubmitterProps>(() => {
+  const submitterMemo = useMemo<SubmitterProps>(() => {
     return {
       render: ({ onReset, onSubmit }) => (
         <div
@@ -412,7 +412,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
           onFinishFailed={handleFinishFailed}
           size={size}
           style={{ maxWidth: "100%" }}
-          submitter={submitterMome}
+          submitter={submitterMemo}
           title={title}
           {...formItemLayoutMemo}
         >

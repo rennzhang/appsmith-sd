@@ -8,6 +8,7 @@ import { FIELD_MAP } from "../constants";
 
 type FieldRendererProps = {
   fieldName: ControllerRenderProps["name"];
+  isLastField: boolean;
   options?: Record<string, any>;
   passedDefaultValue?: unknown;
   propertyPath: string;
@@ -16,6 +17,7 @@ type FieldRendererProps = {
 
 function FieldRenderer({
   fieldName,
+  isLastField,
   options,
   passedDefaultValue,
   propertyPath,
@@ -52,8 +54,17 @@ function FieldRenderer({
 
   if (!FieldComponent) return null;
 
+  console.log("FieldRenderer", {
+    fieldName,
+    options,
+    passedDefaultValue,
+    propertyPath,
+    schemaItem,
+  });
+
   return (
     <FieldComponent
+      isLastField={isLastField}
       fieldClassName={fieldName.replace(/[\.\[\]]/gi, "-")} // replace [,],. with -
       name={fieldName}
       passedDefaultValue={passedDefaultValue}

@@ -87,6 +87,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     labelText,
     labelTextColor,
     labelTextSize,
+    labelTooltip,
     labelWidth,
     maxChars,
     maxLength,
@@ -113,7 +114,6 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     textareaMinRows: minRows,
     textareaRows,
     textareaRowsControlType,
-    tooltip,
     validation,
     widgetName,
   } = props;
@@ -371,7 +371,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
           labelAlign={labelAlignment}
           name={accessor || widgetName}
           required={isRequired}
-          tooltip={tooltip}
+          tooltip={labelTooltip}
           validateTrigger={["onChange", "onBlur"]}
           {...colLayoutMemo}
           {...validateProps}

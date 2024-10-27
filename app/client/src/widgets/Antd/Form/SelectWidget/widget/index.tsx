@@ -199,16 +199,6 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         sectionName: "属性",
         children: [
           {
-            helpText: "提示信息",
-            propertyName: "labelTooltip",
-            label: "提示",
-            controlType: "INPUT_TEXT",
-            placeholderText: "添加提示信息",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             helpText: "设置占位文本",
             propertyName: "placeholderText",
             label: "占位符",

@@ -9,6 +9,7 @@ import FieldRenderer from "./FieldRenderer";
 import NestedFormWrapper from "../component/NestedFormWrapper";
 import useUpdateAccessor from "./useObserveAccessor";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
+import { ObjectFieldConfig } from "../constants";
 import type {
   BaseFieldComponentProps,
   FieldComponent,
@@ -47,6 +48,7 @@ const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
   labelText: "",
+  type: ObjectFieldConfig.type,
 };
 
 const StyledFieldsWrapper = styled.div`
@@ -63,6 +65,7 @@ function ObjectField({
   fieldClassName,
   hideAccordion = false,
   hideLabel,
+  isLastField = false,
   isRootField = false,
   name,
   passedDefaultValue,
@@ -84,6 +87,12 @@ function ObjectField({
     if (passedDefaultValue && typeof passedDefaultValue === "object") {
       defaultValue = passedDefaultValue as Record<string, unknown>;
     }
+    if (
+      schemaItem.defaultValue &&
+      typeof schemaItem.defaultValue === "object"
+    ) {
+      defaultValue = schemaItem.defaultValue as Record<string, unknown>;
+    }
 
     return defaultValue;
   }, [passedDefaultValue]);
@@ -92,15 +101,16 @@ function ObjectField({
     const children = Object.values(schemaItem.children);
     const sortedChildren = sortBy(children, ({ position }) => position);
 
-    return sortedChildren.map((schemaItem) => {
+    return sortedChildren.map((schemaItem, index) => {
       const fieldName = name
         ? `${name}.${schemaItem.identifier}`
         : schemaItem.identifier;
       const fieldPropertyPath = `${propertyPath}.children.${schemaItem.identifier}`;
-
+      const isLastField = index === sortedChildren.length - 1;
       return (
         <FieldRenderer
           fieldName={fieldName as ControllerRenderProps["name"]}
+          isLastField={isLastField}
           key={schemaItem.identifier}
           passedDefaultValue={objectPassedDefaultValue[schemaItem.accessor]}
           propertyPath={fieldPropertyPath}
@@ -122,44 +132,60 @@ function ObjectField({
 
   const field = <StyledFieldsWrapper>{fields}</StyledFieldsWrapper>;
 
+  console.log("ObjectField", {
+    field,
+    fieldClassName,
+    hideAccordion,
+    isRootField,
+    name,
+    propertyPath,
+    passedDefaultValue,
+    objectPassedDefaultValue,
+    schemaItem,
+    tooltip,
+  });
+
   return (
-    <StyledWrapper
-      className={`t--jsonformfield-${fieldClassName}`}
-      withBottomMargin={!hideAccordion}
+    <NestedFormWrapper
+      backgroundColor={isRootField ? "transparent" : backgroundColor}
+      borderColor={schemaItem.borderColor}
+      borderRadius={schemaItem.borderRadius}
+      borderWidth={schemaItem.borderWidth}
+      boxShadow={schemaItem.boxShadow}
+      className={`t--jsonformfield-${fieldClassName} NestedFormWrapper`}
+      withoutPadding={isRootField}
+      labelTextSize={schemaItem.labelTextSize}
+      labelTextColor={schemaItem.labelTextColor}
+      labelStyle={schemaItem.labelStyle}
     >
-      <NestedFormWrapper
-        backgroundColor={isRootField ? "transparent" : backgroundColor}
-        borderColor={schemaItem.borderColor}
-        borderRadius={schemaItem.borderRadius}
-        borderWidth={schemaItem.borderWidth}
-        boxShadow={schemaItem.boxShadow}
-        withoutPadding={isRootField}
-      >
-        {!hideLabel && (
-          <FieldLabel
-            label={label}
-            labelStyle={schemaItem.labelStyle}
-            labelTextColor={schemaItem.labelTextColor}
-            labelTextSize={schemaItem.labelTextSize}
-            tooltip={tooltip}
-          />
-        )}
-        {isRootField || hideAccordion ? (
+      {(!hideLabel &&
+        (isRootField || hideAccordion ? (
           field
         ) : (
-          <Accordion
-            backgroundColor={schemaItem.cellBackgroundColor}
-            borderColor={schemaItem.cellBorderColor}
-            borderRadius={schemaItem.cellBorderRadius}
-            borderWidth={schemaItem.cellBorderWidth}
-            boxShadow={schemaItem.cellBoxShadow}
-            isCollapsible={false}
+          <FieldLabel
+            isLastField={isLastField}
+            {...schemaItem}
+            isRootField={isRootField}
+            tooltip={tooltip}
           >
-            {field}
-          </Accordion>
-        )}
-      </NestedFormWrapper>
-    </StyledWrapper>
+            <Accordion
+              backgroundColor={schemaItem.cellBackgroundColor}
+              borderColor={schemaItem.cellBorderColor}
+              borderRadius={schemaItem.cellBorderRadius}
+              borderWidth={schemaItem.cellBorderWidth}
+              boxShadow={schemaItem.cellBoxShadow}
+              className={
+                "antd-jsonform-accordion-object" +
+                (isRootField ? "" : " antd-jsonform-object-container")
+              }
+              isCollapsible={false}
+            >
+              {field}
+            </Accordion>
+          </FieldLabel>
+        ))) ||
+        null}
+    </NestedFormWrapper>
   );
 }
 

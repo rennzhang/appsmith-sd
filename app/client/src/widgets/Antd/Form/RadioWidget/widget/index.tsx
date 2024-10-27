@@ -116,16 +116,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         sectionName: "属性",
         children: [
           {
-            helpText: "显示提示信息",
-            propertyName: "labelTooltip",
-            label: "提示",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入提示信息",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             helpText: "控制组件的显示/隐藏",
             propertyName: "isVisible",
             label: "是否显示",

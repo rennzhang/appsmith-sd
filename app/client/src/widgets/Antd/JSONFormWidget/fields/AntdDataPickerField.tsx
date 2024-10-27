@@ -85,9 +85,9 @@ function AntdTimePickerField({
     passedDefaultValue,
   });
   const onDateChange = useCallback(
-    (value: any) => {
+    (value: any, dateString: string | string[]) => {
       updateFormData({
-        [name]: value,
+        [name]: dateString,
       });
 
       if (schemaItem.onDateSelected && executeAction) {
@@ -102,6 +102,13 @@ function AntdTimePickerField({
     },
     [executeAction, name, schemaItem.onDateSelected, updateFormData],
   );
+  console.log("AntdTimePickerField", {
+    schemaItem,
+    commonProps,
+    passedDefaultValue,
+    name,
+  });
+
   return (
     <DatePickerComponent
       {...schemaItem}

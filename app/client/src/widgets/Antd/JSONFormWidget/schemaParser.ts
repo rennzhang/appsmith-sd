@@ -492,10 +492,6 @@ class SchemaParser {
       "originalIdentifier",
       "position",
     ]);
-    console.log("oldSchemaItemProperties", {
-      newSchemaItem,
-      oldSchemaItemProperties,
-    });
 
     if (schemaItem.isCustomField) {
       newSchemaItem.defaultValue = currSourceData;
@@ -540,17 +536,6 @@ class SchemaParser {
       fieldType,
       fieldThemeStylesheets,
     );
-    console.log("getSchemaItemFor", {
-      currSourceData,
-      fieldType,
-      dataType,
-      baseSchemaPath,
-      isCustomField,
-      skipDefaultValueProcessing,
-      sourceDataPath,
-      widgetName,
-      bindingTemplate,
-    });
 
     const defaultValue = (() => {
       if (isCustomField || skipDefaultValueProcessing) return;
@@ -626,12 +611,6 @@ class SchemaParser {
     if (fieldType === FieldType.AUTOCOMPLETE_INPUT) {
       componentDefaultValues.inputType = AntdInputTypes.EMAIL;
     }
-    console.log("componentDefaultValues", {
-      componentDefaultValues,
-      fieldType,
-      dataType,
-      baseSchemaPath,
-    });
 
     return {
       children,

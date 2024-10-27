@@ -214,7 +214,7 @@ export interface DatePickerWidgetProps {
   allowClear?: boolean;
   defaultValue?: string;
   showTime?: boolean;
-  format: string;
+  format?: string;
   picker?: DatePickerProps["picker"];
   loading?: boolean;
   isRangePicker?: boolean;
@@ -229,7 +229,7 @@ export interface DatePickerWidgetProps {
   handleDateValid?: (value: any) => void;
   isDateValid?: boolean | boolean[];
   unValidDateMessage?: string;
-  accessor?: string;
+  accessor?: string | string[];
   allowEmptyStartTime?: boolean;
   allowEmptyEndTime?: boolean;
 }

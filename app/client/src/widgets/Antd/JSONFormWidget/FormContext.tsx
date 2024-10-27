@@ -58,15 +58,15 @@ export function FormContextProvider({
       formRef,
       renderMode,
       setMetaInternalFieldState,
-      updateFormData: (values: any) => {
-        updateFormData({
-          ...formRef?.current?.getFieldsValue(),
-          ...values,
+      updateFormData: async (values: any) => {
+        Object.keys(values).forEach(async (key) => {
+          await formRef?.current?.setFieldValue(key.split("."), values[key]);
         });
-        console.log(
-          "updateFormData result",
-          formRef?.current?.getFieldsValue(),
-        );
+        // await formRef?.current?.setFieldsValue(values);
+
+        const formData = await formRef?.current?.getFieldsValue();
+        await updateFormData(formData);
+        console.log("updateFormData result", values, formData);
       },
       updateWidgetMetaProperty,
       updateWidgetProperty,

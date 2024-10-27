@@ -66,6 +66,13 @@ export const AntdProformContainer = styled.div<{
     .ant-form-item-control {
       margin-bottom: 16px;
     }
+    .antd-jsonform-accordion-object > div > div > div > :last-child {
+      margin-bottom: 0;
+
+      .ant-form-item-control {
+        margin-bottom: 0;
+      }
+    }
   }
 
   .antd-pro-form-title {
@@ -100,9 +107,11 @@ export const AntdFormItemContainer = styled.div<{
   labelStyle?: string;
   alignment?: string;
   boxShadow?: string;
+
   borderRadius?: string;
   labelPosition?: AntdLabelPosition;
   colorPrimary?: string;
+  labelAlign?: "left" | "right";
 }>`
   width: 100%;
 
@@ -148,7 +157,8 @@ export const AntdFormItemContainer = styled.div<{
   }
 
   div.ant-upload.ant-upload-drag,
-  .ant-tree {
+  .ant-tree,
+  &.antd-jsonform-object-container {
     box-shadow: ${({ boxShadow }) => boxShadow};
     border-radius: ${({ borderRadius }) => borderRadius};
   }
@@ -186,6 +196,16 @@ export const AntdFormItemContainer = styled.div<{
   }
   &.antd-slider-container .icon-wrapper.vertical {
     flex-direction: column;
+  }
+
+  &.antd-jsonform-object-container {
+    > .ant-form-item > .ant-form-item-row > .ant-form-item-label {
+      text-align: ${({ labelAlign }) =>
+        labelAlign == "left" ? "start" : "end"};
+    }
+    > .ant-form-item > .ant-form-item-row > .ant-form-item-control {
+      margin-bottom: 0;
+    }
   }
 `;
 

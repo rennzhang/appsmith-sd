@@ -8,6 +8,10 @@ import {
 } from "widgets/Antd/JSONFormWidget/constants";
 import type { JSONFormWidgetProps } from "../..";
 import { getStylesheetValue } from "../helper";
+import {
+  DEFAULT_STYLE_PANEL_CONFIG_LABEL,
+  FORM_LABEL_CONTENT_CONFIG,
+} from "widgets/Antd/Form/CONST/DEFAULT_CONFIG";
 
 const objectStyleProperties = [
   {
@@ -82,9 +86,12 @@ const objectStyleProperties = [
   },
 ];
 
-const PROPERTIES = {
-  style: {
-    root: [
+export const CONFIG = {
+  type: "JSONFormObjectField",
+  properties: {
+    contentConfig: [FORM_LABEL_CONTENT_CONFIG],
+    styleConfig: [
+      DEFAULT_STYLE_PANEL_CONFIG_LABEL,
       {
         sectionName: "对象样式",
         children: objectStyleProperties,
@@ -199,5 +206,3 @@ const PROPERTIES = {
     ],
   },
 };
-
-export default PROPERTIES;

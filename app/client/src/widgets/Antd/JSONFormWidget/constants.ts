@@ -49,7 +49,7 @@ import TreeWidget, {
 import UploadWidget, {
   CONFIG as UploadWidgetConfig,
 } from "widgets/Antd/Form/UploadWidget";
-console.log(` AntdInputWidgetConfig.defaults`, AntdInputWidgetConfig.defaults);
+import { CONFIG as ObjectFieldConfig } from "./widget/propertyConfig/properties/object";
 export {
   AntdInputWidgetConfig,
   AutoCompleteWidgetConfig,
@@ -67,6 +67,7 @@ export {
   TreeSelectWidgetConfig,
   TreeWidgetConfig,
   UploadWidgetConfig,
+  ObjectFieldConfig,
 };
 
 export const AllAntdFormItems = [
@@ -86,6 +87,7 @@ export const AllAntdFormItems = [
   TreeSelectWidgetConfig,
   TreeWidgetConfig,
   UploadWidgetConfig,
+  ObjectFieldConfig,
 ];
 
 import {
@@ -297,6 +299,7 @@ export type BaseFieldComponentProps<TProps = any> = {
   hideLabel?: boolean;
   isRootField?: boolean;
   fieldClassName: string;
+  isLastField?: boolean;
   name: ControllerRenderProps["name"];
   formIsRequird?: boolean;
   propertyPath: string;

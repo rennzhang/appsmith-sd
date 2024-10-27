@@ -7,6 +7,7 @@ import { AntdLabelPosition } from "components/constants";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 
 export interface TextDisplayComponentProps {
+  accessor?: string | string[];
   defaultValue?: string;
   labelAlignment?: "left" | "right";
   labelPosition?: AntdLabelPosition;
@@ -16,7 +17,7 @@ export interface TextDisplayComponentProps {
   labelTextSize?: number | string;
   labelWidth?: number | string;
   widgetName: string;
-  tooltip?: string;
+  labelTooltip?: string;
   disabled?: boolean;
   required?: boolean;
   textSize?: string;
@@ -41,6 +42,7 @@ const TextContent = styled.div<{
 
 const AntdTextDisplay = (props: TextDisplayComponentProps) => {
   const {
+    accessor,
     defaultValue,
     disabled,
     labelAlignment,
@@ -49,12 +51,12 @@ const AntdTextDisplay = (props: TextDisplayComponentProps) => {
     labelText,
     labelTextColor,
     labelTextSize,
+    labelTooltip,
     labelWidth,
     required,
     textColor,
     textSize,
     textStyle,
-    tooltip,
     widgetName,
   } = props;
 
@@ -87,9 +89,9 @@ const AntdTextDisplay = (props: TextDisplayComponentProps) => {
         <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
-          name={widgetName}
+          name={accessor || widgetName}
           required={required}
-          tooltip={tooltip}
+          tooltip={labelTooltip}
           {...colLayoutMemo}
         >
           <TextContent

@@ -124,7 +124,7 @@ type disabledTimeRule = {
 export interface TimePickerWidgetProps {
   allowEmptyStartTime?: boolean;
   allowEmptyEndTime?: boolean;
-  accessor?: string;
+  accessor?: string | string[];
   widgetName?: string;
   disabled?: boolean;
   placeholderText?: string;

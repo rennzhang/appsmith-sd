@@ -67,12 +67,14 @@ export interface CascaderComponentProps {
   onSearch?: (value: string) => void;
   onCascaderSearch?: string;
   value?: CascaderProps["value"];
+  accessor?: string | string[];
 }
 
 function CascaderComponent(props: CascaderComponentProps): JSX.Element {
   console.log("级联选择 props", props);
 
   const {
+    accessor,
     allowClear,
     borderRadius,
     boxShadow,
@@ -216,7 +218,7 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
         <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
-          name={widgetName}
+          name={accessor || widgetName}
           tooltip={labelTooltip}
           {...validateProps}
           {...colLayoutMemo}

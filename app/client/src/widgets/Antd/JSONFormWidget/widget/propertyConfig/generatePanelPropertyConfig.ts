@@ -9,11 +9,7 @@ import {
   hiddenIfArrayItemIsObject,
   isFieldTypeArrayOrObject,
 } from "./helper";
-import {
-  ARRAY_PROPERTIES,
-  COMMON_PROPERTIES,
-  OBJECT_PROPERTIES,
-} from "./properties";
+import { ARRAY_PROPERTIES, COMMON_PROPERTIES } from "./properties";
 import { mergeWidgetConfig } from "utils/helpers";
 import {
   AllAntdFormItems,
@@ -33,8 +29,8 @@ import {
   TreeSelectWidgetConfig,
   TreeWidgetConfig,
   UploadWidgetConfig,
+  ObjectFieldConfig,
 } from "../../constants";
-// console.log("AntdInputWidget", AntdInputWidget.getPropertyPaneContentConfig());
 
 // 转换PropertyPaneContentConfig，合并 hidden 属性
 const transConfig = (config: any[], types: FieldType[]) => {
@@ -120,6 +116,7 @@ const comTypesMap = {
   [CascaderWidgetConfig.type]: [FieldType.CASCADE],
   [TimePickerWidgetConfig.type]: [FieldType.TIMEPICKER],
   [DatePickerWidgetConfig.type]: [FieldType.DATEPICKER],
+  [ObjectFieldConfig.type]: [FieldType.OBJECT],
 };
 const allItemPropertyPaneConfig: Map<string, any[]> = new Map();
 const allItemStylePaneConfig: Map<string, any[]> = new Map();
@@ -135,14 +132,14 @@ const getAllItemPaneConfig = (
     if (targetMap.has(item.type)) {
       return;
     }
-    const configKey = isStyleConfig
+    const targetConfig = isStyleConfig
       ? item.properties.styleConfig
       : item.properties.contentConfig;
     const finalConfig = transConfig(
       mergeWidgetConfig(
         cloneDeep(contentChildren),
 
-        cloneDeep(configKey),
+        cloneDeep(targetConfig),
       ),
       comTypesMap[item.type] as FieldType[],
     );
@@ -190,12 +187,9 @@ function generatePanelPropertyConfig(
       ],
     },
   ];
-  const styleChildren = [
-    ...OBJECT_PROPERTIES.style.root,
-    ...ARRAY_PROPERTIES.style.root,
-  ];
+  const styleChildren = [...ARRAY_PROPERTIES.style.root];
   const mergedContentChildren = getAllItemPaneConfig([]);
-  const mergedStyleChildren = getAllItemPaneConfig(styleChildren, true);
+  const mergedStyleChildren = getAllItemPaneConfig([], true);
 
   // console.log("contentChildren", mergedContentChildren);
   // console.log("mergedStyleChildren", mergedStyleChildren);
@@ -205,7 +199,7 @@ function generatePanelPropertyConfig(
     titlePropertyName: "labelText",
     panelIdPropertyName: "identifier",
     contentChildren: [...contentChildren, ...mergedContentChildren],
-    styleChildren: mergedStyleChildren,
+    styleChildren: [...styleChildren, ...mergedStyleChildren],
   } as PanelConfig;
 }
 

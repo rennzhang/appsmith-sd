@@ -5,17 +5,10 @@ import styled from "styled-components";
 import Tooltip from "components/editorComponents/Tooltip";
 import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
-import type { TextSize } from "constants/WidgetConstants";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import type { AlignWidget } from "widgets/constants";
 import { importSvg } from "design-system-old";
-import { ProFormItem } from "@ant-design/pro-components";
-import { ConfigProvider } from "antd";
-import { locale } from "moment";
-import { borderRadius } from "react-select/src/theme";
-import { AntdFormItemContainer } from "widgets/Antd/Style";
-import { AntdLabelPosition } from "components/constants";
 
 const HelpIcon = importSvg(() => import("assets/icons/control/help.svg"));
 
@@ -38,21 +31,11 @@ export type LabelStyles = {
 
 export type FieldLabelProps = PropsWithChildren<
   LabelStyles & {
-    className?: string;
-    isLastField?: boolean;
-    isRootField?: boolean;
-    accessor?: string;
-    widgetName?: string;
     direction?: "row" | "column";
     isRequiredField?: boolean;
-    labelText: string;
+    label: string;
     tooltip?: string;
     alignField?: AlignField;
-    boxShadow?: string;
-    labelPosition?: AntdLabelPosition;
-    labelAlignment?: "left" | "right";
-    labelWidth?: number;
-    labelTooltip?: string;
   }
 >;
 
@@ -108,60 +91,79 @@ const StyledLabelText = styled.p<StyledLabelTextProps>`
   text-decoration: ${({ textDecoration }) => textDecoration};
 `;
 
-export const BASE_LABEL_TEXT_SIZE = THEMEING_TEXT_SIZES.sm as TextSize;
-
-function FieldLabel(props: FieldLabelProps) {
-  const {
-    accessor,
-    boxShadow,
-    children,
-    className,
-    isLastField,
-    isRootField,
-    labelAlignment,
-    labelPosition,
-    labelStyle,
-    labelText,
-    labelTextColor,
-    labelTextSize,
-    labelTooltip,
-    labelWidth,
-    widgetName,
-  } = props;
-  const colLayoutMemo = useMemo(() => {
-    if (labelPosition === AntdLabelPosition.Left) {
-      return {
-        labelCol: { sm: { span: labelWidth } },
-        wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
-      };
+const ToolTipIcon = styled(IconWrapper)`
+  cursor: help;
+  &&&:hover {
+    svg {
+      path {
+        fill: #716e6e;
+      }
     }
-    return {};
-  }, [labelPosition, labelWidth]);
-  console.log("FieldLabel", {
-    labelText,
-    labelTooltip,
-    labelPosition,
-    labelAlignment,
-    isRootField,
-    props,
-  });
+  }
+`;
+
+const StyledTooltip = styled(Tooltip)<{
+  children?: React.ReactNode;
+}>`
+  margin-right: ${DEFAULT_GAP}px;
+`;
+
+export const BASE_LABEL_TEXT_SIZE = THEMEING_TEXT_SIZES.sm;
+
+function FieldLabel({
+  alignField = "RIGHT",
+  children,
+  direction = "column",
+  isRequiredField = false,
+  label,
+  labelStyle,
+  labelTextColor = "",
+  labelTextSize,
+  tooltip,
+}: FieldLabelProps) {
+  const labelStyleProps = useMemo(() => {
+    // labelStyles contains styles as comma separated values eg. "BOLD,UNDERLINE"
+    const styles = labelStyle?.split(",");
+    return {
+      color: labelTextColor,
+      fontSize: labelTextSize || BASE_LABEL_TEXT_SIZE,
+      fontWeight: styles?.includes(FontStyleTypes.BOLD) ? "bold" : "normal",
+      fontStyle: styles?.includes(FontStyleTypes.ITALIC) ? "italic" : "",
+      textDecoration: styles?.includes(FontStyleTypes.UNDERLINE)
+        ? "underline"
+        : "",
+    };
+  }, [labelStyle, labelTextColor, labelTextSize]);
+
+  /**
+   * If field and label are to be displayed horizontally then we consider the alignField
+   * prop else we always want to have label then field in case of vertical alignment (direction === "column")
+   */
+  const align = direction === "row" ? alignField : "RIGHT";
 
   return (
-    <AntdFormItemContainer
-      className={className}
-      labelAlign={labelAlignment}
-      labelPosition={labelPosition}
-    >
-      <ProFormItem
-        label={labelText}
-        labelAlign={labelAlignment}
-        name={accessor || widgetName}
-        tooltip={labelTooltip}
-        {...colLayoutMemo}
-      >
-        {children}
-      </ProFormItem>
-    </AntdFormItemContainer>
+    <StyledLabel direction={direction}>
+      {align === "LEFT" && children}
+      <StyledLabelTextWrapper direction={direction}>
+        <StyledLabelText isRequiredField={isRequiredField} {...labelStyleProps}>
+          {label}
+        </StyledLabelText>
+        {isRequiredField && <StyledRequiredMarker>*</StyledRequiredMarker>}
+        {tooltip && (
+          <StyledTooltip
+            className={TOOLTIP_CLASSNAME}
+            content={tooltip}
+            hoverOpenDelay={200}
+            position="top"
+          >
+            <ToolTipIcon color={Colors.SILVER_CHALICE} height={14} width={14}>
+              <HelpIcon className="t--input-widget-tooltip" />
+            </ToolTipIcon>
+          </StyledTooltip>
+        )}
+      </StyledLabelTextWrapper>
+      {align === "RIGHT" && children}
+    </StyledLabel>
   );
 }
 

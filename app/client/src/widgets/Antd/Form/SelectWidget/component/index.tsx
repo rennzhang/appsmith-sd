@@ -79,7 +79,7 @@ export interface TreeSelectComponentProps {
   tokenSeparators?: string[];
   handleSearch?: (value: string) => void;
   handleValueChange?: (value: any, label: any) => void;
-  accessor?: string;
+  accessor?: string | string[];
 }
 
 function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {

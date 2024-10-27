@@ -98,17 +98,6 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         sectionName: "属性",
         children: [
           {
-            helpText: "显示提示信息",
-            propertyName: "labelTooltip",
-            label: "提示",
-            controlType: "INPUT_TEXT",
-            placeholderText: "请输入提示信息",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-
-          {
             propertyName: "isVisible",
             helpText: "控制组件的显示/隐藏",
             label: "是否显示",

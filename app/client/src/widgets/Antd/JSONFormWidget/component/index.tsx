@@ -231,18 +231,6 @@ function JSONFormComponent<TValues>(
       >
         {renderComponent}
       </AntProFormComponent>
-      {/* <StyledContainer backgroundColor={backgroundColor} {...styleProps}>
-        <Form
-          isWidgetMounting={isWidgetMounting}
-          onFormValidityUpdate={onFormValidityUpdate}
-          registerResetObserver={registerResetObserver}
-          schema={schema}
-          stretchBodyVertically={isSchemaEmpty}
-          unregisterResetObserver={unregisterResetObserver}
-        >
-          {renderComponent}
-        </Form>
-      </StyledContainer> */}
     </FormContextProvider>
   );
 }

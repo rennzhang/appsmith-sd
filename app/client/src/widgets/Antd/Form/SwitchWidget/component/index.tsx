@@ -25,6 +25,7 @@ export interface StyledRadioGroupProps {
 
 function SwitchComponent(props: SwitchComponentProps) {
   const {
+    accessor,
     alignment,
     animateLoading,
     boxShadow,
@@ -141,7 +142,7 @@ function SwitchComponent(props: SwitchComponentProps) {
         <ProFormItem
           label={labelText}
           labelAlign={labelAlignment}
-          name={widgetName}
+          name={accessor || widgetName}
           rules={[{ required: required, message: `此项为必填项` }]}
           tooltip={labelTooltip}
           {...colLayoutMemo}
@@ -166,6 +167,7 @@ function SwitchComponent(props: SwitchComponentProps) {
 type SwitchComponentPropsExtends = SwitchProps & Partial<ComponentProps>;
 
 export type SwitchComponentProps = SwitchComponentPropsExtends & {
+  accessor?: string | string[];
   onSwitchClick?: string;
   onSwitchChange?: string;
   onChange?: (updatedValue: boolean) => void;

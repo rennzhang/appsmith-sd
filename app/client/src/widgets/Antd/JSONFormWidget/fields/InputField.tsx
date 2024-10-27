@@ -13,7 +13,6 @@ import { isNil, omit } from "lodash";
 import { isEmpty } from "../helper";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import { InputTypes } from "widgets/Antd/Form/InputWidget/constants";
-// console.log(` ComponentDefaultMap`, ComponentDefaultMap);
 type InputComponentProps = BaseInputComponentProps & {
   iconName?: string;
   iconAlign?: string;
@@ -161,12 +160,6 @@ function InputField({
     },
     [schemaItem.fieldType],
   );
-
-  useEffect(() => {
-    console.log("BaseInputField useEffect", {
-      formIsRequird,
-    });
-  }, [formIsRequird]);
 
   return (
     <BaseInputField

@@ -170,7 +170,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
 }
 
 export interface RadioGroupComponentProps {
-  accessor?: string;
+  accessor?: string | string[];
   defaultValue?: string;
   onSelectionChange?: string;
   widgetName?: string;

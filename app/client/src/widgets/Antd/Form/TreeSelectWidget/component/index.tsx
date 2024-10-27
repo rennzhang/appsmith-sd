@@ -83,7 +83,7 @@ export interface TreeSelectComponentProps {
   treeExpandAction?: TreeSelectProps["treeExpandAction"];
   treeLine?: boolean;
   selectedValue?: DefaultValueType;
-  accessor?: string;
+  accessor?: string | string[];
   onSearch?: (value: string) => void;
   onTreeSelectSearch?: string;
 }
