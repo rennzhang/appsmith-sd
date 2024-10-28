@@ -26,6 +26,14 @@ export const AntdProformContainer = styled.div<{
     box-shadow: ${({ boxShadow }) => boxShadow};
     overflow: hidden;
 
+    .ant-pro-form-list-container,
+    .ant-space-item {
+      flex: 1 1 100%;
+    }
+    .ant-space {
+      width: 100%;
+    }
+
     .ant-form {
       ${({ fixedFooter, scrollContents }) =>
         scrollContents ? "display: flex; flex-direction: column;" : ""};

@@ -1,17 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const CracoAlias = require("craco-alias");
 const CracoLessPlugin = require("craco-less");
-const {
-  DefinePlugin,
-  EnvironmentPlugin
-} = require("webpack");
-const {
-  merge
-} = require("webpack-merge");
+const { DefinePlugin, EnvironmentPlugin } = require("webpack");
+const { merge } = require("webpack-merge");
 const { removeModuleScopePlugin } = require("customize-cra");
 const CracoBabelLoader = require("craco-babel-loader");
 const path = require("path");
 const webpack = require("webpack");
+const { codeInspectorPlugin } = require("code-inspector-plugin");
 
 module.exports = {
   devServer: {
@@ -45,12 +41,14 @@ module.exports = {
           },
         },
         module: {
-          rules: [{
-            test: /\.m?js/,
-            resolve: {
-              fullySpecified: false,
+          rules: [
+            {
+              test: /\.m?js/,
+              resolve: {
+                fullySpecified: false,
+              },
             },
-          }, ],
+          ],
         },
         optimization: {
           splitChunks: {
@@ -94,15 +92,17 @@ module.exports = {
         ],
       };
       const scopePluginIndex = webpackConfig.resolve.plugins.findIndex(
-        ({
-          constructor
-        }) =>
-        constructor && constructor.name === "ModuleScopePlugin",
+        ({ constructor }) =>
+          constructor && constructor.name === "ModuleScopePlugin",
       );
       webpackConfig.resolve.plugins.splice(scopePluginIndex, 1);
       return merge(webpackConfig, config);
     },
     plugins: [
+      codeInspectorPlugin({
+        bundler: "webpack",
+        dev: true,
+      }),
       new DefinePlugin({
         ENABLE_INNER_HTML: true,
         ENABLE_ADJACENT_HTML: true,
@@ -132,10 +132,10 @@ module.exports = {
           ],
         },
       },
-
     },
   },
-  plugins: [{
+  plugins: [
+    {
       plugin: CracoAlias,
       options: {
         source: "tsconfig",
@@ -176,14 +176,12 @@ module.exports = {
       // This matters for cases where `src/<dirname>` and `node_modules/<dirname>` both exist –
       // e.g., when `<dirname>` is `entities`: https://github.com/appsmithorg/appsmith/pull/20964#discussion_r1124782356
       plugin: {
-        overrideWebpackConfig: ({
-          webpackConfig
-        }) => {
+        overrideWebpackConfig: ({ webpackConfig }) => {
           webpackConfig.resolve.modules = [
             path.resolve(__dirname, "src"),
             ...webpackConfig.resolve.modules,
           ];
-          removeModuleScopePlugin()(webpackConfig)
+          removeModuleScopePlugin()(webpackConfig);
           return webpackConfig;
         },
       },

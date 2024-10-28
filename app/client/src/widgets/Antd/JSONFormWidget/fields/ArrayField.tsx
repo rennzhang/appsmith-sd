@@ -1,13 +1,14 @@
 import React, {
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import styled from "styled-components";
 import type { ControllerRenderProps } from "react-hook-form";
-import { get, set } from "lodash";
+import { get, isEqual, set } from "lodash";
 import { Icon } from "@blueprintjs/core";
 import { klona } from "klona";
 import log from "loglevel";
@@ -32,6 +33,7 @@ import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
 import { schemaItemDefaultValue } from "../helper";
 import { ArrayFieldConfig } from "../constants";
+import type { FormListActionType } from "@ant-design/pro-components";
 import {
   ProFormDatePicker,
   ProFormDigit,
@@ -40,6 +42,9 @@ import {
   ProFormSelect,
   ProFormText,
 } from "@ant-design/pro-components";
+import { Button, Tooltip } from "antd";
+import { DeleteOutlined, CopyOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
@@ -74,10 +79,9 @@ const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
   type: ArrayFieldConfig.type,
 };
 
-const ACTION_ICON_SIZE = 10;
-
 const StyledNestedFormWrapper = styled(NestedFormWrapper)`
   margin-bottom: ${FIELD_MARGIN_BOTTOM}px;
+  padding-bottom: 0;
 `;
 
 const StyledItemWrapper = styled.div`
@@ -86,65 +90,17 @@ const StyledItemWrapper = styled.div`
   flex-direction: column;
 `;
 
-const StyledButton = styled.button<StyledButtonProps>`
-  align-items: center;
-  color: ${({ color }) => color || Colors.GREEN};
-  display: flex;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  margin-top: 10px;
-  width: 80px;
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.3;
-
-    & * {
-      pointer-events: none;
-    }
-  }
-
-  span.bp3-icon {
-    margin-right: 6px;
-  }
-`;
-
-const StyledDeleteButton = styled(StyledButton)`
-  align-self: flex-end;
-  color: ${Colors.CRIMSON};
-`;
-
 const DEFAULT_FIELD_RENDERER_OPTIONS = {
   hideLabel: true,
   hideAccordion: true,
 };
 
-/**
- * TODO(Ashit): The +1 to the ACTION_ICON_SIZE is an eye-balled value to center
- * align the icon and the text (Add new / Remove). The icon seems to
- * have an odd height which leads to this inconsistency and needs to be further
- * investigated
- */
-
-const StyledIconWrapper = styled.div`
+// 按钮容器
+const StyledButtonContainer = styled.div`
   display: flex;
-  align-items: center;
-
-  & span {
-    height: ${ACTION_ICON_SIZE + 1}px;
-  }
+  justify-content: flex-end;
+  margin-top: 6px;
 `;
-
-const deleteIcon = (
-  <StyledIconWrapper>
-    <Icon
-      icon="trash"
-      iconSize={ACTION_ICON_SIZE}
-      style={{ color: Colors.CRIMSON }}
-    />
-  </StyledIconWrapper>
-);
 
 const getDefaultValue = (
   schemaItem: SchemaItem,
@@ -166,6 +122,7 @@ const getDefaultValue = (
 
 function ArrayField({
   fieldClassName,
+  isLastField,
   isRootField = false,
   name,
   passedDefaultValue,
@@ -173,47 +130,65 @@ function ArrayField({
   schemaItem,
 }: ArrayFieldProps) {
   const { formRef, updateFormData } = useContext(FormContext);
-
+  const actionRef = useRef<FormListActionType>();
   // const {   watch } = useFormContext();
   const keysRef = useRef<string[]>([]);
   const removedKeys = useRef<string[]>([]);
   const defaultValue = getDefaultValue(schemaItem, passedDefaultValue);
   // const value = watch(name);
-
-  const value = formRef?.current?.getFieldValue(name) || [];
-  /**
-   * parsedArrayValue is a patch that parses a stringified array.
-   * We are doing this because we want to avoid creation of multiple children fields when the ArrayField recieves value as a stringified array.
-   * This scenario happens when evaluations returns the defaultValue as a stringified array earlier in the evaluation cycles.
-   * Please refer to this issue:https://github.com/appsmithorg/appsmith/issues/23825 for more information.
-   */
-  let parsedArrayValue = value;
-  try {
-    if (typeof value === "string") {
-      parsedArrayValue = JSON.parse(value);
-    }
-  } catch (e) {
-    log.debug("Unable to parse value", e);
-  }
-  const valueLength = parsedArrayValue?.length || 0;
   const [cachedDefaultValue, setCachedDefaultValue] =
     useState<unknown[]>(defaultValue);
+
+  const [value, setValue] = useState(() => defaultValue);
+
+  useEffect(() => {
+    if (!defaultValue) {
+      return;
+    }
+    if (isEqual(defaultValue, cachedDefaultValue)) {
+      return;
+    }
+    setValue(defaultValue);
+    setCachedDefaultValue(klona(defaultValue));
+  }, [defaultValue]);
+  const valueLength = useMemo(() => value?.length || 0, [value]);
 
   useUpdateAccessor({ accessor: schemaItem.accessor });
 
   const { setMetaInternalFieldState } = useContext(FormContext);
 
-  const add = () => {
-    let values = klona(formRef?.current?.getFieldValue(name));
-    if (values && values.length) {
-      values.push({});
-    } else {
-      values = [{}];
-    }
-    updateFormData({
-      [name]: values,
+  const updateValue = (data: any) => {
+    console.log("updateFormData result cb", {
+      data,
+      cachedDefaultValue,
+      value: formRef?.current?.getFieldValue(name),
     });
+    const _value = formRef?.current?.getFieldValue(name);
+    setValue(_value);
+    setCachedDefaultValue(klona(_value));
   };
+  const addItem = useCallback(
+    (index?: number) => {
+      const values = klona(formRef?.current?.getFieldValue(name));
+      if (values === undefined) {
+        return;
+      }
+      values.push(values[index || -1] || {});
+      console.log("addItem", {
+        values,
+        index,
+        name,
+      });
+
+      updateFormData(
+        {
+          [name]: values,
+        },
+        updateValue,
+      );
+    },
+    [cachedDefaultValue, keysRef, updateFormData, name],
+  );
 
   const remove = useCallback(
     (removedKey: string) => {
@@ -249,13 +224,18 @@ function ArrayField({
 
       removedKeys.current = [removedKey];
 
-      updateFormData({
-        [name]: newValues,
-      });
+      updateFormData(
+        {
+          [name]: newValues,
+        },
+        updateValue,
+      );
     },
     [cachedDefaultValue, keysRef, updateFormData],
   );
   console.log("ArrayField props", {
+    defaultValue,
+    value,
     name,
     passedDefaultValue,
     propertyPath,
@@ -293,10 +273,12 @@ function ArrayField({
   }, [valueLength]);
 
   useDeepEffect(() => {
-    updateFormData({
-      [name]: klona(defaultValue),
-    });
-    setCachedDefaultValue(klona(defaultValue));
+    updateFormData(
+      {
+        [name]: klona(defaultValue),
+      },
+      updateValue,
+    );
   }, [defaultValue]);
 
   /**
@@ -341,7 +323,8 @@ function ArrayField({
     });
 
     return itemKeys.map((key, index) => {
-      const fieldName = `${name}[${index}]` as ControllerRenderProps["name"];
+      // const fieldName = `${name}[${index}]` as ControllerRenderProps["name"];
+      const fieldName = `${name}.${index}` as ControllerRenderProps["name"];
 
       console.log("ArrayField", {
         fieldName,
@@ -366,20 +349,47 @@ function ArrayField({
           <StyledItemWrapper>
             <FieldRenderer
               fieldName={fieldName}
+              inArray
+              isLastField
               options={DEFAULT_FIELD_RENDERER_OPTIONS}
               passedDefaultValue={cachedDefaultValue[index]}
               propertyPath={fieldPropertyPath}
               schemaItem={arrayItemSchema}
             />
-            <StyledDeleteButton
-              className="t--jsonformfield-array-delete-btn"
-              disabled={schemaItem.isDisabled}
-              onClick={schemaItem.isDisabled ? undefined : () => remove(key)}
-              type="button"
-            >
-              {deleteIcon}
-              <span className="t--text">Delete</span>
-            </StyledDeleteButton>
+            <StyledButtonContainer>
+              {/* 复制 */}
+              <Tooltip title="复制此项到行尾">
+                <Button
+                  className="t--jsonformfield-array-copy-btn p-0"
+                  onClick={
+                    () => addItem(index)
+                    // actionRef.current?.add?.(
+                    //   actionRef.current?.get?.(index),
+                    //   actionRef.current?.getList()?.length,
+                    // )
+                  }
+                  size="small"
+                  type="link"
+                >
+                  <CopyOutlined />
+                </Button>
+              </Tooltip>
+              <Tooltip title="删除">
+                {/* 删除 */}
+                <Button
+                  className="t--jsonformfield-array-delete-btn p-0"
+                  danger
+                  disabled={schemaItem.isDisabled}
+                  onClick={
+                    schemaItem.isDisabled ? undefined : () => remove(key)
+                  }
+                  size="small"
+                  type="link"
+                >
+                  <DeleteOutlined />
+                </Button>
+              </Tooltip>
+            </StyledButtonContainer>
           </StyledItemWrapper>
         </Accordion>
       );
@@ -405,7 +415,9 @@ function ArrayField({
       borderRadius={schemaItem.borderRadius}
       borderWidth={schemaItem.borderWidth}
       boxShadow={schemaItem.boxShadow}
-      className={`t--jsonformfield-${fieldClassName} NestedFormWrapper`}
+      className={`t--jsonformfield-${fieldClassName} NestedFormWrapper ${
+        isLastField ? "is-last-field" : ""
+      }`}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}
@@ -418,36 +430,35 @@ function ArrayField({
         labelTextSize={schemaItem.labelTextSize}
         tooltip={schemaItem.tooltip}
       >
-        <ProFormList
+        {/* <ProFormList
+          actionRef={actionRef}
           copyIconProps={false}
           deleteIconProps={false}
           tooltip={schemaItem.tooltip}
           initialValue={defaultValue}
           // label={schemaItem.labelText}
           name={name}
+        > */}
+        {/* <ProFormGroup
+          direction="vertical"
+          key={name + "-group" + generateReactKey()}
+          size={"middle"}
+          spaceProps={{
+            direction: "vertical",
+          }}
+        > */}
+        {fields}
+        {/* </ProFormGroup> */}
+        {/* </ProFormList> */}
+        <Button
+          className="t--jsonformfield-array-add-btn w-full mt-3"
+          disabled={schemaItem.isDisabled}
+          icon={<PlusOutlined />}
+          onClick={schemaItem.isDisabled ? undefined : () => addItem()}
         >
-          <ProFormGroup key={name + "-group" + generateReactKey()}>
-            {fields}
-          </ProFormGroup>
-        </ProFormList>
+          添加新项
+        </Button>
       </FieldLabel>
-
-      <StyledButton
-        className="t--jsonformfield-array-add-btn"
-        color={schemaItem.accentColor}
-        disabled={schemaItem.isDisabled}
-        onClick={schemaItem.isDisabled ? undefined : add}
-        type="button"
-      >
-        <StyledIconWrapper>
-          <Icon
-            icon="add"
-            iconSize={ACTION_ICON_SIZE}
-            style={{ color: schemaItem.accentColor || Colors.GREEN }}
-          />
-        </StyledIconWrapper>
-        <span className="t--text">Add New</span>
-      </StyledButton>
     </StyledNestedFormWrapper>
   );
 }

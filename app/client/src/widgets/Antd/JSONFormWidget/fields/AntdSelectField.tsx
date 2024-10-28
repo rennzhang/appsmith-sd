@@ -164,6 +164,7 @@ function AntdSelectField({
     formLayout,
     formIsRequird,
     formLabelAlign,
+    commonProps,
   ]);
 
   return fieldComponent;

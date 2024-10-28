@@ -302,6 +302,7 @@ export type BaseFieldComponentProps<TProps = any> = {
   hideLabel?: boolean;
   isRootField?: boolean;
   fieldClassName: string;
+  inArray?: boolean;
   isLastField?: boolean;
   name: ControllerRenderProps["name"];
   formIsRequird?: boolean;

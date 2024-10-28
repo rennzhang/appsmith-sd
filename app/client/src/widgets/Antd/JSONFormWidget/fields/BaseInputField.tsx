@@ -132,6 +132,12 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     schemaItem,
     passedDefaultValue,
   });
+  useEffect(() => {
+    console.log(`BaseInputField commonProps`, {
+      commonProps,
+      passedDefaultValue,
+    });
+  }, [commonProps, passedDefaultValue]);
 
   useEffect(() => {
     console.log(
@@ -255,6 +261,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     formControlSize,
     formLayout,
     formLabelAlign,
+    commonProps,
   ]);
 
   return fieldComponent;

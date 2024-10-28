@@ -43,7 +43,6 @@ export interface ProformContainerComponentProps {
   boxShadowColor?: string;
   hideFooter?: boolean;
   formRef: React.RefObject<ProFormInstance<any>> | null;
-  updateFormData: (values: any, skipConversion?: boolean) => void;
   validateOnly?: boolean;
   validateFieldsParams?: any;
   getFormData: (formWidget: ContainerWidgetProps<WidgetProps>) => any;
@@ -131,7 +130,6 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     submitButtonLabel,
     title,
     titleColor,
-    updateFormData,
     updateWidgetProps,
     validateFieldsParams: __vfp,
     validateMessage,

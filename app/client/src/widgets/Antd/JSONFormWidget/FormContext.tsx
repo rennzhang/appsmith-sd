@@ -1,9 +1,10 @@
-import React, { createContext, useMemo } from "react";
+import React, { createContext, useMemo, useRef } from "react";
 
 import type { RenderMode } from "constants/WidgetConstants";
 import type { Action, JSONFormWidgetState } from "./widget";
 import type { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
+import { set } from "lodash";
 
 type FormContextProps<TValues = any> = React.PropsWithChildren<{
   formColorPrimary?: string;
@@ -21,7 +22,12 @@ type FormContextProps<TValues = any> = React.PropsWithChildren<{
   ) => void;
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
   updateWidgetProperty: (propertyName: string, propertyValues: any) => void;
-  updateFormData: (values: TValues) => void;
+  updateWidgetFormData: (
+    values: TValues,
+    cb?: (values: TValues) => void,
+  ) => void;
+  setFormData: (values: TValues) => void;
+  updateFormData: (values: TValues, cb?: (values: TValues) => void) => void;
 }>;
 
 type FormContextValueProps = Omit<FormContextProps, "children">;
@@ -41,13 +47,16 @@ export function FormContextProvider({
   formLayout,
   formRef,
   renderMode,
+  setFormData,
   setMetaInternalFieldState,
-  updateFormData,
+  updateWidgetFormData,
   updateWidgetMetaProperty,
   updateWidgetProperty,
 }: FormContextProps) {
   const value = useMemo(
     () => ({
+      updateWidgetFormData,
+      setFormData,
       formColorPrimary,
       formLayout,
       formLabelAlign,
@@ -58,15 +67,23 @@ export function FormContextProvider({
       formRef,
       renderMode,
       setMetaInternalFieldState,
-      updateFormData: async (values: any) => {
-        Object.keys(values).forEach(async (key) => {
+      updateFormData: async (values: any, cb?: (values: any) => void) => {
+        const newFormData = { ...formRef?.current?.getFieldsValue() };
+        for (const key of Object.keys(values)) {
+          set(newFormData, key, values[key]);
           await formRef?.current?.setFieldValue(key.split("."), values[key]);
-        });
-        // await formRef?.current?.setFieldsValue(values);
+        }
 
+        // await formRef?.current?.setFieldsValue(newFormData);
         const formData = await formRef?.current?.getFieldsValue();
-        await updateFormData(formData);
-        console.log("updateFormData result", values, formData);
+
+        await updateWidgetFormData(formData);
+        setFormData(newFormData);
+        console.log("updateFormData result", {
+          values,
+          formData,
+        });
+        cb?.(newFormData);
       },
       updateWidgetMetaProperty,
       updateWidgetProperty,
@@ -78,6 +95,7 @@ export function FormContextProvider({
       formControlSize,
       formLayout,
       formLabelAlign,
+      setFormData,
     ],
   );
   return <FormContext.Provider value={value}>{children}</FormContext.Provider>;

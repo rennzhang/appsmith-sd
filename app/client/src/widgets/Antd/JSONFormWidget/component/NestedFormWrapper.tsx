@@ -13,6 +13,7 @@ type StyledWrapperProps = {
   labelTextSize?: string;
   labelTextColor?: string;
   labelStyle?: string;
+  isLastField?: boolean;
 };
 
 const NESTED_FORM_WRAPPER_PADDING = 10;
@@ -39,6 +40,12 @@ const NestedFormWrapper = styled.div<StyledWrapperProps>`
     font-weight: ${({ labelStyle }) => labelStyle?.includes("BOLD") && "bold"};
     font-style: ${({ labelStyle }) =>
       labelStyle?.includes("ITALIC") && "italic"};
+  }
+  &.is-last-field {
+    margin-bottom: 0;
+  }
+  &.in-array {
+    padding-bottom: 0;
   }
 `;
 

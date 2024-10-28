@@ -3,6 +3,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { FieldType, type SchemaItem } from "../constants";
 import { AntdLabelPosition } from "components/constants";
 import type { FormInstance } from "redux-form";
+import { get, isEqual } from "lodash";
 
 type UseFieldPropsHandlerProps = {
   name: string;
@@ -29,27 +30,30 @@ export const useFieldPropsHandler = ({
     return passedDefaultValue;
   })();
 
+  console.log("useFieldPropsHandler defult useEffect1111", {
+    name,
+    formRef,
+    schemaItem,
+    inputDefaultValue,
+    passedDefaultValue,
+  });
   useEffect(() => {
     console.log("defult useEffect", {
+      name,
       formRef,
       schemaItem,
       inputDefaultValue,
+      passedDefaultValue,
     });
-    // if (schemaItem.fieldType === FieldType.CHECKBOX) {
-    //   if (!inputDefaultValue) {
-    //     inputDefaultValue = [];
-    //   } else if (!Array.isArray(inputDefaultValue)) {
-    //     inputDefaultValue = [inputDefaultValue];
-    //   }
-    // }
-    formRef?.current?.setFieldsValue({
-      [name]: inputDefaultValue,
-    });
+    const formValue = formRef?.current?.getFieldsValue();
+    const currentValue = get(formValue, name);
+    if (isEqual(currentValue, inputDefaultValue)) {
+      return;
+    }
     updateFormData({
       [name]: inputDefaultValue,
     });
-    setDefaultValue(inputDefaultValue);
-  }, [schemaItem.defaultValue]);
+  }, [schemaItem.defaultValue, inputDefaultValue]);
   const fieldProps = useMemo(() => {
     const getUpdatedValue = <T>(
       schemaValue: T,
@@ -120,11 +124,11 @@ export const useFieldPropsHandler = ({
       labelPosition,
       isInForm: true,
       formRef,
-      defaultValue,
-      value: defaultValue,
+      defaultValue: inputDefaultValue,
+      value: inputDefaultValue,
       accessor: name.split("."),
     };
-  }, [schemaItem, formContext, defaultValue]);
+  }, [schemaItem, formContext, inputDefaultValue]);
 
   useEffect(() => {
     prevSchemaItemRef.current = schemaItem;

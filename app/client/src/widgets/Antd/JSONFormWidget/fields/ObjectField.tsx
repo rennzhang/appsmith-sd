@@ -65,6 +65,7 @@ function ObjectField({
   fieldClassName,
   hideAccordion = false,
   hideLabel,
+  inArray,
   isLastField = false,
   isRootField = false,
   name,
@@ -106,7 +107,8 @@ function ObjectField({
         ? `${name}.${schemaItem.identifier}`
         : schemaItem.identifier;
       const fieldPropertyPath = `${propertyPath}.children.${schemaItem.identifier}`;
-      const isLastField = index === sortedChildren.length - 1;
+      const isLastField =
+        index === sortedChildren.length - 1 && name.includes(".");
       return (
         <FieldRenderer
           fieldName={fieldName as ControllerRenderProps["name"]}
@@ -152,7 +154,10 @@ function ObjectField({
       borderRadius={schemaItem.borderRadius}
       borderWidth={schemaItem.borderWidth}
       boxShadow={schemaItem.boxShadow}
-      className={`t--jsonformfield-${fieldClassName} NestedFormWrapper`}
+      className={`t--jsonformfield-${fieldClassName} NestedFormWrapper ${
+        inArray ? "in-array" : ""
+      } ${isLastField ? "is-last-field" : ""}`}
+      isLastField={isLastField}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}

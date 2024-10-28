@@ -4,15 +4,12 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import styled from "styled-components";
 import { Text } from "@blueprintjs/core";
 
-import Form from "./Form";
-import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
-import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
-import type { Color } from "constants/Colors";
 import type { Schema } from "../constants";
 import { FIELD_MAP, MAX_ALLOWED_FIELDS, ROOT_SCHEMA_KEY } from "../constants";
 import { FormContextProvider } from "../FormContext";
@@ -22,7 +19,11 @@ import { RenderModes, TEXT_SIZES } from "constants/WidgetConstants";
 import type { Action, JSONFormWidgetState } from "../widget";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import AntProFormComponent from "./AntdForm";
-import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
+import {
+  useDeepCompareEffect,
+  type ProFormInstance,
+  type ProFormProps,
+} from "@ant-design/pro-components";
 import type { CheckboxGroupAlignment } from "components/constants";
 import type { ProformContainerComponentProps } from "./AntdForm";
 
@@ -48,7 +49,7 @@ export interface JSONFormComponentProps<TValues = any>
   setMetaInternalFieldState: (
     cb: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
   ) => void;
-  updateFormData: (values: TValues) => void;
+  updateWidgetFormData: (values: TValues) => void;
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
   controlSize: ProFormProps["size"];
@@ -118,7 +119,7 @@ function JSONFormComponent<TValues>(
     setMetaInternalFieldState,
     submitButtonLabel,
     unregisterResetObserver,
-    updateFormData,
+    updateWidgetFormData,
     updateWidgetMetaProperty,
     updateWidgetProperty,
     ...rest
@@ -194,6 +195,12 @@ function JSONFormComponent<TValues>(
     );
   }, [schema]);
 
+  const [formData, setFormData] = useState<any>({});
+
+  useEffect(() => {
+    console.log("JSONFormWidget formData", formData);
+  }, [formData]);
+
   console.log("JSONFormWidget ", schema[ROOT_SCHEMA_KEY], {
     schema,
     formItems,
@@ -211,8 +218,9 @@ function JSONFormComponent<TValues>(
       formLayout={rest.formLayout}
       formRef={ref}
       renderMode={renderMode}
+      setFormData={setFormData}
       setMetaInternalFieldState={setMetaInternalFieldState}
-      updateFormData={updateFormData}
+      updateWidgetFormData={updateWidgetFormData}
       updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}
     >
@@ -226,7 +234,6 @@ function JSONFormComponent<TValues>(
         hideFooter={hideFooter}
         onSubmit={onSubmit}
         size={controlSize}
-        updateFormData={updateFormData}
         updateWidgetProps={updateWidgetProperty}
       >
         {renderComponent}

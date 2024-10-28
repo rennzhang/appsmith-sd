@@ -13,10 +13,12 @@ type FieldRendererProps = {
   passedDefaultValue?: unknown;
   propertyPath: string;
   schemaItem: SchemaItem;
+  inArray?: boolean;
 };
 
 function FieldRenderer({
   fieldName,
+  inArray,
   isLastField,
   options,
   passedDefaultValue,
@@ -64,6 +66,7 @@ function FieldRenderer({
 
   return (
     <FieldComponent
+      inArray={inArray}
       fieldClassName={fieldName.replace(/[\.\[\]]/gi, "-")} // replace [,],. with -
       isLastField={isLastField}
       name={fieldName}

@@ -283,7 +283,7 @@ class JSONFormWidget extends BaseWidget<
 
     if (prevProps.useSourceData !== this.props.useSourceData) {
       const { formData } = this.props;
-      this.updateFormData(formData);
+      this.updateWidgetFormData(formData);
     }
 
     const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
@@ -395,7 +395,7 @@ class JSONFormWidget extends BaseWidget<
     return computedSchema;
   };
 
-  updateFormData = (values: any, skipConversion = false) => {
+  updateWidgetFormData = (values: any, skipConversion = false) => {
     const rootSchemaItem = this.props.schema[ROOT_SCHEMA_KEY];
     const { sourceData, useSourceData } = this.props;
     let formData = values;
@@ -409,7 +409,7 @@ class JSONFormWidget extends BaseWidget<
       });
     }
 
-    console.log("updateFormData", {
+    console.log("updateWidgetFormData", {
       values,
       skipConversion,
       rootSchemaItem,
@@ -418,13 +418,13 @@ class JSONFormWidget extends BaseWidget<
       formData,
     });
 
-    this.props.updateWidgetMetaProperty("formData", formData);
+    this.props.updateWidgetMetaProperty("formData", values);
 
     if (this.actionQueue.length) {
       this.actionQueue.forEach(({ updateDependencyType, ...actionPayload }) => {
         if (updateDependencyType === ActionUpdateDependency.FORM_DATA) {
           const payload = this.applyGlobalContextToAction(actionPayload, {
-            formData,
+            formData: values,
           });
 
           super.executeAction(payload);
@@ -601,7 +601,7 @@ class JSONFormWidget extends BaseWidget<
         submitButtonStyles={this.props.submitButtonStyles}
         title={this.props.title}
         unregisterResetObserver={this.unregisterResetObserver}
-        updateFormData={this.updateFormData}
+        updateWidgetFormData={this.updateWidgetFormData}
         updateWidgetMetaProperty={this.onUpdateWidgetMetaProperty}
         updateWidgetProperty={this.onUpdateWidgetProperty}
         validateMessage={this.props.validateMessage}
