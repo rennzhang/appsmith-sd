@@ -122,7 +122,7 @@ const ThemedAppWithProps = connect(mapStateToProps)(ThemedApp);
 
 ReactDOM.render(
   <>
-    <ClickToComponent />
+    {/* <ClickToComponent />/ */}
     <App />
   </>,
   document.getElementById("root"),

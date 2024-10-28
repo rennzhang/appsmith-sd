@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import styled from "styled-components";
 import type { ControllerRenderProps } from "react-hook-form";
-import { useFormContext } from "react-hook-form";
 import { get, set } from "lodash";
 import { Icon } from "@blueprintjs/core";
 import { klona } from "klona";
@@ -32,6 +31,15 @@ import { Colors } from "constants/Colors";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
 import { schemaItemDefaultValue } from "../helper";
+import { ArrayFieldConfig } from "../constants";
+import {
+  ProFormDatePicker,
+  ProFormDigit,
+  ProFormGroup,
+  ProFormList,
+  ProFormSelect,
+  ProFormText,
+} from "@ant-design/pro-components";
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
@@ -63,6 +71,7 @@ const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
   labelText: "",
+  type: ArrayFieldConfig.type,
 };
 
 const ACTION_ICON_SIZE = 10;
@@ -157,24 +166,21 @@ const getDefaultValue = (
 
 function ArrayField({
   fieldClassName,
+  isRootField = false,
   name,
   passedDefaultValue,
   propertyPath,
   schemaItem,
 }: ArrayFieldProps) {
-  console.log("ArrayField", {
-    name,
-    passedDefaultValue,
-    propertyPath,
-    schemaItem,
-  });
+  const { formRef, updateFormData } = useContext(FormContext);
 
-  // const { getValues, setValue, watch } = useFormContext();
+  // const {   watch } = useFormContext();
   const keysRef = useRef<string[]>([]);
   const removedKeys = useRef<string[]>([]);
   const defaultValue = getDefaultValue(schemaItem, passedDefaultValue);
   // const value = watch(name);
-  const value = "[]";
+
+  const value = formRef?.current?.getFieldValue(name) || [];
   /**
    * parsedArrayValue is a patch that parses a stringified array.
    * We are doing this because we want to avoid creation of multiple children fields when the ArrayField recieves value as a stringified array.
@@ -198,20 +204,20 @@ function ArrayField({
   const { setMetaInternalFieldState } = useContext(FormContext);
 
   const add = () => {
-    // let values = klona(getValues(name));
-    let values = klona(defaultValue);
+    let values = klona(formRef?.current?.getFieldValue(name));
     if (values && values.length) {
       values.push({});
     } else {
       values = [{}];
     }
-    // setValue(name, values);
+    updateFormData({
+      [name]: values,
+    });
   };
 
   const remove = useCallback(
     (removedKey: string) => {
-      // const values = klona(getValues(name));
-      const values = klona(defaultValue);
+      const values = klona(formRef?.current?.getFieldValue(name));
       if (values === undefined) {
         return;
       }
@@ -243,10 +249,21 @@ function ArrayField({
 
       removedKeys.current = [removedKey];
 
-      // setValue(name, newValues);
+      updateFormData({
+        [name]: newValues,
+      });
     },
-    [cachedDefaultValue, keysRef /* setValue */],
+    [cachedDefaultValue, keysRef, updateFormData],
   );
+  console.log("ArrayField props", {
+    name,
+    passedDefaultValue,
+    propertyPath,
+    schemaItem,
+    valueLength,
+    keysRef,
+    removedKeys,
+  });
 
   const itemKeys = useMemo(() => {
     if (keysRef.current.length > valueLength) {
@@ -276,7 +293,9 @@ function ArrayField({
   }, [valueLength]);
 
   useDeepEffect(() => {
-    // setValue(name, klona(defaultValue));
+    updateFormData({
+      [name]: klona(defaultValue),
+    });
     setCachedDefaultValue(klona(defaultValue));
   }, [defaultValue]);
 
@@ -315,9 +334,22 @@ function ArrayField({
     const arrayItemSchema = schemaItem.children[ARRAY_ITEM_KEY];
 
     const fieldPropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
+    console.log("ArrayField fields", {
+      arrayItemSchema,
+      fieldPropertyPath,
+      itemKeys,
+    });
 
     return itemKeys.map((key, index) => {
       const fieldName = `${name}[${index}]` as ControllerRenderProps["name"];
+
+      console.log("ArrayField", {
+        fieldName,
+        key,
+        index,
+        fieldPropertyPath,
+        arrayItemSchema,
+      });
 
       return (
         <Accordion
@@ -373,16 +405,33 @@ function ArrayField({
       borderRadius={schemaItem.borderRadius}
       borderWidth={schemaItem.borderWidth}
       boxShadow={schemaItem.boxShadow}
-      className={`t--jsonformfield-${fieldClassName}`}
+      className={`t--jsonformfield-${fieldClassName} NestedFormWrapper`}
+      labelStyle={schemaItem.labelStyle}
+      labelTextColor={schemaItem.labelTextColor}
+      labelTextSize={schemaItem.labelTextSize}
+      withoutPadding={isRootField}
     >
       <FieldLabel
-        label={schemaItem.labelText}
         labelStyle={schemaItem.labelStyle}
+        labelText={schemaItem.labelText}
         labelTextColor={schemaItem.labelTextColor}
         labelTextSize={schemaItem.labelTextSize}
         tooltip={schemaItem.tooltip}
-      />
-      {fields}
+      >
+        <ProFormList
+          copyIconProps={false}
+          deleteIconProps={false}
+          tooltip={schemaItem.tooltip}
+          initialValue={defaultValue}
+          // label={schemaItem.labelText}
+          name={name}
+        >
+          <ProFormGroup key={name + "-group" + generateReactKey()}>
+            {fields}
+          </ProFormGroup>
+        </ProFormList>
+      </FieldLabel>
+
       <StyledButton
         className="t--jsonformfield-array-add-btn"
         color={schemaItem.accentColor}

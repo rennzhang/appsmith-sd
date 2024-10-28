@@ -30,6 +30,7 @@ import {
   TreeWidgetConfig,
   UploadWidgetConfig,
   ObjectFieldConfig,
+  ArrayFieldConfig,
 } from "../../constants";
 
 // 转换PropertyPaneContentConfig，合并 hidden 属性
@@ -117,6 +118,7 @@ const comTypesMap = {
   [TimePickerWidgetConfig.type]: [FieldType.TIMEPICKER],
   [DatePickerWidgetConfig.type]: [FieldType.DATEPICKER],
   [ObjectFieldConfig.type]: [FieldType.OBJECT],
+  [ArrayFieldConfig.type]: [FieldType.ARRAY],
 };
 const allItemPropertyPaneConfig: Map<string, any[]> = new Map();
 const allItemStylePaneConfig: Map<string, any[]> = new Map();
@@ -165,7 +167,6 @@ function generatePanelPropertyConfig(
       sectionName: "基本配置",
       children: [
         ...COMMON_PROPERTIES.content.data,
-        ...ARRAY_PROPERTIES.content.data,
         {
           propertyName: "children",
           label: "字段配置",
@@ -187,7 +188,6 @@ function generatePanelPropertyConfig(
       ],
     },
   ];
-  const styleChildren = [...ARRAY_PROPERTIES.style.root];
   const mergedContentChildren = getAllItemPaneConfig([]);
   const mergedStyleChildren = getAllItemPaneConfig([], true);
 
@@ -199,7 +199,7 @@ function generatePanelPropertyConfig(
     titlePropertyName: "labelText",
     panelIdPropertyName: "identifier",
     contentChildren: [...contentChildren, ...mergedContentChildren],
-    styleChildren: [...styleChildren, ...mergedStyleChildren],
+    styleChildren: [...mergedStyleChildren],
   } as PanelConfig;
 }
 

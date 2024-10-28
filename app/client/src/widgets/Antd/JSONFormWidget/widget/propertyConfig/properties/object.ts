@@ -7,7 +7,12 @@ import {
   FieldType,
 } from "widgets/Antd/JSONFormWidget/constants";
 import type { JSONFormWidgetProps } from "../..";
-import { getStylesheetValue } from "../helper";
+import type { HiddenFnParams } from "../helper";
+import {
+  getSchemaItem,
+  getStylesheetValue,
+  updateChildrenDisabledStateHook,
+} from "../helper";
 import {
   DEFAULT_STYLE_PANEL_CONFIG_LABEL,
   FORM_LABEL_CONTENT_CONFIG,
@@ -89,7 +94,45 @@ const objectStyleProperties = [
 export const CONFIG = {
   type: "JSONFormObjectField",
   properties: {
-    contentConfig: [FORM_LABEL_CONTENT_CONFIG],
+    contentConfig: [
+      FORM_LABEL_CONTENT_CONFIG,
+      {
+        sectionName: "属性",
+        children: [
+          {
+            propertyName: "isVisible",
+            helpText: "设置字段是否显示",
+            label: "是否显示",
+            controlType: "SWITCH",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (...args: HiddenFnParams) => {
+              return getSchemaItem(...args).compute(
+                (schemaItem) => schemaItem.identifier === ARRAY_ITEM_KEY,
+              );
+            },
+            dependencies: ["schema", "sourceData"],
+          },
+          {
+            propertyName: "isDisabled",
+            helpText: "禁用字段",
+            label: "禁用",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            validation: { type: ValidationTypes.BOOLEAN },
+            dependencies: ["schema", "sourceData"],
+            updateHook: updateChildrenDisabledStateHook,
+          },
+        ],
+      },
+    ],
     styleConfig: [
       DEFAULT_STYLE_PANEL_CONFIG_LABEL,
       {

@@ -2,14 +2,80 @@ import { get } from "lodash";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SchemaItem } from "widgets/Antd/JSONFormWidget/constants";
-import { FieldType } from "widgets/Antd/JSONFormWidget/constants";
+import {
+  ARRAY_ITEM_KEY,
+  FieldType,
+} from "widgets/Antd/JSONFormWidget/constants";
 import type { JSONFormWidgetProps } from "../..";
 import type { HiddenFnParams } from "../helper";
-import { getSchemaItem, getStylesheetValue } from "../helper";
+import {
+  getSchemaItem,
+  getStylesheetValue,
+  updateChildrenDisabledStateHook,
+} from "../helper";
+import {
+  DEFAULT_STYLE_PANEL_CONFIG_LABEL,
+  FORM_LABEL_CONTENT_CONFIG,
+} from "widgets/Antd/Form/CONST/DEFAULT_CONFIG";
 
-const PROPERTIES = {
-  style: {
-    root: [
+export const CONFIG = {
+  type: "JSONFormArrayField",
+  properties: {
+    contentConfig: [
+      FORM_LABEL_CONTENT_CONFIG,
+      {
+        sectionName: "属性",
+        children: [
+          {
+            propertyName: "isCollapsible",
+            label: "可折叠",
+            helpText: "让数组元素可折叠",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (...args: HiddenFnParams) =>
+              getSchemaItem(...args).fieldTypeNotMatches(FieldType.ARRAY),
+            dependencies: ["schema"],
+          },
+          {
+            propertyName: "isVisible",
+            helpText: "设置字段是否显示",
+            label: "是否显示",
+            controlType: "SWITCH",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (...args: HiddenFnParams) => {
+              return getSchemaItem(...args).compute(
+                (schemaItem) => schemaItem.identifier === ARRAY_ITEM_KEY,
+              );
+            },
+            dependencies: ["schema", "sourceData"],
+          },
+          {
+            propertyName: "isDisabled",
+            helpText: "禁用字段",
+            label: "禁用",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            validation: { type: ValidationTypes.BOOLEAN },
+            dependencies: ["schema", "sourceData"],
+            updateHook: updateChildrenDisabledStateHook,
+          },
+        ],
+      },
+    ],
+    styleConfig: [
+      DEFAULT_STYLE_PANEL_CONFIG_LABEL,
       {
         sectionName: "数组样式",
         children: [
@@ -174,41 +240,5 @@ const PROPERTIES = {
       },
     ],
   },
-  content: {
-    data: [
-      {
-        helpText: "字段默认值，默认值修改后会自动更新字段当前值",
-        propertyName: "defaultValue",
-        label: "默认值",
-        controlType: "JSON_FORM_COMPUTE_VALUE",
-        placeholderText: "[]",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.ARRAY,
-        },
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeNotMatches(FieldType.ARRAY),
-        dependencies: ["schema"],
-      },
-    ],
-    general: [
-      {
-        propertyName: "isCollapsible",
-        label: "可折叠",
-        helpText: "让数组元素可折叠",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        customJSControl: "JSON_FORM_COMPUTE_VALUE",
-        validation: { type: ValidationTypes.BOOLEAN },
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeNotMatches(FieldType.ARRAY),
-        dependencies: ["schema"],
-      },
-    ],
-  },
 };
-
-export default PROPERTIES;
+export default CONFIG;

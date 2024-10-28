@@ -212,6 +212,7 @@ function CascaderComponent(props: CascaderComponentProps): JSX.Element {
             Dropdown: {
               colorPrimary: colorPrimary,
             },
+
           },
         }}
       >

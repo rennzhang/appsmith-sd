@@ -153,21 +153,24 @@ function ObjectField({
       borderWidth={schemaItem.borderWidth}
       boxShadow={schemaItem.boxShadow}
       className={`t--jsonformfield-${fieldClassName} NestedFormWrapper`}
-      withoutPadding={isRootField}
-      labelTextSize={schemaItem.labelTextSize}
-      labelTextColor={schemaItem.labelTextColor}
       labelStyle={schemaItem.labelStyle}
+      labelTextColor={schemaItem.labelTextColor}
+      labelTextSize={schemaItem.labelTextSize}
+      withoutPadding={isRootField}
     >
-      {(!hideLabel &&
-        (isRootField || hideAccordion ? (
-          field
-        ) : (
-          <FieldLabel
-            isLastField={isLastField}
-            {...schemaItem}
-            isRootField={isRootField}
-            tooltip={tooltip}
-          >
+      {(isRootField || hideAccordion ? (
+        field
+      ) : (
+        <FieldLabel
+          hideLabel={hideLabel}
+          isLastField={isLastField}
+          {...schemaItem}
+          isRootField={isRootField}
+          tooltip={tooltip}
+        >
+          {isRootField || hideAccordion ? (
+            field
+          ) : (
             <Accordion
               backgroundColor={schemaItem.cellBackgroundColor}
               borderColor={schemaItem.cellBorderColor}
@@ -182,9 +185,9 @@ function ObjectField({
             >
               {field}
             </Accordion>
-          </FieldLabel>
-        ))) ||
-        null}
+          )}
+        </FieldLabel>
+      )) || null}
     </NestedFormWrapper>
   );
 }

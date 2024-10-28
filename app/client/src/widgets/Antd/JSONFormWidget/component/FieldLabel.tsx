@@ -53,6 +53,7 @@ export type FieldLabelProps = PropsWithChildren<
     labelAlignment?: "left" | "right";
     labelWidth?: number;
     labelTooltip?: string;
+    hideLabel?: boolean;
   }
 >;
 
@@ -116,6 +117,7 @@ function FieldLabel(props: FieldLabelProps) {
     boxShadow,
     children,
     className,
+    hideLabel,
     isLastField,
     isRootField,
     labelAlignment,
@@ -153,7 +155,7 @@ function FieldLabel(props: FieldLabelProps) {
       labelPosition={labelPosition}
     >
       <ProFormItem
-        label={labelText}
+        label={hideLabel ? "" : labelText}
         labelAlign={labelAlignment}
         name={accessor || widgetName}
         tooltip={labelTooltip}

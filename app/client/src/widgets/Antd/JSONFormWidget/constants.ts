@@ -50,6 +50,7 @@ import UploadWidget, {
   CONFIG as UploadWidgetConfig,
 } from "widgets/Antd/Form/UploadWidget";
 import { CONFIG as ObjectFieldConfig } from "./widget/propertyConfig/properties/object";
+import { CONFIG as ArrayFieldConfig } from "./widget/propertyConfig/properties/array";
 export {
   AntdInputWidgetConfig,
   AutoCompleteWidgetConfig,
@@ -68,6 +69,7 @@ export {
   TreeWidgetConfig,
   UploadWidgetConfig,
   ObjectFieldConfig,
+  ArrayFieldConfig,
 };
 
 export const AllAntdFormItems = [
@@ -88,6 +90,7 @@ export const AllAntdFormItems = [
   TreeWidgetConfig,
   UploadWidgetConfig,
   ObjectFieldConfig,
+  ArrayFieldConfig,
 ];
 
 import {

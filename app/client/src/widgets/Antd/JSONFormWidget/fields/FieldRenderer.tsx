@@ -8,7 +8,7 @@ import { FIELD_MAP } from "../constants";
 
 type FieldRendererProps = {
   fieldName: ControllerRenderProps["name"];
-  isLastField: boolean;
+  isLastField?: boolean;
   options?: Record<string, any>;
   passedDefaultValue?: unknown;
   propertyPath: string;
@@ -64,8 +64,8 @@ function FieldRenderer({
 
   return (
     <FieldComponent
-      isLastField={isLastField}
       fieldClassName={fieldName.replace(/[\.\[\]]/gi, "-")} // replace [,],. with -
+      isLastField={isLastField}
       name={fieldName}
       passedDefaultValue={passedDefaultValue}
       propertyPath={propertyPath}

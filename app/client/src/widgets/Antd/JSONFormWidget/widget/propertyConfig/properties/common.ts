@@ -144,6 +144,21 @@ const COMMON_PROPERTIES = {
         updateHook: fieldTypeUpdateHook,
       },
       {
+        helpText: "字段默认值，默认值修改后会自动更新字段当前值",
+        propertyName: "defaultValue",
+        label: "默认值",
+        controlType: "JSON_FORM_COMPUTE_VALUE",
+        placeholderText: "[]",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.ARRAY,
+        },
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.ARRAY),
+        dependencies: ["schema"],
+      },
+      {
         propertyName: "accessor",
         helpText: "设置字段属性名让用户可以在表单数据中访问到对应的值",
         label: "属性名",
@@ -169,265 +184,6 @@ const COMMON_PROPERTIES = {
 
           if (isArrayItem) return true;
         },
-        dependencies: ["schema"],
-      },
-      // {
-      //   propertyName: "options",
-      //   helpText: "用户可选项，选项值必须唯一",
-      //   label: "选项",
-      //   controlType: "INPUT_TEXT",
-      //   placeholderText: '[{ "label": "选项1", "value": "选项2" }]',
-      //   isBindProperty: true,
-      //   isTriggerProperty: false,
-      //   validation: {
-      //     type: ValidationTypes.ARRAY,
-      //     params: {
-      //       unique: ["value"],
-      //       children: {
-      //         type: ValidationTypes.OBJECT,
-      //         params: {
-      //           required: true,
-      //           allowedKeys: [
-      //             {
-      //               name: "label",
-      //               type: ValidationTypes.TEXT,
-      //               params: {
-      //                 default: "",
-      //                 required: true,
-      //               },
-      //             },
-      //             {
-      //               name: "value",
-      //               type: ValidationTypes.TEXT,
-      //               params: {
-      //                 default: "",
-      //                 required: true,
-      //               },
-      //             },
-      //           ],
-      //         },
-      //       },
-      //     },
-      //   },
-      //   evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      //   hidden: (...args: HiddenFnParams) =>
-      //     getSchemaItem(...args).fieldTypeNotIncludes(FIELD_EXPECTING_OPTIONS),
-      //   dependencies: ["schema", "sourceData"],
-      // },
-    ],
-    label: [
-      {
-        propertyName: "labelText",
-        helpText: "设置字段标签文本",
-        label: "文本",
-        controlType: "INPUT_TEXT",
-        placeholderText: "名称：",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-        hidden: hiddenIfArrayItemIsObject,
-        dependencies: ["schema", "sourceData"],
-      },
-    ],
-    generalSwitch: [
-      {
-        propertyName: "isVisible",
-        helpText: "设置字段是否显示",
-        label: "是否显示",
-        controlType: "SWITCH",
-        defaultValue: true,
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        customJSControl: "JSON_FORM_COMPUTE_VALUE",
-        validation: { type: ValidationTypes.BOOLEAN },
-        hidden: (...args: HiddenFnParams) => {
-          return getSchemaItem(...args).compute(
-            (schemaItem) => schemaItem.identifier === ARRAY_ITEM_KEY,
-          );
-        },
-        dependencies: ["schema", "sourceData"],
-      },
-      // {
-      //   propertyName: "isDisabled",
-      //   helpText: "禁用字段",
-      //   label: "禁用",
-      //   controlType: "SWITCH",
-      //   isJSConvertible: true,
-      //   isBindProperty: true,
-      //   isTriggerProperty: false,
-      //   customJSControl: "JSON_FORM_COMPUTE_VALUE",
-      //   validation: { type: ValidationTypes.BOOLEAN },
-      //   dependencies: ["schema", "sourceData"],
-      //   updateHook: updateChildrenDisabledStateHook,
-      // },
-    ],
-    events: [
-      {
-        propertyName: "onFocus",
-        helpText: "聚焦时触发",
-        label: "onFocus",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-        additionalAutoComplete: getAutocompleteProperties,
-        dependencies: ["schema", "sourceData"],
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeNotIncludes(
-            FIELD_SUPPORTING_FOCUS_EVENTS,
-          ),
-      },
-      {
-        propertyName: "onBlur",
-        helpText: "失焦时触发",
-        label: "onBlur",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-        additionalAutoComplete: getAutocompleteProperties,
-        dependencies: ["schema", "sourceData"],
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeNotIncludes(
-            FIELD_SUPPORTING_FOCUS_EVENTS,
-          ),
-      },
-    ],
-  },
-  style: {
-    label: [
-      {
-        propertyName: "labelTextColor",
-        label: "字体颜色",
-        helpText: "设置标签字体颜色",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        customJSControl: "JSON_FORM_COMPUTE_VALUE",
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            regex: /^(?![<|{{]).+/,
-          },
-        },
-        dependencies: ["schema", "sourceData"],
-      },
-      {
-        propertyName: "labelTextSize",
-        label: "字体大小",
-        helpText: "设置标签字体大小",
-        defaultValue: "0.875rem",
-        controlType: "DROP_DOWN",
-        options: [
-          {
-            label: "S",
-            value: "0.875rem",
-            subText: "0.875rem",
-          },
-          {
-            label: "M",
-            value: "1rem",
-            subText: "1rem",
-          },
-          {
-            label: "L",
-            value: "1.25rem",
-            subText: "1.25rem",
-          },
-          {
-            label: "XL",
-            value: "1.875rem",
-            subText: "1.875rem",
-          },
-          {
-            label: "XXL",
-            value: "3rem",
-            subText: "3rem",
-          },
-          {
-            label: "3XL",
-            value: "3.75rem",
-            subText: "3.75rem",
-          },
-        ],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
-        propertyName: "labelStyle",
-        label: "强调",
-        helpText: "设置标签字体是否加粗或斜体",
-        controlType: "BUTTON_GROUP",
-        options: [
-          {
-            icon: "text-bold",
-            value: "BOLD",
-          },
-          {
-            icon: "text-italic",
-            value: "ITALIC",
-          },
-        ],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        customJSControl: "JSON_FORM_COMPUTE_VALUE",
-        validation: { type: ValidationTypes.TEXT },
-        dependencies: ["schema", "sourceData"],
-      },
-    ],
-    borderShadow: [
-      {
-        propertyName: "borderRadius",
-        label: "边框圆角",
-        helpText: "边框圆角样式",
-        controlType: "BORDER_RADIUS_OPTIONS",
-        customJSControl: "JSON_FORM_COMPUTE_VALUE",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-        getStylesheetValue,
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeIncludes(
-            FIELDS_WITHOUT_BORDER_RADIUS,
-          ),
-        dependencies: ["schema"],
-      },
-      {
-        propertyName: "boxShadow",
-        label: "阴影",
-        helpText: "组件轮廓投影",
-        controlType: "BOX_SHADOW_OPTIONS",
-        customJSControl: "JSON_FORM_COMPUTE_VALUE",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        getStylesheetValue,
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeIncludes(FIELDS_WITHOUT_BOX_SHADOW),
-        validation: { type: ValidationTypes.TEXT },
-        dependencies: ["schema"],
-      },
-    ],
-    color: [
-      {
-        propertyName: "accentColor",
-        helpText: "设置强调色",
-        label: "强调色",
-        controlType: "COLOR_PICKER",
-        customJSControl: "JSON_FORM_COMPUTE_VALUE",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-        getStylesheetValue,
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeNotIncludes(FIELDS_WITH_ACCENT_COLOR),
         dependencies: ["schema"],
       },
     ],

@@ -167,6 +167,7 @@ function ArrayField({
   const removedKeys = useRef<string[]>([]);
   const defaultValue = getDefaultValue(schemaItem, passedDefaultValue);
   const value = watch(name);
+
   /**
    * parsedArrayValue is a patch that parses a stringified array.
    * We are doing this because we want to avoid creation of multiple children fields when the ArrayField recieves value as a stringified array.
