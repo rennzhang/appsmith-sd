@@ -9,6 +9,12 @@ export type OnButtonClickProps = {
   updateProperty: (propertyName: string, propertyValue: any) => void;
   deleteProperties: (propertyPaths: string[]) => void;
   batchUpdateProperties: (updates: Record<string, unknown>) => void;
+  batchUpdatePropertiesWithAssociatedUpdates: (
+    updates: {
+      propertyName: string;
+      propertyValue: string;
+    }[],
+  ) => void;
 };
 
 export type ButtonControlProps = ControlProps & {
@@ -36,6 +42,8 @@ class ButtonControl extends BaseControl<
       updateProperty: this.updateProperty,
       deleteProperties: this.deleteProperties,
       batchUpdateProperties: this.batchUpdateProperties,
+      batchUpdatePropertiesWithAssociatedUpdates:
+        this.batchUpdatePropertiesWithAssociatedUpdates,
     });
     this.disableLoading();
   };

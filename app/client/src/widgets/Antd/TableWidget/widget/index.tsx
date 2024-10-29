@@ -1337,7 +1337,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const finalTableData = this.getFinalTableData();
 
     console.group("Antd 表格 Table Widget 111");
-    console.log(" this.props", this.props);
+    console.log(" this.props", this.props, this);
     console.log("tableColumns", tableColumns);
 
     console.groupEnd();

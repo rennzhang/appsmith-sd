@@ -20,6 +20,7 @@ import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ButtonVariantTypes } from "components/constants";
 import { theme } from "antd";
 
+import { JSONFormDefaults } from "./widget/propertyConfig/JSONForm";
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "antd 表格",
@@ -31,7 +32,16 @@ export const CONFIG = {
   needsHeightForContent: true,
 
   defaults: {
-
+    autoGenerateTableForm: true,
+    autoFormConfig: {
+      label: "表单配置",
+      id: "config",
+      config: {
+        ...JSONFormDefaults,
+        id: "config",
+        label: "表单配置",
+      },
+    },
     tablePrimaryColor: theme.defaultSeed.colorPrimary,
     tableType: "normal",
     addNewRowText: "新增一行",

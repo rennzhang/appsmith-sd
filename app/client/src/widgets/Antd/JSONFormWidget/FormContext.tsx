@@ -82,6 +82,7 @@ export function FormContextProvider({
         console.log("updateFormData result", {
           values,
           formData,
+          newFormData,
         });
         cb?.(newFormData);
       },

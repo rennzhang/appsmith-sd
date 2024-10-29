@@ -22,7 +22,12 @@ import { CONFIG as ANTD_BUTTON_WIDGET_CONFIG } from "widgets/Antd/ButtonWidget";
 const MAX_NESTING_LEVEL = 5;
 
 const panelConfig = generatePanelPropertyConfig(MAX_NESTING_LEVEL);
-
+export const getSelfProps = (props: any) => {
+  if (props.type == "ANTD_PRO_TABLE_WIDGET") {
+    return props.autoFormConfig.config;
+  }
+  return props;
+};
 export const sourceDataValidationFn = (
   value: any,
   props: JSONFormWidgetProps,
@@ -84,14 +89,26 @@ export const sourceDataValidationFn = (
 
 export const onGenerateFormClick = ({
   batchUpdateProperties,
+  batchUpdatePropertiesWithAssociatedUpdates,
   props,
+  updateProperty,
 }: OnButtonClickProps) => {
-  const widgetProperties: JSONFormWidgetProps = props.widgetProperties;
+  const updatePathArray = props.dataTreePath?.split(".").slice(1, -1);
+  const updatePath = updatePathArray?.length
+    ? updatePathArray?.join(".") + "."
+    : "";
+
+  const widgetProperties: JSONFormWidgetProps = getSelfProps(
+    props.widgetProperties,
+  );
 
   if (widgetProperties.autoGenerateForm) return;
 
-  const currSourceData = widgetProperties[EVALUATION_PATH]?.evaluatedValues
-    ?.sourceData as Record<string, any> | Record<string, any>[];
+  const currSourceData =
+    widgetProperties.sourceData ||
+    (widgetProperties[EVALUATION_PATH]?.evaluatedValues?.sourceData as
+      | Record<string, any>
+      | Record<string, any>[]);
 
   const prevSourceData = widgetProperties.schema?.__root_schema__?.sourceData;
 
@@ -104,29 +121,58 @@ export const onGenerateFormClick = ({
     widgetName: widgetProperties.widgetName,
   });
 
+  console.log("onGenerateFormClick", {
+    props,
+    currSourceData,
+    widgetProperties,
+    schema,
+    status,
+    dynamicPropertyPathList,
+  });
+
   if (status === ComputedSchemaStatus.LIMIT_EXCEEDED) {
-    batchUpdateProperties({ fieldLimitExceeded: true });
+    batchUpdateProperties({
+      [updatePath + "fieldLimitExceeded"]: true,
+    });
     return;
   }
 
   if (status === ComputedSchemaStatus.UNCHANGED) {
     if (widgetProperties.fieldLimitExceeded) {
-      batchUpdateProperties({ fieldLimitExceeded: false });
+      batchUpdateProperties({
+        [updatePath + "fieldLimitExceeded"]: false,
+      });
     }
     return;
   }
 
   if (status === ComputedSchemaStatus.UPDATED) {
-    batchUpdateProperties({
-      dynamicPropertyPathList,
-      schema,
-      fieldLimitExceeded: false,
-    });
+    batchUpdatePropertiesWithAssociatedUpdates([
+      {
+        propertyName: "dynamicPropertyPathList",
+        propertyValue: dynamicPropertyPathList as any,
+      },
+      {
+        propertyName: updatePath + "schema",
+        propertyValue: schema,
+      },
+      {
+        propertyName: "fieldLimitExceeded",
+        propertyValue: false,
+      },
+    ]);
+    // batchUpdateProperties({
+    //   schema,
+    //   fieldLimitExceeded: false,
+    // });
   }
 };
 
-const generateFormCTADisabled = (widgetProps: JSONFormWidgetProps) =>
-  widgetProps.autoGenerateForm;
+const generateFormCTADisabled = (widgetProps: JSONFormWidgetProps) => {
+  console.log("generateFormCTADisabled", widgetProps);
+  const selfProps = getSelfProps(widgetProps);
+  return selfProps.autoGenerateForm;
+};
 
 export const contentConfig = mergeWidgetConfig(
   [

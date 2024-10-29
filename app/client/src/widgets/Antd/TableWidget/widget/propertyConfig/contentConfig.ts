@@ -24,7 +24,8 @@ import {
 import panelConfig from "./PanelConfig";
 import ActionPanelConfig from "./ActionPanelConfig";
 import { ButtonVariantTypes } from "components/constants";
-import { Colors } from "constants/Colors";
+
+import { JSONFormConfig, JSONFormDefaults } from "./JSONForm";
 
 export default [
   {
@@ -241,6 +242,41 @@ export default [
             value: TableInlineEditTypes.CUSTOM,
           },
         ],
+
+      },
+      // 自动生成表单
+      {
+        helpText: "自动生成表单",
+        propertyName: "autoGenerateTableForm",
+        label: "自动生成表单",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        isJSConvertible: true,
+        controlType: "SWITCH",
+        hidden: (props: TableWidgetProps) => {
+          return props.tableInlineEditType !== TableInlineEditTypes.CUSTOM;
+        },
+        dependencies: ["tableInlineEditType"],
+      },
+      {
+        helpText: "调整表单配置",
+        propertyName: "autoFormConfig",
+        controlType: "OPEN_CONFIG_PANEL",
+        buttonConfig: {
+          label: "配置",
+          icon: "settings-2-line",
+        },
+        label: "配置表单",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        hidden: (props: TableWidgetProps) => {
+          return (
+            !props.autoGenerateTableForm ||
+            props.tableInlineEditType !== TableInlineEditTypes.CUSTOM
+          );
+        },
+        dependencies: ["tableInlineEditType", "autoGenerateTableForm"],
+        panelConfig: JSONFormConfig,
       },
       {
         helpText:

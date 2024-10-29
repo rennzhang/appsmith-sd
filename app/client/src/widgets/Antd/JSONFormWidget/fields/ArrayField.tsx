@@ -9,9 +9,7 @@ import React, {
 import styled from "styled-components";
 import type { ControllerRenderProps } from "react-hook-form";
 import { get, isEqual, set } from "lodash";
-import { Icon } from "@blueprintjs/core";
 import { klona } from "klona";
-import log from "loglevel";
 
 import Accordion from "../component/Accordion";
 import FieldLabel, { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
@@ -34,14 +32,7 @@ import { generateReactKey } from "utils/generators";
 import { schemaItemDefaultValue } from "../helper";
 import { ArrayFieldConfig } from "../constants";
 import type { FormListActionType } from "@ant-design/pro-components";
-import {
-  ProFormDatePicker,
-  ProFormDigit,
-  ProFormGroup,
-  ProFormList,
-  ProFormSelect,
-  ProFormText,
-} from "@ant-design/pro-components";
+
 import { Button, Tooltip } from "antd";
 import { DeleteOutlined, CopyOutlined } from "@ant-design/icons";
 import { PlusOutlined } from "@ant-design/icons";
@@ -63,10 +54,6 @@ type ArrayComponentProps = FieldComponentBaseProps & {
 };
 
 type ArrayFieldProps = BaseFieldComponentProps<ArrayComponentProps>;
-
-type StyledButtonProps = {
-  color?: string;
-};
 
 const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
   backgroundColor: Colors.GREY_1,
@@ -106,15 +93,14 @@ const getDefaultValue = (
   schemaItem: SchemaItem,
   passedDefaultValue?: unknown,
 ) => {
+  if (Array.isArray(passedDefaultValue)) {
+    return passedDefaultValue;
+  }
   if (
     Array.isArray(schemaItem.defaultValue) &&
     schemaItem.defaultValue.length > 0
   ) {
     return schemaItemDefaultValue(schemaItem, "identifier") as unknown[];
-  }
-
-  if (Array.isArray(passedDefaultValue)) {
-    return passedDefaultValue;
   }
 
   return [];
@@ -130,51 +116,72 @@ function ArrayField({
   schemaItem,
 }: ArrayFieldProps) {
   const { formRef, updateFormData } = useContext(FormContext);
-  const actionRef = useRef<FormListActionType>();
-  // const {   watch } = useFormContext();
   const keysRef = useRef<string[]>([]);
   const removedKeys = useRef<string[]>([]);
-  const defaultValue = getDefaultValue(schemaItem, passedDefaultValue);
+  const [cachedDefaultValue, setCachedDefaultValue] = useState<unknown[]>(
+    getDefaultValue(schemaItem, passedDefaultValue),
+  );
+  const defaultValue = useMemo(() => {
+    const data = getDefaultValue(schemaItem, passedDefaultValue);
+    if (!data || isEqual(data, defaultValue)) {
+      return [];
+    }
+    setCachedDefaultValue(klona(data));
+
+    return data;
+  }, [schemaItem.defaultValue, passedDefaultValue]);
   // const value = watch(name);
-  const [cachedDefaultValue, setCachedDefaultValue] =
-    useState<unknown[]>(defaultValue);
 
   const [value, setValue] = useState(() => defaultValue);
 
-  useEffect(() => {
-    if (!defaultValue) {
-      return;
-    }
-    if (isEqual(defaultValue, cachedDefaultValue)) {
-      return;
-    }
-    setValue(defaultValue);
-    setCachedDefaultValue(klona(defaultValue));
-  }, [defaultValue]);
-  const valueLength = useMemo(() => value?.length || 0, [value]);
+  // useEffect(() => {
+  //   if (
+  //     !defaultValue ||
+  //     isEqual(defaultValue, cachedDefaultValue) ||
+  //     defaultValue.length < cachedDefaultValue.length
+  //   ) {
+  //     return;
+  //   }
+
+  //   console.log(
+  //     "ArrayField defaultValue",
+  //     { defaultValue, value, cachedDefaultValue },
+  //     isEqual(defaultValue, cachedDefaultValue),
+  //   );
+
+  //   setValue(defaultValue);
+  //   setCachedDefaultValue(klona(defaultValue));
+  // }, [defaultValue]);
+  const valueLength = useMemo(
+    () => value?.length || cachedDefaultValue.length || 0,
+    [value, cachedDefaultValue],
+  );
 
   useUpdateAccessor({ accessor: schemaItem.accessor });
 
   const { setMetaInternalFieldState } = useContext(FormContext);
 
-  const updateValue = (data: any) => {
+  const updateValue = async (data: any) => {
+    const _value = formRef?.current?.getFieldValue(name.split("."));
+
+    await setValue(_value);
+    await setCachedDefaultValue(klona(_value));
     console.log("updateFormData result cb", {
       data,
       cachedDefaultValue,
-      value: formRef?.current?.getFieldValue(name),
+      value,
+      _value,
     });
-    const _value = formRef?.current?.getFieldValue(name);
-    setValue(_value);
-    setCachedDefaultValue(klona(_value));
   };
   const addItem = useCallback(
     (index?: number) => {
-      const values = klona(formRef?.current?.getFieldValue(name));
+      const values = formRef?.current?.getFieldValue(name.split("."));
       if (values === undefined) {
         return;
       }
-      values.push(values[index || -1] || {});
-      console.log("addItem", {
+
+      values.push(values[index ?? -1] || {});
+      console.log("addItem2", {
         values,
         index,
         name,
@@ -192,7 +199,7 @@ function ArrayField({
 
   const remove = useCallback(
     (removedKey: string) => {
-      const values = klona(formRef?.current?.getFieldValue(name));
+      const values = klona(formRef?.current?.getFieldValue(name.split(".")));
       if (values === undefined) {
         return;
       }
@@ -243,6 +250,7 @@ function ArrayField({
     valueLength,
     keysRef,
     removedKeys,
+    cachedDefaultValue,
   });
 
   const itemKeys = useMemo(() => {
@@ -351,6 +359,7 @@ function ArrayField({
               fieldName={fieldName}
               inArray
               isLastField
+              key={key}
               options={DEFAULT_FIELD_RENDERER_OPTIONS}
               passedDefaultValue={cachedDefaultValue[index]}
               propertyPath={fieldPropertyPath}
@@ -361,6 +370,7 @@ function ArrayField({
               <Tooltip title="复制此项到行尾">
                 <Button
                   className="t--jsonformfield-array-copy-btn p-0"
+                  key={key}
                   onClick={
                     () => addItem(index)
                     // actionRef.current?.add?.(
@@ -380,6 +390,7 @@ function ArrayField({
                   className="t--jsonformfield-array-delete-btn p-0"
                   danger
                   disabled={schemaItem.isDisabled}
+                  key={key}
                   onClick={
                     schemaItem.isDisabled ? undefined : () => remove(key)
                   }
@@ -418,6 +429,7 @@ function ArrayField({
       className={`t--jsonformfield-${fieldClassName} NestedFormWrapper ${
         isLastField ? "is-last-field" : ""
       }`}
+      key={`${name}-add-btn`}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}
@@ -451,9 +463,12 @@ function ArrayField({
         {/* </ProFormGroup> */}
         {/* </ProFormList> */}
         <Button
-          className="t--jsonformfield-array-add-btn w-full mt-3"
+          className={
+            "t--jsonformfield-array-add-btn w-full mt-3" + ` ${name}-add-btn`
+          }
           disabled={schemaItem.isDisabled}
           icon={<PlusOutlined />}
+          key={`${name}-add-btn`}
           onClick={schemaItem.isDisabled ? undefined : () => addItem()}
         >
           添加新项
