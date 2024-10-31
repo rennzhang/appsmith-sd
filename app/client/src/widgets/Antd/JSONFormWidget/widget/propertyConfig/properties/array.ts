@@ -34,7 +34,7 @@ export const CONFIG = {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            customJSControl: "ANTD_JSON_FORM_COMPUTE_VALUE",
             validation: { type: ValidationTypes.BOOLEAN },
             hidden: (...args: HiddenFnParams) =>
               getSchemaItem(...args).fieldTypeNotMatches(FieldType.ARRAY),
@@ -49,7 +49,7 @@ export const CONFIG = {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            customJSControl: "ANTD_JSON_FORM_COMPUTE_VALUE",
             validation: { type: ValidationTypes.BOOLEAN },
             hidden: (...args: HiddenFnParams) => {
               return getSchemaItem(...args).compute(
@@ -66,7 +66,7 @@ export const CONFIG = {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            customJSControl: "ANTD_JSON_FORM_COMPUTE_VALUE",
             validation: { type: ValidationTypes.BOOLEAN },
             dependencies: ["schema", "sourceData"],
             updateHook: updateChildrenDisabledStateHook,
@@ -87,7 +87,7 @@ export const CONFIG = {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            customJSControl: "ANTD_JSON_FORM_COMPUTE_VALUE",
             validation: {
               type: ValidationTypes.TEXT,
               params: {
@@ -114,7 +114,7 @@ export const CONFIG = {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            customJSControl: "ANTD_JSON_FORM_COMPUTE_VALUE",
             validation: {
               type: ValidationTypes.TEXT,
               params: {
@@ -128,7 +128,7 @@ export const CONFIG = {
             label: "边框圆角",
             helpText: "设置边框圆角半径",
             controlType: "BORDER_RADIUS_OPTIONS",
-            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            customJSControl: "ANTD_JSON_FORM_COMPUTE_VALUE",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -141,7 +141,7 @@ export const CONFIG = {
             label: "阴影",
             helpText: "设置组件外框阴影",
             controlType: "BOX_SHADOW_OPTIONS",
-            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            customJSControl: "ANTD_JSON_FORM_COMPUTE_VALUE",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -168,7 +168,7 @@ export const CONFIG = {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            customJSControl: "ANTD_JSON_FORM_COMPUTE_VALUE",
             validation: {
               type: ValidationTypes.TEXT,
               params: {
@@ -195,7 +195,7 @@ export const CONFIG = {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            customJSControl: "ANTD_JSON_FORM_COMPUTE_VALUE",
             validation: {
               type: ValidationTypes.TEXT,
               params: {
@@ -209,7 +209,7 @@ export const CONFIG = {
             label: "边框圆角",
             helpText: "设置边框圆角半径",
             controlType: "BORDER_RADIUS_OPTIONS",
-            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            customJSControl: "ANTD_JSON_FORM_COMPUTE_VALUE",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -222,7 +222,7 @@ export const CONFIG = {
             label: "阴影",
             helpText: "设置组件外框阴影",
             controlType: "BOX_SHADOW_OPTIONS",
-            customJSControl: "JSON_FORM_COMPUTE_VALUE",
+            customJSControl: "ANTD_JSON_FORM_COMPUTE_VALUE",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,

@@ -1,11 +1,14 @@
 import { useCallback, memo } from "react";
 import AntdProTable from "./Table";
 import equal from "fast-deep-equal/es6";
-import type { AntdTableProps } from "../constants";
+import type { AntdTableProps, JSONFormProps } from "../constants";
 import DragSortTable from "./demo/DragSortTable";
 import EditTableDemo from "./demo/EditTableDemo";
+import WidgetFactory from "utils/WidgetFactory";
+import { RenderModes } from "constants/WidgetConstants";
+import { CONFIG } from "widgets/Antd/JSONFormWidget";
 
-interface ReactTableComponentProps extends AntdTableProps {
+interface ReactTableComponentProps extends AntdTableProps, JSONFormProps {
   allowRowSelection: boolean;
 }
 
@@ -19,6 +22,11 @@ function arePropsEqual(
 ) {
   // 比较关键属性
   const keyProps: (keyof ReactTableComponentProps)[] = [
+    "isEditingMode",
+    "jsonFormState",
+    "setJsonFormState",
+    "autoGenerateTableForm",
+    "autoFormConfig",
     "tablePrimaryColor",
     "toolBarActions",
     "isVisibleDensity",

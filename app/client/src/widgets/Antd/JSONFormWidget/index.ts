@@ -72,13 +72,13 @@ export const CONFIG = {
     submitButtonLabel: "提交",
     resetButtonLabel: "重置",
     submitButtonStyles: {
-      buttonColor: "#553DE9",
+      buttonColor: theme.defaultSeed.colorPrimary,
       ...ANTD_BUTTON_WIDGET_CONFIG.defaults,
       borderRadius: "0.375rem",
       boxShadow: "none",
     },
     resetButtonStyles: {
-      buttonColor: "#553DE9",
+      buttonColor: theme.defaultSeed.colorPrimary,
       ...ANTD_BUTTON_WIDGET_CONFIG.defaults,
       buttonVariant: ButtonVariantTypes.SECONDARY,
       borderRadius: "0.375rem",

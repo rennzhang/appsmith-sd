@@ -10,7 +10,10 @@ import type {
 } from "./component/Constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WithMeta } from "widgets/MetaHOC";
-import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type {
+  EventType,
+  ExecuteTriggerPayload,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { IconNames } from "@blueprintjs/icons";
 import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import type { Alignment } from "@blueprintjs/core";
@@ -18,12 +21,41 @@ import type { IconName } from "@blueprintjs/icons";
 import type { ButtonPlacementTypes } from "components/constants";
 import { ButtonVariantTypes, type ButtonVariant } from "components/constants";
 import type { Row } from "react-table";
-import type { Key } from "@ant-design/pro-components";
+import type { Key, ProFormInstance } from "@ant-design/pro-components";
 import type { ProTableProps } from "@ant-design/pro-components";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { TablePaginationConfig } from "antd";
+export type Action = ExecuteTriggerPayload & {
+  updateDependencyType?: ActionUpdateDependency;
+};
 
+export type JSONFormState = {
+  isJsonFormVisible?: boolean;
+  editFormData?: Record<string, unknown>;
+  addFormData?: Record<string, unknown>;
+  jsonFormType?: "edit" | "add";
+  isSubmitting?: boolean;
+};
+export type JSONFormProps = {
+  jsonFormState: JSONFormState;
+  setJsonFormState: (jsonFormState: JSONFormState) => void;
+  setMetaInternalFieldState: (
+    updateCallback: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
+    afterUpdateAction?: ExecuteTriggerPayload,
+  ) => void;
+  onJsonFormSubmit: (values: any, cb?: () => void) => void;
+  jsonFormRef: React.RefObject<ProFormInstance<any>>;
+  updateWidgetFormData: (values: any, skipConversion?: boolean) => void;
+  executeAction: (action: Action) => void;
+};
 export interface AntdTableProps extends ProTableProps<any, any> {
+  isEditingMode: boolean;
+  autoGenerateTableForm: boolean;
+  renderMode: RenderModes;
+  updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
+  autoFormConfig: {
+    config: JSONFormComponentProps;
+  };
   updateNewTableData: (value: any[]) => void;
   configProviderTheme: any;
   tablePrimaryColor: string;
@@ -495,6 +527,10 @@ export const defaultEditableCell = {
 };
 import { Colors } from "constants/Colors";
 import type { SortOrder } from "antd/es/table/interface";
+import type { ActionUpdateDependency } from "widgets/JSONFormWidget/constants";
+import type { RenderModes } from "constants/WidgetConstants";
+import type { JSONFormWidgetState } from "widgets/JSONFormWidget/widget";
+import type { JSONFormComponentProps } from "widgets/Antd/JSONFormWidget/component";
 
 export const DEFAULT_COLUMN_NAME = "Table Column";
 

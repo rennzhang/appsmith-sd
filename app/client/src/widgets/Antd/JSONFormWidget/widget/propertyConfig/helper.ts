@@ -20,13 +20,19 @@ import type {
 import { processSchemaItemAutocomplete } from "components/propertyControls/AntdJSONFormComputeControl";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
+export const isTableWidget = (type: string) => type == "ANTD_PRO_TABLE_WIDGET";
 
 export const fieldTypeUpdateHook = (
   props: JSONFormWidgetProps,
   propertyPath: string,
   fieldType: FieldType,
 ): HookResponse => {
-  const { childStylesheet, schema, widgetName } = props;
+  let propsData = props;
+  if (isTableWidget(props.type)) {
+    propsData = props.autoFormConfig.config;
+  }
+  const { widgetName } = props;
+  const { childStylesheet, schema } = propsData;
   const schemaItemPath = getParentPropertyPath(propertyPath);
   const schemaItem: SchemaItem = get(props, schemaItemPath, {});
 
@@ -35,6 +41,7 @@ export const fieldTypeUpdateHook = (
     schemaItemPath,
     schema,
     widgetName,
+    isTableWidget: isTableWidget(props.type),
     fieldThemeStylesheets: childStylesheet,
   });
 
@@ -45,9 +52,17 @@ export const fieldTypeUpdateHook = (
    * the updateProperty function is fixed.
    */
   const updatedSchema = { schema: klona(schema) };
-  set(updatedSchema, schemaItemPath, newSchemaItem);
+  set(
+    updatedSchema,
+    schemaItemPath.replace("autoFormConfig.config.", ""),
+    newSchemaItem,
+  );
+  const _propertyPath =
+    props.type == "ANTD_PRO_TABLE_WIDGET"
+      ? "autoFormConfig.config.schema"
+      : "schema";
 
-  return [{ propertyPath: "schema", propertyValue: updatedSchema.schema }];
+  return [{ propertyPath: _propertyPath, propertyValue: updatedSchema.schema }];
 };
 
 export const hiddenIfArrayItemIsObject = (
@@ -124,7 +139,11 @@ export const getStylesheetValue = (
 };
 
 export const getAutocompleteProperties = (props: JSONFormWidgetProps) => {
-  const { isDisabled, isRequired, schema } = props;
+  let propsData = props;
+  if (props.type == "ANTD_PRO_TABLE_WIDGET") {
+    propsData = props.autoFormConfig.config;
+  }
+  const { isDisabled, isRequired, schema } = propsData;
   const rootSchemaItem = schema[ROOT_SCHEMA_KEY] || {};
   const { sourceData } = rootSchemaItem as SchemaItem;
 

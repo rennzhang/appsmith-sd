@@ -32,6 +32,12 @@ export interface JSONFormComponentProps<TValues = any>
     ProformContainerComponentProps,
     "formItems" | "formRef" | "updateWidgetProps" | "children"
   > {
+  editTitle?: string;
+  sourceData: TValues;
+  className?: string;
+
+  onCancel: () => void;
+  showCancel: boolean;
   isDisabled?: boolean;
   isRequired?: boolean;
   labelAlignment?: "left" | "right";
@@ -101,6 +107,7 @@ function JSONFormComponent<TValues>(
 ) {
   const {
     backgroundColor,
+    className,
     controlSize,
     executeAction,
     fieldLimitExceeded,
@@ -110,6 +117,7 @@ function JSONFormComponent<TValues>(
     isKeyPressSubmit,
     isSubmitting,
     isWidgetMounting,
+    onCancel,
     onFormValidityUpdate,
     onSubmit,
     registerResetObserver,
@@ -117,6 +125,7 @@ function JSONFormComponent<TValues>(
     resetButtonLabel,
     schema,
     setMetaInternalFieldState,
+    showCancel,
     submitButtonLabel,
     unregisterResetObserver,
     updateWidgetFormData,
@@ -232,7 +241,9 @@ function JSONFormComponent<TValues>(
         formRef={ref}
         getFormData={getFormData}
         hideFooter={hideFooter}
+        onCancel={onCancel}
         onSubmit={onSubmit}
+        showCancel={showCancel}
         size={controlSize}
         updateWidgetProps={updateWidgetProperty}
       >

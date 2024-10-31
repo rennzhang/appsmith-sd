@@ -242,7 +242,18 @@ export default [
             value: TableInlineEditTypes.CUSTOM,
           },
         ],
-
+        updateHook: (
+          props: TableWidgetProps,
+          propertyPath: string,
+          propertyValue: any,
+        ) => {
+          return [
+            {
+              propertyPath: "autoGenerateTableForm",
+              propertyValue: propertyValue === TableInlineEditTypes.CUSTOM,
+            },
+          ];
+        },
       },
       // 自动生成表单
       {

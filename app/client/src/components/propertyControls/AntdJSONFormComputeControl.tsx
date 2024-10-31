@@ -1,5 +1,5 @@
 import React from "react";
-import { isString } from "lodash";
+import { get, isString } from "lodash";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
@@ -192,7 +192,7 @@ export const JSToString = (js: string): string => {
     .join("");
 };
 
-class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
+class AntdAntdJSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
   static getInputComputedValue = (
     propertyValue: string,
     widgetName: string,
@@ -210,7 +210,11 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
   };
 
   getComputedValue = (value: string) => {
-    const { widgetName } = this.props.widgetProperties;
+    const { type, widgetName } = this.props.widgetProperties;
+    let _widgetName = widgetName;
+    if (type === "ANTD_PRO_TABLE_WIDGET") {
+      _widgetName = widgetName + ".autoFormConfig.config";
+    }
 
     /**
      * If the input value is not a binding then there is no need of adding binding template
@@ -228,7 +232,7 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
     if (!isDynamicValue(value)) return value;
 
     const stringToEvaluate = stringToJS(value);
-    const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
+    const { prefixTemplate, suffixTemplate } = getBindingTemplate(_widgetName);
 
     if (stringToEvaluate === "") {
       return stringToEvaluate;
@@ -255,8 +259,25 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
       theme,
       widgetProperties,
     } = this.props;
+    const isAntdProTableWidget =
+      widgetProperties.type === "ANTD_PRO_TABLE_WIDGET";
 
-    const { schema } = widgetProperties;
+    const targetProps = isAntdProTableWidget
+      ? widgetProperties.autoFormConfig.config
+      : widgetProperties;
+
+    console.log("AntdAntdJSONFormComputeControl render", {
+      dataTreePath,
+      defaultValue,
+      expected,
+      label,
+      placeholderText,
+      propertyValue,
+      widgetProperties,
+      props: this.props,
+      targetProps,
+    });
+    const { schema } = targetProps;
     const rootSchemaItem = schema[ROOT_SCHEMA_KEY] || {};
     const { sourceData } = rootSchemaItem;
 
@@ -271,10 +292,14 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
 
     const value = (() => {
       if (propertyValue && isDynamicValue(propertyValue)) {
-        const { widgetName } = this.props.widgetProperties;
-        return JSONFormComputeControl.getInputComputedValue(
+        const { type, widgetName } = this.props.widgetProperties;
+        let _widgetName = widgetName;
+        if (type === "ANTD_PRO_TABLE_WIDGET") {
+          _widgetName = widgetName + ".autoFormConfig.config";
+        }
+        return AntdAntdJSONFormComputeControl.getInputComputedValue(
           propertyValue,
-          widgetName,
+          _widgetName,
         );
       }
 
@@ -304,7 +329,7 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
   }
 
   static getControlType() {
-    return "JSON_FORM_COMPUTE_VALUE";
+    return "ANTD_JSON_FORM_COMPUTE_VALUE";
   }
 }
 
@@ -314,4 +339,4 @@ export interface JSONFormComputeControlProps extends ControlProps {
   placeholderText?: string;
 }
 
-export default JSONFormComputeControl;
+export default AntdAntdJSONFormComputeControl;

@@ -34,6 +34,10 @@ import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleCon
 import type { Color } from "constants/Colors";
 
 export interface ProformContainerComponentProps {
+  isDisabled?: boolean;
+  className?: string;
+  showCancel: boolean;
+  onCancel: () => void;
   scrollContents: boolean;
   initialValues?: Record<string, any>;
   borderColor?: Color;
@@ -104,6 +108,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     borderWidth,
     boxShadow,
     children,
+    className,
     colorPrimary,
     disabled,
     disabledWhenInvalid,
@@ -114,6 +119,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     getFormData,
     hideFooter,
     initialValues,
+    isDisabled,
     isKeyPressSubmit,
     isSubmitting,
     labelAlign,
@@ -124,8 +130,8 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     onSubmit,
     resetButtonLabel,
     scrollContents,
-    showReset,
 
+    showReset,
     size,
     submitButtonLabel,
     title,
@@ -267,8 +273,8 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   }, [fieldErrors]);
 
   const isSubmitDisabled = useMemo(() => {
-    return (disabledWhenInvalid && !isFormValid) || disabled;
-  }, [disabledWhenInvalid, isFormValid, disabled]);
+    return (disabledWhenInvalid && !isFormValid) || isDisabled;
+  }, [disabledWhenInvalid, isFormValid, isDisabled]);
 
   // const handleSubmit = async (values: any) => {
   //   console.group("表单组件 handleSubmit");
@@ -314,21 +320,37 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
             justifyContent: props.buttonAlignment,
           }}
         >
-          {renderActionButton({
-            button: {
-              ...props.resetButtonStyles,
-              buttonColor: resetButtonColor,
-              buttonLabel: resetButtonLabel,
-              loading: isSubmitting,
-              buttonSize: props.resetButtonStyles?.controlSize,
-            },
-            onClick: () => {
-              formRef?.current?.resetFields();
-              // onReset?.();
-              // updateFormData({});
-            },
-            configToken: {},
-          })}
+          {props.showCancel &&
+            renderActionButton({
+              button: {
+                ...props.resetButtonStyles,
+                buttonColor: resetButtonColor,
+                buttonLabel: "取消",
+                loading: isSubmitting,
+                buttonSize: props.resetButtonStyles?.controlSize,
+              },
+              onClick: () => {
+                props.onCancel?.();
+                // onReset?.();
+                // updateFormData({});
+              },
+              configToken: {},
+            })}
+          {showReset &&
+            renderActionButton({
+              button: {
+                ...props.resetButtonStyles,
+                buttonColor: resetButtonColor,
+                buttonLabel: resetButtonLabel,
+                loading: isSubmitting,
+                buttonSize: props.resetButtonStyles?.controlSize,
+                isDisabled: isDisabled,
+              },
+              onClick: () => {
+                formRef?.current?.resetFields();
+              },
+              configToken: {},
+            })}
           {renderActionButton({
             button: {
               ...props.submitButtonStyles,
@@ -349,6 +371,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
       ),
     };
   }, [
+    isDisabled,
     hideFooter,
     isSubmitting,
     isSubmitDisabled,
@@ -373,7 +396,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
       borderRadius={borderRadius as unknown as string}
       borderWidth={borderWidth as unknown as string}
       boxShadow={boxShadow}
-      className={"antd-pro-form-container-styled antd-pro-form-jsonform"}
+      className={`antd-pro-form-container-styled antd-pro-form-jsonform ${className}`}
       fixedFooter={fixedFooter}
       labelAlign={labelAlign}
       scrollContents={scrollContents}

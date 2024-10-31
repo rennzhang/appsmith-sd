@@ -8,7 +8,7 @@ export function getDefaultValueOptions(widget: WidgetProps) {
   const targetPath =
     widget.dataTreePath?.split(".")?.slice(1, -1)?.join(".") || "";
   const propsData = get(widget, targetPath) || widget;
-  let sourceData = targetPath
+  const sourceData = targetPath
     ? get(propsData, `options`)
     : get(widget, `${EVAL_VALUE_PATH}.options`);
 
@@ -19,19 +19,9 @@ export function getDefaultValueOptions(widget: WidgetProps) {
     sourceData,
   });
 
-  let labelKey = propsData.labelKey || "label";
-  let valueKey = propsData.valueKey || "value";
-  if (widget.type === "ANTD_PRO_TABLE_WIDGET") {
-    sourceData =
-      (widget?.__evaluation__?.evaluatedValues as any)?.orderedTableColumns?.[
-        widget.editingColumnIndex
-      ]?.options || [];
+  const labelKey = propsData.labelKey || "label";
+  const valueKey = propsData.valueKey || "value";
 
-    labelKey =
-      widget.primaryColumns[widget.editingColumnId].labelKey || "label";
-    valueKey =
-      widget.primaryColumns[widget.editingColumnId].valueKey || "value";
-  }
   let parsedValue: Record<string, any>[] | undefined = sourceData;
 
   if (isString(sourceData)) {
@@ -61,7 +51,7 @@ export function getLabelValueKeyOptions(
   const targetPath =
     widget.dataTreePath?.split(".")?.slice(1, -1)?.join(".") || "";
   const propsData = get(widget, targetPath) || widget;
-  let sourceData = targetPath
+  const sourceData = targetPath
     ? get(propsData, `options`)
     : get(widget, `${EVAL_VALUE_PATH}.options`);
 
@@ -72,12 +62,12 @@ export function getLabelValueKeyOptions(
     propsData,
   });
 
-  if (widget.type === "ANTD_PRO_TABLE_WIDGET") {
-    sourceData =
-      (widget?.__evaluation__?.evaluatedValues as any)?.orderedTableColumns?.[
-        widget.editingColumnIndex
-      ]?.options || [];
-  }
+  // if (widget.type === "ANTD_PRO_TABLE_WIDGET") {
+  //   sourceData =
+  //     (widget?.__evaluation__?.evaluatedValues as any)?.orderedTableColumns?.[
+  //       widget.editingColumnIndex
+  //     ]?.options || [];
+  // }
 
   let parsedValue: Record<string, unknown> | undefined = sourceData;
 

@@ -72,6 +72,17 @@ export {
   ArrayFieldConfig,
 };
 
+export const JSONFORM_WIDGET_DEPENDENCIES = [
+  "primaryColumns",
+  "tableData",
+  "filteredTableData",
+  "editingColumnId",
+  "editingColumnIndex",
+  "autoFormConfig",
+  "schema",
+  "sourceData",
+];
+
 export const AllAntdFormItems = [
   AntdInputWidgetConfig,
   AutoCompleteWidgetConfig,

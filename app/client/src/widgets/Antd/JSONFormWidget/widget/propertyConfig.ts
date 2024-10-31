@@ -12,7 +12,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import type { JSONFormWidgetProps } from ".";
-import { ROOT_SCHEMA_KEY } from "../constants";
+import { JSONFORM_WIDGET_DEPENDENCIES, ROOT_SCHEMA_KEY } from "../constants";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
 import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
 import { CONFIG as ANTD_FORM_WIDGET_CONFIG } from "widgets/Antd/Form/FormWidget";
@@ -20,6 +20,7 @@ import { mergeWidgetConfig } from "utils/helpers";
 import { cloneDeep } from "lodash";
 import { CONFIG as ANTD_BUTTON_WIDGET_CONFIG } from "widgets/Antd/ButtonWidget";
 const MAX_NESTING_LEVEL = 5;
+console.log("ANTD_FORM_WIDGET_CONFIG", ANTD_FORM_WIDGET_CONFIG);
 
 const panelConfig = generatePanelPropertyConfig(MAX_NESTING_LEVEL);
 export const getSelfProps = (props: any) => {
@@ -28,6 +29,11 @@ export const getSelfProps = (props: any) => {
   }
   return props;
 };
+
+export const isTableWidget = (props: any) => {
+  return props.widgetProperties.type === "ANTD_PRO_TABLE_WIDGET";
+};
+
 export const sourceDataValidationFn = (
   value: any,
   props: JSONFormWidgetProps,
@@ -119,6 +125,7 @@ export const onGenerateFormClick = ({
     prevSchema: widgetProperties.schema,
     prevSourceData,
     widgetName: widgetProperties.widgetName,
+    isTableWidget: isTableWidget(props),
   });
 
   console.log("onGenerateFormClick", {
@@ -230,8 +237,12 @@ export const contentConfig = mergeWidgetConfig(
             "fieldLimitExceeded",
             "childStylesheet",
             "dynamicPropertyPathList",
+            ...JSONFORM_WIDGET_DEPENDENCIES,
           ],
-          evaluatedDependencies: ["sourceData"],
+          evaluatedDependencies: [
+            "sourceData",
+            ...JSONFORM_WIDGET_DEPENDENCIES,
+          ],
         },
         {
           propertyName: `schema.${ROOT_SCHEMA_KEY}.children`,
@@ -241,7 +252,11 @@ export const contentConfig = mergeWidgetConfig(
           isBindProperty: false,
           isTriggerProperty: false,
           panelConfig,
-          dependencies: ["schema", "childStylesheet"],
+          dependencies: [
+            "schema",
+            "childStylesheet",
+            ...JSONFORM_WIDGET_DEPENDENCIES,
+          ],
         },
       ],
     },
@@ -254,10 +269,22 @@ export const contentConfig = mergeWidgetConfig(
           label: "标题",
           helpText: "表单标题",
           controlType: "INPUT_TEXT",
-          placeholderText: "Update Order",
+          placeholderText: "请输入表单标题",
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.TEXT },
+        },
+        {
+          propertyName: "editTitle",
+          label: "编辑表单标题",
+          helpText: "编辑表单标题",
+          controlType: "INPUT_TEXT",
+          placeholderText: "请输入编辑表单标题",
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.TEXT },
+          hidden: (props: JSONFormWidgetProps) =>
+            props.type !== "ANTD_PRO_TABLE_WIDGET",
         },
         {
           propertyName: "isVisible",
@@ -268,6 +295,8 @@ export const contentConfig = mergeWidgetConfig(
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.BOOLEAN },
+          hidden: (props: JSONFormWidgetProps) =>
+            props.type == "ANTD_PRO_TABLE_WIDGET",
         },
         {
           propertyName: "useSourceData",
@@ -346,6 +375,8 @@ export const contentConfig = mergeWidgetConfig(
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.TEXT },
+          dependencies: ["showReset"],
+          hidden: (props: JSONFormWidgetProps) => !props.showReset,
         },
       ],
     },
@@ -444,14 +475,25 @@ export const styleConfig = mergeWidgetConfig(
     {
       sectionName: "提交按钮样式",
       children: generateButtonStyleControlsV2For("submitButtonStyles"),
-      dependencies: ["submitButtonStyles"],
-      evaluatedDependencies: ["submitButtonStyles"],
+      dependencies: ["submitButtonStyles", ...JSONFORM_WIDGET_DEPENDENCIES],
+      evaluatedDependencies: [
+        "submitButtonStyles",
+        ...JSONFORM_WIDGET_DEPENDENCIES,
+      ],
     },
     {
       sectionName: "重置按钮样式",
       children: [...generateButtonStyleControlsV2For("resetButtonStyles")],
-      dependencies: ["showReset", "resetButtonStyles"],
-      evaluatedDependencies: ["showReset", "resetButtonStyles"],
+      dependencies: [
+        "showReset",
+        "resetButtonStyles",
+        ...JSONFORM_WIDGET_DEPENDENCIES,
+      ],
+      evaluatedDependencies: [
+        "showReset",
+        "resetButtonStyles",
+        ...JSONFORM_WIDGET_DEPENDENCIES,
+      ],
       hidden: (props: JSONFormWidgetProps) => !props.showReset,
     },
   ],

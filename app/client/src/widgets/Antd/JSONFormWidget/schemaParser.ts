@@ -60,6 +60,7 @@ type SchemaItemsByFieldOptions = {
   schemaItem: SchemaItem;
   schemaItemPath: string;
   widgetName: string;
+  isTableWidget?: boolean;
 };
 
 type GetKeysFromSchemaOptions = {
@@ -72,6 +73,7 @@ type ParseOptions = {
   currSourceData?: unknown;
   schema?: Schema;
   fieldThemeStylesheets?: FieldThemeStylesheet;
+  isTableWidget?: boolean;
 };
 
 function isObject(val: unknown): val is Obj {
@@ -385,7 +387,12 @@ class SchemaParser {
    * @param schema Previous generated schema if present.
    */
   static parse = (widgetName: string, options: ParseOptions) => {
-    const { currSourceData, fieldThemeStylesheets, schema = {} } = options;
+    const {
+      currSourceData,
+      fieldThemeStylesheets,
+      isTableWidget,
+      schema = {},
+    } = options;
     if (!currSourceData)
       return { schema, modifiedSchemaItems: {}, removedSchemaItems: [] };
 
@@ -407,9 +414,16 @@ class SchemaParser {
       identifier: ROOT_SCHEMA_KEY,
       modifiedSchemaItems,
       prevSchema,
-      skipDefaultValueProcessing: false,
+      skipDefaultValueProcessing: isTableWidget || false,
       sourceDataPath: "sourceData",
       widgetName,
+    });
+
+    console.log("SchemaParser.parse", {
+      widgetName,
+      rootSchemaItem,
+      options,
+      isTableWidget,
     });
 
     rootSchemaItem.originalIdentifier = ROOT_SCHEMA_KEY;
@@ -439,16 +453,20 @@ class SchemaParser {
   ) => {
     const {
       fieldThemeStylesheets,
+      isTableWidget,
       schema,
       schemaItem,
       schemaItemPath,
       widgetName,
     } = options;
 
-    const sourceDataPath = getSourceDataPathFromSchemaItemPath(
+    let sourceDataPath = getSourceDataPathFromSchemaItemPath(
       schema,
       schemaItemPath,
     );
+    if (isTableWidget) {
+      sourceDataPath = `autoFormConfig.config.${sourceDataPath}`;
+    }
 
     const currSourceData = (() => {
       const potentialData = FIELD_TYPE_TO_POTENTIAL_DATA[fieldType];
@@ -469,6 +487,14 @@ class SchemaParser {
 
       return schemaItem.sourceData;
     })();
+
+    console.log("getSchemaItemByFieldType", {
+      options,
+
+      currSourceData,
+      sourceDataPath,
+      fieldType,
+    });
 
     const newSchemaItem = SchemaParser.getSchemaItemFor(schemaItem.identifier, {
       currSourceData,
@@ -548,6 +574,20 @@ class SchemaParser {
 
       return `${path}`;
     })();
+
+    console.log("getSchemaItemFor", {
+      key,
+      defaultValue,
+      fieldType,
+      dataType,
+      currSourceData,
+      sourceDataPath,
+      baseSchemaPath,
+      identifier,
+      isCustomField,
+      skipDefaultValueProcessing,
+      options,
+    });
 
     // Removing fieldType (which might have been passed by getSchemaItemByFieldType)
     // as it might bleed into subsequent schema item and force assign fieldType

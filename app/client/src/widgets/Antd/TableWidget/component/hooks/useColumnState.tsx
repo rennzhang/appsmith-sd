@@ -8,7 +8,11 @@ import {
 import type { TableColumnProps } from "widgets/Antd/TableWidget/component/Constants";
 import type { FormInstance, Rule } from "antd/es/form";
 import type { ColumnStateType } from "@ant-design/pro-table/es/typing";
-import type { AntdTableProps, ButtonAction } from "../../constants";
+import type {
+  AntdTableProps,
+  ButtonAction,
+  JSONFormState,
+} from "../../constants";
 import { ColumnTypes, TableInlineEditTypes } from "../../constants";
 import { Form, message, Switch, DatePicker } from "antd";
 import styled from "styled-components";
@@ -211,7 +215,10 @@ const getValueEnum = (column: TableColumnProps) => {
   return valueEnum;
 };
 const { getTableButtonRender } = useButtonRender();
-const getActionColumn = (props: AntdTableProps): ProColumns => {
+const getActionColumn = (
+  props: AntdTableProps,
+  extra: { setJsonFormState: (jsonFormState: JSONFormState) => void },
+): ProColumns => {
   console.group("表格 getActionColumn");
   console.log("props", props);
   console.groupEnd();
@@ -232,20 +239,29 @@ const getActionColumn = (props: AntdTableProps): ProColumns => {
       // });
 
       return getTableButtonRender(props.columnActions, (menuItem) =>
-        handleButtonClick(menuItem, props, record, recordIndex, tableAction),
+        handleButtonClick({
+          button: menuItem,
+          props,
+          record,
+          recordIndex,
+          action: tableAction,
+          extra,
+        }),
       );
     },
   };
 };
 
-const handleButtonClick = (
-  button: ButtonAction,
-  props: AntdTableProps,
-  record: any,
-  recordIndex: number,
-  action?: any,
-) => {
-  const { editableColumn, tableInlineEditType } = props;
+const handleButtonClick = (params: {
+  button: ButtonAction;
+  props: AntdTableProps;
+  record: any;
+  recordIndex: number;
+  action?: any;
+  extra: { setJsonFormState: (jsonFormState: JSONFormState) => void };
+}) => {
+  const { action, button, extra, props, record, recordIndex } = params;
+  const { autoGenerateTableForm, editableColumn, tableInlineEditType } = props;
 
   console.log("handleButtonClick", {
     button,
@@ -259,9 +275,33 @@ const handleButtonClick = (
 
   const isInlineEditing =
     tableInlineEditType === TableInlineEditTypes.ROW_LEVEL;
+  const isCustomEditing = tableInlineEditType === TableInlineEditTypes.CUSTOM;
 
-  if (button.id === "edit" && isInlineEditing && editableColumn?.length) {
+  if (
+    autoGenerateTableForm &&
+    button.id === "edit" &&
+    editableColumn?.length &&
+    isCustomEditing
+  ) {
+    console.log("表格 handleButtonClick 自定义编辑", {
+      props,
+      record,
+      extra,
+    });
+
+    extra.setJsonFormState({
+      isJsonFormVisible: true,
+      editFormData: record,
+      jsonFormType: "edit",
+    });
+    props.handleRowBtnClick("", record);
+  } else if (
+    button.id === "edit" &&
+    isInlineEditing &&
+    editableColumn?.length
+  ) {
     action?.startEditable?.(record.id);
+    props.handleRowBtnClick("", record);
   } else {
     props.handleRowBtnClick(button.onBtnClick, record);
   }
@@ -429,6 +469,7 @@ const getFieldProps = (propsData: {
 export const useColumnState = (
   props: AntdTableProps,
   extra: {
+    setJsonFormState: (jsonFormState: JSONFormState) => void;
     setInitialQueryData: (data: Record<string, any>) => void;
     sortInfo: { sortField: Key | undefined; sortOrder: SortOrder | undefined };
   },
@@ -436,8 +477,9 @@ export const useColumnState = (
   const { setInitialQueryData, sortInfo } = extra;
   const initialQueryData: Record<string, any> = {};
   const actionColumn = useMemo(
-    () => getActionColumn(props),
+    () => getActionColumn(props, extra),
     [
+      props.autoGenerateTableForm,
       props.columnActions,
       props.actionWidth,
       props.primaryColumns,

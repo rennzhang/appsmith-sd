@@ -17,6 +17,7 @@ import _, {
   filter,
   merge,
   last,
+  debounce,
 } from "lodash";
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -32,7 +33,9 @@ import { StickyType } from "../component/Constants";
 import type { ReactTableFilter } from "../component/Constants";
 import { AddNewRowActions, DEFAULT_FILTER } from "../component/Constants";
 import type {
+  Action,
   EditableCell,
+  JSONFormState,
   OnColumnEventArgs,
   TableWidgetProps,
   TransientDataPayload,
@@ -46,6 +49,8 @@ import {
   PaginationDirection,
   ORIGINAL_INDEX_PATH_KEY,
 } from "../constants";
+import type { Schema } from "widgets/Antd/JSONFormWidget/constants";
+import { ActionUpdateDependency } from "widgets/Antd/JSONFormWidget/constants";
 import derivedProperties from "./parseDerivedProperties";
 import {
   getAllTableColumnKeys,
@@ -72,7 +77,7 @@ import {
   sanitizeKey,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
-import { klona as clone } from "klona";
+import { klona as clone, klona } from "klona";
 import localStorage from "utils/localStorage";
 import { generateNewColumnOrderFromStickyValue } from "./utilities";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
@@ -92,6 +97,32 @@ import type {
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import type { SortOrder } from "antd/es/table/interface";
+import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
+import type { ProFormInstance } from "@ant-design/pro-components";
+import React from "react";
+import { convertSchemaItemToFormData } from "widgets/JSONFormWidget/helper";
+import type {
+  JSONFormWidgetProps,
+  JSONFormWidgetState,
+  MetaInternalFieldState,
+} from "widgets/JSONFormWidget/widget";
+import {
+  ComputedSchemaStatus,
+  computeSchema,
+  generateFieldState,
+} from "widgets/JSONFormWidget/widget/helper";
+import type { AppState } from "ce/reducers";
+import { connect } from "react-redux";
+
+import {
+  getCanvasWidth,
+  snipingModeSelector,
+  getIsAutoLayout,
+} from "selectors/editorSelectors";
+import ModalWidget from "widgets/ModalWidget";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { getAppMode } from "selectors/entitiesSelector";
+import { APP_MODE } from "entities/App";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -115,6 +146,9 @@ const getMemoisedAddNewRow = (): addNewRowToTable =>
 
 class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   inlineEditTimer: number | null = null;
+  actionQueue: Action[];
+  debouncedParseAndSaveFieldState: any;
+
   memoisedAddNewRow: addNewRowToTable;
   memoiseGetColumnsWithLocalStorage: (localStorage: any) => getColumns;
   memoiseTransformDataWithEditableCell: transformDataWithEditableCell;
@@ -210,7 +244,45 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       getMemoiseGetColumnsWithLocalStorageFn();
     this.memoiseTransformDataWithEditableCell =
       getMemoiseTransformDataWithEditableCell();
+    this.actionQueue = [];
+    this.debouncedParseAndSaveFieldState = debounce(
+      this.parseAndSaveFieldState,
+      400,
+    );
   }
+  jsonFormRef = React.createRef<ProFormInstance<any>>();
+  state = {
+    jsonFormState: {
+      isJsonFormVisible: false,
+      editFormData: {},
+      addFormData: {},
+      jsonFormType: "edit",
+      isSubmitting: false,
+    } as JSONFormState,
+    resetObserverCallback: noop,
+    metaInternalFieldState: {},
+  };
+
+  setJsonFormState = (jsonFormState: typeof this.state.jsonFormState) => {
+    const state = {
+      isJsonFormVisible:
+        jsonFormState.isJsonFormVisible ??
+        this.state.jsonFormState?.isJsonFormVisible,
+      editFormData:
+        jsonFormState.editFormData ?? this.state.jsonFormState?.editFormData,
+      addFormData:
+        jsonFormState.addFormData ?? this.state.jsonFormState?.addFormData,
+      jsonFormType:
+        jsonFormState.jsonFormType ?? this.state.jsonFormState?.jsonFormType,
+      isSubmitting:
+        jsonFormState.isSubmitting ?? this.state.jsonFormState?.isSubmitting,
+    };
+    console.log("表格 setJsonFormState", { jsonFormState, state });
+
+    this.setState({
+      jsonFormState: state,
+    });
+  };
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
@@ -719,7 +791,84 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.hydrateStickyColumns();
     }
   }
+  getPreviousSourceData = (prevProps?: JSONFormWidgetProps) => {
+    const JSONFormProps = this.props.autoFormConfig.config;
 
+    // The autoGenerate flag was switched on.
+    if (!prevProps?.autoGenerateForm && JSONFormProps.autoGenerateForm) {
+      const rootSchemaItem =
+        JSONFormProps.schema && JSONFormProps.schema[ROOT_SCHEMA_KEY];
+
+      return rootSchemaItem?.sourceData || {};
+    }
+
+    return prevProps?.sourceData;
+  };
+  constructAndSaveSchemaIfRequired = (prevProps?: JSONFormWidgetProps) => {
+    const JSONFormProps = this.props.autoFormConfig.config;
+
+    if (!JSONFormProps.autoGenerateForm)
+      return {
+        status: ComputedSchemaStatus.UNCHANGED,
+        schema: JSONFormProps?.schema || {},
+      };
+
+    const prevSourceData = this.getPreviousSourceData(prevProps);
+    const currSourceData = JSONFormProps?.sourceData;
+
+    const computedSchema = computeSchema({
+      currentDynamicPropertyPathList: JSONFormProps.dynamicPropertyPathList,
+      currSourceData,
+      prevSchema: JSONFormProps?.schema,
+      prevSourceData,
+      widgetName: this.props.widgetName,
+      fieldThemeStylesheets: JSONFormProps.childStylesheet,
+    });
+
+    const {
+      dynamicPropertyPathList,
+      modifiedSchemaItems,
+      removedSchemaItems,
+      schema,
+      status,
+    } = computedSchema;
+
+    if (
+      status === ComputedSchemaStatus.LIMIT_EXCEEDED &&
+      !JSONFormProps.fieldLimitExceeded
+    ) {
+      this.updateWidgetProperty("fieldLimitExceeded", true);
+    } else if (status === ComputedSchemaStatus.UPDATED) {
+      const payload: BatchPropertyUpdatePayload = {
+        modify: {
+          dynamicPropertyPathList,
+          fieldLimitExceeded: false,
+        },
+      };
+
+      /**
+       * This means there was no schema before and the computeSchema returns a
+       * fresh schema than can be directly updated.
+       */
+      if (isEmpty(JSONFormProps?.schema)) {
+        payload.modify = {
+          ...payload.modify,
+          schema,
+        };
+      } else {
+        payload.modify = {
+          ...payload.modify,
+          ...modifiedSchemaItems,
+        };
+
+        payload.remove = removedSchemaItems;
+      }
+
+      this.batchUpdateWidgetProperty(payload);
+    }
+
+    return computedSchema;
+  };
   componentDidUpdate(prevProps: TableWidgetProps) {
     const {
       defaultPageSize,
@@ -734,6 +883,20 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // if (tableType === "edit") {
     //   this.updateAllColumnsEditable(true);
     // }
+
+    if (!equal(prevProps.autoFormConfig, this.props.autoFormConfig)) {
+      const formProps = this.props.autoFormConfig.config;
+      const prevFormProps = prevProps.autoFormConfig.config;
+      if (prevFormProps.useSourceData !== formProps.useSourceData) {
+        const { formData } = this.props;
+        this.updateWidgetFormData(formData);
+      }
+      const { schema } = this.constructAndSaveSchemaIfRequired(formProps);
+      this.debouncedParseAndSaveFieldState(
+        this.state.metaInternalFieldState,
+        schema,
+      );
+    }
     // defaultPageSize
     if (defaultPageSize !== prevProps.defaultPageSize) {
       this.updatePageSize(defaultPageSize);
@@ -1335,10 +1498,13 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.getPaddingAdjustedDimensions();
     const tableColumns = this.getTableColumns() || emptyArr;
     const finalTableData = this.getFinalTableData();
-
+    const jsonFormState = this.state.jsonFormState;
+    const isEditingMode =
+      this.props.appMode === APP_MODE.EDIT && !this.props.isPreviewMode;
     console.group("Antd 表格 Table Widget 111");
     console.log(" this.props", this.props, this);
     console.log("tableColumns", tableColumns);
+    console.log("this.state.jsonFormState", jsonFormState);
 
     console.groupEnd();
 
@@ -1364,6 +1530,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           disableDrag={this.toggleDrag}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           editableCell={this.props.editableCell}
+          executeAction={this.onExecuteAction}
           filters={this.props.filters}
           handleAddNewRow={this.handleAddNewRow}
           handleAlertBtnClick={this.handleAlertBtnClick}
@@ -1384,6 +1551,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           handleUrlOrImgClick={this.handleUrlOrImgClick}
           height={componentHeight}
           isAddRowInProgress={this.props.isAddRowInProgress}
+          isEditingMode={isEditingMode}
           isLoading={this.props.isLoading}
           isVisibleCellSetting={this.props.isVisibleCellSetting}
           isVisibleDensity={this.props.isVisibleDensity}
@@ -1392,6 +1560,8 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           isVisiblePagination={isVisiblePagination}
           isVisibleRefresh={this.props.isVisibleRefresh}
           isVisibleSearch={isVisibleSearch}
+          jsonFormRef={this.jsonFormRef}
+          jsonFormState={jsonFormState}
           multiRowSelection={
             this.props.multiRowSelection && !this.props.isAddRowInProgress
           }
@@ -1400,6 +1570,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           onBulkEditSave={this.onBulkEditSave}
           onConnectData={this.onConnectData}
           onExpand={this.onExpand}
+          onJsonFormSubmit={this.onJsonFormSubmit}
           pageNo={this.props.pageNo}
           pageSize={this.props.pageSize}
           prevPageClick={this.handlePrevPageClick}
@@ -1408,6 +1579,8 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
+          setJsonFormState={this.setJsonFormState}
+          setMetaInternalFieldState={this.setMetaInternalFieldState}
           showConnectDataOverlay={
             primaryColumns &&
             !Object.keys(primaryColumns).length &&
@@ -1419,6 +1592,8 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           updateNewTableData={this.updateNewTableData}
           updatePageNo={this.updatePageNumber}
           updatePageSize={this.updatePageSize}
+          updateWidgetFormData={this.updateWidgetFormData}
+          updateWidgetProperty={this.updateWidgetProperty}
           variant={this.props.variant}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
@@ -1902,6 +2077,186 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       super.updateOneClickBindingOptionsVisibility(true);
     }
   };
+  applyGlobalContextToAction = (
+    actionPayload: ExecuteTriggerPayload,
+    context: Record<string, unknown> = {},
+  ) => {
+    const payload = klona(actionPayload);
+    const { globalContext } = payload;
+
+    /**
+     * globalContext from the actionPayload takes precedence as it may have latest
+     * values compared the ones coming from props
+     * */
+    payload.globalContext = merge(
+      {},
+      {
+        formData: this.props.formData,
+        fieldState: this.props.fieldState,
+        sourceData: this.props.sourceData,
+      },
+      context,
+      globalContext,
+    );
+
+    return payload;
+  };
+  onExecuteAction = (action: Action) => {
+    const { updateDependencyType, ...actionPayload } = action;
+
+    if (!updateDependencyType) {
+      const payload = this.applyGlobalContextToAction(actionPayload);
+
+      super.executeAction(payload);
+    } else {
+      this.actionQueue.push(action);
+    }
+  };
+  updateWidgetFormData = (values: any, skipConversion = false) => {
+    const rootSchemaItem =
+      this.props.autoFormConfig.config.schema[ROOT_SCHEMA_KEY];
+    const { sourceData, useSourceData } = this.props;
+    let formData = values;
+
+    if (!skipConversion) {
+      formData = convertSchemaItemToFormData(rootSchemaItem, values, {
+        fromId: "identifier",
+        toId: "accessor",
+        useSourceData,
+        sourceData,
+      });
+    }
+
+    console.log("updateWidgetFormData", {
+      values,
+      skipConversion,
+      rootSchemaItem,
+      useSourceData,
+      sourceData,
+      formData,
+    });
+
+    this.props.updateWidgetMetaProperty("formData", values);
+
+    if (this.actionQueue.length) {
+      this.actionQueue.forEach(({ updateDependencyType, ...actionPayload }) => {
+        if (updateDependencyType === ActionUpdateDependency.FORM_DATA) {
+          const payload = this.applyGlobalContextToAction(actionPayload, {
+            formData: values,
+          });
+
+          super.executeAction(payload);
+        }
+      });
+
+      this.actionQueue = this.actionQueue.filter(
+        ({ updateDependencyType }) =>
+          updateDependencyType !== ActionUpdateDependency.FORM_DATA,
+      );
+    }
+  };
+
+  parseAndSaveFieldState = (
+    metaInternalFieldState: MetaInternalFieldState,
+    schema: Schema,
+    afterUpdateAction?: ExecuteTriggerPayload,
+  ) => {
+    const fieldState = generateFieldState(schema, metaInternalFieldState);
+    const action = klona(afterUpdateAction);
+
+    const actionPayload =
+      action && this.applyGlobalContextToAction(action, { fieldState });
+
+    if (!equal(fieldState, this.props.fieldState)) {
+      this.props.updateWidgetMetaProperty(
+        "fieldState",
+        fieldState,
+        actionPayload,
+      );
+    }
+  };
+  setMetaInternalFieldState = (
+    updateCallback: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
+    afterUpdateAction?: ExecuteTriggerPayload,
+  ) => {
+    this.setState((prevState) => {
+      const newState = updateCallback(prevState);
+
+      this.parseAndSaveFieldState(
+        newState.metaInternalFieldState,
+        this.props.autoFormConfig.config.schema,
+        afterUpdateAction,
+      );
+
+      return newState;
+    });
+  };
+
+  onJsonFormSubmit = (values: any, cb?: () => void) => {
+    if (this.props.autoFormConfig.config.onSubmit) {
+      this.setJsonFormState({
+        isSubmitting: true,
+      });
+
+      super.executeAction({
+        triggerPropertyName: "autoFormConfig.config.onSubmit",
+        dynamicString: this.props.autoFormConfig.config.onSubmit,
+        event: {
+          type: EventType.ON_SUBMIT,
+          callback: () => {
+            cb && cb();
+            this.setJsonFormState({
+              isSubmitting: false,
+              isJsonFormVisible: false,
+              editFormData: undefined,
+              addFormData: undefined,
+              jsonFormType: undefined,
+            });
+          },
+        },
+        globalContext: {
+          formData: values,
+        },
+      });
+    } else {
+      this.setJsonFormState({
+        isSubmitting: false,
+        isJsonFormVisible: false,
+        editFormData: undefined,
+        addFormData: undefined,
+        jsonFormType: undefined,
+      });
+    }
+  };
 }
 
-export default AntdProTableWidget;
+const mapDispatchToProps = (dispatch: any) => ({
+  // TODO(abhinav): This is also available in dragResizeHooks
+  // DRY this. Maybe leverage, CanvasWidget by making it a CanvasComponent?
+  showPropertyPane: (
+    widgetId?: string,
+    callForDragOrResize?: boolean,
+    force = false,
+  ) => {
+    dispatch({
+      type:
+        widgetId || callForDragOrResize
+          ? ReduxActionTypes.SHOW_PROPERTY_PANE
+          : ReduxActionTypes.HIDE_PROPERTY_PANE,
+      payload: { widgetId, callForDragOrResize, force },
+    });
+  },
+});
+
+const mapStateToProps = (state: AppState) => {
+  const props = {
+    appMode: getAppMode(state),
+    isSnipingMode: snipingModeSelector(state),
+    isPreviewMode: state.ui.editor.isPreviewMode,
+  };
+  return props;
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(AntdProTableWidget);
+
+// export default AntdProTableWidget;

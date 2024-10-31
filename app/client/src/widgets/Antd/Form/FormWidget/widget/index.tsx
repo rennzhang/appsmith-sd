@@ -28,6 +28,7 @@ import { AntdFormInstanceProps } from "./childPanels/FormInstance";
 import { INSTANCE_INVALID_VALUE } from "../../CONST/DEFAULT_CONFIG";
 import { mergeWidgetConfig } from "utils/helpers";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 // import FormItemLayoutConfig from "./childPanels/FormItemLayoutConfig";
 class FormWidget extends ContainerWidget {
   formRef = React.createRef<{
@@ -406,7 +407,7 @@ class FormWidget extends ContainerWidget {
           },
           {
             propertyName: "isDisabled",
-            label: "禁用",
+            label: "禁用表单",
             controlType: "SWITCH",
             helpText: "禁用所有表单项、按钮等",
             isJSConvertible: true,
@@ -473,7 +474,8 @@ class FormWidget extends ContainerWidget {
               isJSConvertible: true,
               validation: { type: ValidationTypes.BOOLEAN },
               hidden: (props: FormWidgetProps) =>
-                props.type === "ANTD_JSON_FORM_WIDGET",
+                props.type === "ANTD_JSON_FORM_WIDGET" ||
+                props.type === "ANTD_PRO_TABLE_WIDGET",
             },
             // 表单布局控制
             {
@@ -593,7 +595,91 @@ class FormWidget extends ContainerWidget {
           ],
         },
       ],
-      super.getPropertyPaneStyleConfig(),
+      [
+        {
+          sectionName: "颜色配置",
+          children: [
+            {
+              helpText: "使用 html 颜色名称，HEX，RGB 或者 RGBA 值",
+              placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+              propertyName: "backgroundColor",
+              label: "背景颜色",
+              controlType: "COLOR_PICKER",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+            },
+            {
+              helpText: "使用图片 URL 或 Base64 数据",
+              placeholderText: "使用图片 URL 或 Base64 数据",
+              propertyName: "backgroundImage",
+              label: "背景图片",
+              controlType: "INPUT_TEXT",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+              hidden: (props: any) => {
+                return props.type === "ANTD_PRO_TABLE_WIDGET";
+              },
+            },
+            {
+              helpText: "使用 html 颜色名称，HEX，RGB 或者 RGBA 值",
+              placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+              propertyName: "borderColor",
+              label: "边框颜色",
+              controlType: "COLOR_PICKER",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+              hidden: (props: any) => {
+                return props.type === "ANTD_PRO_TABLE_WIDGET";
+              },
+            },
+          ],
+        },
+        {
+          sectionName: "轮廓样式",
+          hidden: (props: any) => {
+            return props.type === "ANTD_PRO_TABLE_WIDGET";
+          },
+          children: [
+            {
+              helpText: "输入边框宽度",
+              propertyName: "borderWidth",
+              label: "边框宽度",
+              placeholderText: "以 px 为单位",
+              controlType: "INPUT_TEXT",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.NUMBER },
+              postUpdateAction:
+                ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
+            },
+            {
+              propertyName: "borderRadius",
+              label: "边框圆角",
+              helpText: "边框圆角样式",
+              controlType: "BORDER_RADIUS_OPTIONS",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+            },
+            {
+              propertyName: "boxShadow",
+              label: "阴影",
+              helpText: "组件轮廓投影",
+              controlType: "BOX_SHADOW_OPTIONS",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+            },
+          ],
+        },
+      ],
     );
   }
 

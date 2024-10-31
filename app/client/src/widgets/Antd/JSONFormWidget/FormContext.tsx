@@ -27,13 +27,16 @@ type FormContextProps<TValues = any> = React.PropsWithChildren<{
     cb?: (values: TValues) => void,
   ) => void;
   setFormData: (values: TValues) => void;
-  updateFormData: (values: TValues, cb?: (values: TValues) => void) => void;
 }>;
 
 type FormContextValueProps = Omit<FormContextProps, "children">;
 
-const FormContext = createContext<FormContextValueProps>(
-  {} as FormContextValueProps,
+type FormContextReturnProps = FormContextValueProps & {
+  updateFormData: (values: any, cb?: (values: any) => void) => void;
+};
+
+const FormContext = createContext<FormContextReturnProps>(
+  {} as FormContextReturnProps,
 );
 
 export function FormContextProvider({

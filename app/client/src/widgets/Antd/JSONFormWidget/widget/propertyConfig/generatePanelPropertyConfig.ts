@@ -2,7 +2,11 @@ import { cloneDeep, get, isEmpty } from "lodash";
 
 import type { PanelConfig } from "constants/PropertyControlConstants";
 import type { SchemaItem } from "widgets/Antd/JSONFormWidget/constants";
-import { FieldType, INPUT_TYPES } from "widgets/Antd/JSONFormWidget/constants";
+import {
+  FieldType,
+  INPUT_TYPES,
+  JSONFORM_WIDGET_DEPENDENCIES,
+} from "widgets/Antd/JSONFormWidget/constants";
 import type { HiddenFnParams } from "./helper";
 import {
   getSchemaItem,
@@ -32,70 +36,93 @@ import {
   ObjectFieldConfig,
   ArrayFieldConfig,
 } from "../../constants";
-
+const transDependencies = (item: any) => {
+  return {
+    ...item,
+    ...(item.validation
+      ? {
+          ...item.validation,
+          // 去重
+          dependentPaths: [
+            ...new Set([...(item.validation?.dependentPaths || []), "schema"]),
+          ],
+        }
+      : {}),
+    dependencies: [
+      ...new Set([
+        ...(item.dependencies || []),
+        ...JSONFORM_WIDGET_DEPENDENCIES,
+      ]),
+    ],
+    evaluatedDependencies: [
+      ...new Set([
+        ...(item.evaluatedDependencies || []),
+        ...JSONFORM_WIDGET_DEPENDENCIES,
+      ]),
+    ],
+  };
+};
+const isMatchType = (args: HiddenFnParams, item: any, types: FieldType[]) => {
+  if (!types) {
+    return true;
+  }
+  return getSchemaItem(...args, !!item.sectionName).fieldTypeNotIncludes(types);
+};
 // 转换PropertyPaneContentConfig，合并 hidden 属性
-const transConfig = (config: any[], types: FieldType[]) => {
+const transConfig = (
+  config: any[],
+  types: FieldType[],
+  isSkipHidden?: boolean,
+) => {
+  if (!config?.length) {
+    return [];
+  }
+
   return config.map((item) => {
     if (item.children) {
-      item.children = transConfig(item.children, types);
+      item.children = transConfig(item.children, types, isSkipHidden);
     }
 
     const transItem = {
       ...item,
-      // 去重
-      dependencies: [
-        ...new Set([...(item.dependencies || []), "schema", "sourceData"]),
-      ],
-      evaluatedDependencies: [
-        ...new Set([
-          ...(item.evaluatedDependencies || []),
-          "schema",
-          "sourceData",
-        ]),
-      ],
+      ...transDependencies(item),
+      helperText: item.helperText
+        ? (...args: HiddenFnParams) => {
+            if (!isMatchType(args, item, types)) {
+              return undefined;
+            }
+            return item.helperText(...args);
+          }
+        : undefined,
       hidden: (...args: HiddenFnParams) => {
-        let originHiddenRes = null;
-        if (item.hidden) {
-          originHiddenRes = item.hidden(...args);
-        }
-        // if (item.sectionName == "数字输入框属性") {
-        //   console.log(
-        //     "transConfig",
-        //     {
-        //       item,
-        //       args,
-        //       originHiddenRes,
-        //       types,
-        //     },
-        //     getSchemaItem(...args).fieldTypeNotIncludes(types),
-        //   );
-        // }
+        const originHiddenRes = item?.hidden?.(...args);
 
-        if (originHiddenRes) {
+        if (isSkipHidden) {
           return originHiddenRes;
         }
-        if (!types) {
-          return true;
-        }
-        // return originHiddenRes;
-        return getSchemaItem(...args, !!item.sectionName).fieldTypeNotIncludes(
-          types,
-        );
+        const isMatch = isMatchType(args, item, types);
+        return originHiddenRes || isMatch;
       },
     };
-    if (item.controlType == "INPUT_TEXT") {
-      transItem.controlType = "JSON_FORM_COMPUTE_VALUE";
-    } else {
-      transItem.customJSControl = "JSON_FORM_COMPUTE_VALUE";
+    if (item.panelConfig?.contentChildren) {
+      transItem.panelConfig.contentChildren = transConfig(
+        transItem.panelConfig.contentChildren,
+        types,
+        true,
+      );
     }
-    if (item.validation) {
-      transItem.validation = {
-        ...item.validation,
-        // 去重
-        dependentPaths: [
-          ...new Set([...(item.validation?.dependentPaths || []), "schema"]),
-        ],
-      };
+
+    if (item.panelConfig?.styleChildren) {
+      transItem.panelConfig.styleChildren = transConfig(
+        item.panelConfig.styleChildren,
+        types,
+        isSkipHidden,
+      );
+    }
+    if (item.controlType == "INPUT_TEXT") {
+      transItem.controlType = "ANTD_JSON_FORM_COMPUTE_VALUE";
+    } else {
+      transItem.customJSControl = "ANTD_JSON_FORM_COMPUTE_VALUE";
     }
 
     if (item.propertyName === "labelText") {
@@ -172,6 +199,7 @@ function generatePanelPropertyConfig(
           label: "字段配置",
           helpText: "字段配置",
           controlType: "ANTD_FIELD_CONFIGURATION",
+          isJSConvertible: true,
           isBindProperty: false,
           isTriggerProperty: false,
           panelConfig: generatePanelPropertyConfig(nestingLevel - 1),
@@ -183,7 +211,11 @@ function generatePanelPropertyConfig(
               );
             });
           },
-          dependencies: ["schema", "childStylesheet"],
+          dependencies: [
+            "schema",
+            "childStylesheet",
+            ...JSONFORM_WIDGET_DEPENDENCIES,
+          ],
         },
       ],
     },

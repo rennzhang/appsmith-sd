@@ -1,5 +1,5 @@
-import React, { useRef, useMemo, useCallback, useEffect } from "react";
-import { Button, ConfigProvider, message, theme } from "antd";
+import React, { useRef, useMemo, useEffect, useState } from "react";
+import { Button, ConfigProvider, message, Modal, theme } from "antd";
 import {
   DragSortTable,
   EditableProTable,
@@ -11,13 +11,14 @@ import type {
   EditableProTableProps,
   ProTableProps,
 } from "@ant-design/pro-components";
+import JSONFormComponent from "widgets/Antd/JSONFormWidget/component/index";
 import type { SearchConfig } from "@ant-design/pro-table/es/components/Form/FormRender";
 import { TableWrapper } from "./TableStyledWrappers";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "styled-components";
 import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
 import { ConnectDataOverlay } from "./ConnectDataOverlay";
-import type { AntdTableProps } from "../constants";
+import type { AntdTableProps, JSONFormProps } from "../constants";
 
 import {
   useEditableState,
@@ -28,6 +29,8 @@ import {
   useTableAlertState,
 } from "./hooks";
 import useButtonRender from "./hooks/useTableButtonRender";
+import { isEqual, omit } from "lodash";
+import equal from "fast-deep-equal";
 
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 
@@ -48,8 +51,12 @@ const PopoverStyles = createGlobalStyle<{
 `;
 
 const ProtableRender = React.memo(function ProtableRender(
-  props: AntdTableProps & { configProviderTheme: any },
+  props: AntdTableProps &
+    JSONFormProps & {
+      configProviderTheme: any;
+    },
 ) {
+  const { setJsonFormState } = props;
   const actionRef = useRef<ActionType>(null);
 
   const isEditType = props.tableType === "edit";
@@ -70,6 +77,7 @@ const ProtableRender = React.memo(function ProtableRender(
 
   const { columnsState, tableColumns } = useColumnState(props, {
     setInitialQueryData,
+    setJsonFormState,
     sortInfo,
   });
 
@@ -154,8 +162,10 @@ const ProtableRender = React.memo(function ProtableRender(
       tableAlertRender,
       toolBarRender: () => toolBarRender,
       virtual: props.isVirtual,
+      autoGenerateTableForm: props.autoGenerateTableForm,
     }),
     [
+      props.autoGenerateTableForm,
       props.isVisibleSearch,
       props.isVisibleRefresh,
       props.isVisibleFullScreen,
@@ -249,7 +259,96 @@ const ProtableRender = React.memo(function ProtableRender(
   );
 });
 
-export function ProTableComponent(props: AntdTableProps) {
+const JSONFormRender = React.memo(
+  function JSONFormRender(props: AntdTableProps & JSONFormProps) {
+    const { jsonFormState, setJsonFormState } = props;
+    const formProps = omit(props.autoFormConfig.config, ["editTitle", "title"]);
+    const [isJsonFormVisible, setIsJsonFormVisible] = useState(
+      jsonFormState.isJsonFormVisible,
+    );
+    useEffect(() => {
+      console.log(" JSONFormRender jsonFormState useEffect", jsonFormState);
+      setIsJsonFormVisible(jsonFormState.isJsonFormVisible);
+    }, [jsonFormState]);
+
+    const modalTitle = useMemo(() => {
+      return jsonFormState.jsonFormType === "edit"
+        ? props.autoFormConfig.config.editTitle
+        : props.autoFormConfig.config.title;
+    }, [props.autoFormConfig, jsonFormState]);
+    return (
+      <ConfigProvider
+        theme={{
+          components: {
+            Modal: {
+              borderRadius: (formProps.borderRadius as unknown as number) || 0,
+              contentBg: formProps.backgroundColor,
+              headerBg: formProps.backgroundColor,
+              boxShadow: formProps.boxShadow,
+              titleColor: formProps.titleColor,
+            },
+          },
+        }}
+      >
+        <Modal
+          footer={null}
+          getContainer={() => {
+            if (props.isEditingMode) {
+              return (
+                document.querySelector(`.appsmith_widget_0`) || document.body
+              );
+            }
+            return document.body;
+          }}
+          onCancel={() =>
+            setJsonFormState({
+              isJsonFormVisible: false,
+            })
+          }
+          open={isJsonFormVisible}
+          styles={{
+            content: {
+              overflow: "hidden",
+            },
+            body: {
+              paddingTop: "10px",
+            },
+          }}
+          title={modalTitle}
+        >
+          <JSONFormComponent
+            {...formProps}
+            className={"proTable-auto-jsonform"}
+            executeAction={props.executeAction}
+            initialValues={formProps.sourceData}
+            onCancel={() => setJsonFormState({ isJsonFormVisible: false })}
+            onSubmit={(values) => props.onJsonFormSubmit(values)}
+            ref={props.jsonFormRef}
+            renderMode={props.renderMode}
+            setMetaInternalFieldState={props.setMetaInternalFieldState}
+            updateWidgetFormData={props.updateWidgetFormData}
+            updateWidgetProperty={props.updateWidgetProperty}
+            widgetId={props.widgetId + "-jsonform"}
+            widgetName={props.widgetName + "_JSONFORM"}
+          />
+        </Modal>
+      </ConfigProvider>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      !equal(
+        prevProps.autoFormConfig.config,
+        nextProps.autoFormConfig.config,
+      ) &&
+      !equal(prevProps.jsonFormState, nextProps.jsonFormState) &&
+      prevProps.jsonFormRef === nextProps.jsonFormRef &&
+      prevProps.isEditingMode === nextProps.isEditingMode
+    );
+  },
+);
+
+export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
   const { showConnectDataOverlay } = props;
   const scrollBarRef = useRef<any>(null);
 
@@ -285,6 +384,8 @@ export function ProTableComponent(props: AntdTableProps) {
 
   return (
     <>
+      <JSONFormRender {...props} />
+
       {showConnectDataOverlay && (
         <ConnectDataOverlay onConnectData={props.onConnectData} />
       )}

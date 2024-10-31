@@ -54,6 +54,7 @@ import ButtonBorderRadiusOptionsControl from "./ButtonBorderRadiusControl";
 import FieldConfigurationControl from "components/propertyControls/FieldConfigurationControl";
 import AntdFieldConfigurationControl from "components/propertyControls/AntdFieldConfigurationControl";
 import JSONFormComputeControl from "./JSONFormComputeControl";
+import AntdJSONFormComputeControl from "./AntdJSONFormComputeControl";
 import ButtonControl from "./ButtonControl";
 import LabelAlignmentOptionsControl from "./LabelAlignmentOptionsControl";
 import type { NumericInputControlProps } from "./NumericInputControl";
@@ -125,6 +126,7 @@ export const PropertyControls = {
   FieldConfigurationControl,
   AntdFieldConfigurationControl,
   JSONFormComputeControl,
+  AntdJSONFormComputeControl,
   ButtonControl,
   LabelAlignmentOptionsControl,
   NumericInputControl,

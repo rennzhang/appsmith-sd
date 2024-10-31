@@ -17,7 +17,10 @@ import type {
 } from "WidgetQueryGenerators/types";
 import type { PropertyUpdates, SnipingModeProperty } from "widgets/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { ButtonVariantTypes } from "components/constants";
+import {
+  ButtonVariantTypes,
+  CheckboxGroupAlignmentTypes,
+} from "components/constants";
 import { theme } from "antd";
 
 import { JSONFormDefaults } from "./widget/propertyConfig/JSONForm";
@@ -38,6 +41,13 @@ export const CONFIG = {
       id: "config",
       config: {
         ...JSONFormDefaults,
+        title: "新建",
+        editTitle: "编辑",
+        borderWidth: "0",
+        showReset: false,
+        showCancel: true,
+        fixMessageHeight: 200,
+        buttonAlignment: CheckboxGroupAlignmentTypes.END,
         id: "config",
         label: "表单配置",
       },

@@ -10,6 +10,7 @@ import {
   FIELD_SUPPORTING_FOCUS_EVENTS,
   FieldType,
   fieldTypeOptions,
+  JSONFORM_WIDGET_DEPENDENCIES,
 } from "widgets/Antd/JSONFormWidget/constants";
 import type { JSONFormWidgetProps } from "../..";
 import { getParentPropertyPath } from "../../helper";
@@ -22,7 +23,6 @@ import {
   hiddenIfArrayItemIsObject,
   updateChildrenDisabledStateHook,
 } from "../helper";
-
 // ARRAY and OBJECT have border radius but in their own property configs as they have a variation
 const FIELDS_WITHOUT_BORDER_RADIUS = [
   FieldType.ARRAY,
@@ -140,15 +140,21 @@ const COMMON_PROPERTIES = {
         isTriggerProperty: false,
         options: fieldTypeOptions,
         defaultValue: FieldType.TEXT_INPUT,
-        dependencies: ["schema", "childStylesheet", "dynamicBindingPathList"],
+        dependencies: [
+          "schema",
+          "childStylesheet",
+          "dynamicBindingPathList",
+          ...JSONFORM_WIDGET_DEPENDENCIES,
+        ],
         updateHook: fieldTypeUpdateHook,
       },
       {
         helpText: "字段默认值，默认值修改后会自动更新字段当前值",
         propertyName: "defaultValue",
         label: "默认值",
-        controlType: "JSON_FORM_COMPUTE_VALUE",
+        controlType: "ANTD_JSON_FORM_COMPUTE_VALUE",
         placeholderText: "[]",
+        isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
@@ -156,7 +162,7 @@ const COMMON_PROPERTIES = {
         },
         hidden: (...args: HiddenFnParams) =>
           getSchemaItem(...args).fieldTypeNotMatches(FieldType.ARRAY),
-        dependencies: ["schema"],
+        dependencies: ["schema", ...JSONFORM_WIDGET_DEPENDENCIES],
       },
       {
         propertyName: "accessor",
@@ -184,7 +190,7 @@ const COMMON_PROPERTIES = {
 
           if (isArrayItem) return true;
         },
-        dependencies: ["schema"],
+        dependencies: ["schema", ...JSONFORM_WIDGET_DEPENDENCIES],
       },
     ],
   },

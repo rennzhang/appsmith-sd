@@ -102,13 +102,26 @@ class AntdFieldConfigurationControl extends BaseControl<ControlProps, State> {
       );
     }
   };
+  isTableWidget = () => {
+    return this.props.widgetProperties.type === "ANTD_PRO_TABLE_WIDGET";
+  };
+  getSchemaPath = () => {
+    return this.isTableWidget() ? "autoFormConfig.config.schema" : "schema";
+  };
+  getPropsData = () => {
+    return this.isTableWidget()
+      ? this.props.widgetProperties.autoFormConfig.config
+      : this.props.widgetProperties;
+  };
 
   addNewField = () => {
     if (this.isArrayItem()) return;
 
-    const { propertyName, propertyValue = {}, widgetProperties } = this.props;
+    const { propertyName, propertyValue = {} } = this.props;
+    const widgetProperties = this.getPropsData();
     const { childStylesheet, widgetName } =
       widgetProperties as JSONFormWidgetProps;
+
     const schema: Schema = propertyValue;
     const existingKeys = getKeysFromSchema(schema, ["identifier", "accessor"]);
     const schemaItems = Object.values(schema);
@@ -129,15 +142,20 @@ class AntdFieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     schemaItem.position = lastSchemaItemPosition + 1;
 
-    const path = `${propertyName}.${nextFieldKey}`;
+    const path = `${propertyName}.${nextFieldKey}`.replace(
+      "autoFormConfig.config.",
+      "",
+    );
+
+    const schemaPath = this.getSchemaPath();
 
     if (isEmpty(widgetProperties.schema)) {
       const newSchema = {
-        schema: SchemaParser.parse(widgetProperties.widgetName, {}),
+        schema: SchemaParser.parse(widgetName, {}),
       };
       set(newSchema, path, schemaItem);
 
-      this.updateProperty("schema", newSchema.schema);
+      this.updateProperty(schemaPath, newSchema.schema);
     } else {
       /**
        * TODO(Ashit): Not suppose to update the whole schema but just
@@ -150,7 +168,12 @@ class AntdFieldConfigurationControl extends BaseControl<ControlProps, State> {
       };
       set(updatedSchema, path, schemaItem);
 
-      this.updateProperty("schema", updatedSchema.schema);
+      console.log("ANTD_FIELD_CONFIGURATION addNewField", this.props, {
+        widgetProperties,
+        updatedSchema,
+        path,
+      });
+      this.updateProperty(schemaPath, updatedSchema.schema);
     }
   };
 
@@ -167,6 +190,8 @@ class AntdFieldConfigurationControl extends BaseControl<ControlProps, State> {
 
   updateItems = (items: DroppableItem[]) => {
     const { propertyName, propertyValue } = this.props;
+    console.log("ANTD_FIELD_CONFIGURATION", this.props);
+
     const clonedSchema: Schema = klona(propertyValue);
 
     items.forEach((item, index) => {

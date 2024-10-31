@@ -44,6 +44,7 @@ type ComputedSchema = {
 };
 
 type ComputeSchemaProps = {
+  isTableWidget?: boolean;
   isRequired?: boolean;
   currSourceData?: JSON;
   prevSourceData?: JSON;
@@ -272,6 +273,7 @@ export const computeSchema = ({
   currentDynamicPropertyPathList,
   currSourceData,
   fieldThemeStylesheets,
+  isTableWidget,
   prevSchema = {},
   prevSourceData,
   widgetName,
@@ -283,6 +285,7 @@ export const computeSchema = ({
     prevSchema,
     prevSourceData,
     widgetName,
+    isTableWidget,
   });
 
   // Hot path - early exit
@@ -323,6 +326,7 @@ export const computeSchema = ({
       fieldThemeStylesheets,
       currSourceData,
       schema: prevSchema,
+      isTableWidget,
     });
 
   log.debug(

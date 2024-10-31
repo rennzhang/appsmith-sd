@@ -157,7 +157,11 @@ class AntdDatePickerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
-            hidden: (props: DatePickerWidgetProps) => !props.showTime,
+            hidden: (props: DatePickerWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.showTime;
+            },
           },
           {
             helpText: "默认选中的值",
@@ -289,7 +293,11 @@ class AntdDatePickerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-            hidden: (props: DatePickerWidgetProps) => !props.isEnabledDateValid,
+            hidden: (props: DatePickerWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.isEnabledDateValid;
+            },
             dependencies: ["isEnabledDateValid"],
           },
           {
@@ -475,8 +483,11 @@ class AntdDatePickerWidget extends BaseWidget<
             isMultiSelect: true,
             dependencies: ["showPreset", "isRangePicker"],
             validation: { type: ValidationTypes.ARRAY },
-            hidden: (props: DatePickerWidgetProps) =>
-              !props.showPreset || props.isRangePicker,
+            hidden: (props: DatePickerWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.showPreset || propsData.isRangePicker;
+            },
           },
           // 范围选择 预设范围
           {
@@ -492,8 +503,11 @@ class AntdDatePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             dependencies: ["showPreset", "isRangePicker"],
             validation: { type: ValidationTypes.ARRAY },
-            hidden: (props: DatePickerWidgetProps) =>
-              !props.showPreset || !props.isRangePicker,
+            hidden: (props: DatePickerWidgetProps, propertyPath: string) => {
+              const _propertyPath = getParentPropertyPath(propertyPath);
+              const propsData = get(props, _propertyPath) || props;
+              return !propsData.showPreset || !propsData.isRangePicker;
+            },
           },
         ],
       },

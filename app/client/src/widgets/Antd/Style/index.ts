@@ -17,13 +17,20 @@ export const AntdProformContainer = styled.div<{
   borderWidth?: string;
   boxShadow?: string;
 }>`
-  &.antd-pro-form-jsonform {
-    height: 100%;
+  &.proTable-auto-jsonform {
+    margin-inline: -16px;
+    margin-bottom: -20px;
+  }
+  &.antd-pro-form-jsonform:not(.proTable-auto-jsonform) {
     background-color: ${({ backgroundColor }) => backgroundColor};
     border-radius: ${({ borderRadius }) => borderRadius};
     border: ${({ borderWidth }) => borderWidth}px solid
       ${({ borderColor }) => borderColor};
     box-shadow: ${({ boxShadow }) => boxShadow};
+  }
+  &.antd-pro-form-jsonform {
+    height: 100%;
+
     overflow: hidden;
 
     .ant-pro-form-list-container,

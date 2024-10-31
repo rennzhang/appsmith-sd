@@ -30,11 +30,7 @@ const transConfig = (config: any[]) => {
         ...new Set([...(item.evaluatedDependencies || []), ...dependencies]),
       ],
     };
-    // if (item.controlType == "INPUT_TEXT") {
-    //   transItem.controlType = "JSON_FORM_COMPUTE_VALUE";
-    // } else {
-    //   transItem.customJSControl = "JSON_FORM_COMPUTE_VALUE";
-    // }
+
     if (item.validation) {
       transItem.validation = {
         ...item.validation,

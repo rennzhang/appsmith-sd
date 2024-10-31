@@ -96,9 +96,11 @@ export const disabledDateRuleConfig = {
           // },
           hidden: (props: any, propertyPath: string) => {
             const propsData = getPropsData(props, propertyPath);
-            return ![
+            const data = ![
               propsData.disabledDateRule?.config?.disabledRule,
             ]?.includes("specificYear");
+
+            return data;
           },
         },
         {
