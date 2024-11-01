@@ -338,6 +338,9 @@ export const contentConfig = mergeWidgetConfig(
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.BOOLEAN },
+          hidden: (props: any) => {
+            return props.type === "ANTD_PRO_TABLE_WIDGET";
+          },
         },
         {
           propertyName: "scrollContents",
@@ -347,6 +350,9 @@ export const contentConfig = mergeWidgetConfig(
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.BOOLEAN },
+          hidden: (props: any) => {
+            return props.type === "ANTD_PRO_TABLE_WIDGET";
+          },
         },
         {
           propertyName: "showReset",
@@ -418,6 +424,52 @@ const generateButtonStyleControlsV2For = (prefix: string) => {
 
 export const styleConfig = mergeWidgetConfig(
   [
+    // 弹窗样式
+    {
+      sectionName: "弹框样式",
+      children: [
+        // 弹窗宽度
+        {
+          propertyName: "modalWidth",
+          helpText: "弹窗宽度",
+          label: "弹窗宽度",
+          controlType: "INPUT_TEXT",
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: false,
+          placeholderText: "520",
+          validation: {
+            type: ValidationTypes.NUMBER,
+            params: {
+              min: 320,
+            },
+          },
+          hidden: (props: any) => {
+            return props.type !== "ANTD_PRO_TABLE_WIDGET";
+          },
+        },
+        // 弹窗高度
+        {
+          propertyName: "modalHeight",
+          helpText: "弹窗高度",
+          label: "弹窗高度",
+          controlType: "INPUT_TEXT",
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: false,
+          placeholderText: "520",
+          validation: {
+            type: ValidationTypes.NUMBER,
+            params: {
+              min: 240,
+            },
+          },
+          hidden: (props: any) => {
+            return props.type !== "ANTD_PRO_TABLE_WIDGET";
+          },
+        },
+      ],
+    },
     {
       sectionName: "样式",
       children: [

@@ -35,6 +35,7 @@ export const CONFIG = {
   needsHeightForContent: true,
 
   defaults: {
+    sourceData: {},
     autoGenerateTableForm: true,
     autoFormConfig: {
       label: "表单配置",
@@ -50,6 +51,8 @@ export const CONFIG = {
         buttonAlignment: CheckboxGroupAlignmentTypes.END,
         id: "config",
         label: "表单配置",
+        modalWidth: 520,
+        modalHeight: 520,
       },
     },
     tablePrimaryColor: theme.defaultSeed.colorPrimary,
@@ -239,7 +242,7 @@ export const CONFIG = {
     isRemoteSort: false,
     delimiter: ",",
     version: 2,
-    tableInlineEditType: TableInlineEditTypes.ROW_LEVEL,
+    tableInlineEditType: TableInlineEditTypes.CUSTOM,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

@@ -37,6 +37,8 @@ export type JSONFormState = {
   isSubmitting?: boolean;
 };
 export type JSONFormProps = {
+  isJsonFormVisible?: boolean;
+  setIsJsonFormVisible: (isJsonFormVisible?: boolean) => void;
   jsonFormState: JSONFormState;
   setJsonFormState: (jsonFormState: JSONFormState) => void;
   setMetaInternalFieldState: (
@@ -53,6 +55,7 @@ export interface AntdTableProps extends ProTableProps<any, any> {
   autoGenerateTableForm: boolean;
   renderMode: RenderModes;
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
+  updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
   autoFormConfig: {
     config: JSONFormComponentProps;
   };

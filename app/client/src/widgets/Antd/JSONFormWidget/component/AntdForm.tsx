@@ -95,6 +95,7 @@ export interface ProformContainerComponentProps {
   colorPrimary?: string;
   titleColor?: string;
   fixedFooter: boolean;
+  maxHeight?: number;
   submitButtonStyles?: any;
   resetButtonStyles?: any;
   buttonAlignment?: CheckboxGroupAlignment;
@@ -102,6 +103,7 @@ export interface ProformContainerComponentProps {
 
 const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   const {
+    maxHeight,
     backgroundColor,
     borderColor,
     borderRadius,
@@ -116,7 +118,6 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     formItems,
     formLayout,
     formRef,
-    getFormData,
     hideFooter,
     initialValues,
     isDisabled,
@@ -147,6 +148,12 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   // 是否校验中
   const [validating, setValidating] = useState<boolean>(false);
   const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
+
+  // 自动更新initialValues
+  useEffect(() => {
+    console.log("表单组件 initialValues", initialValues);
+    formRef?.current?.setFieldsValue(initialValues);
+  }, [initialValues]);
   const updateErrorFidlds = (errorFields?: FieldError[]) => {
     // 按照formItems的顺序排序，返回格式和errorFields一致，并在每个item中增加label字段，只返回有错误的字段
 
@@ -391,6 +398,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   console.groupEnd();
   return (
     <AntdProformContainer
+      maxHeight={maxHeight}
       backgroundColor={backgroundColor}
       borderColor={borderColor}
       borderRadius={borderRadius as unknown as string}

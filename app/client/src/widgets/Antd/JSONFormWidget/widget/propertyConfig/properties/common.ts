@@ -152,7 +152,8 @@ const COMMON_PROPERTIES = {
         helpText: "字段默认值，默认值修改后会自动更新字段当前值",
         propertyName: "defaultValue",
         label: "默认值",
-        controlType: "ANTD_JSON_FORM_COMPUTE_VALUE",
+        // controlType: "ANTD_JSON_FORM_COMPUTE_VALUE",
+        controlType: "TEXT_INPUT",
         placeholderText: "[]",
         isJSConvertible: true,
         isBindProperty: true,
@@ -161,9 +162,27 @@ const COMMON_PROPERTIES = {
           type: ValidationTypes.ARRAY,
         },
         hidden: (...args: HiddenFnParams) =>
+          // args[0].type == "ANTD_PRO_TABLE_WIDGET" ||
           getSchemaItem(...args).fieldTypeNotMatches(FieldType.ARRAY),
         dependencies: ["schema", ...JSONFORM_WIDGET_DEPENDENCIES],
       },
+      // {
+      //   helpText: "字段默认值，默认值修改后会自动更新字段当前值",
+      //   propertyName: "defaultValue",
+      //   label: "默认值",
+      //   controlType: "ANTD_JSON_FORM_COMPUTE_VALUE",
+      //   placeholderText: "[]",
+      //   isJSConvertible: true,
+      //   isBindProperty: true,
+      //   isTriggerProperty: false,
+      //   validation: {
+      //     type: ValidationTypes.ARRAY,
+      //   },
+      //   hidden: (...args: HiddenFnParams) =>
+      //     args[0].type !== "ANTD_PRO_TABLE_WIDGET" ||
+      //     getSchemaItem(...args).fieldTypeNotMatches(FieldType.ARRAY),
+      //   dependencies: ["schema", ...JSONFORM_WIDGET_DEPENDENCIES],
+      // },
       {
         propertyName: "accessor",
         helpText: "设置字段属性名让用户可以在表单数据中访问到对应的值",

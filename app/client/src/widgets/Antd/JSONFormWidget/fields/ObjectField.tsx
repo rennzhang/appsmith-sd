@@ -38,10 +38,6 @@ type ObjectFieldProps = Omit<
   name: string;
 };
 
-type StyledWrapperProps = {
-  withBottomMargin: boolean;
-};
-
 const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
   isDisabled: false,
   isRequired: false,
@@ -54,11 +50,6 @@ const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
 const StyledFieldsWrapper = styled.div`
   padding-top: 0;
   width: 100%;
-`;
-
-const StyledWrapper = styled.div<StyledWrapperProps>`
-  margin-bottom: ${({ withBottomMargin }) =>
-    withBottomMargin ? FIELD_MARGIN_BOTTOM : 0}px;
 `;
 
 function ObjectField({
@@ -96,7 +87,7 @@ function ObjectField({
     }
 
     return defaultValue;
-  }, [passedDefaultValue]);
+  }, [passedDefaultValue, schemaItem.defaultValue]);
 
   const fields = useMemo(() => {
     const children = Object.values(schemaItem.children);

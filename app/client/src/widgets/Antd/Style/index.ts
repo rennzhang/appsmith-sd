@@ -16,10 +16,16 @@ export const AntdProformContainer = styled.div<{
   borderColor?: string;
   borderWidth?: string;
   boxShadow?: string;
+  maxHeight?: number;
 }>`
-  &.proTable-auto-jsonform {
+  &.proTable-auto-jsonform.antd-pro-form-jsonform {
     margin-inline: -16px;
     margin-bottom: -20px;
+    height: auto;
+    padding-top: 16px;
+    form {
+      max-height: ${({ maxHeight }) => maxHeight}px;
+    }
   }
   &.antd-pro-form-jsonform:not(.proTable-auto-jsonform) {
     background-color: ${({ backgroundColor }) => backgroundColor};
@@ -30,7 +36,6 @@ export const AntdProformContainer = styled.div<{
   }
   &.antd-pro-form-jsonform {
     height: 100%;
-
     overflow: hidden;
 
     .ant-pro-form-list-container,

@@ -1,5 +1,6 @@
 import {
   difference,
+  get,
   isEmpty,
   merge,
   omit,
@@ -41,6 +42,7 @@ type ParserOptions = {
   fieldType?: FieldType;
   isCustomField?: boolean;
   isRequired?: boolean;
+  isTableWidget?: boolean;
   prevSchema?: Schema;
   schemaItem?: SchemaItem;
   modifiedSchemaItems: Record<string, unknown>; // Key value pairs of paths and schemaItem which updated.
@@ -69,6 +71,7 @@ type GetKeysFromSchemaOptions = {
 };
 
 type ParseOptions = {
+  isCustomField?: boolean;
   isRequired?: boolean;
   currSourceData?: unknown;
   schema?: Schema;
@@ -390,6 +393,7 @@ class SchemaParser {
     const {
       currSourceData,
       fieldThemeStylesheets,
+      isCustomField,
       isTableWidget,
       schema = {},
     } = options;
@@ -417,6 +421,8 @@ class SchemaParser {
       skipDefaultValueProcessing: isTableWidget || false,
       sourceDataPath: "sourceData",
       widgetName,
+      isCustomField,
+      isTableWidget,
     });
 
     console.log("SchemaParser.parse", {
@@ -548,6 +554,7 @@ class SchemaParser {
       fieldThemeStylesheets,
       identifier,
       isCustomField = false,
+      isTableWidget,
       skipDefaultValueProcessing,
       sourceDataPath,
       widgetName,
@@ -564,6 +571,9 @@ class SchemaParser {
     );
 
     const defaultValue = (() => {
+      if (isTableWidget) {
+        return currSourceData;
+      }
       if (isCustomField || skipDefaultValueProcessing) return;
 
       const { prefixTemplate, suffixTemplate } = bindingTemplate;

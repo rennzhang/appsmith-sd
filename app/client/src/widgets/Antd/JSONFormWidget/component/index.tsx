@@ -32,6 +32,9 @@ export interface JSONFormComponentProps<TValues = any>
     ProformContainerComponentProps,
     "formItems" | "formRef" | "updateWidgetProps" | "children"
   > {
+  modalWidth?: number;
+  modalHeight?: number;
+  maxHeight?: number;
   editTitle?: string;
   sourceData: TValues;
   className?: string;
@@ -239,8 +242,8 @@ function JSONFormComponent<TValues>(
         fixedFooter={rest.fixedFooter}
         formItems={formItems}
         formRef={ref}
-        getFormData={getFormData}
         hideFooter={hideFooter}
+        maxHeight={props.maxHeight}
         onCancel={onCancel}
         onSubmit={onSubmit}
         showCancel={showCancel}

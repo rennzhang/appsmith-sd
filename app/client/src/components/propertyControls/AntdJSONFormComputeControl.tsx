@@ -211,10 +211,13 @@ class AntdAntdJSONFormComputeControl extends BaseControl<JSONFormComputeControlP
 
   getComputedValue = (value: string) => {
     const { type, widgetName } = this.props.widgetProperties;
-    let _widgetName = widgetName;
-    if (type === "ANTD_PRO_TABLE_WIDGET") {
-      _widgetName = widgetName + ".autoFormConfig.config";
-    }
+
+    const _widgetName = widgetName;
+    // if (type === "ANTD_PRO_TABLE_WIDGET") {
+    //   _widgetName = widgetName + ".autoFormConfig.config";
+    // }
+
+    console.log("getComputedValue", { props: this.props, _widgetName });
 
     /**
      * If the input value is not a binding then there is no need of adding binding template

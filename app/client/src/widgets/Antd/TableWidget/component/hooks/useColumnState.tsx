@@ -215,10 +215,7 @@ const getValueEnum = (column: TableColumnProps) => {
   return valueEnum;
 };
 const { getTableButtonRender } = useButtonRender();
-const getActionColumn = (
-  props: AntdTableProps,
-  extra: { setJsonFormState: (jsonFormState: JSONFormState) => void },
-): ProColumns => {
+const getActionColumn = (props: AntdTableProps, extra: Extra): ProColumns => {
   console.group("表格 getActionColumn");
   console.log("props", props);
   console.groupEnd();
@@ -251,6 +248,12 @@ const getActionColumn = (
     },
   };
 };
+type Extra = {
+  setJsonFormState: (jsonFormState: JSONFormState) => void;
+  setIsJsonFormVisible: (isJsonFormVisible?: boolean) => void;
+  setInitialQueryData: (data: Record<string, any>) => void;
+  sortInfo: { sortField: Key | undefined; sortOrder: SortOrder | undefined };
+};
 
 const handleButtonClick = (params: {
   button: ButtonAction;
@@ -258,7 +261,7 @@ const handleButtonClick = (params: {
   record: any;
   recordIndex: number;
   action?: any;
-  extra: { setJsonFormState: (jsonFormState: JSONFormState) => void };
+  extra: Extra;
 }) => {
   const { action, button, extra, props, record, recordIndex } = params;
   const { autoGenerateTableForm, editableColumn, tableInlineEditType } = props;
@@ -294,6 +297,7 @@ const handleButtonClick = (params: {
       editFormData: record,
       jsonFormType: "edit",
     });
+    // extra.setIsJsonFormVisible(true);
     props.handleRowBtnClick("", record);
   } else if (
     button.id === "edit" &&
@@ -466,14 +470,7 @@ const getFieldProps = (propsData: {
   return fieldProps;
 };
 
-export const useColumnState = (
-  props: AntdTableProps,
-  extra: {
-    setJsonFormState: (jsonFormState: JSONFormState) => void;
-    setInitialQueryData: (data: Record<string, any>) => void;
-    sortInfo: { sortField: Key | undefined; sortOrder: SortOrder | undefined };
-  },
-) => {
+export const useColumnState = (props: AntdTableProps, extra: Extra) => {
   const { setInitialQueryData, sortInfo } = extra;
   const initialQueryData: Record<string, any> = {};
   const actionColumn = useMemo(

@@ -56,7 +56,7 @@ const ProtableRender = React.memo(function ProtableRender(
       configProviderTheme: any;
     },
 ) {
-  const { setJsonFormState } = props;
+  const { setIsJsonFormVisible, setJsonFormState } = props;
   const actionRef = useRef<ActionType>(null);
 
   const isEditType = props.tableType === "edit";
@@ -78,6 +78,7 @@ const ProtableRender = React.memo(function ProtableRender(
   const { columnsState, tableColumns } = useColumnState(props, {
     setInitialQueryData,
     setJsonFormState,
+    setIsJsonFormVisible,
     sortInfo,
   });
 
@@ -261,14 +262,16 @@ const ProtableRender = React.memo(function ProtableRender(
 
 const JSONFormRender = React.memo(
   function JSONFormRender(props: AntdTableProps & JSONFormProps) {
-    const { jsonFormState, setJsonFormState } = props;
+    const {
+      isJsonFormVisible,
+      jsonFormState,
+      setIsJsonFormVisible,
+      setJsonFormState,
+    } = props;
     const formProps = omit(props.autoFormConfig.config, ["editTitle", "title"]);
-    const [isJsonFormVisible, setIsJsonFormVisible] = useState(
-      jsonFormState.isJsonFormVisible,
-    );
     useEffect(() => {
-      console.log(" JSONFormRender jsonFormState useEffect", jsonFormState);
       setIsJsonFormVisible(jsonFormState.isJsonFormVisible);
+      console.log(" JSONFormRender jsonFormState useEffect", jsonFormState);
     }, [jsonFormState]);
 
     const modalTitle = useMemo(() => {
@@ -276,6 +279,17 @@ const JSONFormRender = React.memo(
         ? props.autoFormConfig.config.editTitle
         : props.autoFormConfig.config.title;
     }, [props.autoFormConfig, jsonFormState]);
+
+    const modalContainer = useRef<any>(null);
+    useEffect(() => {
+      if (props.isEditingMode) {
+        modalContainer.current =
+          document.querySelector(`.appsmith_widget_0`) || document.body;
+      } else {
+        modalContainer.current = document.body;
+      }
+    }, [props.isEditingMode]);
+
     return (
       <ConfigProvider
         theme={{
@@ -293,12 +307,7 @@ const JSONFormRender = React.memo(
         <Modal
           footer={null}
           getContainer={() => {
-            if (props.isEditingMode) {
-              return (
-                document.querySelector(`.appsmith_widget_0`) || document.body
-              );
-            }
-            return document.body;
+            return modalContainer.current;
           }}
           onCancel={() =>
             setJsonFormState({
@@ -306,27 +315,22 @@ const JSONFormRender = React.memo(
             })
           }
           open={isJsonFormVisible}
-          styles={{
-            content: {
-              overflow: "hidden",
-            },
-            body: {
-              paddingTop: "10px",
-            },
-          }}
           title={modalTitle}
+          width={formProps.modalWidth}
         >
           <JSONFormComponent
             {...formProps}
             className={"proTable-auto-jsonform"}
             executeAction={props.executeAction}
             initialValues={formProps.sourceData}
+            maxHeight={formProps.modalHeight}
             onCancel={() => setJsonFormState({ isJsonFormVisible: false })}
             onSubmit={(values) => props.onJsonFormSubmit(values)}
             ref={props.jsonFormRef}
             renderMode={props.renderMode}
             setMetaInternalFieldState={props.setMetaInternalFieldState}
             updateWidgetFormData={props.updateWidgetFormData}
+            updateWidgetMetaProperty={props.updateWidgetMetaProperty}
             updateWidgetProperty={props.updateWidgetProperty}
             widgetId={props.widgetId + "-jsonform"}
             widgetName={props.widgetName + "_JSONFORM"}
@@ -349,6 +353,9 @@ const JSONFormRender = React.memo(
 );
 
 export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
+  const [isJsonFormVisible, setIsJsonFormVisible] = useState(
+    props.jsonFormState.isJsonFormVisible,
+  );
   const { showConnectDataOverlay } = props;
   const scrollBarRef = useRef<any>(null);
 
@@ -384,7 +391,11 @@ export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
 
   return (
     <>
-      <JSONFormRender {...props} />
+      <JSONFormRender
+        {...props}
+        isJsonFormVisible={isJsonFormVisible}
+        setIsJsonFormVisible={setIsJsonFormVisible}
+      />
 
       {showConnectDataOverlay && (
         <ConnectDataOverlay onConnectData={props.onConnectData} />
@@ -416,6 +427,7 @@ export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
             <ProtableRender
               {...props}
               configProviderTheme={configProviderTheme}
+              setIsJsonFormVisible={setIsJsonFormVisible}
             />
           </ConfigProvider>
         </div>

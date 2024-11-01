@@ -44,6 +44,7 @@ type ComputedSchema = {
 };
 
 type ComputeSchemaProps = {
+  isCustomField?: boolean;
   isTableWidget?: boolean;
   isRequired?: boolean;
   currSourceData?: JSON;
@@ -273,6 +274,7 @@ export const computeSchema = ({
   currentDynamicPropertyPathList,
   currSourceData,
   fieldThemeStylesheets,
+  isCustomField,
   isTableWidget,
   prevSchema = {},
   prevSourceData,
@@ -327,6 +329,7 @@ export const computeSchema = ({
       currSourceData,
       schema: prevSchema,
       isTableWidget,
+      isCustomField,
     });
 
   log.debug(
