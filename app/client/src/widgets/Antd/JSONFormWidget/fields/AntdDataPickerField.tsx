@@ -66,11 +66,14 @@ const componentDefaultValues = ({
 };
 
 export const isValidType = (value: string) => {
-  console.log("日期isValidType", value);
-
-  return DateFormatOptions.some(({ value: format }) =>
-    dayjs(value, format).isValid(),
-  );
+  const dateValidTypeResult = DateFormatOptions.some(({ value: format }) => {
+    try {
+      return dayjs(value, format, true).isValid();
+    } catch (error) {
+      return false;
+    }
+  });
+  return dateValidTypeResult;
 };
 function AntdTimePickerField({
   fieldClassName,

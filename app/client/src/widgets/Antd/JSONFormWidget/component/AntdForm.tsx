@@ -36,8 +36,8 @@ import type { Color } from "constants/Colors";
 export interface ProformContainerComponentProps {
   isDisabled?: boolean;
   className?: string;
-  showCancel: boolean;
-  onCancel: () => void;
+  showCancel?: boolean;
+  onCancel?: () => void;
   scrollContents: boolean;
   initialValues?: Record<string, any>;
   borderColor?: Color;
@@ -103,7 +103,6 @@ export interface ProformContainerComponentProps {
 
 const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   const {
-    maxHeight,
     backgroundColor,
     borderColor,
     borderRadius,
@@ -128,6 +127,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     labelFlex,
     labelWidth,
     labelWrap,
+    maxHeight,
     onSubmit,
     resetButtonLabel,
     scrollContents,
@@ -333,7 +333,6 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
                 ...props.resetButtonStyles,
                 buttonColor: resetButtonColor,
                 buttonLabel: "取消",
-                loading: isSubmitting,
                 buttonSize: props.resetButtonStyles?.controlSize,
               },
               onClick: () => {
@@ -398,7 +397,6 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   console.groupEnd();
   return (
     <AntdProformContainer
-      maxHeight={maxHeight}
       backgroundColor={backgroundColor}
       borderColor={borderColor}
       borderRadius={borderRadius as unknown as string}
@@ -407,6 +405,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
       className={`antd-pro-form-container-styled antd-pro-form-jsonform ${className}`}
       fixedFooter={fixedFooter}
       labelAlign={labelAlign}
+      maxHeight={maxHeight}
       scrollContents={scrollContents}
     >
       <ConfigProvider

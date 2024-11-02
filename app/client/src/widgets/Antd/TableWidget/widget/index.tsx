@@ -107,7 +107,7 @@ import type {
   JSONFormWidgetProps,
   JSONFormWidgetState,
   MetaInternalFieldState,
-} from "widgets/JSONFormWidget/widget";
+} from "widgets/Antd/JSONFormWidget/widget";
 import {
   ComputedSchemaStatus,
   computeSchema,
@@ -125,6 +125,7 @@ import ModalWidget from "widgets/ModalWidget";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
+import { message } from "antd";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -257,12 +258,38 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     jsonFormState: {
       isJsonFormVisible: false,
       editFormData: {},
-      addFormData: {},
       jsonFormType: "edit",
       isSubmitting: false,
     } as JSONFormState,
     resetObserverCallback: noop,
     metaInternalFieldState: {},
+  };
+
+  resetToDefaultValues = (
+    obj: Record<string, unknown>,
+  ): Record<string, unknown> => {
+    return _.mapValues(obj, (value) => {
+      // 根据原值类型设置默认值
+      switch (typeof value) {
+        case "string":
+          return "";
+        case "number":
+          return 0;
+        case "boolean":
+          return false;
+        case "object":
+          if (Array.isArray(value)) {
+            return [];
+          }
+          if (value === null) {
+            return null;
+          }
+          // 如果是对象则递归处理
+          return this.resetToDefaultValues(value as Record<string, unknown>);
+        default:
+          return undefined;
+      }
+    });
   };
 
   setJsonFormState = (jsonFormState: typeof this.state.jsonFormState) => {
@@ -272,8 +299,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.state.jsonFormState?.isJsonFormVisible,
       editFormData:
         jsonFormState.editFormData ?? this.state.jsonFormState?.editFormData,
-      addFormData:
-        jsonFormState.addFormData ?? this.state.jsonFormState?.addFormData,
       jsonFormType:
         jsonFormState.jsonFormType ?? this.state.jsonFormState?.jsonFormType,
       isSubmitting:
@@ -283,15 +308,32 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.setState({
       jsonFormState: state,
     });
+    if (!state.isJsonFormVisible) return;
+
+    const newSourceDataWithDefaultValues = merge(
+      {},
+      this.resetToDefaultValues(last(this.props.tableData) || {}),
+      this.props.defaultFormData,
+    );
 
     const targetData =
-      state.jsonFormType === "add" ? state.addFormData : state.editFormData;
+      state.jsonFormType === "add"
+        ? newSourceDataWithDefaultValues
+        : state.editFormData;
+    console.log("generateJSONFormSchema111", {
+      targetData,
+      defaultFormData: this.props.defaultFormData,
+      newSourceDataWithDefaultValues,
+      resetToDefaultValues: this.resetToDefaultValues(
+        last(this.props.tableData) || {},
+      ),
+    });
 
     const formData = this.cleanObject(targetData);
-
     this.generateJSONFormSchema({
       ...this.props.autoFormConfig.config,
       sourceData: formData,
+      isCreateForm: state.jsonFormType === "add",
     });
     this.props.updateWidgetMetaProperty("sourceData", targetData);
     this.updateWidgetFormData(formData);
@@ -809,9 +851,12 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       //dont neet to batch this since single action
       this.hydrateStickyColumns();
     }
+
+    const initialSourceData = this.cleanObject(this.props.tableData?.[0] || {});
+    this.updateWidgetProperty("sourceData", initialSourceData);
     this.updateWidgetProperty(
-      "sourceData",
-      this.cleanObject(this.props.tableData?.[0] || {}),
+      "defaultFormData",
+      this.resetToDefaultValues(initialSourceData || {}),
     );
   }
   getPreviousSourceData = (prevProps?: JSONFormWidgetProps) => {
@@ -873,12 +918,19 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const currSourceData = this.getPreviousSourceData(nextProps);
 
     const prevSchemaWithEditable = cloneDeep(JSONFormProps?.schema);
+
+    const editableColumnCount = this.props.editableColumn.filter(
+      (item: any) => this.props.primaryColumnId !== item.id,
+    ).length;
+
     Object.keys(currSourceData).forEach((key) => {
+      const isEditable = !!this.props.editableColumn.find(
+        (item: any) => item.id === key && this.props.primaryColumnId !== key,
+      );
       set(
         prevSchemaWithEditable,
         `__root_schema__.children.${key}.isVisible`,
-        this.props.primaryColumnId === key ||
-          !!this.props.editableColumn.find((item: any) => item.id === key),
+        isEditable,
       );
     });
 
@@ -890,9 +942,11 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       prevSourceData,
       widgetName: this.props.widgetName,
       fieldThemeStylesheets: JSONFormProps.childStylesheet,
-      // isCustomField: true,
-      // isTableWidget: true,
+      isCreateForm: nextProps?.isCreateForm,
     });
+    if (!editableColumnCount) {
+      message.warning("请至少设置一个可编辑列");
+    }
     console.log("表格 generateJSONFormSchema", {
       computedSchema,
       prevSourceData,
@@ -985,7 +1039,10 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       );
     }
     // editableColumn
-    if (!equal(prevProps.editableColumn, this.props.editableColumn)) {
+    if (
+      !equal(prevProps.editableColumn, this.props.editableColumn) &&
+      this.props.tableType !== "edit"
+    ) {
       this.generateJSONFormSchema({
         ...this.props.autoFormConfig.config,
         sourceData: this.cleanObject(this.props.tableData[0]),
@@ -1672,6 +1729,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           tableData={finalTableData}
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
+          updateDefaultFormData={this.updateDefaultFormData}
           updateNewTableData={this.updateNewTableData}
           updatePageNo={this.updatePageNumber}
           updatePageSize={this.updatePageSize}
@@ -2196,12 +2254,23 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.actionQueue.push(action);
     }
   };
+  updateDefaultFormData = (values: any) => {
+    const defaultFormData = this.props.defaultFormData || {};
+    const newFormData = merge(defaultFormData, values);
+    console.log("updateDefaultFormData", {
+      defaultFormData: this.props.defaultFormData,
+      values,
+      newFormData,
+    });
+
+    this.props.updateWidgetMetaProperty("defaultFormData", newFormData);
+  };
   updateWidgetFormData = (values: any, skipConversion = false) => {
     const rootSchemaItem =
       this.props.autoFormConfig.config.schema[ROOT_SCHEMA_KEY];
     const { sourceData, useSourceData } = this.props;
     let formData = values;
-
+    if (!rootSchemaItem) return;
     if (!skipConversion) {
       formData = convertSchemaItemToFormData(rootSchemaItem, values, {
         fromId: "identifier",
@@ -2277,11 +2346,10 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   onJsonFormSubmit = (values: any, cb?: () => void) => {
+    this.setJsonFormState({
+      isSubmitting: true,
+    });
     if (this.props.autoFormConfig.config.onSubmit) {
-      this.setJsonFormState({
-        isSubmitting: true,
-      });
-
       super.executeAction({
         triggerPropertyName: "autoFormConfig.config.onSubmit",
         dynamicString: this.props.autoFormConfig.config.onSubmit,
@@ -2293,7 +2361,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSubmitting: false,
               isJsonFormVisible: false,
               editFormData: undefined,
-              addFormData: undefined,
               jsonFormType: undefined,
             });
           },
@@ -2307,7 +2374,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         isSubmitting: false,
         isJsonFormVisible: false,
         editFormData: undefined,
-        addFormData: undefined,
         jsonFormType: undefined,
       });
     }

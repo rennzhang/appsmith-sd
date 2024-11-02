@@ -103,9 +103,19 @@ export default [
               propertyValue: !isEdit,
             },
             {
+              propertyPath: "tableInlineEditType",
+              propertyValue: TableInlineEditTypes.ROW_LEVEL,
+            },
+            {
               propertyPath: "toolBarActions",
               propertyValue: {
                 ...props.toolBarActions,
+                create: {
+                  ...props.toolBarActions.create,
+                  isHiddenItem:
+                    isEdit ||
+                    props.tableInlineEditType === TableInlineEditTypes.CUSTOM,
+                },
                 addNewRow: {
                   ...props.toolBarActions.addNewRow,
                   isHiddenItem: isEdit,
@@ -222,16 +232,24 @@ export default [
         helpText: "选择如何保存编辑的单元格数据",
         label: "更新模式",
         controlType: "ICON_TABS",
-        defaultValue: TableInlineEditTypes.ROW_LEVEL,
+        defaultValue: TableInlineEditTypes.CUSTOM,
         fullWidth: true,
         isBindProperty: true,
         isTriggerProperty: false,
         hidden: (props: TableWidgetProps) => {
-          return !Object.values(props.primaryColumns).find(
-            (column) => column.isEditable,
+          return (
+            !Object.values(props.primaryColumns).find(
+              (column) => column.isEditable,
+            ) || props.tableType == "edit"
           );
         },
-        dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
+        dependencies: [
+          "primaryColumns",
+          "columnOrder",
+          "childStylesheet",
+          "tableType",
+          "toolBarActions",
+        ],
         options: [
           {
             label: "行更新",
@@ -252,6 +270,21 @@ export default [
               propertyPath: "autoGenerateTableForm",
               propertyValue: propertyValue === TableInlineEditTypes.CUSTOM,
             },
+            {
+              propertyPath: "toolBarActions",
+              propertyValue: {
+                ...props.toolBarActions,
+                create: {
+                  ...props.toolBarActions.create,
+                  isHiddenItem: propertyValue !== TableInlineEditTypes.CUSTOM,
+                },
+                addNewRow: {
+                  ...props.toolBarActions.addNewRow,
+                  isHiddenItem:
+                    propertyValue !== TableInlineEditTypes.ROW_LEVEL,
+                },
+              },
+            },
           ];
         },
       },
@@ -265,9 +298,12 @@ export default [
         isJSConvertible: true,
         controlType: "SWITCH",
         hidden: (props: TableWidgetProps) => {
-          return props.tableInlineEditType !== TableInlineEditTypes.CUSTOM;
+          return (
+            props.tableInlineEditType !== TableInlineEditTypes.CUSTOM ||
+            props.tableType == "edit"
+          );
         },
-        dependencies: ["tableInlineEditType"],
+        dependencies: ["tableInlineEditType", "tableType"],
       },
       {
         helpText: "调整表单配置",
@@ -283,10 +319,15 @@ export default [
         hidden: (props: TableWidgetProps) => {
           return (
             !props.autoGenerateTableForm ||
-            props.tableInlineEditType !== TableInlineEditTypes.CUSTOM
+            props.tableInlineEditType !== TableInlineEditTypes.CUSTOM ||
+            props.tableType == "edit"
           );
         },
-        dependencies: ["tableInlineEditType", "autoGenerateTableForm"],
+        dependencies: [
+          "tableInlineEditType",
+          "autoGenerateTableForm",
+          "tableType",
+        ],
         panelConfig: JSONFormConfig,
       },
       {
@@ -311,6 +352,96 @@ export default [
         },
         validation: {
           type: ValidationTypes.TEXT,
+        },
+      },
+    ],
+  },
+  {
+    sectionName: "新增行数据",
+    hidden: (props: TableWidgetProps) => {
+      return (
+        !Object.values(props.primaryColumns).find(
+          (column) => column.isEditable,
+        ) ||
+        props.tableInlineEditType !== TableInlineEditTypes.ROW_LEVEL ||
+        props.tableType == "edit"
+      );
+    },
+    dependencies: ["tableInlineEditType", "tableType"],
+    children: [
+      {
+        propertyName: "allowAddNewRow",
+        helpText: "显示新增一行按钮，可以在工具栏中配置按钮样式",
+        isJSConvertible: true,
+        label: "允许新增一行",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+        hidden: (props: TableWidgetProps) => {
+          return props.tableType == "edit";
+        },
+      },
+      // 按钮文本
+      {
+        propertyName: "addNewRowText",
+        helpText: "新增行按钮文本",
+        label: "新增行按钮文本",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        dependencies: ["allowAddNewRow", "tableType"],
+        defaultValue: "新增一行",
+        validation: {
+          type: ValidationTypes.TEXT,
+        },
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow || props.tableType == "edit";
+        },
+      },
+      // position
+      {
+        propertyName: "addNewRowPosition",
+        helpText: "控制新增行在表格中的位置",
+        label: "新增行位置",
+        controlType: "ICON_TABS",
+        defaultValue: "bottom",
+        options: [
+          {
+            label: "顶部",
+            value: "top",
+          },
+          {
+            label: "底部",
+            value: "bottom",
+          },
+        ],
+        isBindProperty: true,
+        isTriggerProperty: false,
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow;
+        },
+        dependencies: ["allowAddNewRow"],
+      },
+      {
+        propertyName: "defaultNewRow",
+        helpText: "默认新增行数据",
+        label: "默认行数据",
+        controlType: "INPUT_TEXT",
+        dependencies: ["allowAddNewRow"],
+        placeholderText: "请输入默认行数据",
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow;
+        },
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.OBJECT,
+          params: {
+            default: {},
+          },
         },
       },
     ],
@@ -495,86 +626,7 @@ export default [
       },
     ],
   },
-  {
-    sectionName: "新增行数据",
-    children: [
-      {
-        propertyName: "allowAddNewRow",
-        helpText: "显示新增一行按钮，可以在工具栏中配置按钮样式",
-        isJSConvertible: true,
-        label: "允许新增一行",
-        controlType: "SWITCH",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.BOOLEAN,
-        },
-        hidden: (props: TableWidgetProps) => {
-          return props.tableType == "edit";
-        },
-      },
-      // 按钮文本
-      {
-        propertyName: "addNewRowText",
-        helpText: "新增行按钮文本",
-        label: "新增行按钮文本",
-        controlType: "INPUT_TEXT",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        dependencies: ["allowAddNewRow", "tableType"],
-        defaultValue: "新增一行",
-        validation: {
-          type: ValidationTypes.TEXT,
-        },
-        hidden: (props: TableWidgetProps) => {
-          return !props.allowAddNewRow || props.tableType == "edit";
-        },
-      },
-      // position
-      {
-        propertyName: "addNewRowPosition",
-        helpText: "控制新增行在表格中的位置",
-        label: "新增行位置",
-        controlType: "ICON_TABS",
-        defaultValue: "bottom",
-        options: [
-          {
-            label: "顶部",
-            value: "top",
-          },
-          {
-            label: "底部",
-            value: "bottom",
-          },
-        ],
-        isBindProperty: true,
-        isTriggerProperty: false,
-        hidden: (props: TableWidgetProps) => {
-          return !props.allowAddNewRow;
-        },
-        dependencies: ["allowAddNewRow"],
-      },
-      {
-        propertyName: "defaultNewRow",
-        helpText: "默认新增行数据",
-        label: "默认行数据",
-        controlType: "INPUT_TEXT",
-        dependencies: ["allowAddNewRow"],
-        placeholderText: "请输入默认行数据",
-        hidden: (props: TableWidgetProps) => {
-          return !props.allowAddNewRow;
-        },
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.OBJECT,
-          params: {
-            default: {},
-          },
-        },
-      },
-    ],
-  },
+
   {
     sectionName: "查询配置",
     children: [

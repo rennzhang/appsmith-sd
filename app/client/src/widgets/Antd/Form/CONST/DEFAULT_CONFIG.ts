@@ -282,20 +282,9 @@ export const DEFAULT_STYLE_PANEL_CONFIG = [
         hidden: (props: any, propertyPath: string) => {
           const _propertyPath = getParentPropertyPath(propertyPath);
           const propsData = get(props, _propertyPath) || props;
-          console.log("controlSize hidden", propsData);
           if (propsData.type === "ANTD_RADIO_WIDGET") {
             return propsData.radioType === "radio";
           }
-          console.log(
-            "controlSize hidden",
-            [
-              "ANTD_SLIDER_WIDGET",
-              "ANTD_TREE_WIDGET",
-              "ANTD_SWITCH_WIDGET",
-              "ANTD_TEXT_WIDGET",
-            ].includes(propsData.type),
-            { propsData, _propertyPath, propertyPath, props },
-          );
 
           return [
             "ANTD_CHECKBOX_WIDGET",

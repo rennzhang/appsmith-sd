@@ -95,6 +95,12 @@ const StyledDButtonBox = styled.div<{
   overflow: hidden;
   box-shadow: ${({ boxShadow }) => boxShadow};
   border-radius: ${({ borderRadius }) => borderRadius};
+
+  .ant-btn-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 const StyledDropdownBtnContent = styled.div<{
   placement?: ButtonPlacement;
@@ -122,7 +128,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
     buttonSize,
     buttonVariant,
     buttonWidth,
-    configToken,
+    configToken = {},
     followParentTheme,
     iconAlign,
     iconColor,
@@ -170,7 +176,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
           type={buttonType}
         >
           <StyledDropdownBtnContent
-            className="w-full h-full flex items-center"
+            className="w-full h-full flex items-center btn-content"
             iconSize={iconSize}
             placement={placement}
           >
@@ -213,52 +219,41 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       props.loading,
       props.onClick,
       props.placement,
-      props.popconfirmMessage,
     ],
   );
-  const buttonWithTheme = (
+
+  console.log("AntdButtonComponent", props);
+
+  return (
     <ConfigProvider
       theme={{
-        inherit: true,
+        inherit: followParentTheme,
         components: {
           Button: {
             algorithm: true,
             colorPrimary: buttonColor || undefined,
             colorLink: buttonColor || undefined,
             borderRadius: (borderRadius as unknown as number) || 0,
-            ...(configToken || {}),
+            ...(followParentTheme ? configToken : {}),
           },
         },
       }}
     >
-      {buttonContent}
+      <Tooltip placement="top" title={props.tooltip}>
+        {popconfirmMessage ? (
+          <Popconfirm
+            cancelText="取消"
+            okText="确认"
+            onConfirm={onClick as () => void}
+            title={popconfirmMessage}
+          >
+            {buttonContent}
+          </Popconfirm>
+        ) : (
+          buttonContent
+        )}
+      </Tooltip>
     </ConfigProvider>
-  );
-
-  const getButton = useMemo(() => {
-    if (followParentTheme) {
-      return buttonContent;
-    }
-    return buttonWithTheme;
-  }, [followParentTheme, buttonContent, buttonWithTheme]);
-
-  console.log("AntdButtonComponent", props);
-
-  return (
-    <Tooltip placement="top" title={props.tooltip}>
-      {popconfirmMessage ? (
-        <Popconfirm
-          cancelText="取消"
-          okText="确认"
-          onConfirm={onClick as () => void}
-          title={popconfirmMessage}
-        >
-          {getButton}
-        </Popconfirm>
-      ) : (
-        getButton
-      )}
-    </Tooltip>
   );
 }
 

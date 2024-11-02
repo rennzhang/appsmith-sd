@@ -312,13 +312,6 @@ class AntdInputWidget<
                 const _propertyPath = getParentPropertyPath(propertyPath);
                 const propsData = get(props, _propertyPath) || props;
 
-                console.log("prefixColor12312", {
-                  propsData,
-                  _propertyPath,
-                  propertyPath,
-                  props,
-                });
-
                 return propsData.prefixType === "none";
               },
               dependencies: ["prefixType"],

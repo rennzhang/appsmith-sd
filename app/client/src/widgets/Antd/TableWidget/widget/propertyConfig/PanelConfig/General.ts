@@ -213,13 +213,6 @@ export default {
         if (baseProperty?.includes(props.primaryColumnId)) {
           return true;
         }
-        console.log("Antd 表格 isCellEditable hidden", {
-          props,
-          propertyPath,
-          baseProperty,
-          columnType,
-          isDerived,
-        });
         return !isColumnTypeEditable(columnType) || isDerived;
       },
     },

@@ -7,6 +7,7 @@ import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
 import { set } from "lodash";
 
 type FormContextProps<TValues = any> = React.PropsWithChildren<{
+  updateDefaultFormData?: (values: any) => void;
   formColorPrimary?: string;
   formControlSize: ProFormProps["size"];
   formIsDisabled?: boolean;
@@ -52,12 +53,14 @@ export function FormContextProvider({
   renderMode,
   setFormData,
   setMetaInternalFieldState,
+  updateDefaultFormData,
   updateWidgetFormData,
   updateWidgetMetaProperty,
   updateWidgetProperty,
 }: FormContextProps) {
   const value = useMemo(
     () => ({
+      updateDefaultFormData,
       updateWidgetFormData,
       setFormData,
       formColorPrimary,
@@ -100,6 +103,7 @@ export function FormContextProvider({
       formLayout,
       formLabelAlign,
       setFormData,
+      updateDefaultFormData,
     ],
   );
   return <FormContext.Provider value={value}>{children}</FormContext.Provider>;

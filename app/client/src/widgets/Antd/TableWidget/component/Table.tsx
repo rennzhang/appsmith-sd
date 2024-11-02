@@ -96,17 +96,18 @@ const ProtableRender = React.memo(function ProtableRender(
 
         if (action.id == "addNewRow") {
           handleAddNewRow();
+        } else if (action.id === "create") {
+          setJsonFormState({
+            isJsonFormVisible: true,
+            jsonFormType: "add",
+            isSubmitting: false,
+          });
         }
         props?.handleAlertBtnClick(action.onBtnClick);
       },
       {},
       (button) => {
-        if (button.id == "addNewRow") {
-          return !props.allowAddNewRow || props.tableType === "edit";
-        } else if (button.id == "saveDataSource") {
-          return props.tableType !== "edit";
-        }
-        return false;
+        return button.isHiddenItem ?? false;
       },
     );
   }, [
@@ -312,6 +313,7 @@ const JSONFormRender = React.memo(
           onCancel={() =>
             setJsonFormState({
               isJsonFormVisible: false,
+              isSubmitting: false,
             })
           }
           open={isJsonFormVisible}
@@ -323,12 +325,14 @@ const JSONFormRender = React.memo(
             className={"proTable-auto-jsonform"}
             executeAction={props.executeAction}
             initialValues={formProps.sourceData}
+            isSubmitting={!!jsonFormState.isSubmitting}
             maxHeight={formProps.modalHeight}
             onCancel={() => setJsonFormState({ isJsonFormVisible: false })}
             onSubmit={(values) => props.onJsonFormSubmit(values)}
             ref={props.jsonFormRef}
             renderMode={props.renderMode}
             setMetaInternalFieldState={props.setMetaInternalFieldState}
+            updateDefaultFormData={props.updateDefaultFormData}
             updateWidgetFormData={props.updateWidgetFormData}
             updateWidgetMetaProperty={props.updateWidgetMetaProperty}
             updateWidgetProperty={props.updateWidgetProperty}
@@ -395,6 +399,7 @@ export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
         {...props}
         isJsonFormVisible={isJsonFormVisible}
         setIsJsonFormVisible={setIsJsonFormVisible}
+        updateDefaultFormData={props.updateDefaultFormData}
       />
 
       {showConnectDataOverlay && (

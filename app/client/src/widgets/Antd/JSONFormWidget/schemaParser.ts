@@ -36,13 +36,13 @@ import { AntdLabelPosition } from "components/constants";
 type Obj = Record<string, unknown>;
 
 type ParserOptions = {
+  isCreateForm?: boolean;
   baseSchemaPath: string | null;
   currSourceData?: unknown;
   fieldThemeStylesheets?: FieldThemeStylesheet;
   fieldType?: FieldType;
   isCustomField?: boolean;
   isRequired?: boolean;
-  isTableWidget?: boolean;
   prevSchema?: Schema;
   schemaItem?: SchemaItem;
   modifiedSchemaItems: Record<string, unknown>; // Key value pairs of paths and schemaItem which updated.
@@ -71,12 +71,12 @@ type GetKeysFromSchemaOptions = {
 };
 
 type ParseOptions = {
+  isCreateForm?: boolean;
   isCustomField?: boolean;
   isRequired?: boolean;
   currSourceData?: unknown;
   schema?: Schema;
   fieldThemeStylesheets?: FieldThemeStylesheet;
-  isTableWidget?: boolean;
 };
 
 function isObject(val: unknown): val is Obj {
@@ -393,8 +393,8 @@ class SchemaParser {
     const {
       currSourceData,
       fieldThemeStylesheets,
+      isCreateForm,
       isCustomField,
-      isTableWidget,
       schema = {},
     } = options;
     if (!currSourceData)
@@ -418,18 +418,17 @@ class SchemaParser {
       identifier: ROOT_SCHEMA_KEY,
       modifiedSchemaItems,
       prevSchema,
-      skipDefaultValueProcessing: isTableWidget || false,
+      skipDefaultValueProcessing: false,
       sourceDataPath: "sourceData",
       widgetName,
       isCustomField,
-      isTableWidget,
+      isCreateForm,
     });
 
     console.log("SchemaParser.parse", {
       widgetName,
       rootSchemaItem,
       options,
-      isTableWidget,
     });
 
     rootSchemaItem.originalIdentifier = ROOT_SCHEMA_KEY;
@@ -553,8 +552,8 @@ class SchemaParser {
       currSourceData,
       fieldThemeStylesheets,
       identifier,
+      isCreateForm,
       isCustomField = false,
-      isTableWidget,
       skipDefaultValueProcessing,
       sourceDataPath,
       widgetName,
@@ -571,9 +570,8 @@ class SchemaParser {
     );
 
     const defaultValue = (() => {
-      if (isTableWidget) {
-        return currSourceData;
-      }
+      if (isCreateForm) return undefined;
+
       if (isCustomField || skipDefaultValueProcessing) return;
 
       const { prefixTemplate, suffixTemplate } = bindingTemplate;
@@ -685,6 +683,7 @@ class SchemaParser {
   static getUnModifiedSchemaItemFor = ({
     baseSchemaPath,
     currSourceData,
+    isCreateForm,
     schemaItem = {} as SchemaItem,
     ...rest
   }: ParserOptions) => {
@@ -704,6 +703,18 @@ class SchemaParser {
 
     if (dataType === DataType.ARRAY && fieldType === FieldType.ARRAY) {
       children = SchemaParser.convertArrayToSchema(options);
+    }
+    console.log("getUnModifiedSchemaItemFor", {
+      options,
+      children,
+      dataType,
+      fieldType,
+      baseSchemaPath,
+      currSourceData,
+      schemaItem,
+    });
+    if (isCreateForm) {
+      schemaItem.defaultValue = currSourceData as any;
     }
 
     return {

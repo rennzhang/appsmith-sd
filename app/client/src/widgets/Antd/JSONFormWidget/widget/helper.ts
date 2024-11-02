@@ -44,8 +44,8 @@ type ComputedSchema = {
 };
 
 type ComputeSchemaProps = {
+  isCreateForm?: boolean;
   isCustomField?: boolean;
-  isTableWidget?: boolean;
   isRequired?: boolean;
   currSourceData?: JSON;
   prevSourceData?: JSON;
@@ -274,8 +274,8 @@ export const computeSchema = ({
   currentDynamicPropertyPathList,
   currSourceData,
   fieldThemeStylesheets,
+  isCreateForm,
   isCustomField,
-  isTableWidget,
   prevSchema = {},
   prevSourceData,
   widgetName,
@@ -287,7 +287,6 @@ export const computeSchema = ({
     prevSchema,
     prevSourceData,
     widgetName,
-    isTableWidget,
   });
 
   // Hot path - early exit
@@ -328,8 +327,8 @@ export const computeSchema = ({
       fieldThemeStylesheets,
       currSourceData,
       schema: prevSchema,
-      isTableWidget,
       isCustomField,
+      isCreateForm,
     });
 
   log.debug(

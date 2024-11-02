@@ -64,32 +64,9 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
-          {
-            helpText: "点击按钮时触发",
-            propertyName: "onClick",
-            label: "onClick",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
-      {
-        sectionName: "属性",
-        children: [
-          // isGhost
-          {
-            helpText:
-              "幽灵按钮将按钮的内容反色，背景变为透明，常用在有色背景上",
-            propertyName: "isGhost",
-            label: "幽灵按钮",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
+
+          // popconfirmMessage
+
           {
             helpText: "鼠标交互时显示的提示信息",
             propertyName: "tooltip",
@@ -101,9 +78,30 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            helpText: "点击按钮时显示的确认信息",
+            propertyName: "popconfirmMessage",
+            label: "确认信息",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "isVisible",
             label: "是否显示",
             helpText: "控制组件的显示/隐藏",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          // isGhost
+          {
+            helpText:
+              "幽灵按钮将按钮的内容反色，背景变为透明，常用在有色背景上",
+            propertyName: "isGhost",
+            label: "幽灵按钮",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -166,6 +164,20 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "事件",
+        children: [
+          {
+            helpText: "点击按钮时触发",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },

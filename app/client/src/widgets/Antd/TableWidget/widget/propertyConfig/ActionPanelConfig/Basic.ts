@@ -61,6 +61,7 @@ export default {
         "childStylesheet",
         "editingActions",
         "rowSelectionActions",
+        "toolBarActions",
       ],
       isBindProperty: true,
       isTriggerProperty: false,
@@ -69,6 +70,7 @@ export default {
       propertyName: "iconName",
       label: "图标",
       helpText: "设置按钮图标",
+
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByButtonType(props, propertyPath, [ButtonTypes.BUTTON]);
       },
@@ -79,6 +81,7 @@ export default {
         "buttonType",
         "editingActions",
         "rowSelectionActions",
+        "toolBarActions",
       ],
       controlType: "ICON_SELECT",
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -93,8 +96,8 @@ export default {
     // menuIconName
     {
       propertyName: "menuIconName",
-      label: "图标",
-      helpText: "设置按钮图标",
+      label: "菜单图标",
+      helpText: "设置菜单按钮图标",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByButtonType(props, propertyPath, [ButtonTypes.MENU_BUTTON]);
       },
@@ -105,6 +108,7 @@ export default {
         "buttonType",
         "editingActions",
         "rowSelectionActions",
+        "toolBarActions",
       ],
       controlType: "ICON_SELECT",
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -132,6 +136,7 @@ export default {
         "buttonType",
         "editingActions",
         "rowSelectionActions",
+        "toolBarActions",
       ],
       controlType: "ICON_SELECT",
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -160,8 +165,10 @@ export default {
         "editingActions",
         "rowSelectionActions",
         "toolBarActions",
+        "toolBarActions",
         ,
         "rowSelectionActions",
+        "toolBarActions",
       ],
       isBindProperty: true,
       isTriggerProperty: false,
@@ -181,8 +188,10 @@ export default {
         "editingActions",
         "rowSelectionActions",
         "toolBarActions",
+        "toolBarActions",
         ,
         "rowSelectionActions",
+        "toolBarActions",
       ],
       isBindProperty: true,
       isTriggerProperty: false,
@@ -201,8 +210,10 @@ export default {
         "editingActions",
         "rowSelectionActions",
         "toolBarActions",
+        "toolBarActions",
         ,
         "rowSelectionActions",
+        "toolBarActions",
       ],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByButtonType(props, propertyPath, [ButtonTypes.MENU_BUTTON]);
@@ -217,7 +228,12 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
-      dependencies: ["columnActions", "rowSelectionActions", "editingActions"],
+      dependencies: [
+        "columnActions",
+        "rowSelectionActions",
+        "toolBarActions",
+        "editingActions",
+      ],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         if (propertyPath.includes("editingActions")) {
           return true;
@@ -237,7 +253,12 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
-      dependencies: ["columnActions", "rowSelectionActions", "editingActions"],
+      dependencies: [
+        "columnActions",
+        "rowSelectionActions",
+        "toolBarActions",
+        "editingActions",
+      ],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         if (propertyPath.includes("editingActions")) {
           return true;
@@ -289,7 +310,12 @@ export default {
           hideByMenuItemsSource(props, propertyPath, MenuItemsSource.DYNAMIC)
         );
       },
-      dependencies: ["columnActions", "rowSelectionActions", "editingActions"],
+      dependencies: [
+        "columnActions",
+        "rowSelectionActions",
+        "toolBarActions",
+        "editingActions",
+      ],
       panelConfig: {
         editableTitle: true,
         titlePropertyName: "label",
@@ -297,6 +323,7 @@ export default {
         dependencies: [
           "columnActions",
           "rowSelectionActions",
+          "toolBarActions",
           "editingActions",
         ],
         contentChildren: [
@@ -315,6 +342,7 @@ export default {
                 dependencies: [
                   "columnActions",
                   "rowSelectionActions",
+                  "toolBarActions",
                   "editingActions",
                 ],
               },
@@ -329,6 +357,7 @@ export default {
                 dependencies: [
                   "columnActions",
                   "rowSelectionActions",
+                  "toolBarActions",
                   "editingActions",
                 ],
               },
@@ -355,6 +384,7 @@ export default {
                 dependencies: [
                   "columnActions",
                   "rowSelectionActions",
+                  "toolBarActions",
                   "editingActions",
                 ],
               },
@@ -376,6 +406,7 @@ export default {
                 dependencies: [
                   "columnActions",
                   "rowSelectionActions",
+                  "toolBarActions",
                   "editingActions",
                 ],
               },
@@ -397,6 +428,7 @@ export default {
                 dependencies: [
                   "columnActions",
                   "rowSelectionActions",
+                  "toolBarActions",
                   "editingActions",
                 ],
               },
@@ -423,6 +455,7 @@ export default {
                 dependencies: [
                   "columnActions",
                   "rowSelectionActions",
+                  "toolBarActions",
                   "editingActions",
                 ],
               },
@@ -442,6 +475,7 @@ export default {
                 dependencies: [
                   "columnActions",
                   "rowSelectionActions",
+                  "toolBarActions",
                   "editingActions",
                 ],
                 customJSControl: "TABLE_COMPUTE_VALUE",
@@ -468,6 +502,7 @@ export default {
                 dependencies: [
                   "columnActions",
                   "rowSelectionActions",
+                  "toolBarActions",
                   "editingActions",
                 ],
                 validation: {
@@ -490,40 +525,13 @@ export default {
                 dependencies: [
                   "columnActions",
                   "rowSelectionActions",
+                  "toolBarActions",
                   "editingActions",
                 ],
               },
             ],
           },
         ],
-      },
-    },
-    {
-      helpText: "点击按钮时触发",
-      propertyName: "onBtnClick",
-      label: "onClick",
-      controlType: "ACTION_SELECTOR",
-      additionalAutoComplete: (props: TableWidgetProps) => ({
-        currentRow: Object.assign(
-          {},
-          ...Object.keys(props.columnActions).map((key) => ({
-            [key]: "",
-          })),
-        ),
-      }),
-      isJSConvertible: true,
-      dependencies: [
-        "columnActions",
-        "rowSelectionActions",
-        "editingActions",
-        "allowRowSelection",
-      ],
-      isBindProperty: true,
-      isTriggerProperty: true,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return !hideByButtonType(props, propertyPath, [
-          ButtonTypes.MENU_BUTTON,
-        ]);
       },
     },
   ],

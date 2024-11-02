@@ -32,7 +32,6 @@ export type Action = ExecuteTriggerPayload & {
 export type JSONFormState = {
   isJsonFormVisible?: boolean;
   editFormData?: Record<string, unknown>;
-  addFormData?: Record<string, unknown>;
   jsonFormType?: "edit" | "add";
   isSubmitting?: boolean;
 };
@@ -41,6 +40,7 @@ export type JSONFormProps = {
   setIsJsonFormVisible: (isJsonFormVisible?: boolean) => void;
   jsonFormState: JSONFormState;
   setJsonFormState: (jsonFormState: JSONFormState) => void;
+  updateDefaultFormData: (values: any) => void;
   setMetaInternalFieldState: (
     updateCallback: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
     afterUpdateAction?: ExecuteTriggerPayload,
@@ -276,6 +276,7 @@ export type MenuItemAction = {
 };
 
 export interface ButtonAction {
+  isHiddenItem?: boolean;
   placement?: ButtonPlacementTypes;
   textColor: string;
   loading?: boolean;

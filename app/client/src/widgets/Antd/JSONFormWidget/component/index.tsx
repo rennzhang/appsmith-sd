@@ -32,15 +32,14 @@ export interface JSONFormComponentProps<TValues = any>
     ProformContainerComponentProps,
     "formItems" | "formRef" | "updateWidgetProps" | "children"
   > {
+  updateDefaultFormData: (values: any) => void;
   modalWidth?: number;
   modalHeight?: number;
   maxHeight?: number;
   editTitle?: string;
-  sourceData: TValues;
+  sourceData?: TValues;
   className?: string;
 
-  onCancel: () => void;
-  showCancel: boolean;
   isDisabled?: boolean;
   isRequired?: boolean;
   labelAlignment?: "left" | "right";
@@ -131,6 +130,7 @@ function JSONFormComponent<TValues>(
     showCancel,
     submitButtonLabel,
     unregisterResetObserver,
+    updateDefaultFormData,
     updateWidgetFormData,
     updateWidgetMetaProperty,
     updateWidgetProperty,
@@ -232,6 +232,7 @@ function JSONFormComponent<TValues>(
       renderMode={renderMode}
       setFormData={setFormData}
       setMetaInternalFieldState={setMetaInternalFieldState}
+      updateDefaultFormData={updateDefaultFormData}
       updateWidgetFormData={updateWidgetFormData}
       updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}

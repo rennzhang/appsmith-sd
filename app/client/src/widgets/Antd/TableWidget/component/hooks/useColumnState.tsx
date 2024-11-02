@@ -297,7 +297,7 @@ const handleButtonClick = (params: {
       editFormData: record,
       jsonFormType: "edit",
     });
-    // extra.setIsJsonFormVisible(true);
+    extra.setIsJsonFormVisible(true);
     props.handleRowBtnClick("", record);
   } else if (
     button.id === "edit" &&

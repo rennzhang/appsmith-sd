@@ -111,35 +111,25 @@ export const useButtonRender = () => {
       !isHidden && (
         <ButtonComponent
           {...button}
-          borderRadius={button.borderRadius}
-          boxShadow={button.boxShadow}
           buttonColor={button.buttonColor || Colors.AZURE_RADIANCE}
           buttonSize={button.buttonSize || "sm"}
           buttonVariant={button.buttonVariant || "TERTIARY"}
           configToken={configToken}
-          iconAlign={button.iconAlign}
-          iconColor={button.iconColor}
           iconName={
             button.buttonType === ButtonTypes.BUTTON || !button.buttonType
               ? button.iconName
               : button.btnIconName
           }
-          isDisabled={button.isDisabled}
           key={button.id}
-          loading={button.loading}
           onClick={() => {
             onClick?.(button);
           }}
           placement={button.placement || "CENTER"}
-          popconfirmMessage={button.popconfirmMessage}
           text={
             button.buttonType === ButtonTypes.ICON_BUTTON
               ? ""
               : button.buttonLabel
           }
-          textColor={button.textColor}
-          tooltip={button.tooltip}
-          widgetId={button.widgetId}
         />
       )
     );
@@ -154,6 +144,8 @@ export const useButtonRender = () => {
     const sortedButtons = Object.values(buttonActions)
       .sort((a, b) => a.index - b.index)
       .filter((c) => c.showButton);
+
+    console.log("getTableButtonRender", sortedButtons);
 
     return sortedButtons.map((button) =>
       button.buttonType === ButtonTypes.MENU_BUTTON

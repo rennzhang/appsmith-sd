@@ -35,6 +35,7 @@ export const CONFIG = {
   needsHeightForContent: true,
 
   defaults: {
+    defaultFormData: {},
     sourceData: {},
     autoGenerateTableForm: true,
     autoFormConfig: {
@@ -67,6 +68,22 @@ export const CONFIG = {
     columns: 64,
     width: 456,
     toolBarActions: {
+      create: {
+        ...BUTTON_DEFAULT_CONFIG,
+        buttonVariant: ButtonVariantTypes.PRIMARY,
+        buttonSize: undefined,
+        menuButtonLabel: "新建",
+        label: "新建",
+        id: "create",
+        widgetId: "",
+        index: 0,
+        tooltip: "",
+        buttonLabel: "新建",
+        btnIconName: "ant-design:PlusOutlined",
+        onBtnClick: "",
+        isHideDelete: true,
+        iconName: "ant-design:PlusOutlined",
+      },
       addNewRow: {
         ...BUTTON_DEFAULT_CONFIG,
         buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -75,13 +92,14 @@ export const CONFIG = {
         label: "新增一行",
         id: "addNewRow",
         widgetId: "",
-        index: 0,
+        index: 1,
         tooltip: "",
         buttonLabel: "新增一行",
         btnIconName: "ant-design:PlusOutlined",
         onBtnClick: "",
         isHideDelete: true,
         iconName: "ant-design:PlusOutlined",
+        isHiddenItem: true,
       },
       saveDataSource: {
         ...BUTTON_DEFAULT_CONFIG,
@@ -91,12 +109,13 @@ export const CONFIG = {
         label: "保存数据",
         id: "saveDataSource",
         widgetId: "",
-        index: 0,
+        index: 2,
         tooltip: "",
         buttonLabel: "保存数据",
         btnIconName: "ant-design:SaveOutlined",
         onBtnClick: "{{showAlert('请先配置保存数据按钮的动作', 'warning');}}",
         isHideDelete: true,
+        isHiddenItem: true,
       },
     },
     rowSelectionActions: {

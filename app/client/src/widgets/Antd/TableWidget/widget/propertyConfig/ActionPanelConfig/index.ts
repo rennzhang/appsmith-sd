@@ -69,6 +69,40 @@ export default {
         },
       ],
     },
+    // 事件
+    {
+      sectionName: "事件",
+      children: [
+        {
+          helpText: "点击按钮时触发",
+          propertyName: "onBtnClick",
+          label: "onClick",
+          controlType: "ACTION_SELECTOR",
+          additionalAutoComplete: (props: TableWidgetProps) => ({
+            currentRow: Object.assign(
+              {},
+              ...Object.keys(props.columnActions).map((key) => ({
+                [key]: "",
+              })),
+            ),
+          }),
+          isJSConvertible: true,
+          dependencies: [
+            "columnActions",
+            "rowSelectionActions",
+            "editingActions",
+            "allowRowSelection",
+          ],
+          isBindProperty: true,
+          isTriggerProperty: true,
+          hidden: (props: TableWidgetProps, propertyPath: string) => {
+            return !hideByButtonType(props, propertyPath, [
+              ButtonTypes.MENU_BUTTON,
+            ]);
+          },
+        },
+      ],
+    },
   ],
   // styleChildren: ButtonWidget.getPropertyPaneStyleConfig(),
   styleChildren: [
@@ -144,11 +178,6 @@ export default {
     {
       sectionName: "图标",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        // if (propertyPath.includes("editingActions")) {
-        //   return true;
-        // }
-        console.log("图标props", props, propertyPath);
-
         return hideByButtonType(props, propertyPath + ".buttonType", [
           ButtonTypes.BUTTON,
           ButtonTypes.MENU_BUTTON,
