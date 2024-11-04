@@ -238,7 +238,6 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   console.groupEnd();
   return (
     <AntdProformContainer
-      
       className={"antd-pro-form-container-styled"}
       labelAlign={labelAlign}
     >

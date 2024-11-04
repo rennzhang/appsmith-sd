@@ -1,5 +1,5 @@
 import React, { useRef, useMemo, useEffect, useState } from "react";
-import { Button, ConfigProvider, message, Modal, theme } from "antd";
+import { Button, ConfigProvider, message, Modal, theme, Drawer } from "antd";
 import {
   DragSortTable,
   EditableProTable,
@@ -270,6 +270,7 @@ const JSONFormRender = React.memo(
       setJsonFormState,
     } = props;
     const formProps = omit(props.autoFormConfig.config, ["editTitle", "title"]);
+
     useEffect(() => {
       setIsJsonFormVisible(jsonFormState.isJsonFormVisible);
       console.log(" JSONFormRender jsonFormState useEffect", jsonFormState);
@@ -284,12 +285,41 @@ const JSONFormRender = React.memo(
     const modalContainer = useRef<any>(null);
     useEffect(() => {
       if (props.isEditingMode) {
-        modalContainer.current =
-          document.querySelector(`.appsmith_widget_0`) || document.body;
+        if (formProps.jsonFormPopType === "drawer") {
+          modalContainer.current =
+            document.querySelector(`#widgets-editor`) || document.body;
+        } else {
+          modalContainer.current =
+            document.querySelector(`.appsmith_widget_0`) || document.body;
+        }
       } else {
         modalContainer.current = document.body;
       }
-    }, [props.isEditingMode]);
+    }, [props.isEditingMode, formProps.jsonFormPopType]);
+
+    const renderJSONForm = () => (
+      <JSONFormComponent
+        {...formProps}
+        className={`proTable-auto-jsonform ${
+          formProps.jsonFormPopType === "drawer" ? "pop-drawer" : "pop-modal"
+        }`}
+        executeAction={props.executeAction}
+        initialValues={formProps.sourceData}
+        isSubmitting={!!jsonFormState.isSubmitting}
+        maxHeight={formProps.modalHeight}
+        onCancel={() => setJsonFormState({ isJsonFormVisible: false })}
+        onSubmit={(values) => props.onJsonFormSubmit(values)}
+        ref={props.jsonFormRef}
+        renderMode={props.renderMode}
+        setMetaInternalFieldState={props.setMetaInternalFieldState}
+        updateDefaultFormData={props.updateDefaultFormData}
+        updateWidgetFormData={props.updateWidgetFormData}
+        updateWidgetMetaProperty={props.updateWidgetMetaProperty}
+        updateWidgetProperty={props.updateWidgetProperty}
+        widgetId={props.widgetId + "-jsonform"}
+        widgetName={props.widgetName + "_JSONFORM"}
+      />
+    );
 
     return (
       <ConfigProvider
@@ -302,44 +332,54 @@ const JSONFormRender = React.memo(
               boxShadow: formProps.boxShadow,
               titleColor: formProps.titleColor,
             },
+            Drawer: {
+              colorBgElevated: formProps.backgroundColor,
+            },
           },
         }}
       >
-        <Modal
-          footer={null}
-          getContainer={() => {
-            return modalContainer.current;
-          }}
-          onCancel={() =>
-            setJsonFormState({
-              isJsonFormVisible: false,
-              isSubmitting: false,
-            })
-          }
-          open={isJsonFormVisible}
-          title={modalTitle}
-          width={formProps.modalWidth}
-        >
-          <JSONFormComponent
-            {...formProps}
-            className={"proTable-auto-jsonform"}
-            executeAction={props.executeAction}
-            initialValues={formProps.sourceData}
-            isSubmitting={!!jsonFormState.isSubmitting}
-            maxHeight={formProps.modalHeight}
-            onCancel={() => setJsonFormState({ isJsonFormVisible: false })}
-            onSubmit={(values) => props.onJsonFormSubmit(values)}
-            ref={props.jsonFormRef}
-            renderMode={props.renderMode}
-            setMetaInternalFieldState={props.setMetaInternalFieldState}
-            updateDefaultFormData={props.updateDefaultFormData}
-            updateWidgetFormData={props.updateWidgetFormData}
-            updateWidgetMetaProperty={props.updateWidgetMetaProperty}
-            updateWidgetProperty={props.updateWidgetProperty}
-            widgetId={props.widgetId + "-jsonform"}
-            widgetName={props.widgetName + "_JSONFORM"}
-          />
-        </Modal>
+        {formProps.jsonFormPopType === "modal" ? (
+          <Modal
+            footer={null}
+            getContainer={() => modalContainer.current}
+            onCancel={() =>
+              setJsonFormState({
+                isJsonFormVisible: false,
+                isSubmitting: false,
+              })
+            }
+            open={isJsonFormVisible}
+            title={modalTitle}
+            width={formProps.modalWidth}
+          >
+            {renderJSONForm()}
+          </Modal>
+        ) : (
+          <Drawer
+            getContainer={() => modalContainer.current}
+            onClose={() =>
+              setJsonFormState({
+                isJsonFormVisible: false,
+                isSubmitting: false,
+              })
+            }
+            open={isJsonFormVisible}
+            placement="right"
+            rootStyle={{
+              position: "absolute",
+            }}
+            styles={{
+              body: {
+                paddingBottom: 0,
+                paddingTop: 0,
+              },
+            }}
+            title={modalTitle}
+            width={formProps.modalWidth}
+          >
+            {renderJSONForm()}
+          </Drawer>
+        )}
       </ConfigProvider>
     );
   },

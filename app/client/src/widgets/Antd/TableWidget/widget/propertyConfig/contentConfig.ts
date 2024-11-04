@@ -299,11 +299,14 @@ export default [
         controlType: "SWITCH",
         hidden: (props: TableWidgetProps) => {
           return (
+            !Object.values(props.primaryColumns).find(
+              (column) => column.isEditable,
+            ) ||
             props.tableInlineEditType !== TableInlineEditTypes.CUSTOM ||
             props.tableType == "edit"
           );
         },
-        dependencies: ["tableInlineEditType", "tableType"],
+        dependencies: ["tableInlineEditType", "tableType", "primaryColumns"],
       },
       {
         helpText: "调整表单配置",
@@ -318,6 +321,9 @@ export default [
         isTriggerProperty: false,
         hidden: (props: TableWidgetProps) => {
           return (
+            !Object.values(props.primaryColumns).find(
+              (column) => column.isEditable,
+            ) ||
             !props.autoGenerateTableForm ||
             props.tableInlineEditType !== TableInlineEditTypes.CUSTOM ||
             props.tableType == "edit"
@@ -327,6 +333,7 @@ export default [
           "tableInlineEditType",
           "autoGenerateTableForm",
           "tableType",
+          "primaryColumns",
         ],
         panelConfig: JSONFormConfig,
       },

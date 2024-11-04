@@ -8,8 +8,8 @@ import {
 import styled from "styled-components";
 
 export const AntdProformContainer = styled.div<{
-  fixedFooter?: boolean;
-  scrollContents?: boolean;
+  isFixedFooter?: boolean;
+  allowScrollContents?: boolean;
   labelAlign?: string;
   backgroundColor?: string;
   borderRadius?: string;
@@ -18,7 +18,17 @@ export const AntdProformContainer = styled.div<{
   boxShadow?: string;
   maxHeight?: number;
 }>`
-  &.proTable-auto-jsonform.antd-pro-form-jsonform {
+  &.proTable-auto-jsonform.antd-pro-form-jsonform.pop-drawer {
+    margin-inline: -16px;
+    margin-bottom: -20px;
+    height: 100%;
+    padding-top: 16px;
+    form {
+      max-height: 100%;
+    }
+  }
+
+  &.proTable-auto-jsonform.antd-pro-form-jsonform.pop-modal {
     margin-inline: -16px;
     margin-bottom: -20px;
     height: auto;
@@ -47,33 +57,33 @@ export const AntdProformContainer = styled.div<{
     }
 
     .ant-form {
-      ${({ fixedFooter, scrollContents }) =>
-        scrollContents ? "display: flex; flex-direction: column;" : ""};
-      justify-content: ${({ fixedFooter }) =>
-        fixedFooter ? "space-between" : ""};
+      ${({ allowScrollContents, isFixedFooter }) =>
+        allowScrollContents ? "display: flex; flex-direction: column;" : ""};
+      justify-content: ${({ isFixedFooter }) =>
+        isFixedFooter ? "space-between" : ""};
       height: 100%;
-      overflow: ${({ fixedFooter, scrollContents }) =>
-        fixedFooter ? "hidden" : scrollContents ? "auto" : "hidden"};
+      overflow: ${({ allowScrollContents, isFixedFooter }) =>
+        isFixedFooter ? "hidden" : allowScrollContents ? "auto" : "hidden"};
     }
 
     .antd-pro-form-content {
-      overflow: ${({ fixedFooter }) => (fixedFooter ? "auto" : "")};
+      overflow: ${({ isFixedFooter }) => (isFixedFooter ? "auto" : "")};
     }
     .t--jsonformfield-root {
       padding-inline: 16px;
       padding-bottom: 0;
       margin-bottom: 0;
-      overflow: ${({ fixedFooter, scrollContents }) =>
-        fixedFooter ? "auto" : scrollContents ? "auto" : ""};
+      overflow: ${({ allowScrollContents, isFixedFooter }) =>
+        isFixedFooter ? "auto" : allowScrollContents ? "auto" : ""};
     }
     .antd-pro-form-submitter {
       padding-inline: 16px;
       padding-bottom: 16px;
 
-      padding-top: ${({ fixedFooter }) => (fixedFooter ? "10px" : "")};
+      padding-top: ${({ isFixedFooter }) => (isFixedFooter ? "10px" : "")};
       background-color: ${({ backgroundColor }) => backgroundColor};
-      ${({ fixedFooter }) =>
-        fixedFooter ? "position: sticky; bottom: 0;" : ""};
+      ${({ isFixedFooter }) =>
+        isFixedFooter ? "position: sticky; bottom: 0;" : ""};
     }
 
     .ant-form-vertical

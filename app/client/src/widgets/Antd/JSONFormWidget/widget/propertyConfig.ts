@@ -125,7 +125,6 @@ export const onGenerateFormClick = ({
     prevSchema: widgetProperties.schema,
     prevSourceData,
     widgetName: widgetProperties.widgetName,
-    isTableWidget: isTableWidget(props),
   });
 
   console.log("onGenerateFormClick", {
@@ -287,6 +286,27 @@ export const contentConfig = mergeWidgetConfig(
             props.type !== "ANTD_PRO_TABLE_WIDGET",
         },
         {
+          propertyName: "jsonFormPopType",
+          label: "表单弹窗类型",
+          controlType: "ICON_TABS",
+          defaultValue: "modal",
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: false,
+          options: [
+            {
+              label: "弹窗",
+              value: "modal",
+            },
+            {
+              label: "抽屉",
+              value: "drawer",
+            },
+          ],
+          hidden: (props: JSONFormWidgetProps) =>
+            props.type !== "ANTD_PRO_TABLE_WIDGET",
+        },
+        {
           propertyName: "isVisible",
           helpText: "控制组件的显示/隐藏",
           label: "是否显示",
@@ -330,7 +350,7 @@ export const contentConfig = mergeWidgetConfig(
           validation: { type: ValidationTypes.BOOLEAN },
         },
         {
-          propertyName: "fixedFooter",
+          propertyName: "isFixedFooter",
           helpText: "让底部信息固定在表单底部",
           label: "固定底部",
           controlType: "SWITCH",
@@ -338,21 +358,20 @@ export const contentConfig = mergeWidgetConfig(
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.BOOLEAN },
-          hidden: (props: any) => {
-            return props.type === "ANTD_PRO_TABLE_WIDGET";
-          },
+          hidden: (props: JSONFormWidgetProps) =>
+            props.type === "ANTD_PRO_TABLE_WIDGET",
         },
         {
-          propertyName: "scrollContents",
+          propertyName: "allowScrollContents",
           helpText: "允许表单的内容滚动",
           label: "允许内容滚动",
           controlType: "SWITCH",
+          isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.BOOLEAN },
-          hidden: (props: any) => {
-            return props.type === "ANTD_PRO_TABLE_WIDGET";
-          },
+          hidden: (props: JSONFormWidgetProps) =>
+            props.type === "ANTD_PRO_TABLE_WIDGET",
         },
         {
           propertyName: "showReset",
@@ -426,13 +445,13 @@ export const styleConfig = mergeWidgetConfig(
   [
     // 弹窗样式
     {
-      sectionName: "弹框样式",
+      sectionName: "弹层样式",
       children: [
         // 弹窗宽度
         {
           propertyName: "modalWidth",
-          helpText: "弹窗宽度",
-          label: "弹窗宽度",
+          helpText: "弹层宽度",
+          label: "弹层宽度",
           controlType: "INPUT_TEXT",
           isJSConvertible: true,
           isBindProperty: true,
@@ -464,8 +483,12 @@ export const styleConfig = mergeWidgetConfig(
               min: 240,
             },
           },
+          dependencies: ["jsonFormPopType"],
           hidden: (props: any) => {
-            return props.type !== "ANTD_PRO_TABLE_WIDGET";
+            return (
+              props.type !== "ANTD_PRO_TABLE_WIDGET" ||
+              props.jsonFormPopType === "drawer"
+            );
           },
         },
       ],

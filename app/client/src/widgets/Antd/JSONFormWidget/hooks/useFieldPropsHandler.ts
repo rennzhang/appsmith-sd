@@ -68,11 +68,11 @@ export const useFieldPropsHandler = ({
       formValue: T,
       prevFormValue: T,
     ) =>
-      schemaValue !== prevSchemaValue
+      (schemaValue !== prevSchemaValue
         ? schemaValue
         : formValue !== prevFormValue
         ? formValue
-        : prevSchemaValue ?? prevFormValue;
+        : prevSchemaValue ?? prevFormValue) || formValue;
 
     const controlSize = getUpdatedValue(
       schemaItem.controlSize,

@@ -26,13 +26,17 @@ import {
 } from "@ant-design/pro-components";
 import type { CheckboxGroupAlignment } from "components/constants";
 import type { ProformContainerComponentProps } from "./AntdForm";
+import type { FieldError } from "rc-field-form/lib/interface";
 
 export interface JSONFormComponentProps<TValues = any>
   extends Omit<
     ProformContainerComponentProps,
     "formItems" | "formRef" | "updateWidgetProps" | "children"
   > {
-  updateDefaultFormData: (values: any) => void;
+  isCreateMode?: boolean;
+  jsonFormPopType?: "modal" | "drawer";
+
+  updateDefaultFormData?: (values: any) => void;
   modalWidth?: number;
   modalHeight?: number;
   maxHeight?: number;
@@ -134,6 +138,7 @@ function JSONFormComponent<TValues>(
     updateWidgetFormData,
     updateWidgetMetaProperty,
     updateWidgetProperty,
+
     ...rest
   } = props;
   const isSchemaEmpty = isEmpty(schema);
@@ -190,6 +195,7 @@ function JSONFormComponent<TValues>(
   }, [fieldLimitExceeded, isSchemaEmpty, renderMode, renderRootField]);
 
   const hideFooter = fieldLimitExceeded || isSchemaEmpty;
+  const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
 
   // formRef console.log();
 
@@ -229,7 +235,9 @@ function JSONFormComponent<TValues>(
       formLabelAlign={rest.labelAlignment}
       formLayout={rest.formLayout}
       formRef={ref}
+      initialValues={props.initialValues}
       renderMode={renderMode}
+      setFieldErrors={setFieldErrors}
       setFormData={setFormData}
       setMetaInternalFieldState={setMetaInternalFieldState}
       updateDefaultFormData={updateDefaultFormData}
@@ -240,10 +248,11 @@ function JSONFormComponent<TValues>(
       <AntProFormComponent
         {...styleProps}
         {...props}
-        fixedFooter={rest.fixedFooter}
+        fieldErrors={fieldErrors}
         formItems={formItems}
         formRef={ref}
         hideFooter={hideFooter}
+        isFixedFooter={rest.isFixedFooter}
         maxHeight={props.maxHeight}
         onCancel={onCancel}
         onSubmit={onSubmit}

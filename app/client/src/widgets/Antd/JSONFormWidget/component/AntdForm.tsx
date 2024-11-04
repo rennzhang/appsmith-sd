@@ -14,6 +14,7 @@ import type { WidgetStyleContainerProps } from "components/designSystems/appsmit
 import type { MouseEventHandler, ReactNode } from "react";
 import {
   forwardRef,
+  useContext,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -32,13 +33,16 @@ import {
 } from "components/constants";
 import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
+import { useFormContext } from "react-hook-form";
+import FormContext from "../FormContext";
 
 export interface ProformContainerComponentProps {
+  fieldErrors?: FieldError[];
   isDisabled?: boolean;
   className?: string;
   showCancel?: boolean;
   onCancel?: () => void;
-  scrollContents: boolean;
+  allowScrollContents: boolean;
   initialValues?: Record<string, any>;
   borderColor?: Color;
   borderRadius?: number;
@@ -94,7 +98,7 @@ export interface ProformContainerComponentProps {
   disabledWhenInvalid?: boolean;
   colorPrimary?: string;
   titleColor?: string;
-  fixedFooter: boolean;
+  isFixedFooter: boolean;
   maxHeight?: number;
   submitButtonStyles?: any;
   resetButtonStyles?: any;
@@ -103,6 +107,7 @@ export interface ProformContainerComponentProps {
 
 const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   const {
+    allowScrollContents,
     backgroundColor,
     borderColor,
     borderRadius,
@@ -113,13 +118,14 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     colorPrimary,
     disabled,
     disabledWhenInvalid,
-    fixedFooter,
+    fieldErrors,
     formItems,
     formLayout,
     formRef,
     hideFooter,
     initialValues,
     isDisabled,
+    isFixedFooter,
     isKeyPressSubmit,
     isSubmitting,
     labelAlign,
@@ -130,7 +136,6 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     maxHeight,
     onSubmit,
     resetButtonLabel,
-    scrollContents,
 
     showReset,
     size,
@@ -147,13 +152,13 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   const { renderActionButton } = useTableButtonRender();
   // 是否校验中
   const [validating, setValidating] = useState<boolean>(false);
-  const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
 
   // 自动更新initialValues
   useEffect(() => {
     console.log("表单组件 initialValues", initialValues);
     formRef?.current?.setFieldsValue(initialValues);
   }, [initialValues]);
+
   const updateErrorFidlds = (errorFields?: FieldError[]) => {
     // 按照formItems的顺序排序，返回格式和errorFields一致，并在每个item中增加label字段，只返回有错误的字段
 
@@ -195,10 +200,6 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
           ?.getFieldsError()
           .filter((item) => item.errors.length > 0 || item.warnings.length > 0);
         updateErrorFidlds(errorFields);
-
-        if (validateMessage && errorFields?.length) {
-          message.error(validateMessage);
-        }
 
         await setValidating(false);
       });
@@ -261,8 +262,12 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     console.group("表单组件 handleFinishFailed");
     console.log("handleFinishFailed values", values);
     // console.log("getFormData", getFormData(getChildContainer?.()));
-
-    setFieldErrors(formRef?.current?.getFieldsError() || []);
+    const errorFields = formRef?.current
+      ?.getFieldsError()
+      .filter((item) => item.errors.length > 0 || item.warnings.length > 0);
+    if (validateMessage && errorFields?.length) {
+      message.error(validateMessage);
+    }
     console.log(" formRef.current", formRef?.current);
     console.log(
       " formRef.current getFieldsError",
@@ -276,28 +281,12 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   };
 
   const isFormValid = useMemo(() => {
-    return fieldErrors.length === 0;
+    return fieldErrors?.length === 0;
   }, [fieldErrors]);
 
   const isSubmitDisabled = useMemo(() => {
     return (disabledWhenInvalid && !isFormValid) || isDisabled;
   }, [disabledWhenInvalid, isFormValid, isDisabled]);
-
-  // const handleSubmit = async (values: any) => {
-  //   console.group("表单组件 handleSubmit");
-  //   console.log("handleSubmit values", values);
-  //   console.log("getFormData", getFormData(getChildContainer?.()));
-  //   console.log(" formRef.current", formRef.current);
-  //   console.log(
-  //     " formRef.current getFieldsError",
-  //     formRef.current?.getFieldsError(),
-  //   );
-  //   const val1 = await formRef.current?.validateFields();
-  //   console.log("validateFields:", val1);
-  //   const val2 = await formRef.current?.validateFieldsReturnFormatValue?.();
-  //   console.log("validateFieldsReturnFormatValue:", val2);
-  //   console.groupEnd();
-  // };
 
   const [submitButtonColor, setSubmitButtonColor] = useState<string>("");
   useEffect(() => {
@@ -397,16 +386,16 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   console.groupEnd();
   return (
     <AntdProformContainer
+      allowScrollContents={allowScrollContents}
       backgroundColor={backgroundColor}
       borderColor={borderColor}
       borderRadius={borderRadius as unknown as string}
       borderWidth={borderWidth as unknown as string}
       boxShadow={boxShadow}
       className={`antd-pro-form-container-styled antd-pro-form-jsonform ${className}`}
-      fixedFooter={fixedFooter}
+      isFixedFooter={isFixedFooter}
       labelAlign={labelAlign}
       maxHeight={maxHeight}
-      scrollContents={scrollContents}
     >
       <ConfigProvider
         theme={{

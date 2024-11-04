@@ -43,6 +43,8 @@ export const CONFIG = {
       id: "config",
       config: {
         ...JSONFormDefaults,
+        jsonFormPopType: "modal",
+        disabledWhenInvalid: false,
         title: "新建",
         editTitle: "编辑",
         borderWidth: "0",

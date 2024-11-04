@@ -46,14 +46,14 @@ export interface JSONFormWidgetProps extends WidgetProps {
   disabledWhenInvalid?: boolean;
   fieldLimitExceeded: boolean;
   fieldState: Record<string, unknown>;
-  fixedFooter: boolean;
+  isFixedFooter: boolean;
   formData: Record<string, unknown>;
   isVisible: boolean;
   onSubmit?: string;
   resetButtonLabel: string;
   resetButtonStyles: ButtonStyleProps;
   schema: Schema;
-  scrollContents: boolean;
+  allowScrollContents: boolean;
   showReset: boolean;
   sourceData?: Record<string, unknown>;
   useSourceData?: boolean;
@@ -568,6 +568,7 @@ class JSONFormWidget extends BaseWidget<
       // re-rendering.
       <JSONFormComponent
         {...this.props}
+        allowScrollContents={this.props.allowScrollContents}
         backgroundColor={this.props.backgroundColor}
         borderColor={this.props.borderColor}
         borderRadius={this.props.borderRadius}
@@ -578,10 +579,10 @@ class JSONFormWidget extends BaseWidget<
         executeAction={this.onExecuteAction}
         fieldLimitExceeded={this.props.fieldLimitExceeded}
         fixMessageHeight={isAutoHeightEnabled}
-        fixedFooter={this.props.fixedFooter}
         getFormData={this.getFormData}
         initialValues={this.props.sourceData}
         isDisabled={this.props.isDisabled}
+        isFixedFooter={this.props.isFixedFooter}
         isKeyPressSubmit={this.props.isKeyPressSubmit}
         isRequired={this.props.isRequired}
         isSubmitting={this.state.isSubmitting}
@@ -594,7 +595,6 @@ class JSONFormWidget extends BaseWidget<
         resetButtonLabel={this.props.resetButtonLabel}
         resetButtonStyles={this.props.resetButtonStyles}
         schema={this.props.schema}
-        scrollContents={this.props.scrollContents}
         setMetaInternalFieldState={this.setMetaInternalFieldState}
         showReset={this.props.showReset}
         submitButtonLabel={this.props.submitButtonLabel}
