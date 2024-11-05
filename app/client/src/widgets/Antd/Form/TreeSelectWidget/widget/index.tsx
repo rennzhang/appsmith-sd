@@ -657,6 +657,8 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
         required={this.props.isRequired}
         width={componentWidth}
         {...this.props}
+        value={this.props.selectedValue}
+
         onChange={this.handleValueChange}
         onSearch={this.handleSearch}
         updateSelectInfo={this.updateSelectInfo}

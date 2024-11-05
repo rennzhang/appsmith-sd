@@ -1,6 +1,6 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
-import { debounce, difference, isEmpty, noop, merge } from "lodash";
+import { debounce, difference, isEmpty, noop, merge, isEqual } from "lodash";
 import { klona } from "klona";
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -34,6 +34,7 @@ import type { AutocompletionDefinitions } from "widgets/constants";
 import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
 import { CONFIG as ANTD_BUTTON_WIDGET_CONFIG } from "widgets/Antd/ButtonWidget";
 import { ButtonVariantTypes } from "components/constants";
+import { diff } from "deep-diff";
 export interface JSONFormWidgetProps extends WidgetProps {
   controlSize: ProFormProps["size"];
 
@@ -285,14 +286,20 @@ class JSONFormWidget extends BaseWidget<
       const { formData } = this.props;
       this.updateWidgetFormData(formData);
     }
+    console.log("jsondiffProps", {
+      prevProps,
+      props: this.props,
+      // diff: diff(prevProps, this.props),
+    });
+    if (!isEqual(prevProps.autoGenerateForm, this.props.autoGenerateForm)) {
+      const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
+      console.log("componentDidUpdateschema", schema, this.props.isRequired);
 
-    const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
-    console.log("componentDidUpdateschema", schema, this.props.isRequired);
-
-    this.debouncedParseAndSaveFieldState(
-      this.state.metaInternalFieldState,
-      schema,
-    );
+      this.debouncedParseAndSaveFieldState(
+        this.state.metaInternalFieldState,
+        schema,
+      );
+    }
   }
 
   deferredComponentDidRender() {

@@ -4,7 +4,7 @@ import type { RenderMode } from "constants/WidgetConstants";
 import type { Action, JSONFormWidgetState } from "./widget";
 import type { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
-import { set } from "lodash";
+import { get, set } from "lodash";
 import type { FieldError } from "rc-field-form/lib/interface";
 
 type FormContextProps<TValues = any> = React.PropsWithChildren<{
@@ -89,10 +89,14 @@ export function FormContextProvider({
 
         // await formRef?.current?.setFieldsValue(newFormData);
         const formData = await formRef?.current?.getFieldsValue();
+        const isUpdateChange = Object.keys(values).some(
+          (key) => values[key] !== get(formData, key),
+        );
+        if (!isUpdateChange) return;
 
         await updateWidgetFormData(formData);
         setFormData(newFormData);
-        const isChange = Object.keys(values).some(
+        const isChangeWithValidate = Object.keys(values).some(
           (value) => values[value] !== initialValues[value],
         );
 
@@ -100,17 +104,27 @@ export function FormContextProvider({
           values,
           formData,
           newFormData,
-          isChange,
+          isChangeWithValidate,
           initialValues,
+          isUpdateChange,
         });
         cb?.(newFormData);
 
         try {
-          if (!isChange) return;
+          if (!isChangeWithValidate) return;
           await formRef?.current?.validateFields(Object.keys(values));
           setFieldErrors([]);
-        } catch (error) {
-          setFieldErrors(error as FieldError[]);
+        } catch (error: any) {
+          console.log("updateFormData validateFields", {
+            values,
+            formData,
+            newFormData,
+            isChangeWithValidate,
+            initialValues,
+            error,
+          });
+
+          setFieldErrors(error?.errorFields as FieldError[]);
         }
       },
       updateWidgetMetaProperty,

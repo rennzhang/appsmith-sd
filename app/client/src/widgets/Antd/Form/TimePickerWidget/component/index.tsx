@@ -155,7 +155,8 @@ export interface TimePickerWidgetProps {
   errorMessage: string;
   controlSize?: SizeType;
   allowClear?: boolean;
-  defaultValue?: string;
+  defaultValue?: string | [string, string];
+  value?: string | [string, string];
   format?: string;
   loading?: boolean;
   isRangePicker?: boolean;
@@ -225,17 +226,22 @@ const AntdTimePickerWidget: React.FC<TimePickerWidgetProps> = (props) => {
   const [value, setValue] = useState<TimePickerProps["value"]>();
   const [rangeValue, setRangeValue] = useState<RangePickerProps["value"]>();
 
-  const defaultValueMemo = useMemo(() => {
-    if (isRangePicker) {
-      try {
-        return JSON.parse(defaultValue || "[]").map((c: any) =>
-          c ? transDayjs(c, format) : undefined,
-        );
-      } catch (error) {
-        return [undefined, undefined];
+  useEffect(() => {
+    if (props.isRangePicker) {
+      setRangeValue(props.value as any);
+    } else {
+      setValue(props.value as any);
+    }
+  }, [props.value]);
+
+  useEffect(() => {
+    if (defaultValue) {
+      if (isRangePicker) {
+        setRangeValue(defaultValue as any);
+      } else {
+        setValue(defaultValue as any);
       }
     }
-    return defaultValue?.length ? transDayjs(defaultValue, format) : undefined;
   }, [defaultValue]);
 
   const presetRange = useMemo(() => {
@@ -255,32 +261,26 @@ const AntdTimePickerWidget: React.FC<TimePickerWidgetProps> = (props) => {
   }, [props.presetSingle]);
 
   useEffect(() => {
-    console.log("时间选择 defaultValueMemo", defaultValueMemo);
-    !Array.isArray(defaultValueMemo) && setValue(defaultValueMemo as any);
-    setRangeValue(defaultValueMemo as any);
-  }, [defaultValueMemo]);
-
-  useEffect(() => {
     let transValue: typeof value | typeof rangeValue;
-    if (!selectedValue) return setValue(undefined);
+    if (!props.value) return setValue(undefined);
     if (isRangePicker) {
-      if (Array.isArray(selectedValue)) {
-        transValue = selectedValue.map((c: any) =>
+      if (Array.isArray(props.value)) {
+        transValue = props.value.map((c: any) =>
           c ? transDayjs(c, format) : undefined,
         ) as any;
       } else {
-        transValue = [transDayjs(selectedValue, format), undefined as any];
+        transValue = [transDayjs(props.value, format), undefined as any];
       }
       setRangeValue(transValue as any);
     } else {
-      if (Array.isArray(selectedValue)) {
-        transValue = transDayjs(selectedValue[0], format);
+      if (Array.isArray(props.value)) {
+        transValue = transDayjs(props.value[0], format);
       } else {
-        transValue = transDayjs(selectedValue, format);
+        transValue = transDayjs(props.value, format);
       }
       setValue(transValue);
     }
-  }, [selectedValue]);
+  }, [props.value]);
 
   const colLayoutMemo = useMemo(() => {
     if (labelPosition === AntdLabelPosition.Left) {
@@ -516,7 +516,7 @@ const PickerWithType = (props: {
   value: TimePickerProps["value"];
   disabledTime: TimePickerProps["disabledTime"];
   rangeValue: TimeRangePickerProps["value"];
-  onChange: TimePickerProps["onChange"] | TimePickerProps["onChange"];
+  onChange: TimePickerProps["onChange"];
   onRangeChange: TimeRangePickerProps["onChange"];
   onOk: () => void;
   showPreset?: boolean;

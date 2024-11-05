@@ -17,7 +17,7 @@ import { ComputedSchemaStatus, computeSchema } from "./helper";
 import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
 import { CONFIG as ANTD_FORM_WIDGET_CONFIG } from "widgets/Antd/Form/FormWidget";
 import { mergeWidgetConfig } from "utils/helpers";
-import { cloneDeep } from "lodash";
+import { cloneDeep, isString } from "lodash";
 import { CONFIG as ANTD_BUTTON_WIDGET_CONFIG } from "widgets/Antd/ButtonWidget";
 const MAX_NESTING_LEVEL = 5;
 console.log("ANTD_FORM_WIDGET_CONFIG", ANTD_FORM_WIDGET_CONFIG);
@@ -110,11 +110,18 @@ export const onGenerateFormClick = ({
 
   if (widgetProperties.autoGenerateForm) return;
 
-  const currSourceData =
-    widgetProperties.sourceData ||
+  let currSourceData =
     (widgetProperties[EVALUATION_PATH]?.evaluatedValues?.sourceData as
       | Record<string, any>
-      | Record<string, any>[]);
+      | Record<string, any>[]) || widgetProperties.sourceData;
+
+  try {
+    if (isString(currSourceData)) {
+      currSourceData = JSON.parse(currSourceData);
+    }
+  } catch (error) {
+    console.error("onGenerateFormClick sourceData 解析失败", error);
+  }
 
   const prevSourceData = widgetProperties.schema?.__root_schema__?.sourceData;
 

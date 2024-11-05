@@ -308,7 +308,9 @@ const JSONFormRender = React.memo(
         isSubmitting={!!jsonFormState.isSubmitting}
         maxHeight={formProps.modalHeight}
         onCancel={() => setJsonFormState({ isJsonFormVisible: false })}
-        onSubmit={(values) => props.onJsonFormSubmit(values)}
+        onSubmit={(values) => {
+          props.onJsonFormSubmit(values);
+        }}
         ref={props.jsonFormRef}
         renderMode={props.renderMode}
         setMetaInternalFieldState={props.setMetaInternalFieldState}

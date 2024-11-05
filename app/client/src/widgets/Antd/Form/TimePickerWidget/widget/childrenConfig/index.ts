@@ -10,12 +10,6 @@ const getPropsData = (props: any, propertyPath: string) => {
   const _propertyPath = propertyPath.split(".disabledTimeRule")[0];
   const targetPath = _propertyPath == propertyPath ? "" : _propertyPath;
   const data = get(props, targetPath) || props;
-  console.log("getPropsData 时间选择器", {
-    targetPath,
-    data,
-    propertyPath,
-    _propertyPath,
-  });
 
   return data;
 };

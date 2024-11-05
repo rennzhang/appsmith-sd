@@ -38,9 +38,9 @@ function AntdTimePickerField({
     passedDefaultValue,
   });
   const onTimeChange = useCallback(
-    (value: any) => {
+    (value: any, valueString: any) => {
       updateFormData({
-        [name]: value,
+        [name]: valueString,
       });
 
       if (schemaItem.onTimeChange && executeAction) {

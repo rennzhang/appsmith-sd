@@ -113,7 +113,6 @@ function AntdTreeSelectField({
         {...commonProps}
         onChange={onChangeHandler}
         onSearch={onSearchHandler}
-        selectedValue={commonProps.value}
         updateSelectInfo={updateSelectInfo}
       />
     );

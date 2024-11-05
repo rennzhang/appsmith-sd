@@ -1735,7 +1735,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           updatePageSize={this.updatePageSize}
           updateWidgetFormData={this.updateWidgetFormData}
           updateWidgetMetaProperty={this.props.updateWidgetMetaProperty}
-          updateWidgetProperty={this.updateWidgetProperty}
+          updateWidgetProperty={this.onUpdateWidgetProperty}
           variant={this.props.variant}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
@@ -1744,6 +1744,9 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       </Suspense>
     );
   }
+  onUpdateWidgetProperty = (propertyName: string, propertyValue: any) => {
+    this.updateWidgetProperty(propertyName, propertyValue);
+  };
 
   /**
    * Function to update or add the tableWidgetColumnOrder key in the local storage
@@ -2346,6 +2349,8 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   onJsonFormSubmit = (values: any, cb?: () => void) => {
+    console.log("onJsonFormSubmit", { values });
+
     this.setJsonFormState({
       isSubmitting: true,
     });

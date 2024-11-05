@@ -66,35 +66,6 @@ function AntdSelectField({
     propertyName: `${name}.searchText`,
   });
 
-  // const fieldDefaultValue = useMemo(() => {
-  //   const values: LabelInValueType["value"][] | LabelInValueType[] = (() => {
-  //     if (!isNil(passedDefaultValue) && validateOptions(passedDefaultValue)) {
-  //       return passedDefaultValue;
-  //     }
-
-  //     if (
-  //       !isNil(schemaItem.defaultValue) &&
-  //       validateOptions(schemaItem.defaultValue)
-  //     ) {
-  //       return schemaItem.defaultValue;
-  //     }
-
-  //     return [];
-  //   })();
-
-  //   if (values.length && isPrimitive(values[0])) {
-  //     return values as LabelInValueType["value"][];
-  //   } else {
-  //     return componentValuesToFieldValues(values as LabelInValueType[]);
-  //   }
-  // }, [schemaItem.defaultValue, passedDefaultValue]);
-
-  // useEffect(() => {
-  //   updateFormData({
-  //     [name]: fieldDefaultValue,
-  //   });
-  // }, [name, fieldDefaultValue, updateFormData]);
-
   const onSearchHandler = useCallback(
     (value: string) => {
       updateFilterText(value);

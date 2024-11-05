@@ -636,7 +636,7 @@ class AntdTimePickerWidget extends BaseWidget<
         handleDateValid={this.handleDateValid}
         onChange={this.handleTimeSelected}
         // onOk={this.onOk}
-        selectedValue={this.props.value}
+        value={this.props.value}
       />
     );
   }

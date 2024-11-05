@@ -163,6 +163,8 @@ function ArrayField({
 
   const updateValue = async (data: any) => {
     const _value = formRef?.current?.getFieldValue(name.split("."));
+    if (_value === undefined) return;
+    if (isEqual(_value, data)) return;
 
     await setValue(_value);
     await setCachedDefaultValue(klona(_value));
@@ -194,51 +196,44 @@ function ArrayField({
         updateValue,
       );
     },
-    [cachedDefaultValue, keysRef, updateFormData, name],
+    [name, updateFormData, updateValue],
   );
 
   const remove = useCallback(
     (removedKey: string) => {
-      const values = klona(formRef?.current?.getFieldValue(name.split(".")));
-      if (values === undefined) {
-        return;
-      }
+      const values = formRef?.current?.getFieldValue(name.split("."));
+      if (values === undefined) return;
 
       const removedIndex = keysRef.current.findIndex(
         (key) => key === removedKey,
       );
 
-      // If the array has some default value passed from the sourceData
-      // and the default array item is removed then we need to remove the
-      // same index data from the default value in order to avoid that
-      // data to get populated when add button is clicked as we use
-      // cachedDefaultValue[index] in the FieldRenderer
-      if (removedIndex < cachedDefaultValue.length) {
-        setCachedDefaultValue((prevDefaultValue) => {
-          const clonedValue = klona(prevDefaultValue);
-
-          clonedValue.splice(removedIndex, 1);
-
-          return clonedValue;
-        });
-      }
-
-      // Manually remove from the values and re-insert to maintain the position of the
-      // values
-      const newValues = klona(
-        values.filter((_val: any, index: number) => index !== removedIndex),
+      const newValues = values.filter(
+        (_val: any, index: number) => index !== removedIndex,
       );
+
+      console.log("removeremoveremoveremove", {
+        removedIndex,
+        removedKey,
+        values,
+        newValues,
+        name,
+        cachedDefaultValue,
+      });
+
+      // if (removedIndex < cachedDefaultValue.length) {
+      //   setCachedDefaultValue((prev) => {
+      //     const cloned = klona(prev);
+      //     cloned.splice(removedIndex, 1);
+      //     return cloned;
+      //   });
+      // }
 
       removedKeys.current = [removedKey];
 
-      updateFormData(
-        {
-          [name]: newValues,
-        },
-        updateValue,
-      );
+      updateFormData({ [name]: newValues }, updateValue);
     },
-    [cachedDefaultValue, keysRef, updateFormData],
+    [name, updateFormData, updateValue],
   );
   console.log("ArrayField props", {
     defaultValue,
@@ -367,17 +362,11 @@ function ArrayField({
             />
             <StyledButtonContainer>
               {/* 复制 */}
-              <Tooltip title="复制此项到行尾">
+              <Tooltip title="复制该项到行尾">
                 <Button
                   className="t--jsonformfield-array-copy-btn p-0"
                   key={key}
-                  onClick={
-                    () => addItem(index)
-                    // actionRef.current?.add?.(
-                    //   actionRef.current?.get?.(index),
-                    //   actionRef.current?.getList()?.length,
-                    // )
-                  }
+                  onClick={() => addItem(index)}
                   size="small"
                   type="link"
                 >

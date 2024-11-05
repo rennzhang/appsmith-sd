@@ -66,9 +66,10 @@ function FieldRenderer({
 
   return (
     <FieldComponent
-      inArray={inArray}
       fieldClassName={fieldName.replace(/[\.\[\]]/gi, "-")} // replace [,],. with -
+      inArray={inArray}
       isLastField={isLastField}
+      key={fieldName}
       name={fieldName}
       passedDefaultValue={passedDefaultValue}
       propertyPath={propertyPath}

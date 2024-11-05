@@ -15,6 +15,7 @@ import { ProFormItem, ProFormRadio } from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { CheckboxProps } from "antd/lib";
 import type { TextSize } from "constants/WidgetConstants";
+import { isArray } from "lodash";
 export interface RadioGroupContainerProps {
   compactMode: boolean;
   labelPosition?: AntdLabelPosition;
@@ -58,14 +59,19 @@ function CheckboxGroupComponent(props: CheckboxComponentProps) {
     required,
     widgetName,
   } = props;
-  const [value, setValue] = useState(props.value);
+  const [value, setValue] = useState<CheckboxValueType[]>([]);
   useEffect(() => {
-    setValue(props.value);
+    const _value = isArray(props.value) ? props.value : [props.value];
+    setValue(_value);
   }, [props.value]);
 
   useEffect(() => {
     if (defaultValue) {
-      setValue(defaultValue);
+      const _defaultValue = isArray(props.defaultValue)
+        ? props.defaultValue
+        : [props.defaultValue];
+
+      setValue(_defaultValue);
     }
   }, [defaultValue]);
   const fieldNamesValue = useMemo(() => {
@@ -108,6 +114,10 @@ function CheckboxGroupComponent(props: CheckboxComponentProps) {
     });
   }, [options, fieldNamesValue]);
 
+  console.group("Antd 复选框组件");
+  console.log("Antd 复选框组件 value", value);
+  console.groupEnd();
+
   return (
     <AntdFormItemContainer
       alignment={alignment}
@@ -138,7 +148,6 @@ function CheckboxGroupComponent(props: CheckboxComponentProps) {
         >
           <Checkbox.Group
             disabled={disabled}
-            name={accessor || widgetName}
             onChange={handleChange}
             style={{
               marginBottom: 0,

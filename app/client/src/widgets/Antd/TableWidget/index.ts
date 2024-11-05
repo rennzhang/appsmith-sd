@@ -189,6 +189,19 @@ export const CONFIG = {
       },
     },
     columnActions: {
+      details: {
+        ...BUTTON_DEFAULT_CONFIG,
+        menuButtonLabel: "查看",
+        isHideDelete: true,
+        label: "查看",
+        id: "details",
+        widgetId: "",
+        index: 0,
+        tooltip: "查看",
+        buttonLabel: "查看",
+        btnIconName: "ant-design:EyeOutlined",
+        onBtnClick: "{{showAlert('请先配置查看按钮的动作', 'warning');}}",
+      },
       edit: {
         ...BUTTON_DEFAULT_CONFIG,
         menuButtonLabel: "编辑",

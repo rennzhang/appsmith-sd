@@ -1,38 +1,14 @@
-import type { ReactNode } from "react";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 import "rc-tree-select/assets/index.less";
-import type {
-  ChangeEventExtra,
-  DefaultValueType,
-} from "rc-tree-select/lib/interface";
-import type { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
-import styled from "styled-components";
+import type { DefaultValueType } from "rc-tree-select/lib/interface";
 import type { RenderMode, TextSize } from "constants/WidgetConstants";
-import type { Alignment } from "@blueprintjs/core";
 import { AntdLabelPosition } from "components/constants";
 import type { ProFormItemProps } from "@ant-design/pro-components";
 import { ProFormItem } from "@ant-design/pro-components";
-import type { CascaderProps, TreeProps, SelectProps } from "antd";
-import { ConfigProvider, Cascader, Tree, Select } from "antd";
-import type { InputStatus } from "antd/es/_util/statusUtils";
+import type { SelectProps } from "antd";
+import { ConfigProvider, Select } from "antd";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
-import {
-  DownOutlined,
-  FrownFilled,
-  FrownOutlined,
-  MehOutlined,
-  SmileOutlined,
-} from "@ant-design/icons";
-import type { IconName } from "@blueprintjs/icons";
-import { Icon } from "@blueprintjs/core";
-import { cloneDeep } from "lodash";
 
 export interface TreeSelectComponentProps {
   valueKey: string;
@@ -75,7 +51,7 @@ export interface TreeSelectComponentProps {
   maxTagCount?: number;
   maxTagTextLength?: number;
   showSearch?: boolean;
-  selectedValue?: string | string[];
+  value?: DefaultValueType;
   tokenSeparators?: string[];
   handleSearch?: (value: string) => void;
   handleValueChange?: (value: any, label: any) => void;
@@ -116,7 +92,6 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     placeholderText,
     renderMode,
     required,
-    selectedValue,
     showSearch,
     tokenSeparators,
     updateSelectInfo,
@@ -125,6 +100,27 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     // height
   } = props;
 
+  const [value, setValue] = useState<any>();
+  useEffect(() => {
+    setValue(props.value);
+    // setValue(
+    //   props.value
+    //     ? { value: (props.value as any) || undefined, label: "" }
+    //     : undefined,
+    // );
+  }, [props.value]);
+
+  useEffect(() => {
+    setValue(defaultValue);
+
+    // if (defaultValue) {
+    //   setValue(
+    //     defaultValue
+    //       ? { value: (defaultValue as any) || undefined, label: "" }
+    //       : undefined,
+    //   );
+    // }
+  }, [defaultValue]);
   const colLayoutMemo = useMemo(() => {
     if (labelPosition === AntdLabelPosition.Left) {
       return {
@@ -215,6 +211,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
       ? selectedKeysValue.map(({ label }: any) => label)
       : selectedKeysValue?.label;
 
+    setValue(selectedKeysValue);
     console.group("Antd 选择器组件 onChange");
     console.log("onChange", selectedKeysValue);
     console.log(" value", value);
@@ -235,7 +232,8 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
 
   console.group("Antd 树选择器组件");
   console.log("Antd 树选择器组件 props", props);
-  console.log("Antd 树选择器组件 fieldNamesValue", fieldNamesValue);
+  console.log("Antd 树选择器组件 value", value);
+
   console.groupEnd();
   return (
     <AntdFormItemContainer
@@ -288,7 +286,7 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
             showSearch={showSearch}
             size={controlSize}
             tokenSeparators={tokenSeparators}
-            value={selectedValue || undefined}
+            value={value || undefined}
             labelInValue
             // listHeight={height}
           />

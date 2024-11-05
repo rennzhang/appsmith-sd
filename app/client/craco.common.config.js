@@ -81,6 +81,10 @@ module.exports = {
           },
         ],
         plugins: [
+          codeInspectorPlugin({
+            bundler: "webpack",
+            dev: true,
+          }),
           // Replace BlueprintJS’s icon component with our own implementation
           // that code-splits icons away
           new webpack.NormalModuleReplacementPlugin(

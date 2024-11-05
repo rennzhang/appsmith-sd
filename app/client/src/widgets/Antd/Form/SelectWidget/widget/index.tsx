@@ -602,6 +602,7 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         mode={this.props.mode}
         options={options}
         required={this.props.isRequired}
+        value={this.props.selectedValue}
         width={componentWidth}
         {...this.props}
         handleSearch={this.handleSearch}

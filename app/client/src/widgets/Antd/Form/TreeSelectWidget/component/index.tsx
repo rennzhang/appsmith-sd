@@ -1,38 +1,15 @@
-import type { ReactNode } from "react";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 import "rc-tree-select/assets/index.less";
-import type {
-  ChangeEventExtra,
-  DefaultValueType,
-} from "rc-tree-select/lib/interface";
-import type { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
-import styled from "styled-components";
+import type { DefaultValueType } from "rc-tree-select/lib/interface";
 import type { RenderMode, TextSize } from "constants/WidgetConstants";
-import type { Alignment } from "@blueprintjs/core";
 import { AntdLabelPosition } from "components/constants";
 import type { ProFormItemProps } from "@ant-design/pro-components";
 import { ProFormItem } from "@ant-design/pro-components";
-import type { CascaderProps, TreeProps, TreeSelectProps } from "antd";
-import { ConfigProvider, Cascader, Tree, TreeSelect } from "antd";
-import type { InputStatus } from "antd/es/_util/statusUtils";
+import type { TreeSelectProps } from "antd";
+import { ConfigProvider, TreeSelect } from "antd";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
-import {
-  DownOutlined,
-  FrownFilled,
-  FrownOutlined,
-  MehOutlined,
-  SmileOutlined,
-} from "@ant-design/icons";
 import type { IconName } from "@blueprintjs/icons";
-import { Icon } from "@blueprintjs/core";
-import { cloneDeep } from "lodash";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
 
 export interface TreeSelectComponentProps {
@@ -82,7 +59,7 @@ export interface TreeSelectComponentProps {
   treeDefaultExpandAll?: boolean;
   treeExpandAction?: TreeSelectProps["treeExpandAction"];
   treeLine?: boolean;
-  selectedValue?: DefaultValueType;
+  value?: DefaultValueType;
   accessor?: string | string[];
   onSearch?: (value: string) => void;
   onTreeSelectSearch?: string;
@@ -122,7 +99,6 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     placeholderText,
     renderMode,
     required,
-    selectedValue,
     showSearch,
     treeCheckStrictly,
     treeDefaultExpandAll,
@@ -134,10 +110,10 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     // height
   } = props;
 
-  const [value, setValue] = useState(props.selectedValue);
+  const [value, setValue] = useState<any>();
   useEffect(() => {
-    setValue(selectedValue);
-  }, [selectedValue]);
+    setValue(props.value);
+  }, [props.value]);
 
   useEffect(() => {
     if (defaultValue) {
