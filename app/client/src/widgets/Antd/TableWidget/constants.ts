@@ -32,7 +32,7 @@ export type Action = ExecuteTriggerPayload & {
 export type JSONFormState = {
   isJsonFormVisible?: boolean;
   editFormData?: Record<string, unknown>;
-  jsonFormType?: "edit" | "add";
+  jsonFormType?: "edit" | "add" | "view";
   isSubmitting?: boolean;
 };
 export type JSONFormProps = {

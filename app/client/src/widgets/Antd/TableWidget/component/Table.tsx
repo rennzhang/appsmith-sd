@@ -29,7 +29,7 @@ import {
   useTableAlertState,
 } from "./hooks";
 import useButtonRender from "./hooks/useTableButtonRender";
-import { isEqual, omit } from "lodash";
+import { isEqual, omit, cloneDeep, set } from "lodash";
 import equal from "fast-deep-equal";
 
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
@@ -269,14 +269,65 @@ const JSONFormRender = React.memo(
       setIsJsonFormVisible,
       setJsonFormState,
     } = props;
-    const formProps = omit(props.autoFormConfig.config, ["editTitle", "title"]);
+
+    const processedFormProps = useMemo(() => {
+      const formProps = omit(props.autoFormConfig.config, [
+        "editTitle",
+        "title",
+      ]);
+
+      // 仅在编辑和新建模式下根据可编辑列控制schema
+      if (jsonFormState.jsonFormType !== "view") {
+        const schemaChildren =
+          formProps?.schema?.__root_schema__?.children || {};
+
+        const newSchemaChildren: Record<string, any> = {};
+        for (const key in schemaChildren) {
+          if (props.editableColumn.find((item: any) => item.id === key)) {
+            newSchemaChildren[key] = schemaChildren[key];
+          } else if (!Object.keys(props.tableData[0]).includes(key)) {
+            newSchemaChildren[key] = schemaChildren[key];
+          }
+        }
+        const newSchema = {
+          ...formProps.schema,
+          __root_schema__: {
+            ...formProps.schema.__root_schema__,
+            children: newSchemaChildren,
+          },
+        };
+
+        console.log("schemaChildren", {
+          schemaChildren,
+          newSchemaChildren,
+          newSchema,
+        });
+
+        return {
+          ...formProps,
+          schema: newSchema,
+        };
+      }
+
+      return formProps;
+    }, [
+      props.autoFormConfig,
+      props.editableColumn,
+      props.primaryColumnId,
+      jsonFormState.jsonFormType,
+    ]);
 
     useEffect(() => {
       setIsJsonFormVisible(jsonFormState.isJsonFormVisible);
-      console.log(" JSONFormRender jsonFormState useEffect", jsonFormState);
+      console.log(" JSONFormRender jsonFormState useEffect", {
+        jsonFormState,
+      });
     }, [jsonFormState]);
 
     const modalTitle = useMemo(() => {
+      if (jsonFormState.jsonFormType === "view") {
+        return "查看详情";
+      }
       return jsonFormState.jsonFormType === "edit"
         ? props.autoFormConfig.config.editTitle
         : props.autoFormConfig.config.title;
@@ -285,7 +336,7 @@ const JSONFormRender = React.memo(
     const modalContainer = useRef<any>(null);
     useEffect(() => {
       if (props.isEditingMode) {
-        if (formProps.jsonFormPopType === "drawer") {
+        if (processedFormProps.jsonFormPopType === "drawer") {
           modalContainer.current =
             document.querySelector(`#widgets-editor`) || document.body;
         } else {
@@ -295,18 +346,24 @@ const JSONFormRender = React.memo(
       } else {
         modalContainer.current = document.body;
       }
-    }, [props.isEditingMode, formProps.jsonFormPopType]);
+    }, [props.isEditingMode, processedFormProps.jsonFormPopType]);
 
+    console.log(` JSONFormRender processedFormProps`, processedFormProps);
     const renderJSONForm = () => (
       <JSONFormComponent
-        {...formProps}
+        {...processedFormProps}
         className={`proTable-auto-jsonform ${
-          formProps.jsonFormPopType === "drawer" ? "pop-drawer" : "pop-modal"
-        }`}
-        executeAction={props.executeAction}
-        initialValues={formProps.sourceData}
+          processedFormProps.jsonFormPopType === "drawer"
+            ? "pop-drawer"
+            : "pop-modal"
+        }
+          ${jsonFormState.jsonFormType === "view" ? "view-mode" : ""}
+        `}
+        disabled={jsonFormState.jsonFormType === "view"}
+        hideSubmit={jsonFormState.jsonFormType === "view"}
+        initialValues={processedFormProps.sourceData}
         isSubmitting={!!jsonFormState.isSubmitting}
-        maxHeight={formProps.modalHeight}
+        maxHeight={processedFormProps.modalHeight}
         onCancel={() => setJsonFormState({ isJsonFormVisible: false })}
         onSubmit={(values) => {
           props.onJsonFormSubmit(values);
@@ -328,19 +385,20 @@ const JSONFormRender = React.memo(
         theme={{
           components: {
             Modal: {
-              borderRadius: (formProps.borderRadius as unknown as number) || 0,
-              contentBg: formProps.backgroundColor,
-              headerBg: formProps.backgroundColor,
-              boxShadow: formProps.boxShadow,
-              titleColor: formProps.titleColor,
+              borderRadius:
+                (processedFormProps.borderRadius as unknown as number) || 0,
+              contentBg: processedFormProps.backgroundColor,
+              headerBg: processedFormProps.backgroundColor,
+              boxShadow: processedFormProps.boxShadow,
+              titleColor: processedFormProps.titleColor,
             },
             Drawer: {
-              colorBgElevated: formProps.backgroundColor,
+              colorBgElevated: processedFormProps.backgroundColor,
             },
           },
         }}
       >
-        {formProps.jsonFormPopType === "modal" ? (
+        {processedFormProps.jsonFormPopType === "modal" ? (
           <Modal
             footer={null}
             getContainer={() => modalContainer.current}
@@ -352,7 +410,7 @@ const JSONFormRender = React.memo(
             }
             open={isJsonFormVisible}
             title={modalTitle}
-            width={formProps.modalWidth}
+            width={processedFormProps.modalWidth}
           >
             {renderJSONForm()}
           </Modal>
@@ -377,7 +435,7 @@ const JSONFormRender = React.memo(
               },
             }}
             title={modalTitle}
-            width={formProps.modalWidth}
+            width={processedFormProps.modalWidth}
           >
             {renderJSONForm()}
           </Drawer>

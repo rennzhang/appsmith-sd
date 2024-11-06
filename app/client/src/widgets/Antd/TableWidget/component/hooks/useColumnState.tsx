@@ -306,6 +306,14 @@ const handleButtonClick = (params: {
   ) {
     action?.startEditable?.(record.id);
     props.handleRowBtnClick("", record);
+  } else if (button.id === "view") {
+    extra.setJsonFormState({
+      isJsonFormVisible: true,
+      editFormData: record,
+      jsonFormType: "view",
+    });
+    extra.setIsJsonFormVisible(true);
+    props.handleRowBtnClick("", record);
   } else {
     props.handleRowBtnClick(button.onBtnClick, record);
   }

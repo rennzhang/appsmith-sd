@@ -18,6 +18,18 @@ export const AntdProformContainer = styled.div<{
   boxShadow?: string;
   maxHeight?: number;
 }>`
+  &.view-mode.proTable-auto-jsonform.antd-pro-form-jsonform {
+    .ant-form-item-control-input-content > span,
+    .ant-form-item-control-input-content > div,
+    .ant-select-selector {
+      border: none;
+      cursor: default;
+
+      * {
+        cursor: default;
+      }
+    }
+  }
   &.proTable-auto-jsonform.antd-pro-form-jsonform.pop-drawer {
     margin-inline: -16px;
     margin-bottom: -20px;

@@ -189,12 +189,12 @@ export const CONFIG = {
       },
     },
     columnActions: {
-      details: {
+      view: {
         ...BUTTON_DEFAULT_CONFIG,
         menuButtonLabel: "查看",
         isHideDelete: true,
         label: "查看",
-        id: "details",
+        id: "view",
         widgetId: "",
         index: 0,
         tooltip: "查看",

@@ -93,6 +93,7 @@ export interface ProformContainerComponentProps {
   resetButtonLabel?: string;
   submitButtonLabel?: string;
   showReset?: boolean;
+  hideSubmit?: boolean;
   title?: string;
   onSubmit?: (values: any) => void;
   disabledWhenInvalid?: boolean;
@@ -123,6 +124,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     formLayout,
     formRef,
     hideFooter,
+    hideSubmit,
     initialValues,
     isDisabled,
     isFixedFooter,
@@ -135,8 +137,8 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     labelWrap,
     maxHeight,
     onSubmit,
-    resetButtonLabel,
 
+    resetButtonLabel,
     showReset,
     size,
     submitButtonLabel,
@@ -346,22 +348,23 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
               },
               configToken: {},
             })}
-          {renderActionButton({
-            button: {
-              ...props.submitButtonStyles,
-              buttonColor: submitButtonColor,
-              buttonLabel: submitButtonLabel,
-              isDisabled: isSubmitDisabled,
-              loading: isSubmitting,
-              buttonSize: props.submitButtonStyles?.controlSize,
-            },
-            onClick: () => {
-              formRef?.current?.submit();
-              // onSubmit?.();
-              // updateFormData({});
-            },
-            configToken: {},
-          })}
+          {!hideSubmit &&
+            renderActionButton({
+              button: {
+                ...props.submitButtonStyles,
+                buttonColor: submitButtonColor,
+                buttonLabel: submitButtonLabel,
+                isDisabled: isSubmitDisabled,
+                loading: isSubmitting,
+                buttonSize: props.submitButtonStyles?.controlSize,
+              },
+              onClick: () => {
+                formRef?.current?.submit();
+                // onSubmit?.();
+                // updateFormData({});
+              },
+              configToken: {},
+            })}
         </div>
       ),
     };

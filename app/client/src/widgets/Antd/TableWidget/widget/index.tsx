@@ -304,6 +304,14 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       isSubmitting:
         jsonFormState.isSubmitting ?? this.state.jsonFormState?.isSubmitting,
     };
+    // 过滤掉主键列
+    const editableColumnCount = this.props.editableColumn.filter(
+      (item: any) => this.props.primaryColumnId !== item.id,
+    ).length;
+    if (!editableColumnCount && state.jsonFormType !== "view") {
+      message.warning("请至少设置一个可编辑列");
+      return;
+    }
 
     this.setState({
       jsonFormState: state,
@@ -919,34 +927,34 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const prevSchemaWithEditable = cloneDeep(JSONFormProps?.schema);
 
-    const editableColumnCount = this.props.editableColumn.filter(
-      (item: any) => this.props.primaryColumnId !== item.id,
-    ).length;
+    // const editableColumnCount = this.props.editableColumn.filter(
+    //   (item: any) => this.props.primaryColumnId !== item.id,
+    // ).length;
 
-    Object.keys(currSourceData).forEach((key) => {
-      const isEditable = !!this.props.editableColumn.find(
-        (item: any) => item.id === key && this.props.primaryColumnId !== key,
-      );
-      set(
-        prevSchemaWithEditable,
-        `__root_schema__.children.${key}.isVisible`,
-        isEditable,
-      );
-    });
+    // Object.keys(currSourceData).forEach((key) => {
+    //   const isEditable = !!this.props.editableColumn.find(
+    //     (item: any) => item.id === key && this.props.primaryColumnId !== key,
+    //   );
+    //   set(
+    //     prevSchemaWithEditable,
+    //     `__root_schema__.children.${key}.isVisible`,
+    //     isEditable,
+    //   );
+    // });
 
     // auto
     const computedSchema = computeSchema({
       currentDynamicPropertyPathList: JSONFormProps.dynamicPropertyPathList,
       currSourceData,
-      prevSchema: prevSchemaWithEditable,
+      prevSchema: JSONFormProps?.schema,
       prevSourceData,
       widgetName: this.props.widgetName,
       fieldThemeStylesheets: JSONFormProps.childStylesheet,
       isCreateForm: nextProps?.isCreateForm,
     });
-    if (!editableColumnCount) {
-      message.warning("请至少设置一个可编辑列");
-    }
+    // if (!editableColumnCount) {
+    //   message.warning("请至少设置一个可编辑列");
+    // }
     console.log("表格 generateJSONFormSchema", {
       computedSchema,
       prevSourceData,
@@ -1040,7 +1048,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
     // editableColumn
     if (
-      !equal(prevProps.editableColumn, this.props.editableColumn) &&
+      !equal(prevProps.tableData, this.props.tableData) &&
       this.props.tableType !== "edit"
     ) {
       this.generateJSONFormSchema({
