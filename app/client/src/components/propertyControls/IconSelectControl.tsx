@@ -3,13 +3,11 @@ import styled, { createGlobalStyle } from "styled-components";
 import { Alignment, Button, Classes, MenuItem } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import { IconNames } from "@blueprintjs/icons";
-import * as AntIcons from "@ant-design/icons";
 import type { ItemListRenderer, ItemRenderer } from "@blueprintjs/select";
 import { Select } from "@blueprintjs/select";
 import type { GridListProps, VirtuosoGridHandle } from "react-virtuoso";
 import { VirtuosoGrid } from "react-virtuoso";
 import { useState, useEffect } from "react";
-
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { replayHighlightClass } from "globalStyles/portals";
@@ -17,6 +15,22 @@ import _ from "lodash";
 import { generateReactKey } from "utils/generators";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import { Tooltip } from "design-system";
+
+// 接口定义
+export interface IconSelectControlProps extends ControlProps {
+  propertyValue?: IconName;
+  defaultIconName?: IconName;
+  showAntdIcon?: boolean;
+  disableAntdTwoToneIcon?: boolean;
+}
+
+export interface IconSelectControlState {
+  activeIcon: IconType;
+  isOpen: boolean;
+  loadedIcons: string[];
+}
+
+// 样式定义
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
   id: string;
@@ -25,7 +39,6 @@ const IconSelectContainerStyles = createGlobalStyle<{
     .icon-select-popover-${id} {
       width: ${targetWidth}px;
       background: white;
-
       .bp3-input-group {
         margin: 5px !important;
       }
@@ -48,14 +61,11 @@ const StyledButton = styled(Button)`
   > span.bp3-icon-caret-down {
     color: rgb(169, 167, 167);
   }
-
   &:hover {
     border: 1px solid var(--ads-v2-color-border-emphasis);
   }
-
   &:focus {
-    outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
+    outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
     border: 1px solid var(--ads-v2-color-border-emphasis);
   }
 `;
@@ -77,24 +87,20 @@ const StyledMenuItem = styled(MenuItem)`
   flex-direction: column;
   align-items: center;
   padding: 13px 5px;
-
   &:active,
   &.bp3-active {
     background-color: var(--ads-v2-color-bg-muted) !important;
     border-radius: var(--ads-v2-border-radius) !important;
   }
-
   &:hover {
     background-color: var(--ads-v2-color-bg-subtle) !important;
     border-radius: var(--ads-v2-border-radius) !important;
   }
-
   > span.bp3-icon,
   > .anticon {
     margin-right: 0;
     color: var(--ads-v2-color-fg) !important;
   }
-
   > div {
     width: 100%;
     text-align: center;
@@ -102,43 +108,24 @@ const StyledMenuItem = styled(MenuItem)`
   }
 `;
 
-export interface IconSelectControlProps extends ControlProps {
-  propertyValue?: IconName;
-  defaultIconName?: IconName;
-  showAntdIcon?: boolean;
-  disableAntdTwoToneIcon?: boolean; // 新增属性
-}
-
-export interface IconSelectControlState {
-  activeIcon: IconType;
-  isOpen: boolean;
-}
-
+// 常量和类型定义
 const NONE = "(none)";
-const ANT_PREFIX = "ant-design:"; // 定Ant Design图标的前缀
+const ANT_PREFIX = "ant-design:";
 type IconType = IconName | typeof NONE | string;
-const ICON_NAMES = [
-  ...Object.keys(IconNames).map<IconType>(
-    (name: string) => IconNames[name as keyof typeof IconNames],
-  ),
-  ...Object.keys(AntIcons)
-    .filter((key) => typeof AntIcons[key as keyof typeof AntIcons] === "object")
-    .map((key) => `${ANT_PREFIX}${key}`), // 为Ant Design图标添加前缀
-];
-ICON_NAMES.unshift(NONE);
-const icons = new Set(ICON_NAMES);
+
+// 缓存
+const iconCache = new Map<string, React.ComponentType>();
+const antIconListCache = new Map<string, string[]>();
 
 const TypedSelect = Select.ofType<IconType>();
 
-class IconSelectControl extends BaseControl<
-  IconSelectControlProps,
-  IconSelectControlState
-> {
+class IconSelectControl extends BaseControl<IconSelectControlProps, IconSelectControlState> {
   private iconSelectTargetRef: React.RefObject<HTMLButtonElement>;
   private virtuosoRef: React.RefObject<VirtuosoGridHandle>;
   private initialItemIndex: number;
   private filteredItems: Array<IconType>;
   private searchInput: React.RefObject<HTMLInputElement>;
+  private searchIndex: Map<string, IconType[]>;
   id: string = generateReactKey();
 
   constructor(props: IconSelectControlProps) {
@@ -148,22 +135,20 @@ class IconSelectControl extends BaseControl<
     this.searchInput = React.createRef();
     this.initialItemIndex = 0;
     this.filteredItems = [];
+    this.searchIndex = new Map();
     this.state = {
       activeIcon: props.propertyValue ?? NONE,
       isOpen: false,
+      loadedIcons: [],
     };
   }
 
-  // debouncedSetState is used to fix the following bug:
-  // https://github.com/appsmithorg/appsmith/pull/10460#issuecomment-1022895174
   private debouncedSetState = _.debounce(
-    (obj: any, callback?: () => void) => {
-      this.setState((prevState: IconSelectControlState) => {
-        return {
-          ...prevState,
-          ...obj,
-        };
-      }, callback);
+    (obj: Partial<IconSelectControlState>, callback?: () => void) => {
+      this.setState((prevState) => ({
+        ...prevState,
+        ...obj,
+      }), callback);
     },
     300,
     {
@@ -173,10 +158,10 @@ class IconSelectControl extends BaseControl<
   );
 
   componentDidMount() {
-    console.log("IconSelectControl componentDidMount", this.props);
-
-    // keydown event is attached to body so that it will not interfere with the keydown handler in GlobalHotKeys
     document.body.addEventListener("keydown", this.handleKeydown);
+    if (this.props.showAntdIcon || this.isAntdComponent()) {
+      this.preloadIconList();
+    }
   }
 
   componentWillUnmount() {
@@ -192,55 +177,58 @@ class IconSelectControl extends BaseControl<
       this.setState({ activeIcon: this.filteredItems[1] });
   }, 50);
 
-  public render() {
-    const { defaultIconName, propertyValue: iconName } = this.props;
-    const { activeIcon } = this.state;
-    const containerWidth =
-      this.iconSelectTargetRef.current?.getBoundingClientRect?.()?.width || 0;
+  private async preloadIconList() {
+    if (antIconListCache.has('list')) {
+      this.setState({ loadedIcons: antIconListCache.get('list') || [] });
+      return;
+    }
 
-    return (
-      <>
-        <IconSelectContainerStyles id={this.id} targetWidth={containerWidth} />
-        <TypedSelect
-          activeItem={activeIcon || defaultIconName || NONE}
-          className="icon-select-container"
-          inputProps={{
-            inputRef: this.searchInput,
-          }}
-          itemListRenderer={this.renderMenu}
-          itemPredicate={this.filterIconName}
-          itemRenderer={this.renderIconItem}
-          items={this.getIconNames()}
-          onItemSelect={this.handleItemSelect}
-          onQueryChange={this.handleQueryChange}
-          popoverProps={{
-            enforceFocus: false,
-            minimal: true,
-            isOpen: this.state.isOpen,
-            popoverClassName: `icon-select-popover icon-select-popover-${this.id}`,
-            onInteraction: (state) => {
-              if (this.state.isOpen !== state)
-                this.debouncedSetState({ isOpen: state });
-            },
-          }}
-        >
-          <StyledButton
-            alignText={Alignment.LEFT}
-            className={
-              Classes.TEXT_OVERFLOW_ELLIPSIS + " " + replayHighlightClass
-            }
-            elementRef={this.iconSelectTargetRef}
-            fill
-            icon={this.renderIcon(activeIcon)}
-            onClick={this.handleButtonClick}
-            rightIcon="caret-down"
-            tabIndex={0}
-            text={iconName || defaultIconName || NONE}
-          />
-        </TypedSelect>
-      </>
-    );
+    try {
+      // 修改导入方式
+      const module = await import(
+        /* webpackMode: "lazy" */
+        /* webpackChunkName: "antd-icons-" */
+        '@ant-design/icons'
+      );
+
+      const iconList = Object.keys(module)
+        .filter(key => typeof module[key] === 'object')
+        .filter(key => {
+          if (this.props.disableAntdTwoToneIcon) {
+            return !key.endsWith('TwoTone');
+          }
+          return true;
+        })
+        .map(key => `${ANT_PREFIX}${key}`);
+
+      antIconListCache.set('list', iconList);
+      this.setState({ loadedIcons: iconList });
+    } catch (error) {
+      console.error('Failed to load icon list:', error);
+      this.setState({ loadedIcons: [] });
+    }
   }
+
+// 修改 preloadIcon 方法
+private preloadIcon(iconName: IconType) {
+  if (iconName === NONE || !iconName.startsWith(ANT_PREFIX)) return;
+
+  const name = iconName.slice(ANT_PREFIX.length);
+  if (iconCache.has(name)) return;
+
+  // 修改动态导入方式
+  import(
+    /* webpackMode: "lazy" */
+    /* webpackChunkName: "antd-icons" */
+    '@ant-design/icons'
+  ).then(module => {
+    if (module && module[name]) {
+      iconCache.set(name, module[name]);
+    }
+  }).catch(error => {
+    console.error(`Failed to preload icon: ${name}`, error);
+  });
+}
 
   private setActiveIcon(iconIndex: number) {
     this.setState(
@@ -396,12 +384,17 @@ class IconSelectControl extends BaseControl<
 
     return (
       <VirtuosoGrid
-        components={{
-          List: StyledMenu,
-        }}
+        components={{ List: StyledMenu }}
         computeItemKey={(index) => filteredItems[index]}
         initialItemCount={16}
-        itemContent={(index) => renderItem(filteredItems[index], index)}
+        itemContent={(index) => {
+          const icon = filteredItems[index];
+          if (index < this.initialItemIndex + 20 && index > this.initialItemIndex - 20) {
+            this.preloadIcon(icon);
+          }
+          return renderItem(icon, index);
+        }}
+        overscan={20}
         ref={this.virtuosoRef}
         style={{ height: "165px" }}
         tabIndex={-1}
@@ -411,34 +404,26 @@ class IconSelectControl extends BaseControl<
   };
 
   private getIconNames(): IconType[] {
+    const { loadedIcons } = this.state;
     const blueprintIcons = Object.keys(IconNames).map<IconType>(
       (name: string) => IconNames[name as keyof typeof IconNames],
     );
 
-    let iconNames = [NONE, ...blueprintIcons];
-
     if (this.props.showAntdIcon || this.isAntdComponent()) {
-      const antIcons = Object.keys(AntIcons)
-        .filter(
-          (key) => typeof AntIcons[key as keyof typeof AntIcons] === "object",
-        )
-        .filter((key) => {
-          // 如果 disableAntdTwoToneIcon 为 true，则过滤掉以 TwoTone 结尾的图标
-          if (this.props.disableAntdTwoToneIcon) {
-            return !key.endsWith("TwoTone");
-          }
-          return true;
-        })
-        .map((key) => `${ANT_PREFIX}${key}`);
-      iconNames = [
-        NONE,
-        ...antIcons,
-        ...iconNames.filter((icon) => icon !== NONE),
-      ];
+      return [NONE, ...loadedIcons, ...blueprintIcons];
     }
 
-    return iconNames;
+    return [NONE, ...blueprintIcons];
   }
+
+  private filterIconName = (query: string, iconName: IconType) => {
+    if (iconName === NONE || query === "") return true;
+
+    const terms = query.toLowerCase().split(/\s+/);
+    return terms.every(term =>
+      iconName.toLowerCase().includes(term)
+    );
+  };
 
   private renderIcon = (icon: IconType) => {
     if (icon === NONE) return undefined;
@@ -473,17 +458,8 @@ class IconSelectControl extends BaseControl<
     );
   };
 
-  private filterIconName = (query: string, iconName: IconType) => {
-    if (iconName === NONE || query === "") {
-      return true;
-    }
-    const searchableName = iconName;
-    return searchableName.toLowerCase().indexOf(query.toLowerCase()) >= 0;
-  };
-
   private handleIconChange = (icon: IconType, isUpdatedViaKeyboard = false) => {
     this.setState({ activeIcon: icon });
-    // 如果是Ant Design图标,在存储时保留前缀
     this.updateProperty(
       this.props.propertyName,
       icon === NONE ? undefined : icon,
@@ -495,6 +471,52 @@ class IconSelectControl extends BaseControl<
     this.handleIconChange(icon, false);
   };
 
+  public render() {
+    const { defaultIconName, propertyValue: iconName } = this.props;
+    const { activeIcon, isOpen } = this.state;
+    const containerWidth = this.iconSelectTargetRef.current?.getBoundingClientRect?.()?.width || 0;
+
+    return (
+      <>
+        <IconSelectContainerStyles id={this.id} targetWidth={containerWidth} />
+        <TypedSelect
+          activeItem={activeIcon || defaultIconName || NONE}
+          className="icon-select-container"
+          inputProps={{ inputRef: this.searchInput }}
+          itemListRenderer={isOpen ? this.renderMenu : undefined}
+          itemPredicate={this.filterIconName}
+          itemRenderer={this.renderIconItem}
+          items={this.getIconNames()}
+          onItemSelect={this.handleItemSelect}
+          onQueryChange={this.handleQueryChange}
+          popoverProps={{
+            enforceFocus: false,
+            minimal: true,
+            isOpen: isOpen,
+            popoverClassName: `icon-select-popover icon-select-popover-${this.id}`,
+            onInteraction: (state) => {
+              if (isOpen !== state) {
+                this.debouncedSetState({ isOpen: state });
+              }
+            },
+          }}
+        >
+          <StyledButton
+            alignText={Alignment.LEFT}
+            className={Classes.TEXT_OVERFLOW_ELLIPSIS + " " + replayHighlightClass}
+            elementRef={this.iconSelectTargetRef}
+            fill
+            icon={this.renderIcon(activeIcon)}
+            onClick={this.handleButtonClick}
+            rightIcon="caret-down"
+            tabIndex={0}
+            text={iconName || defaultIconName || NONE}
+          />
+        </TypedSelect>
+      </>
+    );
+  }
+
   static getControlType() {
     return "ICON_SELECT";
   }
@@ -503,32 +525,41 @@ class IconSelectControl extends BaseControl<
     config: IconSelectControlProps,
     value: any,
   ): boolean {
-    if (icons.has(value)) return true;
+    if (value === NONE || !value) return true;
     if (value.startsWith(ANT_PREFIX)) return true;
-    return false;
+    return Object.values(IconNames).includes(value as IconName);
   }
 }
 
 const AntIconWrapper: React.FC<{ iconName: string }> = ({ iconName }) => {
-  const [Icon, setIcon] = useState<React.ComponentType | null>(null);
+  const [Icon, setIcon] = useState<React.ComponentType | null>(() =>
+    iconCache.get(iconName) || null
+  );
 
   useEffect(() => {
+    if (Icon) return;
+
     const loadIcon = async () => {
       try {
-        const AntIcons = await import("@ant-design/icons");
-        const IconComponent = AntIcons[
-          iconName as keyof typeof AntIcons
-        ] as React.ComponentType;
-        if (IconComponent) {
-          setIcon(() => IconComponent);
+        if (iconCache.has(iconName)) {
+          setIcon(() => iconCache.get(iconName)!);
+          return;
         }
+
+        const IconComponent = await import(
+          /* webpackChunkName: "antd-icon-[request]" */
+          `@ant-design/icons/es/icons/${iconName}`
+        ).then(module => module.default);
+
+        iconCache.set(iconName, IconComponent);
+        setIcon(() => IconComponent);
       } catch (error) {
         console.error(`Failed to load icon: ${iconName}`, error);
       }
     };
 
     loadIcon();
-  }, [iconName]);
+  }, [iconName, Icon]);
 
   if (!Icon) return null;
   return <Icon />;

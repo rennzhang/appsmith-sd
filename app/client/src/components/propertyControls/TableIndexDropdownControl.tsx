@@ -97,12 +97,6 @@ class TableIndexDropdownControl extends BaseControl<ControlProps> {
       this.setDefaultValue(this.props, options, isMultiSelect);
     }
 
-    console.log("TABLE_PRIMARY_KEYS_DROPDOWN", this.props, {
-      options,
-      tableData,
-      isMultiSelect,
-    });
-
     return (
       <div className="w-full h-full" ref={this.containerRef}>
         <Select

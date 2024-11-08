@@ -2362,10 +2362,18 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.setJsonFormState({
       isSubmitting: true,
     });
-    if (this.props.autoFormConfig.config.onSubmit) {
+    const targetAction =
+      this.state.jsonFormState?.jsonFormType === "edit"
+        ? this.props.autoFormConfig.config.onSubmitWithEdit
+        : this.props.autoFormConfig.config.onSubmit;
+    const targetActionName =
+      this.state.jsonFormState?.jsonFormType === "edit"
+        ? "onSubmitWithEdit"
+        : "onSubmit";
+    if (targetAction) {
       super.executeAction({
-        triggerPropertyName: "autoFormConfig.config.onSubmit",
-        dynamicString: this.props.autoFormConfig.config.onSubmit,
+        triggerPropertyName: "autoFormConfig.config." + targetActionName,
+        dynamicString: targetAction,
         event: {
           type: EventType.ON_SUBMIT,
           callback: () => {

@@ -17,8 +17,6 @@ import {
   AutoCompleteWidgetConfig,
 } from "../constants";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
-import AntdInputComponent from "widgets/Antd/Form/InputWidget/component";
-import AntdAutoCompleteComponent from "widgets/Antd/Form/AutoCompleteWidget/component";
 import type { AntdInputWidgetProps } from "widgets/Antd/Form/InputWidget/types";
 import { InputTypes } from "widgets/Antd/Form/InputWidget/constants";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
@@ -108,6 +106,14 @@ function isValidType(value: string, options?: IsValidOptions) {
 
   return false;
 }
+
+// 1. 懒加载组件导入
+const AntdInputComponent = React.lazy(
+  () => import("widgets/Antd/Form/InputWidget/component"),
+);
+const AntdAutoCompleteComponent = React.lazy(
+  () => import("widgets/Antd/Form/AutoCompleteWidget/component"),
+);
 
 function BaseInputField<TSchemaItem extends SchemaItem>({
   fieldClassName,
@@ -228,27 +234,28 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   });
 
   const fieldComponent = useMemo(() => {
-    if (schemaItem.fieldType === FieldType.AUTOCOMPLETE_INPUT) {
-      return (
-        <AntdAutoCompleteComponent
-          {...schemaItem}
-          {...commonProps}
-          inputRef={inputRef}
-          onFocusChange={focusChangeHandler}
-          onKeyDown={keyDownHandler}
-          onValueChange={(value: string) => onTextChangeHandler(value)}
-        />
-      );
-    }
     return (
-      <AntdInputComponent
-        {...schemaItem}
-        {...commonProps}
-        inputRef={inputRef}
-        onFocusChange={focusChangeHandler}
-        onKeyDown={keyDownHandler}
-        onValueChange={(value: string) => onTextChangeHandler(value)}
-      />
+      <React.Suspense fallback={<div>Loading...</div>}>
+        {schemaItem.fieldType === FieldType.AUTOCOMPLETE_INPUT ? (
+          <AntdAutoCompleteComponent
+            {...schemaItem}
+            {...commonProps}
+            inputRef={inputRef}
+            onFocusChange={focusChangeHandler}
+            onKeyDown={keyDownHandler}
+            onValueChange={(value: string) => onTextChangeHandler(value)}
+          />
+        ) : (
+          <AntdInputComponent
+            {...schemaItem}
+            {...commonProps}
+            inputRef={inputRef}
+            onFocusChange={focusChangeHandler}
+            onKeyDown={keyDownHandler}
+            onValueChange={(value: string) => onTextChangeHandler(value)}
+          />
+        )}
+      </React.Suspense>
     );
   }, [
     inputRef,

@@ -11,7 +11,6 @@ import type {
   EditableProTableProps,
   ProTableProps,
 } from "@ant-design/pro-components";
-import JSONFormComponent from "widgets/Antd/JSONFormWidget/component/index";
 import type { SearchConfig } from "@ant-design/pro-table/es/components/Form/FormRender";
 import { TableWrapper } from "./TableStyledWrappers";
 import { Colors } from "constants/Colors";
@@ -121,6 +120,7 @@ const ProtableRender = React.memo(function ProtableRender(
 
   const commonProps: Omit<ProTableProps<any, any>, "onChange"> = useMemo(
     () => ({
+      scroll: { y: "auto" },
       dataSource,
       headerTitle: props.headerTitle,
       actionRef,
@@ -153,7 +153,7 @@ const ProtableRender = React.memo(function ProtableRender(
       request: handleRequest,
       rowKey: (record: any) => record[props.primaryColumnId || ""],
       rowSelection,
-      scroll: { x: "100%" },
+      // scroll: { x: "100%" },
       search: props?.isVisibleSearch
         ? ({
             labelWidth: "auto",
@@ -261,6 +261,11 @@ const ProtableRender = React.memo(function ProtableRender(
   );
 });
 
+// 使用React.lazy动态导入JSONFormComponent
+const JSONFormComponent = React.lazy(
+  () => import("widgets/Antd/JSONFormWidget/component/index"),
+);
+
 const JSONFormRender = React.memo(
   function JSONFormRender(props: AntdTableProps & JSONFormProps) {
     const {
@@ -268,7 +273,7 @@ const JSONFormRender = React.memo(
       jsonFormState,
       setIsJsonFormVisible,
       setJsonFormState,
-    } = props;
+    } = props || {};
 
     const processedFormProps = useMemo(() => {
       const formProps = omit(props.autoFormConfig.config, [
@@ -412,7 +417,9 @@ const JSONFormRender = React.memo(
             title={modalTitle}
             width={processedFormProps.modalWidth}
           >
-            {renderJSONForm()}
+            <React.Suspense fallback={<div>加载中...</div>}>
+              {renderJSONForm()}
+            </React.Suspense>
           </Modal>
         ) : (
           <Drawer
@@ -437,7 +444,9 @@ const JSONFormRender = React.memo(
             title={modalTitle}
             width={processedFormProps.modalWidth}
           >
-            {renderJSONForm()}
+            <React.Suspense fallback={<div>加载中...</div>}>
+              {renderJSONForm()}
+            </React.Suspense>
           </Drawer>
         )}
       </ConfigProvider>
@@ -495,12 +504,14 @@ export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
 
   return (
     <>
-      <JSONFormRender
-        {...props}
-        isJsonFormVisible={isJsonFormVisible}
-        setIsJsonFormVisible={setIsJsonFormVisible}
-        updateDefaultFormData={props.updateDefaultFormData}
-      />
+      {props && (
+        <JSONFormRender
+          {...props}
+          isJsonFormVisible={isJsonFormVisible}
+          setIsJsonFormVisible={setIsJsonFormVisible}
+          updateDefaultFormData={props.updateDefaultFormData}
+        />
+      )}
 
       {showConnectDataOverlay && (
         <ConnectDataOverlay onConnectData={props.onConnectData} />

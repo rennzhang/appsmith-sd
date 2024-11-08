@@ -72,7 +72,9 @@ class PrimaryColumnKeysDropdownControl extends BaseControl<ControlProps> {
   render() {
     const { widgetProperties } = this.props;
     const evaluatedValues = widgetProperties?.__evaluation__?.evaluatedValues;
-    const tableData = evaluatedValues?.tableData || [];
+    const tableData = Array.isArray(evaluatedValues?.tableData)
+      ? evaluatedValues.tableData
+      : [];
     const primaryColumnId = evaluatedValues?.primaryColumnId;
 
     const isMultiSelect = this.getIsMultiSelect();

@@ -1,20 +1,20 @@
 import type { ReactNode } from "react";
 import { useCallback, useContext, useMemo, useRef } from "react";
 import { omit } from "lodash";
+import React from "react";
 
 import FormContext from "../FormContext";
 import type { CascaderComponentProps } from "widgets/Antd/Form/CascaderWidget/component";
-import CascaderComponent from "widgets/Antd/Form/CascaderWidget/component";
-import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
 import { ActionUpdateDependency, CascaderWidgetConfig } from "../constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
+import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import type { DefaultValueType } from "rc-tree-select/lib/interface";
+import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
 
 type CascaderFieldComponentProps = FieldComponentBaseProps &
   FieldEventProps &
@@ -31,6 +31,9 @@ const COMPONENT_DEFAULT_VALUES: CascaderFieldComponentProps = {
   labelText: "",
   type: CascaderWidgetConfig.type,
 };
+
+// 使用React.lazy进行组件懒加载
+const CascaderComponent = React.lazy(() => import('widgets/Antd/Form/CascaderWidget/component'));
 
 function AntdCascaderField({
   fieldClassName,
@@ -108,12 +111,14 @@ function AntdCascaderField({
 
   const fieldComponent = useMemo(() => {
     return (
-      <CascaderComponent
-        {...schemaItem}
-        {...commonProps}
-        onChange={onChangeHandler}
-        onSearch={onSearchHandler}
-      />
+      <React.Suspense fallback={<div>加载中...</div>}>
+        <CascaderComponent
+          {...schemaItem}
+          {...commonProps}
+          onChange={onChangeHandler}
+          onSearch={onSearchHandler}
+        />
+      </React.Suspense>
     );
   }, [
     schemaItem,

@@ -228,6 +228,7 @@ export const CONFIG = {
         onBtnClick: "{{showAlert('请先配置删除按钮的动作', 'warning');}}",
       },
     },
+    defaultExpandedRowKeys: [],
     showSizeChanger: true,
     defaultPageSize: 10,
     paginationDisabled: false,

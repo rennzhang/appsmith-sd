@@ -425,6 +425,17 @@ export const contentConfig = mergeWidgetConfig(
           isBindProperty: true,
           isTriggerProperty: true,
         },
+        {
+          propertyName: "onSubmitWithEdit",
+          helpText: "点击提交按钮时触发",
+          label: "编辑提交时",
+          controlType: "ACTION_SELECTOR",
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: true,
+          hidden: (props: JSONFormWidgetProps) =>
+            props.type !== "ANTD_PRO_TABLE_WIDGET",
+        },
       ],
     },
   ],
