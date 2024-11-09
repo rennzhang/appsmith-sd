@@ -81,6 +81,8 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
+          getFieldNamesPropConfig("value"),
+          getFieldNamesPropConfig("label"),
           getDefaultValueDropdownPropConfig({
             placeholderText: "Y",
             validation: {
@@ -91,8 +93,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
               },
             },
           }),
-          getFieldNamesPropConfig("label"),
-          getFieldNamesPropConfig("value"),
         ],
       },
       FORM_LABEL_CONTENT_CONFIG,

@@ -152,21 +152,13 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
 
+          getFieldNamesPropConfig("value"),
+          getFieldNamesPropConfig("label"),
           getDefaultValueDropdownPropConfig({
             placeholderText: "请输入选项数据",
             dependencies: ["mode", "isMultiSelect"],
             defaultValue: undefined,
-            // validation: {
-            //   dependentPaths: ["options", "valueKey"],
-            //   type: ValidationTypes.FUNCTION,
-            //   params: {
-            //     fn: validationDefaultWithOptionComponent,
-            //   },
-            // },
           }),
-          getFieldNamesPropConfig("label"),
-          getFieldNamesPropConfig("value"),
-          // getFieldNamesPropConfig("options"),
         ],
       },
       FORM_LABEL_CONTENT_CONFIG,

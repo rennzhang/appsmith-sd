@@ -60,8 +60,7 @@ export const AntdProformContainer = styled.div<{
     height: 100%;
     overflow: hidden;
 
-    .ant-pro-form-list-container,
-    .ant-space-item {
+    .ant-pro-form-list-container {
       flex: 1 1 100%;
     }
     .ant-space {

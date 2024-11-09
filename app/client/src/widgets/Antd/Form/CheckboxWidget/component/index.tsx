@@ -155,7 +155,7 @@ function CheckboxGroupComponent(props: CheckboxComponentProps) {
             }}
             value={value}
           >
-            <Space direction={isInline ? "horizontal" : "vertical"}>
+            <Space direction={isInline ? "horizontal" : "vertical"} wrap>
               {CheckBoxComponent}
             </Space>
           </Checkbox.Group>

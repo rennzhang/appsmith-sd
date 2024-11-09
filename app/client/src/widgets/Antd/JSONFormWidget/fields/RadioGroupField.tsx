@@ -51,7 +51,7 @@ function RadioGroupField({
     propertyName: `${name}.selectedValue`,
   });
 
-  const isOptionsValueNumeric = isNumber(schemaItem.options[0]?.value);
+  const isOptionsValueNumeric = isNumber(schemaItem?.options?.[0]?.value);
 
   const onSelectionChange = useCallback(
     (selectedValue: string) => {

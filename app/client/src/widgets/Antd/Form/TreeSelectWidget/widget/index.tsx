@@ -130,7 +130,7 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
             helpText: "树形组件的源数据",
             propertyName: "options",
             label: "源数据",
-            controlType: "ONE_CLICK_BINDING_CONTROL",
+            controlType: "INPUT_TEXT",
             controlConfig: {
               aliases: [
                 {
@@ -204,8 +204,8 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
               },
             },
           },
-          getFieldNamesPropConfig("label"),
           getFieldNamesPropConfig("value"),
+          getFieldNamesPropConfig("label"),
           getFieldNamesPropConfig("children"),
         ],
       },
@@ -657,11 +657,10 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
         required={this.props.isRequired}
         width={componentWidth}
         {...this.props}
-        value={this.props.selectedValue}
-
         onChange={this.handleValueChange}
         onSearch={this.handleSearch}
         updateSelectInfo={this.updateSelectInfo}
+        value={this.props.selectedValue}
       />
     );
   }

@@ -82,6 +82,8 @@ class CheckBoxGroupWidget extends BaseWidget<
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
+          getFieldNamesPropConfig("value"),
+          getFieldNamesPropConfig("label"),
           getDefaultValueDropdownPropConfig({
             isMultiSelect: true,
             validation: {
@@ -91,8 +93,6 @@ class CheckBoxGroupWidget extends BaseWidget<
               },
             },
           }),
-          getFieldNamesPropConfig("label"),
-          getFieldNamesPropConfig("value"),
         ],
       },
       {

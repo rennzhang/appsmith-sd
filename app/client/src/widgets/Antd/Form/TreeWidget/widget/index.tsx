@@ -287,8 +287,8 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
             },
           },
 
-          getFieldNamesPropConfig("label"),
           getFieldNamesPropConfig("value"),
+          getFieldNamesPropConfig("label"),
           getFieldNamesPropConfig("children"),
           // {
           //   helpText: "自定义字段名",

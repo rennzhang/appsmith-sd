@@ -425,6 +425,10 @@ export const getDefaultValueDropdownPropConfig = (
   const dependencies = uniq([
     "options",
     "fieldNames",
+    "labelKey",
+    "valueKey",
+    "optionsKey",
+    "childrenKey",
     ...(config?.dependencies || []),
     ...(config?.evaluatedDependencies || []),
   ]);
@@ -447,13 +451,13 @@ export const getDefaultValueDropdownPropConfig = (
         params: {
           types: [
             {
-              type: ValidationTypes.TEXT,
+              type: ValidationTypes.TEXT_OR_NUMBER,
             },
             {
               type: ValidationTypes.ARRAY,
               params: {
                 children: {
-                  type: ValidationTypes.TEXT,
+                  type: ValidationTypes.TEXT_OR_NUMBER,
                 },
               },
             },
@@ -526,21 +530,21 @@ export const getFieldNamesPropConfig = (
       helpText: "选择或设置来自源数据的字段作为显示标签",
       propertyName: "valueKey",
       label: "Value Key",
-      // dropdownUsePropertyValue: true,
-      controlType: "DROP_DOWN",
+      dropdownUsePropertyValue: true,
+      controlType: "FIELD_NAME_DROP_DOWN",
       customJSControl: "WRAPPED_CODE_EDITOR",
-      controlConfig: {
-        wrapperCode: {
-          prefix: getOptionLabelValueExpressionPrefix,
-          suffix: optionLabelValueExpressionSuffix,
-        },
-      },
+      // controlConfig: {
+      //   wrapperCode: {
+      //     prefix: getOptionLabelValueExpressionPrefix,
+      //     suffix: optionLabelValueExpressionSuffix,
+      //   },
+      // },
       placeholderText: "value",
       isBindProperty: true,
       isTriggerProperty: false,
       isJSConvertible: true,
-      evaluatedDependencies: ["options"],
-      dependentPaths: ["options"],
+      evaluatedDependencies: ["options", "schema"],
+      dependencies: ["options", "schema"],
       options: (widget: WidgetProps) => getLabelValueKeyOptions(widget, type),
       alwaysShowSelected: true,
       validation: {
@@ -555,7 +559,7 @@ export const getFieldNamesPropConfig = (
         dependentPaths: ["options"],
       },
       additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
-      hidden: (props: any) => {
+      hidden: (props: any, ...args: any[]) => {
         // options 可能是 json需要先转换为对象
         let options = props.options;
         try {

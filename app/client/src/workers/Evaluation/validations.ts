@@ -566,6 +566,19 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed,
     };
   },
+  [ValidationTypes.TEXT_OR_NUMBER]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+    propertyPath: string,
+  ): ValidationResponse => {
+    const { NUMBER, TEXT } = ValidationTypes;
+    const validate = (type: ValidationTypes) =>
+      VALIDATORS[type](config, value, props, propertyPath);
+
+    const [numberResult, textResult] = [NUMBER, TEXT].map(validate);
+    return numberResult.isValid ? numberResult : textResult;
+  },
   // TODO(abhinav): The original validation does not make sense fix this.
   [ValidationTypes.REGEX]: (
     config: ValidationConfig,

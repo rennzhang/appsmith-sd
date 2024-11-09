@@ -162,10 +162,10 @@ const populateWidgetProperties = (
   return widgetProperties;
 };
 
-const getAndSetPath = (from: any, to: any, path: string) => {
+const getAndSetPath = (from: any, to: any, path: string, spareFrom?: any) => {
   if (!from || !to) return;
 
-  const value = get(from, path);
+  const value = get(from, path) || get(spareFrom || {}, path);
 
   if (value === null || value === undefined) return;
 
@@ -196,6 +196,7 @@ const populateEvaluatedWidgetProperties = (
       evaluatedWidgetPath?.evaluatedValues,
       evaluatedProperties.evaluatedValues,
       path,
+      evaluatedWidget,
     );
   });
 

@@ -2,6 +2,8 @@ import type { InputControlProps } from "components/propertyControls/InputTextCon
 import InputTextControl from "components/propertyControls/InputTextControl";
 import type { DropDownControlProps } from "components/propertyControls/DropDownControl";
 import DropDownControl from "components/propertyControls/DropDownControl";
+import FieldNameDropDownControl from "components/propertyControls/FieldNameDropDownControl";
+
 import type { SwitchControlProps } from "components/propertyControls/SwitchControl";
 import SwitchControl from "components/propertyControls/SwitchControl";
 import OptionControl from "components/propertyControls/OptionControl";
@@ -85,6 +87,7 @@ export const PropertyControls = {
   JsDataControl,
   InputTextControl,
   DropDownControl,
+  FieldNameDropDownControl,
   SwitchControl,
   OptionControl,
   CodeEditorControl,

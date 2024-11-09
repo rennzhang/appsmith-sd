@@ -54,7 +54,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     labelWidth,
     loading,
     onChange,
-    options,
+    options = [],
     radioButtonStyle,
     radioType,
     required,
@@ -153,13 +153,13 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
             value={value}
           >
             {radioType !== "button" && (
-              <Space direction={isInline ? "horizontal" : "vertical"}>
-                {/* {RadioComponent} */}
-                {options.map((option) => (
+              <Space direction={isInline ? "horizontal" : "vertical"} wrap>
+                {RadioComponent}
+                {/* {options.map((option) => (
                   <Radio key={option.value} value={option.value}>
                     {option.label}
                   </Radio>
-                ))}
+                ))} */}
               </Space>
             )}
           </Radio.Group>

@@ -12,6 +12,7 @@ type FormContextProps<TValues = any> = React.PropsWithChildren<{
   updateDefaultFormData?: (values: any) => void;
   formColorPrimary?: string;
   formControlSize: ProFormProps["size"];
+  formData: TValues;
   formIsDisabled?: boolean;
   formLayout?: "horizontal" | "vertical" | "inline";
   formLabelAlign?: "left" | "right";
@@ -48,6 +49,7 @@ export function FormContextProvider({
   executeAction,
   formColorPrimary,
   formControlSize,
+  formData,
   formIsDisabled,
   formIsRequird,
   formLabelAlign,
@@ -70,6 +72,7 @@ export function FormContextProvider({
       updateDefaultFormData,
       updateWidgetFormData,
       setFormData,
+      formData,
       formColorPrimary,
       formLayout,
       formLabelAlign,
@@ -87,27 +90,24 @@ export function FormContextProvider({
           await formRef?.current?.setFieldValue(key.split("."), values[key]);
         }
 
-        // await formRef?.current?.setFieldsValue(newFormData);
-        const formData = await formRef?.current?.getFieldsValue();
         const isUpdateChange = Object.keys(values).some(
           (key) => values[key] !== get(formData, key),
         );
+        console.log("updateFormData result", {
+          values,
+          formData,
+          newFormData,
+          initialValues,
+          isUpdateChange,
+        });
         if (!isUpdateChange) return;
 
-        await updateWidgetFormData(formData);
+        await updateWidgetFormData(newFormData);
         setFormData(newFormData);
         const isChangeWithValidate = Object.keys(values).some(
           (value) => values[value] !== initialValues[value],
         );
 
-        console.log("updateFormData result", {
-          values,
-          formData,
-          newFormData,
-          isChangeWithValidate,
-          initialValues,
-          isUpdateChange,
-        });
         cb?.(newFormData);
 
         try {
@@ -139,6 +139,7 @@ export function FormContextProvider({
       formLayout,
       formLabelAlign,
       setFormData,
+      formData,
       updateDefaultFormData,
       setFieldErrors,
     ],

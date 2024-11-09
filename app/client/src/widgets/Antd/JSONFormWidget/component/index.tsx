@@ -234,6 +234,7 @@ function JSONFormComponent<TValues>(
       formIsRequird={rest.isRequired}
       formLabelAlign={rest.labelAlignment}
       formLayout={rest.formLayout}
+      formData={formData}
       formRef={ref}
       initialValues={props.initialValues}
       renderMode={renderMode}
