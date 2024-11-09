@@ -159,6 +159,13 @@ export function childrenKeyValidation(
   __?: any,
   path?: string,
 ): ValidationResponse {
+  if (props.type === "ANTD_JSON_FORM_WIDGET") {
+    return {
+      parsed: value,
+      isValid: true,
+      messages: [],
+    };
+  }
   const targetPath = path?.split(".").slice(0, -1).join(".");
   const propsData = _.get(props, targetPath || "") || props;
   const _value = value || _.get(props, path || "");

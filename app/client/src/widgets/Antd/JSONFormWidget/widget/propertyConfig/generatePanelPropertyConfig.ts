@@ -119,11 +119,11 @@ const transConfig = (
         isSkipHidden,
       );
     }
-    if (item.controlType == "INPUT_TEXT") {
-      transItem.controlType = "ANTD_JSON_FORM_COMPUTE_VALUE";
-    } else {
-      transItem.customJSControl = "ANTD_JSON_FORM_COMPUTE_VALUE";
-    }
+    // if (item.controlType == "INPUT_TEXT") {
+    //   transItem.controlType = "ANTD_JSON_FORM_COMPUTE_VALUE";
+    // } else {
+    //   transItem.customJSControl = "ANTD_JSON_FORM_COMPUTE_VALUE";
+    // }
 
     if (item.propertyName === "labelText") {
       item.hidden = hiddenIfArrayItemIsObject;
@@ -223,7 +223,7 @@ function generatePanelPropertyConfig(
   const mergedContentChildren = getAllItemPaneConfig([]);
   const mergedStyleChildren = getAllItemPaneConfig([], true);
 
-  // console.log("contentChildren", mergedContentChildren);
+  console.log("contentChildren", mergedContentChildren);
   // console.log("mergedStyleChildren", mergedStyleChildren);
 
   return {

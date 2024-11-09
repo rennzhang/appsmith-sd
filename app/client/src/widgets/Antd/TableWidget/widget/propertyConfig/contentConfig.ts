@@ -152,7 +152,7 @@ export default [
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
-
+        isJSConvertible: true,
         placeholderText: "请输入表格标题",
         validation: {
           type: ValidationTypes.TEXT,
@@ -464,6 +464,7 @@ export default [
         label: "操作栏宽度",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
+        isJSConvertible: true,
         defaultValue: 140,
         isTriggerProperty: false,
         validation: {
@@ -646,6 +647,7 @@ export default [
         placeholderText: "10",
         isBindProperty: true,
         isTriggerProperty: false,
+        isJSConvertible: true,
         validation: {
           type: ValidationTypes.NUMBER,
           params: {
@@ -802,6 +804,7 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         defaultValue: false,
+        isJSConvertible: true,
         validation: { type: ValidationTypes.BOOLEAN },
       },
       // 勾选类型 checkbox | radio
@@ -817,6 +820,7 @@ export default [
         ],
         isBindProperty: true,
         isTriggerProperty: false,
+        isJSConvertible: true,
         validation: { type: ValidationTypes.TEXT },
         hidden: (props: TableWidgetProps) => !props.allowRowSelection,
         dependencies: ["allowRowSelection"],
@@ -833,6 +837,7 @@ export default [
         placeholderText: "[0, 1, 2]",
         isBindProperty: true,
         isTriggerProperty: false,
+        isJSConvertible: true,
         validation: {
           type: ValidationTypes.ARRAY,
           params: {
@@ -862,6 +867,7 @@ export default [
         controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,
+        isJSConvertible: true,
         validation: { type: ValidationTypes.BOOLEAN },
         hidden: (props: TableWidgetProps) =>
           !props.allowRowSelection || props.rowSelectionType === "radio",
@@ -875,6 +881,7 @@ export default [
         controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,
+        isJSConvertible: true,
         validation: { type: ValidationTypes.BOOLEAN },
         hidden: (props: TableWidgetProps) => !props.allowRowSelection,
         dependencies: ["allowRowSelection"],
@@ -888,6 +895,7 @@ export default [
         isBindProperty: true,
         defaultValue: 60,
         isTriggerProperty: false,
+        isJSConvertible: true,
         validation: { type: ValidationTypes.NUMBER },
         hidden: (props: TableWidgetProps) => !props.allowRowSelection,
         dependencies: ["allowRowSelection"],
@@ -899,6 +907,7 @@ export default [
         label: "行选中操作按钮",
         isBindProperty: false,
         isTriggerProperty: false,
+        isJSConvertible: true,
         createButtonText: "添加按钮",
         presetLabel: "Action",
         panelConfig: ActionPanelConfig,

@@ -275,7 +275,7 @@ const JSONFormRender = React.memo(
       setJsonFormState,
     } = props || {};
 
-    const processedFormProps = useMemo(() => {
+    const getProcessedFormProps = () => {
       const formProps = omit(props.autoFormConfig.config, [
         "editTitle",
         "title",
@@ -287,10 +287,17 @@ const JSONFormRender = React.memo(
           formProps?.schema?.__root_schema__?.children || {};
 
         const newSchemaChildren: Record<string, any> = {};
+        if (
+          !props?.editableColumn ||
+          !props?.tableData?.length ||
+          !props?.primaryColumnId
+        ) {
+          return formProps;
+        }
         for (const key in schemaChildren) {
-          if (props.editableColumn.find((item: any) => item.id === key)) {
+          if (props?.editableColumn?.find((item: any) => item.id === key)) {
             newSchemaChildren[key] = schemaChildren[key];
-          } else if (!Object.keys(props.tableData[0]).includes(key)) {
+          } else if (!Object.keys(props?.tableData?.[0] || {}).includes(key)) {
             newSchemaChildren[key] = schemaChildren[key];
           }
         }
@@ -315,12 +322,9 @@ const JSONFormRender = React.memo(
       }
 
       return formProps;
-    }, [
-      props.autoFormConfig,
-      props.editableColumn,
-      props.primaryColumnId,
-      jsonFormState.jsonFormType,
-    ]);
+    };
+
+    const processedFormProps = getProcessedFormProps();
 
     useEffect(() => {
       setIsJsonFormVisible(jsonFormState.isJsonFormVisible);
@@ -501,6 +505,8 @@ export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
       props.tablePrimaryColor,
     ],
   );
+
+  console.log("props111111", props);
 
   return (
     <>

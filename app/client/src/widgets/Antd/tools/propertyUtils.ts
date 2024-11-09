@@ -8,9 +8,17 @@ export function getDefaultValueOptions(widget: WidgetProps) {
   const targetPath =
     widget.dataTreePath?.split(".")?.slice(1, -1)?.join(".") || "";
   const propsData = get(widget, targetPath) || widget;
-  const sourceData = targetPath
+  let sourceData = targetPath
     ? get(propsData, `options`)
     : get(widget, `${EVAL_VALUE_PATH}.options`);
+
+  const opt1 = get(
+    widget,
+    `${EVAL_VALUE_PATH}.${targetPath}.options`.replace("..", "."),
+  );
+  if (opt1 && Array.isArray(opt1)) {
+    sourceData = opt1;
+  }
 
   console.log("getDefaultValueOptions", {
     targetPath,
@@ -27,10 +35,12 @@ export function getDefaultValueOptions(widget: WidgetProps) {
   if (isString(sourceData)) {
     try {
       parsedValue = JSON.parse(sourceData);
-    } catch (e) {}
+    } catch (e) {
+      parsedValue = [];
+    }
   }
 
-  return (parsedValue as any[])?.map((d: any) => {
+  return (parsedValue as any[])?.map?.((d: any) => {
     if (isPlainObject(d)) {
       return {
         label: d[labelKey],
@@ -51,11 +61,19 @@ export function getLabelValueKeyOptions(
   const targetPath =
     widget.dataTreePath?.split(".")?.slice(1, -1)?.join(".") || "";
   const propsData = get(widget, targetPath) || widget;
-  const sourceData = targetPath
+  let sourceData = targetPath
     ? get(propsData, `options`)
     : get(widget, `${EVAL_VALUE_PATH}.options`);
+  const opt1 = get(
+    widget,
+    `${EVAL_VALUE_PATH}.${targetPath}.options`.replace("..", "."),
+  );
+  if (opt1 && Array.isArray(opt1)) {
+    sourceData = opt1;
+  }
 
   console.log("getLabelValueKeyOptions", {
+    type,
     widget,
     sourceData,
     targetPath,
