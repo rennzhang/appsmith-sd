@@ -100,7 +100,7 @@ function SwitchField({
         onChange={onSwitchChange}
       />
     ),
-    [schemaItem, commonProps, onSwitchChange],
+    [schemaItem, commonProps],
   );
 
   return fieldComponent;

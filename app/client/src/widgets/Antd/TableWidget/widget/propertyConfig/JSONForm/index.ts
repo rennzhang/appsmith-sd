@@ -38,7 +38,6 @@ const transConfig = (config: any[]) => {
         dependentPaths: [
           ...new Set([
             ...(item.validation?.dependentPaths || []),
-            ,
             ...dependencies,
           ]),
         ],
@@ -53,7 +52,6 @@ const transConfig = (config: any[]) => {
   });
 };
 const contentChildren = transConfig(CONFIG.properties.contentConfig);
-console.log(`JSONFormWidget contentChildren`, contentChildren);
 export const JSONFormConfig: PanelConfig = {
   editableTitle: false,
   titlePropertyName: "label",
@@ -62,12 +60,6 @@ export const JSONFormConfig: PanelConfig = {
   styleChildren: transConfig(CONFIG.properties.styleConfig),
 
   updateHook: (props: any, propertyPath: string, propertyValue: any) => {
-    console.log("JSONFormConfig updateHook", {
-      props,
-      propertyPath,
-      propertyValue,
-    });
-
     return [
       {
         propertyPath,

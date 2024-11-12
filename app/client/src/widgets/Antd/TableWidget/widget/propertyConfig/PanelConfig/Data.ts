@@ -168,8 +168,8 @@ export default {
         // },
       ],
       updateHook: composePropertyUpdateHook([
-        updateNumberColumnTypeTextAlignment,
-        updateThemeStylesheetsInColumns,
+        // updateNumberColumnTypeTextAlignment,
+        // updateThemeStylesheetsInColumns,
         updateSelectSource,
         updateColumnProperties,
       ]),
@@ -182,6 +182,7 @@ export default {
         "orderedTableColumns",
         "columnOrder",
         "childStylesheet",
+        "autoFormConfig",
       ],
       evaluatedDependencies: [
         "tableData",

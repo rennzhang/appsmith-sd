@@ -51,6 +51,7 @@ export type JSONFormProps = {
   executeAction: (action: Action) => void;
 };
 export interface AntdTableProps extends ProTableProps<any, any> {
+  formData: Record<string, unknown>;
   isEditingMode: boolean;
   autoGenerateTableForm: boolean;
   renderMode: RenderModes;

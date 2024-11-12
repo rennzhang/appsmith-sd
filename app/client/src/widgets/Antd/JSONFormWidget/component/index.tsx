@@ -213,7 +213,7 @@ function JSONFormComponent<TValues>(
     );
   }, [schema]);
 
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<any>(props.initialValues || {});
 
   useEffect(() => {
     console.log("JSONFormWidget formData", formData);
@@ -230,11 +230,11 @@ function JSONFormComponent<TValues>(
       executeAction={executeAction}
       formColorPrimary={rest.colorPrimary}
       formControlSize={controlSize}
+      formData={formData}
       formIsDisabled={rest.isDisabled}
       formIsRequird={rest.isRequired}
       formLabelAlign={rest.labelAlignment}
       formLayout={rest.formLayout}
-      formData={formData}
       formRef={ref}
       initialValues={props.initialValues}
       renderMode={renderMode}

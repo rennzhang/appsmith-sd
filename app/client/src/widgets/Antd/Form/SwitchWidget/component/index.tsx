@@ -58,7 +58,9 @@ function SwitchComponent(props: SwitchComponentProps) {
   } = props;
   const [value, setValue] = useState(props.value);
   useEffect(() => {
-    setValue(props.value);
+    if (props.value !== value) {
+      setValue(props.value);
+    }
   }, [props.value]);
 
   useEffect(() => {

@@ -281,45 +281,59 @@ const JSONFormRender = React.memo(
         "title",
       ]);
 
-      // 仅在编辑和新建模式下根据可编辑列控制schema
-      if (jsonFormState.jsonFormType !== "view") {
-        const schemaChildren =
-          formProps?.schema?.__root_schema__?.children || {};
+      // // 仅在编辑和新建模式下根据可编辑列控制schema
+      // if (jsonFormState.jsonFormType !== "view") {
+      //   const schemaChildren =
+      //     formProps?.schema?.__root_schema__?.children || {};
 
-        const newSchemaChildren: Record<string, any> = {};
-        if (
-          !props?.editableColumn ||
-          !props?.tableData?.length ||
-          !props?.primaryColumnId
-        ) {
-          return formProps;
-        }
-        for (const key in schemaChildren) {
-          if (props?.editableColumn?.find((item: any) => item.id === key)) {
-            newSchemaChildren[key] = schemaChildren[key];
-          } else if (!Object.keys(props?.tableData?.[0] || {}).includes(key)) {
-            newSchemaChildren[key] = schemaChildren[key];
-          }
-        }
-        const newSchema = {
-          ...formProps.schema,
-          __root_schema__: {
-            ...formProps.schema.__root_schema__,
-            children: newSchemaChildren,
-          },
-        };
+      //   const newSchemaChildren: Record<string, any> = {};
+      //   if (
+      //     !props?.editableColumn ||
+      //     !props?.tableData?.length ||
+      //     !props?.primaryColumnId
+      //   ) {
+      //     return formProps;
+      //   }
+      //   for (const key in schemaChildren) {
+      //     newSchemaChildren[key] = { ...schemaChildren[key] };
+      //     console.log("newSchemaChildren[key]", {
+      //       key,
+      //       schemaChildren,
+      //       newSchemaChildren,
+      //       newSchemaChildrenKey: newSchemaChildren[key],
+      //       schemaChildrenKey: schemaChildren[key],
+      //     });
 
-        console.log("schemaChildren", {
-          schemaChildren,
-          newSchemaChildren,
-          newSchema,
-        });
+      //     newSchemaChildren[key].isVisible = schemaChildren[key].isVisible;
+      //     props?.editableColumn?.map((item: any) => {
+      //       if (item.id === key) {
+      //         newSchemaChildren[key].isVisible = true;
+      //       }
+      //     });
+      //     if (key === props.primaryColumnId) {
+      //       newSchemaChildren[key].isVisible =
+      //         schemaChildren[key].isVisible || false;
+      //     }
+      //   }
+      //   const newSchema = {
+      //     ...formProps.schema,
+      //     __root_schema__: {
+      //       ...formProps.schema.__root_schema__,
+      //       children: newSchemaChildren,
+      //     },
+      //   };
 
-        return {
-          ...formProps,
-          schema: newSchema,
-        };
-      }
+      //   console.log("schemaChildren", {
+      //     schemaChildren,
+      //     newSchemaChildren,
+      //     newSchema,
+      //   });
+
+      //   return {
+      //     ...formProps,
+      //     schema: newSchema,
+      //   };
+      // }
 
       return formProps;
     };
@@ -357,7 +371,10 @@ const JSONFormRender = React.memo(
       }
     }, [props.isEditingMode, processedFormProps.jsonFormPopType]);
 
-    console.log(` JSONFormRender processedFormProps`, processedFormProps);
+    console.log(` JSONFormRender processedFormProps`, {
+      processedFormProps,
+      jsonFormState,
+    });
     const renderJSONForm = () => (
       <JSONFormComponent
         {...processedFormProps}
@@ -370,7 +387,7 @@ const JSONFormRender = React.memo(
         `}
         disabled={jsonFormState.jsonFormType === "view"}
         hideSubmit={jsonFormState.jsonFormType === "view"}
-        initialValues={processedFormProps.sourceData}
+        initialValues={props.formData}
         isSubmitting={!!jsonFormState.isSubmitting}
         maxHeight={processedFormProps.modalHeight}
         onCancel={() => setJsonFormState({ isJsonFormVisible: false })}
@@ -457,15 +474,19 @@ const JSONFormRender = React.memo(
     );
   },
   (prevProps, nextProps) => {
-    return (
-      !equal(
-        prevProps.autoFormConfig.config,
-        nextProps.autoFormConfig.config,
-      ) &&
-      !equal(prevProps.jsonFormState, nextProps.jsonFormState) &&
-      prevProps.jsonFormRef === nextProps.jsonFormRef &&
-      prevProps.isEditingMode === nextProps.isEditingMode
-    );
+    console.log("JSONFormRender 对比", {
+      prevProps,
+      nextProps,
+      a: equal(prevProps.jsonFormState, nextProps.jsonFormState),
+    });
+    // return (
+    //   !equal(
+    //     prevProps.autoFormConfig.config,
+    //     nextProps.autoFormConfig.config,
+    //   ) &&
+    //   prevProps.jsonFormRef === nextProps.jsonFormRef &&
+    //   prevProps.isEditingMode === nextProps.isEditingMode
+    // );
   },
 );
 
@@ -506,18 +527,16 @@ export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
     ],
   );
 
-  console.log("props111111", props);
-
   return (
     <>
-      {props && (
+      {
         <JSONFormRender
           {...props}
           isJsonFormVisible={isJsonFormVisible}
           setIsJsonFormVisible={setIsJsonFormVisible}
           updateDefaultFormData={props.updateDefaultFormData}
         />
-      )}
+      }
 
       {showConnectDataOverlay && (
         <ConnectDataOverlay onConnectData={props.onConnectData} />
@@ -558,4 +577,4 @@ export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
   );
 }
 
-export default React.memo(ProTableComponent);
+export default ProTableComponent;

@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import React, {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+} from "react";
 import type { IconName } from "@blueprintjs/core";
 
 import FormContext from "../FormContext";
@@ -20,6 +26,7 @@ import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import type { AntdInputWidgetProps } from "widgets/Antd/Form/InputWidget/types";
 import { InputTypes } from "widgets/Antd/Form/InputWidget/constants";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
+
 export type BaseInputComponentProps = FieldComponentBaseProps &
   FieldEventProps &
   AntdInputWidgetProps;
@@ -59,7 +66,6 @@ const COMPONENT_DEFAULT_VALUES = {
   labelText: "",
 };
 
-// REGEX origin https://github.com/manishsaraan/email-validator/blob/master/index.js
 export const EMAIL_REGEX = new RegExp(
   /^[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/,
 );
@@ -67,27 +73,17 @@ export const EMAIL_REGEX = new RegExp(
 export const parseRegex = (regex?: string) => {
   try {
     if (regex && typeof regex === "string") {
-      /*
-       * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
-       * Example /test/i will be split into ["/test/gi", "/", "test", "gi"]
-       */
       const regexParts = regex.match(/(\/?)(.+)\1([a-z]*)/i);
 
       if (!regexParts) {
         return new RegExp(regex);
       } else {
-        /*
-         * if we don't have a regex flags (gmisuy), convert provided string into regexp directly
-         */
         if (
           regexParts[3] &&
           !/^(?!.*?(.).*?\1)[gmisuy]+$/.test(regexParts[3])
         ) {
           return RegExp(regex);
         } else {
-          /*
-           * if we have a regex flags, use it to form regexp
-           */
           return new RegExp(regexParts[2], regexParts[3]);
         }
       }
@@ -103,19 +99,35 @@ function isValidType(value: string, options?: IsValidOptions) {
   if (options?.fieldType === FieldType.AUTOCOMPLETE_INPUT && value) {
     return EMAIL_REGEX.test(value);
   }
-
   return false;
 }
 
-// 1. 懒加载组件导入
 const AntdInputComponent = React.lazy(
   () => import("widgets/Antd/Form/InputWidget/component"),
 );
+
 const AntdAutoCompleteComponent = React.lazy(
   () => import("widgets/Antd/Form/AutoCompleteWidget/component"),
 );
 
-function BaseInputField<TSchemaItem extends SchemaItem>({
+// 比较函数
+const arePropsEqual = (
+  prevProps: BaseInputFieldProps,
+  nextProps: BaseInputFieldProps,
+) => {
+  return (
+    prevProps.name === nextProps.name &&
+    prevProps.fieldClassName === nextProps.fieldClassName &&
+    prevProps.leftIcon === nextProps.leftIcon &&
+    prevProps.passedDefaultValue === nextProps.passedDefaultValue &&
+    JSON.stringify(prevProps.schemaItem) ===
+      JSON.stringify(nextProps.schemaItem)
+  );
+};
+
+const BaseInputField = memo(function BaseInputField<
+  TSchemaItem extends SchemaItem,
+>({
   fieldClassName,
   leftIcon,
   name,
@@ -132,28 +144,12 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     formRef,
     updateFormData,
   } = useContext(FormContext);
-  // controlSize, isDisabled, isRequired, labelAlignment
+
   const commonProps = useFieldPropsHandler({
     name,
     schemaItem,
     passedDefaultValue,
   });
-  useEffect(() => {
-    console.log(`BaseInputField commonProps`, {
-      commonProps,
-      passedDefaultValue,
-    });
-  }, [commonProps, passedDefaultValue]);
-
-  useEffect(() => {
-    console.log(
-      "BaseInputField useEffect",
-      {
-        formRef,
-      },
-      formRef?.current?.isFieldTouched(name),
-    );
-  }, [formRef]);
 
   const { onBlur: onBlurDynamicString, onFocus: onFocusDynamicString } =
     schemaItem;
@@ -165,8 +161,6 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     onFocusDynamicString,
   });
 
-  const inputType = schemaItem.inputType;
-
   const focusChangeHandler = useCallback(
     (isFocused: boolean) => {
       if (isFocused) {
@@ -175,8 +169,9 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         onBlurHandler();
       }
     },
-    [formRef, onBlurHandler, onFocusHandler],
+    [onBlurHandler, onFocusHandler],
   );
+
   const keyDownHandler = useCallback(
     (
       e:
@@ -186,11 +181,6 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       const isValueValid = formRef?.current?.getFieldError(name)?.length === 0;
       const { onEnterKeyPress, onSubmit } = schemaItem;
       const isEnterKey = e.key === "Enter";
-      console.log("keyDownHandler", {
-        isEnterKey,
-        onEnterKeyPress,
-        isValueValid,
-      });
 
       if (isEnterKey && onSubmit && isValueValid) {
         executeAction({
@@ -203,7 +193,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         });
       }
     },
-    [schemaItem.onEnterKeyPress, schemaItem.onSubmit],
+    [schemaItem.onSubmit, executeAction, name, formRef],
   );
 
   const onTextChangeHandler = useCallback(
@@ -223,18 +213,11 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         });
       }
     },
-    [schemaItem.onTextChanged, executeAction],
+    [name, schemaItem.onTextChanged, executeAction, updateFormData],
   );
 
-  console.log("JSONFormWidget BaseInputField", {
-    inputType,
-    schemaItem,
-    commonProps,
-    formIsRequird,
-  });
-
-  const fieldComponent = useMemo(() => {
-    return (
+  const fieldComponent = useMemo(
+    () => (
       <React.Suspense fallback={<div>Loading...</div>}>
         {schemaItem.fieldType === FieldType.AUTOCOMPLETE_INPUT ? (
           <AntdAutoCompleteComponent
@@ -256,23 +239,28 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
           />
         )}
       </React.Suspense>
-    );
-  }, [
-    inputRef,
-    keyDownHandler,
-    leftIcon,
-    onTextChangeHandler,
-    schemaItem,
-    formIsRequird,
-    formIsDisabled,
-    formControlSize,
-    formLayout,
-    formLabelAlign,
-    commonProps,
-  ]);
+    ),
+    [
+      schemaItem,
+      commonProps,
+      inputRef,
+      focusChangeHandler,
+      keyDownHandler,
+      onTextChangeHandler,
+      formIsRequird,
+      formIsDisabled,
+      formControlSize,
+      formLayout,
+      formLabelAlign,
+    ],
+  );
 
   return fieldComponent;
-}
+},
+arePropsEqual) as typeof BaseInputField & {
+  componentDefaultValues: typeof COMPONENT_DEFAULT_VALUES;
+  isValidType: typeof isValidType;
+};
 
 BaseInputField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 BaseInputField.isValidType = isValidType;

@@ -126,6 +126,7 @@ import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 import { message } from "antd";
+import { schema } from "normalizr";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -304,6 +305,10 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       isSubmitting:
         jsonFormState.isSubmitting ?? this.state.jsonFormState?.isSubmitting,
     };
+    this.setState({
+      jsonFormState: state,
+    });
+    if (!state.isJsonFormVisible) return;
     // 过滤掉主键列
     const editableColumnCount = this.props.editableColumn.filter(
       (item: any) => this.props.primaryColumnId !== item.id,
@@ -312,11 +317,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       message.warning("请至少设置一个可编辑列");
       return;
     }
-
-    this.setState({
-      jsonFormState: state,
-    });
-    if (!state.isJsonFormVisible) return;
 
     const newSourceDataWithDefaultValues = merge(
       {},
@@ -329,6 +329,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         ? newSourceDataWithDefaultValues
         : state.editFormData;
     console.log("generateJSONFormSchema111", {
+      state,
       targetData,
       defaultFormData: this.props.defaultFormData,
       newSourceDataWithDefaultValues,
@@ -336,14 +337,14 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         last(this.props.tableData) || {},
       ),
     });
-
     const formData = this.cleanObject(targetData);
-    this.generateJSONFormSchema({
-      ...this.props.autoFormConfig.config,
-      sourceData: formData,
-      isCreateForm: state.jsonFormType === "add",
-    });
-    this.props.updateWidgetMetaProperty("sourceData", targetData);
+
+    this.batchUpdateWidgetProperty(
+      {
+        modify: { "autoFormConfig.config.sourceData": formData },
+      },
+      false,
+    );
     this.updateWidgetFormData(formData);
   };
 
@@ -843,6 +844,15 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   componentDidMount() {
     const { canFreezeColumn, defaultPageSize, renderMode, tableData } =
       this.props;
+    // editableColumn
+    if (this.props.tableData?.length) {
+      setTimeout(() => {
+        this.generateJSONFormSchema({
+          ...this.props.autoFormConfig.config,
+          sourceData: this.cleanObject(this.props.tableData[0]),
+        });
+      }, 100);
+    }
 
     this.updatePageSize(defaultPageSize);
 
@@ -1017,17 +1027,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       tableType,
       totalRecordsCount,
     } = this.props;
-    // if (tableType === "edit") {
-    //   this.updateAllColumnsEditable(true);
-    // }
-    // if (prevProps.tableData?.length && this.props.tableData?.length) {
-    //   this.generateJSONFormSchema(
-    //     {
-    //       ...this.props.autoFormConfig.config,
-    //       sourceData: this.cleanObject(this.props.tableData?.[0]),
-    //     },
-    //   );
-    // }
 
     // defaultPageSize
     if (defaultPageSize !== prevProps.defaultPageSize) {
@@ -2293,7 +2292,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       sourceData,
       formData,
     });
-
+    // this.updateWidgetProperty("formData", values);
     this.props.updateWidgetMetaProperty("formData", values);
 
     if (this.actionQueue.length) {

@@ -222,8 +222,6 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
     ],
   );
 
-  console.log("AntdButtonComponent", props);
-
   return (
     <ConfigProvider
       theme={{

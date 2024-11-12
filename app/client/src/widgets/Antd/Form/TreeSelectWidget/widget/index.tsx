@@ -130,7 +130,7 @@ class AntdTreeWidget extends BaseWidget<TreeWidgetProps, WidgetState> {
             helpText: "树形组件的源数据",
             propertyName: "options",
             label: "源数据",
-            controlType: "INPUT_TEXT",
+            controlType: "ONE_CLICK_BINDING_CONTROL",
             controlConfig: {
               aliases: [
                 {

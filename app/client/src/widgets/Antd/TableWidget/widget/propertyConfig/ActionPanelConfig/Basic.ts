@@ -51,11 +51,11 @@ export default {
         return options;
       },
       defaultValue: ButtonTypes.BUTTON,
-      updateHook: composePropertyUpdateHook([
-        updateNumberColumnTypeTextAlignment,
-        updateThemeStylesheetsInColumns,
-        updateMenuItemsSource,
-      ]),
+      // updateHook: composePropertyUpdateHook([
+      // updateNumberColumnTypeTextAlignment,
+      // updateThemeStylesheetsInColumns,
+      // updateMenuItemsSource,
+      // ]),
       dependencies: [
         "columnActions",
         "childStylesheet",
@@ -75,7 +75,7 @@ export default {
         return hideByButtonType(props, propertyPath, [ButtonTypes.BUTTON]);
       },
 
-      updateHook: updateIconAlignment,
+      // updateHook: updateIconAlignment,
       dependencies: [
         "columnActions",
         "buttonType",
@@ -102,7 +102,7 @@ export default {
         return hideByButtonType(props, propertyPath, [ButtonTypes.MENU_BUTTON]);
       },
 
-      updateHook: updateIconAlignment,
+      // updateHook: updateIconAlignment,
       dependencies: [
         "columnActions",
         "buttonType",
@@ -130,7 +130,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByButtonType(props, propertyPath, [ButtonTypes.ICON_BUTTON]);
       },
-      updateHook: updateIconAlignment,
+      // updateHook: updateIconAlignment,
       dependencies: [
         "columnActions",
         "buttonType",

@@ -198,7 +198,12 @@ export default [
           updateColumnOrderHook,
           updateCustomColumnAliasOnLabelChange,
         ]),
-        dependencies: ["autoFormConfig", "tableType", "primaryColumnId"],
+        dependencies: [
+          "autoFormConfig",
+          "tableType",
+          "primaryColumnId",
+          "columnOrder",
+        ],
         isBindProperty: false,
         isTriggerProperty: false,
         validation: {

@@ -119,6 +119,9 @@ const transConfig = (
         isSkipHidden,
       );
     }
+    // if (["isVisible", "useSourceData"].includes(item.propertyName)) {
+    //   transItem.controlType = "ANTD_JSON_FORM_COMPUTE_VALUE";
+    // }
     // if (item.controlType == "INPUT_TEXT") {
     //   transItem.controlType = "ANTD_JSON_FORM_COMPUTE_VALUE";
     // } else {

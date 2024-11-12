@@ -33,7 +33,9 @@ const COMPONENT_DEFAULT_VALUES: CascaderFieldComponentProps = {
 };
 
 // 使用React.lazy进行组件懒加载
-const CascaderComponent = React.lazy(() => import('widgets/Antd/Form/CascaderWidget/component'));
+const CascaderComponent = React.lazy(
+  () => import("widgets/Antd/Form/CascaderWidget/component"),
+);
 
 function AntdCascaderField({
   fieldClassName,

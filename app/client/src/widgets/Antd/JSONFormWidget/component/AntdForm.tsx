@@ -150,7 +150,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     widgetName,
     wrapperCol,
   } = props;
-
+  const { updateFormData } = useContext(FormContext);
   const { renderActionButton } = useTableButtonRender();
   // 是否校验中
   const [validating, setValidating] = useState<boolean>(false);
@@ -159,6 +159,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
   useEffect(() => {
     console.log("表单组件 initialValues", initialValues);
     formRef?.current?.setFieldsValue(initialValues);
+    updateFormData(initialValues);
   }, [initialValues]);
 
   const updateErrorFidlds = (errorFields?: FieldError[]) => {

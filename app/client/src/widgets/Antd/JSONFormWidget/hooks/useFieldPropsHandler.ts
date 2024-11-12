@@ -16,7 +16,8 @@ export const useFieldPropsHandler = ({
   schemaItem,
 }: UseFieldPropsHandlerProps) => {
   const formContext = useContext(FormContext);
-  const { formRef, updateDefaultFormData, updateFormData } = formContext;
+  const { formRef, initialValues, updateDefaultFormData, updateFormData } =
+    formContext;
   const prevSchemaItemRef = useRef(schemaItem);
   const prevFormContextRef = useRef(formContext);
   const [defaultValue, setDefaultValue] = useState<any>(
@@ -24,7 +25,7 @@ export const useFieldPropsHandler = ({
   );
   const inputDefaultValue = (() => {
     if (passedDefaultValue === undefined) {
-      return schemaItem.defaultValue;
+      return schemaItem.defaultValue || initialValues[name];
     }
 
     return passedDefaultValue;

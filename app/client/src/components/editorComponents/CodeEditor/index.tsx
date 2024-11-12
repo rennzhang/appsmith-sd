@@ -1654,6 +1654,9 @@ class CodeEditor extends Component<Props, State> {
                 className="CodeEditorTarget"
                 data-testid="code-editor-target"
                 ref={this.codeEditorTarget}
+                style={{
+                  maxHeight: "70vh",
+                }}
                 tabIndex={0}
               >
                 <CodeEditorSignPosting

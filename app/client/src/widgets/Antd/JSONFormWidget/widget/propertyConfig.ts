@@ -201,6 +201,7 @@ export const contentConfig = mergeWidgetConfig(
           placeholderText: '{ "name": "John", "age": 24 }',
           isBindProperty: true,
           isTriggerProperty: false,
+          isJSConvertible: true,
           validation: {
             type: ValidationTypes.FUNCTION,
             params: {
@@ -212,6 +213,16 @@ export const contentConfig = mergeWidgetConfig(
               },
             },
           },
+          dependencies: [
+            "sourceData",
+            "autoFormConfig",
+            "autoGenerateForm",
+            "schema",
+            "fieldLimitExceeded",
+            "childStylesheet",
+            "dynamicPropertyPathList",
+            ...JSONFORM_WIDGET_DEPENDENCIES,
+          ],
           evaluationSubstitutionType:
             EvaluationSubstitutionType.SMART_SUBSTITUTE,
         },

@@ -191,6 +191,13 @@ const getValueEnum = (column: TableColumnProps) => {
     return undefined;
   }
   let _options = options || [];
+  try {
+    if (typeof _options === "string") {
+      _options = JSON.parse(_options);
+    }
+  } catch (error) {
+    console.error("getValueEnum error", error);
+  }
   // 如果不需要显示筛选或没有选项，则返回 undefined
   if (!options || options.length === 0) {
     _options = (computedValue || [])?.map((c) => ({
@@ -200,6 +207,7 @@ const getValueEnum = (column: TableColumnProps) => {
   }
 
   const valueEnum: Record<string, any> = {};
+
   _options.forEach((option: any) => {
     const value = option[valueKey || "value"] || option.value;
     const label = option[labelKey || "label"] || option.label;
@@ -411,6 +419,14 @@ const getFieldProps = (propsData: {
   config: ProSchema;
 }) => {
   const { column, config, form, props } = propsData;
+  let _options = column.columnProperties.options;
+  try {
+    if (typeof _options === "string") {
+      _options = JSON.parse(_options);
+    }
+  } catch (error) {
+    console.error("getFieldProps getValueEnum error", error);
+  }
   const fieldProps: ProColumns<Record<string, any>>["fieldProps"] = {
     ...column.columnProperties,
     fieldNames: {
@@ -444,7 +460,7 @@ const getFieldProps = (propsData: {
         column,
       });
     },
-    options: column.columnProperties.options?.map((option: any) => {
+    options: _options?.map((option: any) => {
       return {
         label: option[column.columnProperties.labelKey || ""] || option.label,
         value: option[column.columnProperties.valueKey || ""] || option.value,

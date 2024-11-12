@@ -756,13 +756,18 @@ export const updateSelectSource = (
     columnType: propertyValue as ColumnTypes,
   });
 
-  // 每个属性都更新
-  Object.entries(updateProps)?.forEach(([schemaKey, value]) => {
-    propertiesToUpdate.push({
-      propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.${schemaKey}`,
-      propertyValue: value,
+  if (
+    props.autoFormConfig.config.schema.__root_schema__?.children?.[columnId]
+      ?.fieldType == FieldType.TEXT_INPUT
+  ) {
+    // 每个属性都更新
+    Object.entries(updateProps)?.forEach(([schemaKey, value]) => {
+      propertiesToUpdate.push({
+        propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.${schemaKey}`,
+        propertyValue: value,
+      });
     });
-  });
+  }
 
   if (
     [ColumnTypes.SELECT, ColumnTypes.CHECKBOX, ColumnTypes.RADIO].includes(
@@ -1162,12 +1167,12 @@ export const tableDataValidation = (
 };
 
 export const getFormFieldTypeFromColumnType = (column: ColumnProperties) => {
-  const selectProps = {
-    options: column.options,
-    valueKey: column.valueKey,
-    labelKey: column.labelKey,
-    childrenKey: column.childrenKey,
-  };
+  // const selectProps = {
+  //   options: column.options,
+  //   valueKey: column.valueKey,
+  //   labelKey: column.labelKey,
+  //   childrenKey: column.childrenKey,
+  // };
   const targetProps: any = {
     labelText: column.label,
   };
@@ -1212,6 +1217,6 @@ export const getFormFieldTypeFromColumnType = (column: ColumnProperties) => {
 
   return {
     ...targetProps,
-    ...selectProps,
+    // ...selectProps,
   };
 };
