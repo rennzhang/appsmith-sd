@@ -273,12 +273,6 @@ class AntdInputWidget<
               hidden: (props: AntdInputWidgetProps, propertyPath: string) => {
                 const _propertyPath = getParentPropertyPath(propertyPath);
                 const propsData = get(props, _propertyPath) || props;
-                console.log("prefixIcon12312", {
-                  props,
-                  _propertyPath,
-                  propsData,
-                  propertyPath,
-                });
 
                 return propsData.prefixType !== "icon";
               },

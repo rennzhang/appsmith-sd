@@ -56,6 +56,11 @@ export const CONFIG = {
         label: "表单配置",
         modalWidth: 520,
         modalHeight: 520,
+        schema: {
+          __root_schema__: {
+            children: {},
+          },
+        },
       },
     },
     tablePrimaryColor: theme.defaultSeed.colorPrimary,

@@ -211,7 +211,6 @@ const getValueEnum = (column: TableColumnProps) => {
     }
   });
 
-  console.log("表格 getValueEnum valueEnum", valueEnum);
   return valueEnum;
 };
 const { getTableButtonRender } = useButtonRender();

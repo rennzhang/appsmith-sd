@@ -50,10 +50,14 @@ class PrimaryColumnDropdownControl extends BaseControl<
         return [];
       }
       (ary || [])?.forEach((obj) => {
-        for (const [key, value] of Object.entries(obj)) {
+        for (const [key, value = ""] of Object.entries(obj)) {
           if (typeof value === "object") return;
-          const v = JSON.stringify(value) || "";
-          valueKeys[v] = valueKeys[v] === undefined ? key : null;
+          const v =
+            (typeof value === "object"
+              ? JSON.stringify(value)
+              : value
+            )?.toString() || "empty";
+          valueKeys[v] = key;
         }
       });
 

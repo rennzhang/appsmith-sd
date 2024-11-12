@@ -30,22 +30,7 @@ export const useFieldPropsHandler = ({
     return passedDefaultValue;
   })();
 
-  console.log("useFieldPropsHandler defult useEffect1111", {
-    name,
-    formRef,
-    schemaItem,
-    inputDefaultValue,
-    passedDefaultValue,
-  });
   useEffect(() => {
-    console.log("defult useEffect", {
-      name,
-      formRef,
-      schemaItem,
-      defaultValue,
-      inputDefaultValue,
-      passedDefaultValue,
-    });
     const formValue = formRef?.current?.getFieldsValue();
     const currentValue = get(formValue, name);
     if (isEqual(currentValue, inputDefaultValue)) {

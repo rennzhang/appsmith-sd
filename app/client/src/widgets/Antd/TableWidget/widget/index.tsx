@@ -925,28 +925,13 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const prevSourceData = JSONFormProps?.sourceData;
     const currSourceData = this.getPreviousSourceData(nextProps);
 
-    const prevSchemaWithEditable = cloneDeep(JSONFormProps?.schema);
-
-    // const editableColumnCount = this.props.editableColumn.filter(
-    //   (item: any) => this.props.primaryColumnId !== item.id,
-    // ).length;
-
-    // Object.keys(currSourceData).forEach((key) => {
-    //   const isEditable = !!this.props.editableColumn.find(
-    //     (item: any) => item.id === key && this.props.primaryColumnId !== key,
-    //   );
-    //   set(
-    //     prevSchemaWithEditable,
-    //     `__root_schema__.children.${key}.isVisible`,
-    //     isEditable,
-    //   );
-    // });
+    const prevSchema = JSONFormProps?.schema;
 
     // auto
     const computedSchema = computeSchema({
       currentDynamicPropertyPathList: JSONFormProps.dynamicPropertyPathList,
       currSourceData,
-      prevSchema: JSONFormProps?.schema,
+      prevSchema: prevSchema,
       prevSourceData,
       widgetName: this.props.widgetName,
       fieldThemeStylesheets: JSONFormProps.childStylesheet,
@@ -960,7 +945,8 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       prevSourceData,
       currSourceData,
       nextProps,
-      prevSchemaWithEditable,
+      prevSchema,
+      primaryColumns: this.props.primaryColumns,
     });
 
     const {
@@ -1033,6 +1019,14 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     } = this.props;
     // if (tableType === "edit") {
     //   this.updateAllColumnsEditable(true);
+    // }
+    // if (prevProps.tableData?.length && this.props.tableData?.length) {
+    //   this.generateJSONFormSchema(
+    //     {
+    //       ...this.props.autoFormConfig.config,
+    //       sourceData: this.cleanObject(this.props.tableData?.[0]),
+    //     },
+    //   );
     // }
 
     // defaultPageSize

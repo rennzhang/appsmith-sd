@@ -50,10 +50,45 @@ export default {
       isTriggerProperty: false,
       dependencies,
       evaluatedDependencies: dependencies,
+      updateHook: (
+        props: TableWidgetProps,
+        propertyPath: string,
+        propertyValue: unknown,
+      ) => {
+        const propertiesToUpdate: Array<{
+          propertyPath: string;
+          propertyValue: unknown;
+        }> = [];
+
+        // 获取当前编辑的列ID
+        const [, columnId] = propertyPath.split(".");
+
+        // 将options同步更新到表单配置中
+        propertiesToUpdate.push({
+          propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.options`,
+          propertyValue: propertyValue,
+        });
+
+        return propertiesToUpdate;
+      },
     },
     getDefaultValueDropdownPropConfig({
       dependencies: dependencies,
       evaluatedDependencies: dependencies,
+      updateHook: (
+        props: TableWidgetProps,
+        propertyPath: string,
+        propertyValue: unknown,
+      ) => {
+        // 获取当前编辑的列ID
+        const [, columnId] = propertyPath.split(".");
+        return [
+          {
+            propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.defaultValue`,
+            propertyValue: propertyValue,
+          },
+        ];
+      },
     }),
     getFieldNamesPropConfig("label", {
       validation: {
@@ -61,6 +96,20 @@ export default {
       },
       dependencies: dependencies,
       evaluatedDependencies: dependencies,
+      updateHook: (
+        props: TableWidgetProps,
+        propertyPath: string,
+        propertyValue: unknown,
+      ) => {
+        // 获取当前编辑的列ID
+        const [, columnId] = propertyPath.split(".");
+        return [
+          {
+            propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.labelKey`,
+            propertyValue: propertyValue,
+          },
+        ];
+      },
     }),
     getFieldNamesPropConfig("value", {
       validation: {
@@ -68,6 +117,20 @@ export default {
       },
       dependencies: dependencies,
       evaluatedDependencies: dependencies,
+      updateHook: (
+        props: TableWidgetProps,
+        propertyPath: string,
+        propertyValue: unknown,
+      ) => {
+        // 获取当前编辑的列ID
+        const [, columnId] = propertyPath.split(".");
+        return [
+          {
+            propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.valueKey`,
+            propertyValue: propertyValue,
+          },
+        ];
+      },
     }),
     {
       helpText: "设置占位文本",

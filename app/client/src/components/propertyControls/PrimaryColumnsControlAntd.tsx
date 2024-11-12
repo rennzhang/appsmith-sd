@@ -463,18 +463,13 @@ class PrimaryColumnsControlAntd extends BaseControl<ControlProps, State> {
           !isEditable,
         ),
       );
-    this.batchUpdatePropertiesWithAssociatedUpdates(allUpdates);
 
-    if (isEditable) {
-      const columnOrder = this.props.widgetProperties.columnOrder || [];
-      const editActionColumn = Object.values(columns).find(
-        (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
-      );
+    const updateProps: Record<string, unknown> = {};
 
-      if (editActionColumn) {
-        this.deleteOption(columnOrder.indexOf(editActionColumn.id));
-      }
-    }
+    allUpdates.forEach(({ propertyName, propertyValue }) => {
+      updateProps[propertyName] = propertyValue;
+    });
+    this.batchUpdateProperties(updateProps);
   };
 
   isEditableColumnPresent = () => {

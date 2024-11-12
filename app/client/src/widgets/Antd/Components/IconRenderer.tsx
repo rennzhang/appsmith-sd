@@ -1,5 +1,6 @@
 import React from "react";
-import { Icon, IconName } from "@blueprintjs/core";
+import type { IconName } from "@blueprintjs/core";
+import { Icon } from "@blueprintjs/core";
 import * as AntIcons from "@ant-design/icons";
 
 interface IconRendererProps {
@@ -14,21 +15,13 @@ interface IconRendererProps {
 const ANT_PREFIX = "ant-design:";
 
 const IconRenderer: React.FC<IconRendererProps> = ({
-  icon,
-  color,
-  type = "icon",
-  text,
   className,
+  color,
+  icon,
   size,
+  text,
+  type = "icon",
 }) => {
-  console.group("Antd IconRenderer");
-  console.log("icon", icon);
-  console.log("color", color);
-  console.log("type", type);
-  console.log("text", text);
-  console.log("className", className);
-  console.log("size", size);
-  console.groupEnd();
   if (type === "none" || (!icon && !text)) return null;
 
   if (type === "text") {
@@ -44,21 +37,21 @@ const IconRenderer: React.FC<IconRendererProps> = ({
     ] as React.FC<any>;
     return AntIcon ? (
       <AntIcon
-        twoToneColor={color}
+        className={className}
         style={{
           color,
           fontSize: size ? `${size}px` : undefined,
         }}
-        className={className}
+        twoToneColor={color}
       />
     ) : null;
   }
 
   return (
     <Icon
-      icon={icon as IconName}
-      color={color}
       className={className}
+      color={color}
+      icon={icon as IconName}
       size={size}
     />
   );

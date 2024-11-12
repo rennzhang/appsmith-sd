@@ -223,7 +223,7 @@ function generatePanelPropertyConfig(
   const mergedContentChildren = getAllItemPaneConfig([]);
   const mergedStyleChildren = getAllItemPaneConfig([], true);
 
-  console.log("contentChildren", mergedContentChildren);
+  // console.log("contentChildren", mergedContentChildren);
   // console.log("mergedStyleChildren", mergedStyleChildren);
 
   return {

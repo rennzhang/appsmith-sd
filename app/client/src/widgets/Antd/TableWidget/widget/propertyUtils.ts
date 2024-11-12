@@ -4,7 +4,7 @@ import { StickyType } from "../component/Constants";
 import { CellAlignmentTypes } from "../component/Constants";
 import type { TableWidgetProps } from "../constants";
 import { ColumnTypes, TableInlineEditTypes, ButtonTypes } from "../constants";
-import _, { clone, findIndex, get, isBoolean } from "lodash";
+import _, { clone, findIndex, get, isBoolean, merge } from "lodash";
 import { Colors } from "constants/Colors";
 import {
   combineDynamicBindings,
@@ -13,6 +13,7 @@ import {
 import { generateNewColumnOrderFromStickyValue } from "./utilities";
 import type { PropertyUpdates } from "widgets/constants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+import { FieldType } from "widgets/Antd/JSONFormWidget/constants";
 
 export function totalRecordsCountValidation(
   value: unknown,
@@ -635,16 +636,39 @@ export const updateCustomColumnAliasOnLabelChange = (
   propertyPath: string,
   propertyValue: unknown,
 ): Array<PropertyUpdates> | undefined => {
-  // alias will be updated along with label change only for custom columns
+  const propertiesToUpdate: Array<PropertyUpdates> = [];
+
+  // 原有的alias更新逻辑
   const regex = /^primaryColumns\.(customColumn\d+)\.label$/;
   if (propertyPath?.length && regex.test(propertyPath)) {
-    return [
-      {
-        propertyPath: propertyPath.replace("label", "alias"),
-        propertyValue: propertyValue,
-      },
-    ];
+    propertiesToUpdate.push({
+      propertyPath: propertyPath.replace("label", "alias"),
+      propertyValue: propertyValue,
+    });
   }
+
+  // 新增schema更新逻辑
+  const [, columnId, targetPropName] = propertyPath.split(".");
+
+  const column = props.primaryColumns[columnId];
+  const prevSchema = props.autoFormConfig?.config?.schema;
+
+  if (targetPropName === "label") {
+    propertiesToUpdate.push({
+      propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.labelText`,
+      propertyValue: propertyValue,
+    });
+  }
+
+  console.log("updateCustomColumnAliasOnLabelChange", {
+    props,
+    column,
+    prevSchema,
+    propertyPath,
+    propertyValue,
+    propertiesToUpdate,
+  });
+  return propertiesToUpdate.length ? propertiesToUpdate : undefined;
 };
 
 export const allowedFirstDayOfWeekRange = (value: number) => {
@@ -722,6 +746,23 @@ export const updateSelectSource = (
 
   const baseProperty = getBasePropertyPath(propertyPath);
   const selectSource = get(props, `${baseProperty}.options`);
+  // 新增schema更新逻辑
+  const [, columnId, targetPropName] = propertyPath.split(".");
+
+  const column = props.primaryColumns[columnId];
+
+  const updateProps: any = getFormFieldTypeFromColumnType({
+    ...column,
+    columnType: propertyValue as ColumnTypes,
+  });
+
+  // 每个属性都更新
+  Object.entries(updateProps)?.forEach(([schemaKey, value]) => {
+    propertiesToUpdate.push({
+      propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.${schemaKey}`,
+      propertyValue: value,
+    });
+  });
 
   if (
     [ColumnTypes.SELECT, ColumnTypes.CHECKBOX, ColumnTypes.RADIO].includes(
@@ -732,19 +773,38 @@ export const updateSelectSource = (
     console.log("selectSource", props);
     // Sets the default value for selectSource to static when
     // selecting the select column type for the first time
-    const computedValue =
-      (
-        (props.__evaluation__?.evaluatedValues?.orderedTableColumns as any[])?.[
-          props.editingColumnIndex
-        ] as { computedValue: any[] }
-      )?.computedValue || [];
+    const computedValue = Array.from(
+      new Set(
+        (
+          (
+            props.__evaluation__?.evaluatedValues?.orderedTableColumns as any[]
+          )?.[props.editingColumnIndex] as { computedValue: any[] }
+        )?.computedValue || [],
+      ),
+    );
+    const [, columnId] = propertyPath.split(".");
+
     const selectOptions =
       computedValue?.map((c) => ({ label: String(c), value: c })) || [];
     propertiesToUpdate.push({
       propertyPath: `${baseProperty}.options`,
       propertyValue: selectOptions,
     });
+    propertiesToUpdate.push({
+      propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.options`,
+      propertyValue: selectOptions,
+    });
   }
+
+  console.log("updateSelectSource", {
+    propertiesToUpdate,
+    column,
+    propertyPath,
+    propertyValue,
+    selectSource,
+    updateProps,
+    columnId,
+  });
 
   return propertiesToUpdate?.length ? propertiesToUpdate : undefined;
 };
@@ -1099,4 +1159,59 @@ export const tableDataValidation = (
   }
 
   return invalidResponse;
+};
+
+export const getFormFieldTypeFromColumnType = (column: ColumnProperties) => {
+  const selectProps = {
+    options: column.options,
+    valueKey: column.valueKey,
+    labelKey: column.labelKey,
+    childrenKey: column.childrenKey,
+  };
+  const targetProps: any = {
+    labelText: column.label,
+  };
+
+  switch (column.columnType) {
+    case ColumnTypes.TEXTAREA:
+      targetProps.fieldType = FieldType.MULTILINE_TEXT_INPUT;
+      break;
+    case ColumnTypes.DATE:
+      targetProps.fieldType = FieldType.DATEPICKER;
+      break;
+    case ColumnTypes.DATE_RANGE:
+      targetProps.fieldType = FieldType.DATEPICKER;
+      targetProps.isRange = true;
+      break;
+    case ColumnTypes.CHECKBOX:
+      targetProps.fieldType = FieldType.CHECKBOX;
+
+      break;
+    case ColumnTypes.SWITCH:
+      targetProps.fieldType = FieldType.SWITCH;
+      break;
+    case ColumnTypes.RADIO:
+      targetProps.fieldType = FieldType.RADIO_GROUP;
+      break;
+    case ColumnTypes.SELECT:
+      targetProps.fieldType = FieldType.MULTISELECT;
+      break;
+    case ColumnTypes.MONEY:
+    case ColumnTypes.INDEX:
+    case ColumnTypes.INDEX_BORDER:
+    case ColumnTypes.IMAGE:
+      targetProps.fieldType = FieldType.TEXT_INPUT;
+      break;
+    case ColumnTypes.NUMBER:
+      targetProps.fieldType = FieldType.NUMBER_INPUT;
+      break;
+    case ColumnTypes.PASSWORD:
+      targetProps.fieldType = FieldType.PASSWORD_INPUT;
+      break;
+  }
+
+  return {
+    ...targetProps,
+    ...selectProps,
+  };
 };
