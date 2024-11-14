@@ -1,16 +1,17 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback, memo } from "react";
 import { ConfigProvider, Input, InputNumber } from "antd";
 import type { ProFormItemProps } from "@ant-design/pro-components";
 import { ProFormItem } from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import { AntdLabelPosition } from "components/constants";
 import type { AntdInputWidgetProps } from "../types";
-import { isNumber, omit, toNumber } from "lodash";
+import { difference, isEqual, isNumber, omit, toNumber } from "lodash";
 import type { IconName } from "@blueprintjs/core";
 import { Icon } from "@blueprintjs/core";
 import * as AntIcons from "@ant-design/icons";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
 import { InputTypes } from "../constants";
+import { diff } from "deep-diff";
 
 const { Search, TextArea } = Input;
 
@@ -54,7 +55,7 @@ export interface InputComponentProps extends AntdInputWidgetProps {
 
 type InputDataType = number | string | undefined;
 
-const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
+const AntdInput: React.FC<InputComponentProps> = (props) => {
   const {
     accessor,
     addonAfterColor,
@@ -273,7 +274,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
     validateProps,
     colLayoutMemo,
   });
-  const getInputComponent = useCallback(() => {
+  const getInputComponent = () => {
     switch (inputType) {
       case InputTypes.MULTI_LINE_TEXT:
         const textAreaProps = omit(commonProps, [
@@ -326,19 +327,7 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
       default:
         return <Input {...commonProps} />;
     }
-  }, [
-    inputType,
-    commonProps,
-    textareaRowsControlType,
-    minRows,
-    maxRows,
-    textareaRows,
-    controls,
-    keyboard,
-    maxNum,
-    minNum,
-    onNumberChange,
-  ]);
+  };
 
   return (
     <AntdFormItemContainer
@@ -381,8 +370,31 @@ const AntdInput: React.FC<InputComponentProps> = React.memo((props) => {
       </ConfigProvider>
     </AntdFormItemContainer>
   );
-});
+};
 
 AntdInput.displayName = "AntdInput";
+const arePropsEqual = (
+  prevProps: InputComponentProps,
+  nextProps: InputComponentProps,
+) => {
+  const _prevProps = omit(prevProps, "inputRef");
+  const _nextProps = omit(nextProps, "inputRef");
+  // 开发环境打印diff;
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = diff(_prevProps, _nextProps);
+    diffProps &&
+      console.log("AntdInput memo diff", {
+        p: prevProps,
+        pJson: JSON.stringify(_prevProps),
+        n: nextProps,
+        nJson: JSON.stringify(_nextProps),
+        diff: diffProps,
+        isSame: isEqual(_prevProps, _nextProps),
+      });
+  }
 
+  return isEqual(_prevProps, _nextProps);
+};
+
+// export default memo(AntdInput, arePropsEqual);
 export default AntdInput;

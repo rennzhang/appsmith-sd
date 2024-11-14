@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useRef } from "react";
+import { memo, useCallback, useContext, useMemo, useRef } from "react";
 import type { DraftValueType } from "rc-select/lib/Select";
 import { omit } from "lodash";
 
@@ -8,12 +8,14 @@ import TreeSelectComponent from "widgets/Antd/Form/TreeSelectWidget/component";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import type {
   BaseFieldComponentProps,
+  FieldComponent,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
 import { ActionUpdateDependency, TreeSelectWidgetConfig } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
+import { diff } from "deep-diff";
 
 type TreeSelectComponentProps = FieldComponentBaseProps &
   FieldEventProps &
@@ -79,7 +81,7 @@ function AntdTreeSelectField({
         });
       }
     },
-    [executeAction, name, schemaItem.onTreeSelectSearch, updateFilterText],
+    [name, schemaItem.onTreeSelectSearch, updateFilterText],
   );
 
   const onChangeHandler = useCallback(
@@ -101,7 +103,7 @@ function AntdTreeSelectField({
         });
       }
     },
-    [executeAction, name, schemaItem.onTreeSelectValueChange, updateFormData],
+    [name, schemaItem.onTreeSelectValueChange, updateFormData],
   );
 
   const dropdownWidth = wrapperRef.current?.clientWidth;
@@ -130,6 +132,34 @@ function AntdTreeSelectField({
   return fieldComponent;
 }
 
-AntdTreeSelectField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+const arePropsEqual = (
+  prevProps: TreeSelectFieldProps,
+  nextProps: TreeSelectFieldProps,
+) => {
+  // 开发环境打印diff
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = diff(prevProps, nextProps);
 
-export default AntdTreeSelectField;
+    diffProps &&
+      console.log("AntdTreeSelectField memo diff", {
+        p: prevProps,
+        n: nextProps,
+        diff: diffProps,
+        isSame: JSON.stringify(prevProps) === JSON.stringify(nextProps),
+      });
+  }
+  return (
+    prevProps.name === nextProps.name &&
+    prevProps.passedDefaultValue === nextProps.passedDefaultValue &&
+    JSON.stringify(prevProps.schemaItem) ===
+      JSON.stringify(nextProps.schemaItem)
+  );
+};
+
+const MemoizedTreeSelectField: FieldComponent<TreeSelectComponentProps> = memo(
+  AntdTreeSelectField,
+  arePropsEqual,
+);
+MemoizedTreeSelectField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+
+export default MemoizedTreeSelectField;

@@ -1,5 +1,5 @@
-import React, { useRef, useMemo, useEffect, useState } from "react";
-import { Button, ConfigProvider, message, Modal, theme, Drawer } from "antd";
+import React, { useRef, useMemo } from "react";
+import { ConfigProvider, message, theme } from "antd";
 import {
   DragSortTable,
   EditableProTable,
@@ -7,7 +7,6 @@ import {
 } from "@ant-design/pro-components";
 import type {
   ActionType,
-  DragTableProps,
   EditableProTableProps,
   ProTableProps,
 } from "@ant-design/pro-components";
@@ -28,8 +27,6 @@ import {
   useTableAlertState,
 } from "./hooks";
 import useButtonRender from "./hooks/useTableButtonRender";
-import { isEqual, omit, cloneDeep, set } from "lodash";
-import equal from "fast-deep-equal";
 
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 
@@ -96,6 +93,7 @@ const ProtableRender = React.memo(function ProtableRender(
         if (action.id == "addNewRow") {
           handleAddNewRow();
         } else if (action.id === "create") {
+          setIsJsonFormVisible(true);
           setJsonFormState({
             isJsonFormVisible: true,
             jsonFormType: "add",
@@ -261,239 +259,10 @@ const ProtableRender = React.memo(function ProtableRender(
   );
 });
 
-// 使用React.lazy动态导入JSONFormComponent
-const JSONFormComponent = React.lazy(
-  () => import("widgets/Antd/JSONFormWidget/component/index"),
-);
-
-const JSONFormRender = React.memo(
-  function JSONFormRender(props: AntdTableProps & JSONFormProps) {
-    const {
-      isJsonFormVisible,
-      jsonFormState,
-      setIsJsonFormVisible,
-      setJsonFormState,
-    } = props || {};
-
-    const getProcessedFormProps = () => {
-      const formProps = omit(props.autoFormConfig.config, [
-        "editTitle",
-        "title",
-      ]);
-
-      // // 仅在编辑和新建模式下根据可编辑列控制schema
-      // if (jsonFormState.jsonFormType !== "view") {
-      //   const schemaChildren =
-      //     formProps?.schema?.__root_schema__?.children || {};
-
-      //   const newSchemaChildren: Record<string, any> = {};
-      //   if (
-      //     !props?.editableColumn ||
-      //     !props?.tableData?.length ||
-      //     !props?.primaryColumnId
-      //   ) {
-      //     return formProps;
-      //   }
-      //   for (const key in schemaChildren) {
-      //     newSchemaChildren[key] = { ...schemaChildren[key] };
-      //     console.log("newSchemaChildren[key]", {
-      //       key,
-      //       schemaChildren,
-      //       newSchemaChildren,
-      //       newSchemaChildrenKey: newSchemaChildren[key],
-      //       schemaChildrenKey: schemaChildren[key],
-      //     });
-
-      //     newSchemaChildren[key].isVisible = schemaChildren[key].isVisible;
-      //     props?.editableColumn?.map((item: any) => {
-      //       if (item.id === key) {
-      //         newSchemaChildren[key].isVisible = true;
-      //       }
-      //     });
-      //     if (key === props.primaryColumnId) {
-      //       newSchemaChildren[key].isVisible =
-      //         schemaChildren[key].isVisible || false;
-      //     }
-      //   }
-      //   const newSchema = {
-      //     ...formProps.schema,
-      //     __root_schema__: {
-      //       ...formProps.schema.__root_schema__,
-      //       children: newSchemaChildren,
-      //     },
-      //   };
-
-      //   console.log("schemaChildren", {
-      //     schemaChildren,
-      //     newSchemaChildren,
-      //     newSchema,
-      //   });
-
-      //   return {
-      //     ...formProps,
-      //     schema: newSchema,
-      //   };
-      // }
-
-      return formProps;
-    };
-
-    const processedFormProps = getProcessedFormProps();
-
-    useEffect(() => {
-      setIsJsonFormVisible(jsonFormState.isJsonFormVisible);
-      console.log(" JSONFormRender jsonFormState useEffect", {
-        jsonFormState,
-      });
-    }, [jsonFormState]);
-
-    const modalTitle = useMemo(() => {
-      if (jsonFormState.jsonFormType === "view") {
-        return "查看详情";
-      }
-      return jsonFormState.jsonFormType === "edit"
-        ? props.autoFormConfig.config.editTitle
-        : props.autoFormConfig.config.title;
-    }, [props.autoFormConfig, jsonFormState]);
-
-    const modalContainer = useRef<any>(null);
-    useEffect(() => {
-      if (props.isEditingMode) {
-        if (processedFormProps.jsonFormPopType === "drawer") {
-          modalContainer.current =
-            document.querySelector(`#widgets-editor`) || document.body;
-        } else {
-          modalContainer.current =
-            document.querySelector(`.appsmith_widget_0`) || document.body;
-        }
-      } else {
-        modalContainer.current = document.body;
-      }
-    }, [props.isEditingMode, processedFormProps.jsonFormPopType]);
-
-    console.log(` JSONFormRender processedFormProps`, {
-      processedFormProps,
-      jsonFormState,
-    });
-    const renderJSONForm = () => (
-      <JSONFormComponent
-        {...processedFormProps}
-        className={`proTable-auto-jsonform ${
-          processedFormProps.jsonFormPopType === "drawer"
-            ? "pop-drawer"
-            : "pop-modal"
-        }
-          ${jsonFormState.jsonFormType === "view" ? "view-mode" : ""}
-        `}
-        disabled={jsonFormState.jsonFormType === "view"}
-        hideSubmit={jsonFormState.jsonFormType === "view"}
-        initialValues={props.formData}
-        isSubmitting={!!jsonFormState.isSubmitting}
-        maxHeight={processedFormProps.modalHeight}
-        onCancel={() => setJsonFormState({ isJsonFormVisible: false })}
-        onSubmit={(values) => {
-          props.onJsonFormSubmit(values);
-        }}
-        ref={props.jsonFormRef}
-        renderMode={props.renderMode}
-        setMetaInternalFieldState={props.setMetaInternalFieldState}
-        updateDefaultFormData={props.updateDefaultFormData}
-        updateWidgetFormData={props.updateWidgetFormData}
-        updateWidgetMetaProperty={props.updateWidgetMetaProperty}
-        updateWidgetProperty={props.updateWidgetProperty}
-        widgetId={props.widgetId + "-jsonform"}
-        widgetName={props.widgetName + "_JSONFORM"}
-      />
-    );
-
-    return (
-      <ConfigProvider
-        theme={{
-          components: {
-            Modal: {
-              borderRadius:
-                (processedFormProps.borderRadius as unknown as number) || 0,
-              contentBg: processedFormProps.backgroundColor,
-              headerBg: processedFormProps.backgroundColor,
-              boxShadow: processedFormProps.boxShadow,
-              titleColor: processedFormProps.titleColor,
-            },
-            Drawer: {
-              colorBgElevated: processedFormProps.backgroundColor,
-            },
-          },
-        }}
-      >
-        {processedFormProps.jsonFormPopType === "modal" ? (
-          <Modal
-            footer={null}
-            getContainer={() => modalContainer.current}
-            onCancel={() =>
-              setJsonFormState({
-                isJsonFormVisible: false,
-                isSubmitting: false,
-              })
-            }
-            open={isJsonFormVisible}
-            title={modalTitle}
-            width={processedFormProps.modalWidth}
-          >
-            <React.Suspense fallback={<div>加载中...</div>}>
-              {renderJSONForm()}
-            </React.Suspense>
-          </Modal>
-        ) : (
-          <Drawer
-            getContainer={() => modalContainer.current}
-            onClose={() =>
-              setJsonFormState({
-                isJsonFormVisible: false,
-                isSubmitting: false,
-              })
-            }
-            open={isJsonFormVisible}
-            placement="right"
-            rootStyle={{
-              position: "absolute",
-            }}
-            styles={{
-              body: {
-                paddingBottom: 0,
-                paddingTop: 0,
-              },
-            }}
-            title={modalTitle}
-            width={processedFormProps.modalWidth}
-          >
-            <React.Suspense fallback={<div>加载中...</div>}>
-              {renderJSONForm()}
-            </React.Suspense>
-          </Drawer>
-        )}
-      </ConfigProvider>
-    );
-  },
-  (prevProps, nextProps) => {
-    console.log("JSONFormRender 对比", {
-      prevProps,
-      nextProps,
-      a: equal(prevProps.jsonFormState, nextProps.jsonFormState),
-    });
-    // return (
-    //   !equal(
-    //     prevProps.autoFormConfig.config,
-    //     nextProps.autoFormConfig.config,
-    //   ) &&
-    //   prevProps.jsonFormRef === nextProps.jsonFormRef &&
-    //   prevProps.isEditingMode === nextProps.isEditingMode
-    // );
-  },
-);
-
 export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
-  const [isJsonFormVisible, setIsJsonFormVisible] = useState(
-    props.jsonFormState.isJsonFormVisible,
-  );
+  // useEffect(() => {
+  //   setIsJsonFormVisible(props.jsonFormState.isJsonFormVisible);
+  // }, [props.jsonFormState.isJsonFormVisible]);
   const { showConnectDataOverlay } = props;
   const scrollBarRef = useRef<any>(null);
 
@@ -529,15 +298,6 @@ export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
 
   return (
     <>
-      {
-        <JSONFormRender
-          {...props}
-          isJsonFormVisible={isJsonFormVisible}
-          setIsJsonFormVisible={setIsJsonFormVisible}
-          updateDefaultFormData={props.updateDefaultFormData}
-        />
-      }
-
       {showConnectDataOverlay && (
         <ConnectDataOverlay onConnectData={props.onConnectData} />
       )}
@@ -568,7 +328,7 @@ export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
             <ProtableRender
               {...props}
               configProviderTheme={configProviderTheme}
-              setIsJsonFormVisible={setIsJsonFormVisible}
+              setIsJsonFormVisible={props.setIsJsonFormVisible}
             />
           </ConfigProvider>
         </div>

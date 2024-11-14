@@ -62,7 +62,6 @@ function useBlurAndFocusEvents<TElement extends BaseEvents>({
     const inputElm = ((inputRef.current as InputRef)?.input ||
       (inputRef.current as TextAreaRef)?.resizableTextArea?.textArea ||
       inputRef.current) as TElement;
-    console.log(` inputRef`, inputRef, inputElm);
     if (inputElm) {
       inputElm.addEventListener("blur", onBlurHandler);
       inputElm.addEventListener("focus", onFocusHandler);

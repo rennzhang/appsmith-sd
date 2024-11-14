@@ -235,7 +235,7 @@ export interface AntdTableProps extends ProTableProps<any, any> {
   delimiter: string;
   accentColor: string;
   borderRadius: string;
-  boxShadow: string;
+  boxShadow: BoxShadow;
   borderWidth?: number;
   borderColor?: string;
   onBulkEditDiscard: () => void;
@@ -536,6 +536,7 @@ import type { ActionUpdateDependency } from "widgets/JSONFormWidget/constants";
 import type { RenderModes } from "constants/WidgetConstants";
 import type { JSONFormWidgetState } from "widgets/JSONFormWidget/widget";
 import type { JSONFormComponentProps } from "widgets/Antd/JSONFormWidget/component";
+import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 
 export const DEFAULT_COLUMN_NAME = "Table Column";
 

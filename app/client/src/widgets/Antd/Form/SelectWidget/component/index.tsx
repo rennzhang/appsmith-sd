@@ -10,7 +10,7 @@ import { ConfigProvider, Select } from "antd";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 
-export interface TreeSelectComponentProps {
+export interface SelectComponentProps {
   valueKey: string;
   labelKey: string;
   childrenKey: string;
@@ -58,7 +58,7 @@ export interface TreeSelectComponentProps {
   accessor?: string | string[];
 }
 
-function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
+function SelectComponent(props: SelectComponentProps): JSX.Element {
   const {
     accessor,
     allowClear,
@@ -230,9 +230,9 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     props.handleSearch?.(val || "");
   };
 
-  console.group("Antd 树选择器组件");
-  console.log("Antd 树选择器组件 props", props);
-  console.log("Antd 树选择器组件 value", value);
+  console.group("Antd 选择器组件");
+  console.log("Antd 选择器组件 props", props);
+  console.log("Antd 选择器组件 value", value);
 
   console.groupEnd();
   return (
@@ -296,4 +296,4 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
   );
 }
 
-export default TreeSelectComponent;
+export default SelectComponent;

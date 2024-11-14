@@ -107,13 +107,11 @@ export const AllAntdFormItems = [
 import {
   ArrayField,
   CheckboxField,
-  CurrencyInputField,
   AntdDatePickerField,
   InputField,
   AntdSelectField,
   AntdTreeSelectField,
   ObjectField,
-  PhoneInputField,
   RadioGroupField,
   SwitchField,
   TextField,
@@ -367,8 +365,8 @@ export type ComponentDefaultValuesFnProps<TSourceData = any> = {
 };
 
 // This defines a react component with componentDefaultValues property attached to it.
-export type FieldComponent = {
-  (props: BaseFieldComponentProps): JSX.Element | null;
+export type FieldComponent<TProps = any> = {
+  (props: BaseFieldComponentProps & TProps): JSX.Element | null;
   componentDefaultValues?:
     | FieldComponentBaseProps
     | ((props: ComponentDefaultValuesFnProps) => FieldComponentBaseProps);

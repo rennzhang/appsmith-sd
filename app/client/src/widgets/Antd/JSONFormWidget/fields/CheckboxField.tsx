@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from "react";
+import React, { memo, useCallback, useContext, useMemo } from "react";
 import { omit } from "lodash";
 
 import FormContext from "../FormContext";
@@ -7,6 +7,7 @@ import CheckboxComponent from "widgets/Antd/Form/CheckboxWidget/component";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import type {
   BaseFieldComponentProps,
+  FieldComponent,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
@@ -14,6 +15,7 @@ import { ActionUpdateDependency, CheckboxWidgetConfig } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
 import type { CheckboxValueType } from "antd/es/checkbox/Group";
+import { diff } from "deep-diff";
 
 type CheckboxComponentProps = FieldComponentBaseProps &
   FieldEventProps &
@@ -62,7 +64,7 @@ function CheckboxField({
         });
       }
     },
-    [executeAction, name, schemaItem.onValueChange, updateFormData],
+    [name, schemaItem.onValueChange, updateFormData],
   );
 
   const fieldComponent = useMemo(() => {
@@ -78,6 +80,27 @@ function CheckboxField({
   return fieldComponent;
 }
 
-CheckboxField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+const arePropsEqual = (
+  prevProps: CheckboxFieldProps,
+  nextProps: CheckboxFieldProps,
+) => {
+  // 开发环境打印diff
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = diff(prevProps, nextProps);
+    if (diffProps) {
+      console.log("CheckboxField memo diff", {
+        p: prevProps,
+        n: nextProps,
+        diff: diffProps,
+      });
+    }
+  }
+  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+};
+const MemoizedCheckboxField: FieldComponent<CheckboxComponentProps> = memo(
+  CheckboxField,
+  arePropsEqual,
+);
+MemoizedCheckboxField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
-export default CheckboxField;
+export default MemoizedCheckboxField;

@@ -1,10 +1,11 @@
-import { useCallback, useContext, useMemo } from "react";
+import { memo, useCallback, useContext, useMemo } from "react";
 import FormContext from "../FormContext";
 import type { DatePickerWidgetProps } from "widgets/Antd/Form/DatePickerWidget/component";
 import DatePickerComponent from "widgets/Antd/Form/DatePickerWidget/component";
 import type {
   BaseFieldComponentProps,
   ComponentDefaultValuesFnProps,
+  FieldComponent,
 } from "../constants";
 import { DatePickerWidgetConfig } from "../constants";
 import type { FieldComponentBaseProps, FieldEventProps } from "../constants";
@@ -16,6 +17,8 @@ import { DateFormatOptions } from "widgets/Antd/Form/DatePickerWidget/widget/dat
 import dayjs from "dayjs";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import { dateFormatOptions } from "widgets/constants";
+import { diff } from "deep-diff";
+import React from "react";
 
 type DatePickerComponentProps = DatePickerWidgetProps &
   FieldComponentBaseProps &
@@ -103,7 +106,7 @@ function AntdTimePickerField({
         });
       }
     },
-    [executeAction, name, schemaItem.onDateSelected, updateFormData],
+    [name, schemaItem.onDateSelected, updateFormData],
   );
   console.log("AntdTimePickerField", {
     schemaItem,
@@ -121,6 +124,28 @@ function AntdTimePickerField({
   );
 }
 
-AntdTimePickerField.componentDefaultValues = componentDefaultValues;
-AntdTimePickerField.isValidType = isValidType;
-export default AntdTimePickerField;
+const arePropsEqual = (
+  prevProps: DatePickerFieldProps,
+  nextProps: DatePickerFieldProps,
+) => {
+  // 开发环境打印diff
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = diff(prevProps, nextProps);
+    if (diffProps) {
+      console.log("AntdTimePickerField memo diff", {
+        p: prevProps,
+        n: nextProps,
+        diff: diffProps,
+      });
+    }
+  }
+  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+};
+const MemoizedTimePickerField: FieldComponent<DatePickerComponentProps> = memo(
+  AntdTimePickerField,
+  arePropsEqual,
+);
+MemoizedTimePickerField.componentDefaultValues = componentDefaultValues;
+MemoizedTimePickerField.isValidType = isValidType;
+
+export default MemoizedTimePickerField;

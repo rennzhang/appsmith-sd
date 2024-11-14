@@ -13,7 +13,7 @@ import { Text } from "@blueprintjs/core";
 import type { Schema } from "../constants";
 import { FIELD_MAP, MAX_ALLOWED_FIELDS, ROOT_SCHEMA_KEY } from "../constants";
 import { FormContextProvider } from "../FormContext";
-import { isEmpty, pick } from "lodash";
+import { debounce, get, isEmpty, isEqual, pick, set } from "lodash";
 import type { RenderMode } from "constants/WidgetConstants";
 import { RenderModes, TEXT_SIZES } from "constants/WidgetConstants";
 import type { Action, JSONFormWidgetState } from "../widget";
@@ -109,7 +109,7 @@ function InfoMessage({
 
 function JSONFormComponent<TValues>(
   props: JSONFormComponentProps<TValues>,
-  ref: React.RefObject<ProFormInstance<any>> | null,
+  formRef: React.RefObject<ProFormInstance<any>>,
 ) {
   const {
     backgroundColor,
@@ -156,11 +156,6 @@ function JSONFormComponent<TValues>(
     const rootSchemaItem = schema[ROOT_SCHEMA_KEY];
     const RootField = FIELD_MAP[rootSchemaItem.fieldType] || Fragment;
     const propertyPath = `schema.${ROOT_SCHEMA_KEY}`;
-
-    console.log("renderRootField", {
-      ref,
-    });
-
     return (
       <RootField
         fieldClassName="root"
@@ -170,7 +165,7 @@ function JSONFormComponent<TValues>(
         schemaItem={rootSchemaItem}
       />
     );
-  }, [ref, schema]);
+  }, [schema]);
 
   const renderComponent = useMemo(() => {
     if (fieldLimitExceeded) {
@@ -197,12 +192,6 @@ function JSONFormComponent<TValues>(
   const hideFooter = fieldLimitExceeded || isSchemaEmpty;
   const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
 
-  // formRef console.log();
-
-  useEffect(() => {
-    console.log("JSONFormWidget formRef", ref);
-  }, [ref]);
-
   const formItems = useMemo(() => {
     return Object.values(schema[ROOT_SCHEMA_KEY]?.children || {}).map(
       (item) => ({
@@ -213,11 +202,74 @@ function JSONFormComponent<TValues>(
     );
   }, [schema]);
 
-  const [formData, setFormData] = useState<any>(props.initialValues || {});
+  const [formData, setFormData] = useState<any>(initialValues || {});
 
-  useEffect(() => {
-    console.log("JSONFormWidget formData", formData);
-  }, [formData]);
+  // 将 debounced 函数移到组件外部或使用 useCallback 来缓存
+  const debouncedUpdate = useCallback(
+    debounce(async (values: any, cb?: (values: any) => void) => {
+      const newFormData = { ...formRef?.current?.getFieldsValue() };
+
+      let hasChanges = false;
+      for (const key of Object.keys(values)) {
+        const oldValue = get(formData, key);
+        const newValue = values[key];
+
+        if (!isEqual(oldValue, newValue)) {
+          hasChanges = true;
+          set(newFormData, key, newValue);
+          await formRef?.current?.setFieldValue(key.split("."), newValue);
+        }
+      }
+
+      console.log("updateFormData result", {
+        values,
+        formData,
+        newFormData,
+        initialValues,
+        hasChanges,
+      });
+
+      // 修正比较逻辑
+      if (!hasChanges || isEqual(formData, newFormData)) {
+        return;
+      }
+
+      // 使用 Promise.all 等待所有更新完成
+      Promise.all([
+        updateWidgetFormData(newFormData),
+        setFormData(newFormData),
+        async () => {
+          // 使用 Promise 替代 setTimeout
+
+          try {
+            await formRef?.current?.validateFields(Object.keys(values));
+            setFieldErrors([]);
+          } catch (error: any) {
+            console.log("updateFormData validateFields error:", error);
+            setFieldErrors(error?.errorFields as FieldError[]);
+          }
+        },
+      ]);
+
+      cb?.(newFormData);
+    }),
+    [
+      formData,
+      formRef,
+      initialValues,
+      updateWidgetFormData,
+      setFormData,
+      setFieldErrors,
+    ],
+  );
+
+  // 包装更新函数
+  const updateFormData = useCallback(
+    (values: any, cb?: (values: any) => void) => {
+      debouncedUpdate(values, cb);
+    },
+    [debouncedUpdate],
+  );
 
   console.log("JSONFormWidget ", schema[ROOT_SCHEMA_KEY], {
     schema,
@@ -230,18 +282,17 @@ function JSONFormComponent<TValues>(
       executeAction={executeAction}
       formColorPrimary={rest.colorPrimary}
       formControlSize={controlSize}
-      formData={formData}
       formIsDisabled={rest.isDisabled}
       formIsRequird={rest.isRequired}
       formLabelAlign={rest.labelAlignment}
       formLayout={rest.formLayout}
-      formRef={ref}
+      formRef={formRef}
       initialValues={props.initialValues}
       renderMode={renderMode}
       setFieldErrors={setFieldErrors}
-      setFormData={setFormData}
       setMetaInternalFieldState={setMetaInternalFieldState}
       updateDefaultFormData={updateDefaultFormData}
+      updateFormData={updateFormData}
       updateWidgetFormData={updateWidgetFormData}
       updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}
@@ -251,7 +302,7 @@ function JSONFormComponent<TValues>(
         {...props}
         fieldErrors={fieldErrors}
         formItems={formItems}
-        formRef={ref}
+        formRef={formRef}
         hideFooter={hideFooter}
         isFixedFooter={rest.isFixedFooter}
         maxHeight={props.maxHeight}
@@ -267,4 +318,4 @@ function JSONFormComponent<TValues>(
   );
 }
 
-export default React.memo(React.forwardRef(JSONFormComponent));
+export default React.memo(React.forwardRef(JSONFormComponent as any));

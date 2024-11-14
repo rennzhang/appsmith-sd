@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import "rc-tree-select/assets/index.less";
 import type { DefaultValueType } from "rc-tree-select/lib/interface";
 import type { RenderMode, TextSize } from "constants/WidgetConstants";
@@ -11,6 +11,8 @@ import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { IconName } from "@blueprintjs/icons";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
+import { diff } from "deep-diff";
+import { isEqual } from "lodash";
 
 export interface TreeSelectComponentProps {
   valueKey?: string;
@@ -328,4 +330,22 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
   );
 }
 
-export default TreeSelectComponent;
+const arePropsEqual = (
+  prevProps: TreeSelectComponentProps,
+  nextProps: TreeSelectComponentProps,
+) => {
+  // 开发环境打印diff
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = diff(prevProps, nextProps);
+    diffProps &&
+      console.log("TreeSelectComponent memo diff", {
+        p: prevProps,
+        n: nextProps,
+        diff: diffProps,
+        isSame: JSON.stringify(prevProps) === JSON.stringify(nextProps),
+      });
+  }
+  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+};
+
+export default memo(TreeSelectComponent, arePropsEqual);

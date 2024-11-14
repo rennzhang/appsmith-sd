@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { type Alignment } from "@blueprintjs/core";
 import { AntdLabelPosition } from "components/constants";
@@ -9,6 +9,8 @@ import { AntdFormItemContainer } from "widgets/Antd/Style";
 import { type IconName } from "@blueprintjs/icons";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
 import type { TextSize } from "constants/WidgetConstants";
+import { diff } from "deep-diff";
+import { isEqual } from "lodash";
 export interface RadioGroupContainerProps {
   labelPosition?: AntdLabelPosition;
 }
@@ -206,4 +208,24 @@ export type SwitchComponentProps = SwitchComponentPropsExtends & {
   isVisible?: boolean;
 };
 
-export default SwitchComponent;
+const arePropsEqual = (
+  prevProps: SwitchComponentProps,
+  nextProps: SwitchComponentProps,
+) => {
+  // // 开发环境打印diff
+  // if (process.env.NODE_ENV === "development") {
+  //   const diffProps = diff(prevProps, nextProps);
+  //   diffProps &&
+  //     console.log("SwitchComponent memo diff", {
+  //       p: prevProps,
+  //       n: nextProps,
+  //       diff: diffProps,
+  //       isSame: JSON.stringify(prevProps) === JSON.stringify(nextProps),
+  //     });
+  // }
+  return isEqual(prevProps, nextProps);
+};
+
+const SwitchComponentMemo = memo(SwitchComponent, arePropsEqual);
+
+export default SwitchComponentMemo;

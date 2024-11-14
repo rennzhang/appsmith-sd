@@ -1,13 +1,15 @@
-import { useCallback, useContext, useMemo } from "react";
+import { memo, useCallback, useContext, useMemo } from "react";
 import FormContext from "../FormContext";
 import type { TimePickerWidgetProps } from "widgets/Antd/Form/TimePickerWidget/component";
 import TimePickerComponent from "widgets/Antd/Form/TimePickerWidget/component";
-import type { BaseFieldComponentProps } from "../constants";
+import type { BaseFieldComponentProps, FieldComponent } from "../constants";
 import { TimePickerWidgetConfig } from "../constants";
 import type { FieldComponentBaseProps, FieldEventProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { omit } from "lodash";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
+import { diff } from "deep-diff";
+import React from "react";
 
 type TimePickerComponentProps = FieldComponentBaseProps &
   FieldEventProps &
@@ -53,7 +55,7 @@ function AntdTimePickerField({
         });
       }
     },
-    [executeAction, name, schemaItem.onTimeChange, updateFormData],
+    [name, schemaItem.onTimeChange, updateFormData],
   );
   return (
     <TimePickerComponent
@@ -64,6 +66,27 @@ function AntdTimePickerField({
   );
 }
 
-AntdTimePickerField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+const arePropsEqual = (
+  prevProps: TimePickerFieldProps,
+  nextProps: TimePickerFieldProps,
+) => {
+  // 开发环境打印diff
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = diff(prevProps, nextProps);
+    if (diffProps) {
+      console.log("AntdTimePickerField memo diff", {
+        p: prevProps,
+        n: nextProps,
+        diff: diffProps,
+      });
+    }
+  }
+  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+};
+const MemoizedTimePickerField: FieldComponent<TimePickerComponentProps> = memo(
+  AntdTimePickerField,
+  arePropsEqual,
+);
+MemoizedTimePickerField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
-export default AntdTimePickerField;
+export default MemoizedTimePickerField;

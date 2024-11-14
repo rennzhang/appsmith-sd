@@ -1,18 +1,25 @@
-import React, { createContext, useMemo, useRef, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import type { RenderMode } from "constants/WidgetConstants";
 import type { Action, JSONFormWidgetState } from "./widget";
 import type { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
-import { get, set } from "lodash";
+import { get, isEqual, set } from "lodash";
 import type { FieldError } from "rc-field-form/lib/interface";
+import { debounce } from "lodash";
 
 type FormContextProps<TValues = any> = React.PropsWithChildren<{
   initialValues: TValues;
   updateDefaultFormData?: (values: any) => void;
   formColorPrimary?: string;
   formControlSize: ProFormProps["size"];
-  formData: TValues;
   formIsDisabled?: boolean;
   formLayout?: "horizontal" | "vertical" | "inline";
   formLabelAlign?: "left" | "right";
@@ -30,15 +37,13 @@ type FormContextProps<TValues = any> = React.PropsWithChildren<{
     values: TValues,
     cb?: (values: TValues) => void,
   ) => void;
-  setFormData: (values: TValues) => void;
   setFieldErrors: React.Dispatch<React.SetStateAction<FieldError[]>>;
+  updateFormData: (values: any, cb?: (values: any) => void) => void;
 }>;
 
 type FormContextValueProps = Omit<FormContextProps, "children">;
 
-type FormContextReturnProps = FormContextValueProps & {
-  updateFormData: (values: any, cb?: (values: any) => void) => void;
-};
+type FormContextReturnProps = FormContextValueProps;
 
 const FormContext = createContext<FormContextReturnProps>(
   {} as FormContextReturnProps,
@@ -49,7 +54,6 @@ export function FormContextProvider({
   executeAction,
   formColorPrimary,
   formControlSize,
-  formData,
   formIsDisabled,
   formIsRequird,
   formLabelAlign,
@@ -58,9 +62,9 @@ export function FormContextProvider({
   initialValues,
   renderMode,
   setFieldErrors,
-  setFormData,
   setMetaInternalFieldState,
   updateDefaultFormData,
+  updateFormData,
   updateWidgetFormData,
   updateWidgetMetaProperty,
   updateWidgetProperty,
@@ -71,8 +75,6 @@ export function FormContextProvider({
       setFieldErrors,
       updateDefaultFormData,
       updateWidgetFormData,
-      setFormData,
-      formData,
       formColorPrimary,
       formLayout,
       formLabelAlign,
@@ -83,50 +85,7 @@ export function FormContextProvider({
       formRef,
       renderMode,
       setMetaInternalFieldState,
-      updateFormData: async (values: any, cb?: (values: any) => void) => {
-        const newFormData = { ...formRef?.current?.getFieldsValue() };
-        for (const key of Object.keys(values)) {
-          set(newFormData, key, values[key]);
-          await formRef?.current?.setFieldValue(key.split("."), values[key]);
-        }
-
-        const isUpdateChange = Object.keys(values).some(
-          (key) => values[key] !== get(formData, key),
-        );
-        console.log("updateFormData result", {
-          values,
-          formData,
-          newFormData,
-          initialValues,
-          isUpdateChange,
-        });
-        if (!isUpdateChange) return;
-
-        await updateWidgetFormData(newFormData);
-        setFormData(newFormData);
-        const isChangeWithValidate = Object.keys(values).some(
-          (value) => values[value] !== initialValues[value],
-        );
-
-        cb?.(newFormData);
-
-        try {
-          if (!isChangeWithValidate) return;
-          await formRef?.current?.validateFields(Object.keys(values));
-          setFieldErrors([]);
-        } catch (error: any) {
-          console.log("updateFormData validateFields", {
-            values,
-            formData,
-            newFormData,
-            isChangeWithValidate,
-            initialValues,
-            error,
-          });
-
-          setFieldErrors(error?.errorFields as FieldError[]);
-        }
-      },
+      updateFormData,
       updateWidgetMetaProperty,
       updateWidgetProperty,
     }),
@@ -138,10 +97,14 @@ export function FormContextProvider({
       formControlSize,
       formLayout,
       formLabelAlign,
-      setFormData,
-      formData,
+      updateFormData,
       updateDefaultFormData,
       setFieldErrors,
+      executeAction,
+      updateWidgetFormData,
+      updateWidgetMetaProperty,
+      updateWidgetProperty,
+      setMetaInternalFieldState,
     ],
   );
   return <FormContext.Provider value={value}>{children}</FormContext.Provider>;

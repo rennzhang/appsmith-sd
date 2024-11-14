@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from "react";
+import React, { memo, useCallback, useContext, useMemo } from "react";
 import { omit } from "lodash";
 
 import FormContext from "../FormContext";
@@ -7,6 +7,7 @@ import type { SwitchComponentProps as AntdSwitchComponentProps } from "widgets/A
 import SwitchComponent from "widgets/Antd/Form/SwitchWidget/component";
 import type {
   BaseFieldComponentProps,
+  FieldComponent,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
@@ -14,6 +15,7 @@ import { ActionUpdateDependency, SwitchWidgetConfig } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
+import { diff } from "deep-diff";
 
 type Merge<T, U> = Omit<T, keyof U> & U;
 
@@ -67,7 +69,7 @@ function SwitchField({
         });
       }
     },
-    [executeAction, name, schemaItem.onSwitchChange, updateFormData],
+    [name, schemaItem.onSwitchChange, updateFormData],
   );
 
   const onSwitchClick = useCallback(
@@ -86,7 +88,7 @@ function SwitchField({
         });
       }
     },
-    [executeAction, schemaItem.onSwitchClick],
+    [schemaItem.onSwitchClick],
   );
 
   const fieldComponent = useMemo(
@@ -106,6 +108,32 @@ function SwitchField({
   return fieldComponent;
 }
 
-SwitchField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+const arePropsEqual = (
+  prevProps: SwitchFieldProps,
+  nextProps: SwitchFieldProps,
+) => {
+  // 开发环境打印diff
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = diff(prevProps, nextProps);
+    diffProps &&
+      console.log("SwitchField memo diff", {
+        p: prevProps,
+        n: nextProps,
+        diff: diffProps,
+        isSame: JSON.stringify(prevProps) === JSON.stringify(nextProps),
+      });
+  }
+  return (
+    prevProps.name === nextProps.name &&
+    prevProps.passedDefaultValue === nextProps.passedDefaultValue &&
+    JSON.stringify(prevProps.schemaItem) ===
+      JSON.stringify(nextProps.schemaItem)
+  );
+};
+const MemoizedSwitchField: FieldComponent<SwitchComponentProps> = memo(
+  SwitchField,
+  arePropsEqual,
+);
+MemoizedSwitchField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
-export default SwitchField;
+export default MemoizedSwitchField;

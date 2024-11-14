@@ -291,15 +291,13 @@ class JSONFormWidget extends BaseWidget<
       props: this.props,
       // diff: diff(prevProps, this.props),
     });
-    if (!isEqual(prevProps.autoGenerateForm, this.props.autoGenerateForm)) {
-      const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
-      console.log("componentDidUpdateschema", schema, this.props.isRequired);
+    const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
+    console.log("componentDidUpdateschema", schema, this.props.isRequired);
 
-      this.debouncedParseAndSaveFieldState(
-        this.state.metaInternalFieldState,
-        schema,
-      );
-    }
+    this.debouncedParseAndSaveFieldState(
+      this.state.metaInternalFieldState,
+      schema,
+    );
   }
 
   deferredComponentDidRender() {

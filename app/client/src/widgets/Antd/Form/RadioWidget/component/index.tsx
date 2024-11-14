@@ -14,6 +14,8 @@ import {
 } from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { TextSize, TextSizes } from "constants/WidgetConstants";
+import { diff } from "deep-diff";
+import { isEqual } from "lodash";
 export interface RadioGroupContainerProps {
   compactMode: boolean;
   labelPosition?: AntdLabelPosition;
@@ -204,4 +206,22 @@ export interface RadioGroupComponentProps {
   controlSize?: ButtonProps["size"];
 }
 
-export default RadioGroupComponent;
+const arePropsEqual = (
+  prevProps: RadioGroupComponentProps,
+  nextProps: RadioGroupComponentProps,
+) => {
+  // 开发环境打印diff
+  // if (process.env.NODE_ENV === "development") {
+  //   const diffProps = diff(prevProps, nextProps);
+  //   if (diffProps) {
+  //     console.log("RadioGroupComponent memo diff", {
+  //       p: prevProps,
+  //       n: nextProps,
+  //       diff: diffProps,
+  //     });
+  //   }
+  // }
+  return isEqual(prevProps, nextProps);
+};
+
+export default React.memo(RadioGroupComponent, arePropsEqual);

@@ -1,13 +1,14 @@
-import { useCallback, useContext, useMemo, useRef } from "react";
+import { memo, useCallback, useContext, useMemo, useRef } from "react";
 import type { DraftValueType } from "rc-select/lib/Select";
 import { omit } from "lodash";
 
 import FormContext from "../FormContext";
-import type { TreeSelectComponentProps } from "widgets/Antd/Form/SelectWidget/component";
+import type { SelectComponentProps as AntdSelectComponentProps } from "widgets/Antd/Form/SelectWidget/component";
 import SelectComponent from "widgets/Antd/Form/SelectWidget/component";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import type {
   BaseFieldComponentProps,
+  FieldComponent,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
@@ -16,10 +17,12 @@ import type { DropdownOption } from "widgets/MultiSelectTreeWidget/widget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
+import { diff } from "deep-diff";
+import React from "react";
 
 type SelectComponentProps = FieldComponentBaseProps &
   FieldEventProps &
-  TreeSelectComponentProps;
+  AntdSelectComponentProps;
 
 export type SelectFieldProps = BaseFieldComponentProps<SelectComponentProps>;
 
@@ -80,7 +83,7 @@ function AntdSelectField({
         });
       }
     },
-    [executeAction, name, schemaItem.onOptionSearch, updateFilterText],
+    [name, schemaItem.onOptionSearch, updateFilterText],
   );
 
   const onChangeHandler = useCallback(
@@ -100,7 +103,7 @@ function AntdSelectField({
         });
       }
     },
-    [executeAction, name, schemaItem.onValueChange, updateFormData],
+    [name, schemaItem.onValueChange, updateFormData],
   );
 
   const dropdownWidth = wrapperRef.current?.clientWidth;
@@ -141,6 +144,27 @@ function AntdSelectField({
   return fieldComponent;
 }
 
-AntdSelectField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+const arePropsEqual = (
+  prevProps: SelectFieldProps,
+  nextProps: SelectFieldProps,
+) => {
+  // 开发环境打印diff
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = diff(prevProps, nextProps);
+    diffProps &&
+      console.log("AntdSelectField memo diff", {
+        p: prevProps,
+        n: nextProps,
+        diff: diffProps,
+      });
+  }
+  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+};
+const MemoizedSelectField: FieldComponent<SelectComponentProps> = memo(
+  AntdSelectField,
+  arePropsEqual,
+);
+MemoizedSelectField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+MemoizedSelectField.isValidType = isValid;
 
-export default AntdSelectField;
+export default MemoizedSelectField;

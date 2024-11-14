@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { memo, useMemo } from "react";
 import { omit } from "lodash";
 
 import FormContext from "../FormContext";
@@ -6,6 +6,7 @@ import type { TextDisplayComponentProps } from "widgets/Antd/Form/TextWidget/com
 import TextDisplayComponent from "widgets/Antd/Form/TextWidget/component";
 import type {
   BaseFieldComponentProps,
+  FieldComponent,
   FieldComponentBaseProps,
 } from "../constants";
 import { TextWidgetConfig } from "../constants";
@@ -48,6 +49,16 @@ function TextField({
   return fieldComponent;
 }
 
-TextField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+const arePropsEqual = (
+  prevProps: TextFieldProps,
+  nextProps: TextFieldProps,
+) => {
+  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+};
+const MemoizedTextField: FieldComponent<TextComponentProps> = memo(
+  TextField,
+  arePropsEqual,
+);
+MemoizedTextField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
-export default TextField;
+export default MemoizedTextField;

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useCallback, useContext, useMemo, useRef } from "react";
+import { memo, useCallback, useContext, useMemo, useRef } from "react";
 import { omit } from "lodash";
 import React from "react";
 
@@ -8,6 +8,7 @@ import type { CascaderComponentProps } from "widgets/Antd/Form/CascaderWidget/co
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type {
   BaseFieldComponentProps,
+  FieldComponent,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
@@ -15,6 +16,7 @@ import { ActionUpdateDependency, CascaderWidgetConfig } from "../constants";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import type { DefaultValueType } from "rc-tree-select/lib/interface";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
+import { diff } from "deep-diff";
 
 type CascaderFieldComponentProps = FieldComponentBaseProps &
   FieldEventProps &
@@ -82,7 +84,7 @@ function AntdCascaderField({
         });
       }
     },
-    [executeAction, name, schemaItem.onCascaderSearch, updateFilterText],
+    [name, schemaItem.onCascaderSearch, updateFilterText],
   );
 
   const onChangeHandler = useCallback(
@@ -106,7 +108,7 @@ function AntdCascaderField({
         });
       }
     },
-    [executeAction, name, schemaItem.onOptionChange, updateFormData],
+    [name, schemaItem.onOptionChange, updateFormData],
   );
 
   const dropdownWidth = wrapperRef.current?.clientWidth;
@@ -136,6 +138,28 @@ function AntdCascaderField({
   return fieldComponent;
 }
 
-AntdCascaderField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+const arePropsEqual = (
+  prevProps: CascaderFieldProps,
+  nextProps: CascaderFieldProps,
+) => {
+  // 开发环境打印diff
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = diff(prevProps, nextProps);
+    if (diffProps) {
+      console.log("AntdCascaderField memo diff", {
+        p: prevProps,
+        n: nextProps,
+        diff: diffProps,
+      });
+    }
+  }
+  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+};
 
-export default AntdCascaderField;
+const MemoizedCascaderField: FieldComponent<CascaderFieldComponentProps> = memo(
+  AntdCascaderField,
+  arePropsEqual,
+);
+MemoizedCascaderField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+
+export default MemoizedCascaderField;

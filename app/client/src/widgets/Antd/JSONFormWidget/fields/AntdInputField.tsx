@@ -5,66 +5,37 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import type { IconName } from "@blueprintjs/core";
 
-import FormContext from "../FormContext";
-import useEvents from "./useBlurAndFocusEvents";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type {
   BaseFieldComponentProps,
+  FieldComponent,
   FieldComponentBaseProps,
   FieldEventProps,
-  SchemaItem,
 } from "../constants";
 import {
-  ActionUpdateDependency,
   FieldType,
   AntdInputWidgetConfig,
   AutoCompleteWidgetConfig,
+  ActionUpdateDependency,
 } from "../constants";
+import { debounce, isEqual, isNil, omit } from "lodash";
+import { isEmpty } from "../helper";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
-import type { AntdInputWidgetProps } from "widgets/Antd/Form/InputWidget/types";
 import { InputTypes } from "widgets/Antd/Form/InputWidget/constants";
+import FormContext from "../FormContext";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
-
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 export type BaseInputComponentProps = FieldComponentBaseProps &
   FieldEventProps &
   AntdInputWidgetProps;
-
-export type OnValueChangeOptions = {
-  fieldOnChangeHandler: (...event: any[]) => void;
-  isValueValid: boolean;
+type InputComponentProps = BaseInputComponentProps & {
+  iconName?: string;
+  iconAlign?: string;
+  type: string;
 };
-
-type BaseInputFieldProps<TSchemaItem extends SchemaItem = SchemaItem> =
-  BaseFieldComponentProps<BaseInputComponentProps & TSchemaItem> & {
-    leftIcon?: IconName | JSX.Element;
-    transformValue: (
-      newValue: string,
-      oldValue: string,
-    ) => { text: string; value?: number | string | null | undefined };
-    isValid: (schemaItem: TSchemaItem, value?: string | null) => boolean;
-  };
-
-type IsValidOptions = {
-  fieldType: FieldType;
-};
-
-type StyledInputWrapperProps = {
-  multiline: boolean;
-};
-
-const COMPONENT_DEFAULT_VALUES = {
-  ...AntdInputWidgetConfig.defaults,
-  ...AutoCompleteWidgetConfig.defaults,
-  inputType: InputTypes.TEXT_INPUT,
-  isDisabled: false,
-  isRequired: false,
-  isSpellCheck: false,
-  isVisible: true,
-  labelTextSize: BASE_LABEL_TEXT_SIZE,
-  labelText: "",
-};
+import useEvents from "./useBlurAndFocusEvents";
+import { diff } from "deep-diff";
+import type { AntdInputWidgetProps } from "widgets/Antd/Form/InputWidget/types";
 
 export const EMAIL_REGEX = new RegExp(
   /^[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/,
@@ -94,14 +65,106 @@ export const parseRegex = (regex?: string) => {
 
   return null;
 };
+export type InputFieldProps = BaseFieldComponentProps<InputComponentProps>;
+
+type IsValidOptions = {
+  fieldType: FieldType;
+};
+
+export const COMPONENT_DEFAULT_VALUES = {
+  ...omit(AntdInputWidgetConfig.defaults, "defaultValue"),
+  ...omit(AutoCompleteWidgetConfig.defaults, "defaultValue"),
+  inputType: InputTypes.TEXT_INPUT,
+  iconAlign: "left",
+  isDisabled: false,
+  isRequired: false,
+  isSpellCheck: false,
+  isVisible: true,
+  labelText: "",
+  type: AntdInputWidgetConfig.type,
+};
+
+export const isValid = (
+  schemaItem: InputFieldProps["schemaItem"],
+  inputValue?: string | null,
+) => {
+  let hasValidValue, value;
+  switch (schemaItem.fieldType) {
+    case FieldType.NUMBER_INPUT:
+      try {
+        value = Number(inputValue);
+        hasValidValue = !isEmpty(inputValue) && Number.isFinite(value);
+        break;
+      } catch (e) {
+        return false;
+      }
+    default:
+      value = inputValue;
+      hasValidValue = !isEmpty(inputValue);
+      break;
+  }
+
+  if (schemaItem.isRequired && !hasValidValue) {
+    return false;
+  }
+
+  if (isEmpty(inputValue)) {
+    return true;
+  }
+
+  if (typeof schemaItem.validation === "boolean" && !schemaItem.validation) {
+    return false;
+  }
+
+  const parsedRegex = parseRegex(schemaItem.regex);
+
+  switch (schemaItem.fieldType) {
+    case FieldType.AUTOCOMPLETE_INPUT:
+      if (!EMAIL_REGEX.test(inputValue)) {
+        /* email should conform to generic email regex */
+        return false;
+      } else if (parsedRegex) {
+        /* email should conform to user specified regex */
+        return parsedRegex.test(inputValue);
+      } else {
+        return true;
+      }
+    case FieldType.NUMBER_INPUT:
+      if (typeof value !== "number") return false;
+
+      if (
+        !isNil(schemaItem.maxNum) &&
+        Number.isFinite(schemaItem.maxNum) &&
+        schemaItem.maxNum < value
+      ) {
+        return false;
+      } else if (
+        !isNil(schemaItem.minNum) &&
+        Number.isFinite(schemaItem.minNum) &&
+        schemaItem.minNum > value
+      ) {
+        return false;
+      } else if (parsedRegex) {
+        return parsedRegex.test(inputValue);
+      } else {
+        return hasValidValue;
+      }
+    default:
+      if (parsedRegex) {
+        return parsedRegex.test(inputValue);
+      } else {
+        return hasValidValue;
+      }
+  }
+};
 
 function isValidType(value: string, options?: IsValidOptions) {
   if (options?.fieldType === FieldType.AUTOCOMPLETE_INPUT && value) {
     return EMAIL_REGEX.test(value);
   }
+
   return false;
 }
-
 const AntdInputComponent = React.lazy(
   () => import("widgets/Antd/Form/InputWidget/component"),
 );
@@ -109,48 +172,20 @@ const AntdInputComponent = React.lazy(
 const AntdAutoCompleteComponent = React.lazy(
   () => import("widgets/Antd/Form/AutoCompleteWidget/component"),
 );
-
-// 比较函数
-const arePropsEqual = (
-  prevProps: BaseInputFieldProps,
-  nextProps: BaseInputFieldProps,
-) => {
-  return (
-    prevProps.name === nextProps.name &&
-    prevProps.fieldClassName === nextProps.fieldClassName &&
-    prevProps.leftIcon === nextProps.leftIcon &&
-    prevProps.passedDefaultValue === nextProps.passedDefaultValue &&
-    JSON.stringify(prevProps.schemaItem) ===
-      JSON.stringify(nextProps.schemaItem)
-  );
-};
-
-const BaseInputField = memo(function BaseInputField<
-  TSchemaItem extends SchemaItem,
->({
+function InputField({
   fieldClassName,
-  leftIcon,
   name,
   passedDefaultValue,
+  propertyPath,
   schemaItem,
-}: BaseInputFieldProps<TSchemaItem>) {
-  const {
-    executeAction,
-    formControlSize,
-    formIsDisabled,
-    formIsRequird,
-    formLabelAlign,
-    formLayout,
-    formRef,
-    updateFormData,
-  } = useContext(FormContext);
+}: InputFieldProps) {
+  const { executeAction, formRef, updateFormData } = useContext(FormContext);
 
   const commonProps = useFieldPropsHandler({
     name,
     schemaItem,
     passedDefaultValue,
   });
-
   const { onBlur: onBlurDynamicString, onFocus: onFocusDynamicString } =
     schemaItem;
 
@@ -160,7 +195,6 @@ const BaseInputField = memo(function BaseInputField<
     onBlurDynamicString,
     onFocusDynamicString,
   });
-
   const focusChangeHandler = useCallback(
     (isFocused: boolean) => {
       if (isFocused) {
@@ -196,15 +230,16 @@ const BaseInputField = memo(function BaseInputField<
     [schemaItem.onSubmit, executeAction, name, formRef],
   );
 
-  const onTextChangeHandler = useCallback(
-    (inputValue: string, triggerPropertyName = "onTextChange") => {
+  // 使用防抖包装 onTextChangeHandler
+  const debouncedTextChangeHandler = useCallback(
+    debounce((inputValue: string) => {
       updateFormData({
         [name]: inputValue,
       });
       const { onTextChanged } = schemaItem;
       if (onTextChanged && executeAction) {
         executeAction({
-          triggerPropertyName,
+          triggerPropertyName: "onTextChange",
           dynamicString: onTextChanged,
           event: {
             type: EventType.ON_TEXT_CHANGE,
@@ -212,10 +247,16 @@ const BaseInputField = memo(function BaseInputField<
           updateDependencyType: ActionUpdateDependency.FORM_DATA,
         });
       }
-    },
-    [name, schemaItem.onTextChanged, executeAction, updateFormData],
+    }, 120),
+    [name, schemaItem.onTextChanged],
   );
-
+  // 包装更新函数
+  const onTextChangeHandler = useCallback(
+    (inputValue: string) => {
+      debouncedTextChangeHandler(inputValue);
+    },
+    [debouncedTextChangeHandler],
+  );
   const fieldComponent = useMemo(
     () => (
       <React.Suspense fallback={<div>Loading...</div>}>
@@ -226,7 +267,7 @@ const BaseInputField = memo(function BaseInputField<
             inputRef={inputRef}
             onFocusChange={focusChangeHandler}
             onKeyDown={keyDownHandler}
-            onValueChange={(value: string) => onTextChangeHandler(value)}
+            onValueChange={onTextChangeHandler}
           />
         ) : (
           <AntdInputComponent
@@ -235,7 +276,7 @@ const BaseInputField = memo(function BaseInputField<
             inputRef={inputRef}
             onFocusChange={focusChangeHandler}
             onKeyDown={keyDownHandler}
-            onValueChange={(value: string) => onTextChangeHandler(value)}
+            onValueChange={onTextChangeHandler}
           />
         )}
       </React.Suspense>
@@ -247,22 +288,34 @@ const BaseInputField = memo(function BaseInputField<
       focusChangeHandler,
       keyDownHandler,
       onTextChangeHandler,
-      formIsRequird,
-      formIsDisabled,
-      formControlSize,
-      formLayout,
-      formLabelAlign,
     ],
   );
 
   return fieldComponent;
-},
-arePropsEqual) as typeof BaseInputField & {
-  componentDefaultValues: typeof COMPONENT_DEFAULT_VALUES;
-  isValidType: typeof isValidType;
+}
+
+const arePropsEqual = (
+  prevProps: InputFieldProps,
+  nextProps: InputFieldProps,
+) => {
+  // 开发环境打印diff
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = diff(prevProps, nextProps);
+    diffProps &&
+      console.log("InputField memo diff", {
+        p: prevProps,
+        n: nextProps,
+        diff: diffProps,
+        isSame: isEqual(prevProps, nextProps),
+      });
+  }
+  return isEqual(prevProps, nextProps);
 };
+const MemoizedInputField: FieldComponent<InputFieldProps> = memo(
+  InputField,
+  arePropsEqual,
+);
+MemoizedInputField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+MemoizedInputField.isValidType = isValidType;
 
-BaseInputField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
-BaseInputField.isValidType = isValidType;
-
-export default BaseInputField;
+export default MemoizedInputField;

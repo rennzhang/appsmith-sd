@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from "react";
+import React, { memo, useCallback, useContext, useMemo } from "react";
 import { Alignment } from "@blueprintjs/core";
 import { isNumber, omit } from "lodash";
 
@@ -8,6 +8,7 @@ import RadioGroupComponent from "widgets/Antd/Form/RadioWidget/component";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import type {
   BaseFieldComponentProps,
+  FieldComponent,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
@@ -17,6 +18,7 @@ import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
 import type { RadioOption } from "widgets/RadioGroupWidget/constants";
+import { diff } from "deep-diff";
 
 type RadioGroupComponentProps = FieldComponentBaseProps &
   FieldEventProps &
@@ -76,12 +78,11 @@ function RadioGroupField({
       }
     },
     [
-      executeAction,
       name,
       schemaItem.onSelectionChange,
       isOptionsValueNumeric,
-      updateFormData,
       updateSelectedValue,
+      updateFormData,
     ],
   );
 
@@ -98,6 +99,28 @@ function RadioGroupField({
   return fieldComponent;
 }
 
-RadioGroupField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+const arePropsEqual = (
+  prevProps: RadioGroupFieldProps,
+  nextProps: RadioGroupFieldProps,
+) => {
+  // 开发环境打印diff
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = diff(prevProps, nextProps);
+    if (diffProps) {
+      console.log("RadioGroupField memo diff", {
+        p: prevProps,
+        n: nextProps,
+        diff: diffProps,
+      });
+    }
+  }
+  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+};
 
-export default RadioGroupField;
+const MemoizedRadioGroupField: FieldComponent<RadioGroupComponentProps> = memo(
+  RadioGroupField,
+  arePropsEqual,
+);
+MemoizedRadioGroupField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+
+export default MemoizedRadioGroupField;
