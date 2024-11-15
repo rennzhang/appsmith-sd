@@ -35,6 +35,7 @@ export const CONFIG = {
   needsHeightForContent: true,
 
   defaults: {
+    formData: {},
     defaultFormData: {},
     sourceData: {},
     autoGenerateTableForm: true,
@@ -87,9 +88,10 @@ export const CONFIG = {
         tooltip: "",
         buttonLabel: "新建",
         btnIconName: "ant-design:PlusOutlined",
-        onBtnClick: "",
         isHideDelete: true,
         iconName: "ant-design:PlusOutlined",
+        onBtnClick:
+          "{{showAlert('请先配置新建按钮的动作，如果需要使用自动生成表单，请至少配置一个可编辑列', 'warning');}}",
       },
       addNewRow: {
         ...BUTTON_DEFAULT_CONFIG,
@@ -218,7 +220,8 @@ export const CONFIG = {
         tooltip: "编辑",
         buttonLabel: "编辑",
         btnIconName: "ant-design:EditOutlined",
-        onBtnClick: "{{showAlert('请先配置编辑按钮的动作', 'warning');}}",
+        onBtnClick:
+          "{{showAlert('请先配置编辑按钮的动作，如果需要使用自动生成表单，请至少配置一个可编辑列', 'warning');}}",
       },
       delete: {
         ...BUTTON_DEFAULT_CONFIG,

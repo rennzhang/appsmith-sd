@@ -1,4 +1,11 @@
-import { memo, useCallback, useContext, useMemo, useRef } from "react";
+import {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import type { DraftValueType } from "rc-select/lib/Select";
 import { omit } from "lodash";
 
@@ -39,14 +46,7 @@ function AntdTreeSelectField({
   passedDefaultValue,
   schemaItem,
 }: TreeSelectFieldProps) {
-  const {
-    executeAction,
-    formControlSize,
-    formLabelAlign,
-    formLayout,
-    updateFormData,
-  } = useContext(FormContext);
-  const commonProps = useFieldPropsHandler({
+  const { callbackRef, ...commonProps } = useFieldPropsHandler({
     name,
     schemaItem,
     passedDefaultValue,
@@ -71,8 +71,8 @@ function AntdTreeSelectField({
     (value: string) => {
       updateFilterText(value);
 
-      if (schemaItem.onTreeSelectSearch && executeAction) {
-        executeAction({
+      if (schemaItem.onTreeSelectSearch) {
+        callbackRef.current.executeAction({
           triggerPropertyName: "onTreeSelectSearch",
           dynamicString: schemaItem.onTreeSelectSearch,
           event: {
@@ -86,14 +86,14 @@ function AntdTreeSelectField({
 
   const onChangeHandler = useCallback(
     (values: DraftValueType, labels: string[]) => {
-      updateFormData({
+      callbackRef.current.updateFormData({
         [name]: values,
       });
       updateSelectedLabel(labels);
       updateSelectedValue(values);
 
-      if (schemaItem.onTreeSelectValueChange && executeAction) {
-        executeAction({
+      if (schemaItem.onTreeSelectValueChange) {
+        callbackRef.current.executeAction({
           triggerPropertyName: "onTreeSelectValueChange",
           dynamicString: schemaItem.onTreeSelectValueChange,
           event: {
@@ -103,7 +103,7 @@ function AntdTreeSelectField({
         });
       }
     },
-    [name, schemaItem.onTreeSelectValueChange, updateFormData],
+    [name, schemaItem.onTreeSelectValueChange],
   );
 
   const dropdownWidth = wrapperRef.current?.clientWidth;
@@ -124,9 +124,6 @@ function AntdTreeSelectField({
     onSearchHandler,
     onChangeHandler,
     dropdownWidth,
-    formControlSize,
-    formLayout,
-    formLabelAlign,
   ]);
 
   return fieldComponent;

@@ -256,8 +256,7 @@ const getActionColumn = (props: AntdTableProps, extra: Extra): ProColumns => {
   };
 };
 type Extra = {
-  setJsonFormState: (jsonFormState: JSONFormState) => void;
-  setIsJsonFormVisible: (isJsonFormVisible?: boolean) => void;
+  setJsonFormState: (state: Partial<JSONFormState>) => void;
   setInitialQueryData: (data: Record<string, any>) => void;
   sortInfo: { sortField: Key | undefined; sortOrder: SortOrder | undefined };
 };
@@ -287,42 +286,37 @@ const handleButtonClick = (params: {
     tableInlineEditType === TableInlineEditTypes.ROW_LEVEL;
   const isCustomEditing = tableInlineEditType === TableInlineEditTypes.CUSTOM;
 
-  if (
-    autoGenerateTableForm &&
-    button.id === "edit" &&
-    editableColumn?.length &&
-    isCustomEditing
-  ) {
+  if (button.id === "edit") {
+    if (autoGenerateTableForm && editableColumn?.length && isCustomEditing) {
+      extra.setJsonFormState({
+        isJsonFormVisible: true,
+        jsonFormData: record,
+        jsonFormType: "edit",
+      });
+      return;
+    }
+    if (isInlineEditing && editableColumn?.length) {
+      action?.startEditable?.(record.id);
+      return;
+    }
+
     console.log("表格 handleButtonClick 自定义编辑", {
       props,
       record,
       extra,
     });
-    extra.setIsJsonFormVisible(true);
-    extra.setJsonFormState({
-      isJsonFormVisible: true,
-      editFormData: record,
-      jsonFormType: "edit",
-    });
-    props.handleRowBtnClick("", record);
-  } else if (
-    button.id === "edit" &&
-    isInlineEditing &&
-    editableColumn?.length
-  ) {
-    action?.startEditable?.(record.id);
-    props.handleRowBtnClick("", record);
   } else if (button.id === "view") {
     extra.setJsonFormState({
       isJsonFormVisible: true,
-      editFormData: record,
+      jsonFormData: record,
       jsonFormType: "view",
     });
-    extra.setIsJsonFormVisible(true);
-    props.handleRowBtnClick("", record);
-  } else {
-    props.handleRowBtnClick(button.onBtnClick, record);
   }
+
+  const onBtnClick = ["add", "edit"].includes(button.id)
+    ? button.onBtnClick
+    : "";
+  props.handleRowBtnClick(onBtnClick, record);
 };
 const getDisplayText = (index: number, displayText?: string | string[]) => {
   if (Array.isArray(displayText)) {

@@ -8,7 +8,7 @@ import { AntdLabelPosition } from "components/constants";
 import type { RenderMode, TextSize } from "constants/WidgetConstants";
 import type { Dayjs } from "dayjs";
 import weekday from "dayjs/plugin/weekday";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 
 // 使用 weekday 插件
@@ -21,8 +21,9 @@ import isoWeek from "dayjs/plugin/isoWeek";
 import type { RangePickerProps } from "antd/es/date-picker";
 import "dayjs/locale/zh-cn";
 import quarterOfYear from "dayjs/plugin/quarterOfYear";
-import { omit } from "lodash";
+import { isEqual, omit } from "lodash";
 import { DatePresetsOptions, DateRangePresetsOptions } from "../widget/data";
+import { diff } from "deep-diff";
 // import quarterOfYear from 'dayjs/plugin/quarterOfYear' // ES 2015
 
 dayjs.extend(isoWeek);
@@ -32,7 +33,7 @@ dayjs.locale("zh-cn");
 const disabledDateFunc = (
   currentDate: Dayjs,
   disabledDateRule?: DisabledDateRule,
-) => {
+): boolean => {
   if (!currentDate) {
     return false;
   }
@@ -80,7 +81,7 @@ const disabledDateFunc = (
     case "nextYear":
       return currentDate.isAfter(today.add(1, "year"), "day");
     case "specificYear":
-      return specificYear?.includes(currentDate.year().toString());
+      return specificYear?.includes(currentDate.year().toString()) || false;
     case "lastQuarter":
       return (
         currentDate.isAfter(today.subtract(1, "quarter").startOf("quarter")) &&
@@ -95,7 +96,9 @@ const disabledDateFunc = (
         currentDate.isBefore(today.add(1, "quarter").endOf("quarter"))
       );
     case "specificQuarters":
-      return specificQuarters?.includes(currentDate.quarter()?.toString());
+      return (
+        specificQuarters?.includes(currentDate.quarter()?.toString()) || false
+      );
     case "last30Days":
       // 从今天开始往前推30天内的日期
       return (
@@ -112,7 +115,9 @@ const disabledDateFunc = (
       );
 
     case "specificMonths":
-      return specificMonths?.includes((currentDate.month() + 1).toString());
+      return (
+        specificMonths?.includes((currentDate.month() + 1).toString()) || false
+      );
     case "last7days":
       return (
         currentDate.isAfter(today.subtract(7, "days"), "day") &&
@@ -126,15 +131,21 @@ const disabledDateFunc = (
     case "currentWeek":
       return currentDate.isSame(today, "week");
     case "specificDaysOfWeek":
-      return specificDaysOfWeek?.includes(currentDate.day().toString());
+      return (
+        specificDaysOfWeek?.includes(currentDate.day().toString()) || false
+      );
     case "weekends":
       return currentDate.day() === 0 || currentDate.day() === 6;
     case "specificDates":
-      return specificDates?.includes(currentDate?.format("YYYY-MM-DD"));
+      return (
+        specificDates?.includes(currentDate?.format("YYYY-MM-DD")) || false
+      );
     case "specificDaysOfMonth":
-      return specificDaysOfMonth
-        ?.split(",")
-        .includes(currentDate.date().toString());
+      return (
+        specificDaysOfMonth
+          ?.split(",")
+          .includes(currentDate.date().toString()) || false
+      );
     case "offsetRange":
       if (offsetWay === "front") {
         return isInvertSelection
@@ -192,6 +203,7 @@ export interface DatePickerWidgetProps {
     value: T,
     dateString: U,
   ) => void;
+  onRangeChange?: RangePickerProps["onChange"];
   labelText?: string;
   labelPosition?: AntdLabelPosition;
   labelAlignment?: "left" | "right";
@@ -230,53 +242,92 @@ export interface DatePickerWidgetProps {
   isDateValid?: boolean | boolean[];
   unValidDateMessage?: string;
   accessor?: string | string[];
-  allowEmptyStartTime?: boolean;
-  allowEmptyEndTime?: boolean;
+  allowEmptyStartTime: boolean;
+  allowEmptyEndTime: boolean;
+  disabledDate?: (date: Dayjs) => boolean;
+  placeholder?: string;
+  presets?: {
+    range: RangePickerProps["presets"];
+    date: DatePickerProps["presets"];
+  };
+  size?: SizeType;
+  value?: DatePickerProps["value"];
+  rangeValue?: RangePickerProps["value"];
 }
 
-const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
-  const {
-    accessor,
-    allowClear,
-    allowEmptyEndTime,
-    allowEmptyStartTime,
-    borderRadius,
-    boxShadow,
-    colorPrimary,
-    compactMode,
-    controlSize,
-    defaultValue,
-    disabled,
-    disabledDateRule,
-    errorMessage,
-    format,
-    handleDateValid,
-    isDateValid,
-    isEnabledDateValid,
-    isRangePicker,
-    isValid,
-    labelAlignment,
-    labelPosition,
-    labelStyle,
-    labelText,
-    labelTextColor,
-    labelTextSize,
-    labelTooltip,
-    labelWidth,
-    onChange,
-    picker,
-    placeholderText,
-    placeholderTextEnd,
-    placeholderTextStart,
-    required,
-    selectedValue,
-    showNow,
-    showPreset,
-    showTime,
-    unValidDateMessage,
-    widgetId,
-    widgetName,
-  } = props;
+// DatePickerBase.tsx - 拆分基础组件
+const DatePickerBase = memo(function DatePickerBase({
+  allowClear,
+  allowEmptyEndTime,
+  allowEmptyStartTime,
+  disabled,
+  disabledDate,
+  format,
+  isRangePicker,
+  onChange,
+  onOk,
+  onRangeChange,
+  picker,
+  placeholder,
+  presets,
+  rangeValue,
+  showNow,
+  showTime,
+  size,
+  value,
+}: DatePickerWidgetProps) {
+  if (isRangePicker) {
+    return (
+      <DatePicker.RangePicker
+        allowClear={allowClear}
+        allowEmpty={[allowEmptyStartTime, allowEmptyEndTime]}
+        disabled={disabled}
+        disabledDate={disabledDate}
+        format={format}
+        onChange={onRangeChange}
+        onOk={onOk}
+        picker={picker}
+        placeholder={placeholder as any}
+        presets={presets?.range}
+        showTime={showTime}
+        size={size}
+        value={rangeValue}
+      />
+    );
+  }
+
+  return (
+    <DatePicker
+      allowClear={allowClear}
+      disabled={disabled}
+      disabledDate={disabledDate}
+      format={format}
+      onChange={onChange}
+      onOk={onOk}
+      picker={picker}
+      placeholder={placeholder as any}
+      presets={presets?.date}
+      showNow={showNow}
+      showTime={showTime}
+      size={size}
+      value={value}
+    />
+  );
+},
+isEqual);
+
+// hooks/useDatePickerValue.ts
+function useDatePickerValue({
+  defaultValue,
+  format,
+  isRangePicker,
+  selectedValue,
+}: {
+  defaultValue?: string;
+  format?: string;
+  isRangePicker?: boolean;
+  selectedValue?: string | [string, string];
+}) {
   const [value, setValue] = useState<DatePickerProps["value"]>();
   const [rangeValue, setRangeValue] = useState<RangePickerProps["value"]>();
 
@@ -291,268 +342,299 @@ const DatePickerWidget: React.FC<DatePickerWidgetProps> = (props) => {
       }
     }
     return defaultValue?.length ? dayjs(defaultValue, format) : undefined;
-  }, [defaultValue]);
-
-  const presetRange = useMemo(() => {
-    return DateRangePresetsOptions.filter((c) =>
-      props.presetRange?.find((d) => d === c.value),
-    ).map((c) => {
-      return { label: c.label, value: c.getValue() };
-    });
-  }, [props.presetRange]);
-
-  const presetDate = useMemo(() => {
-    return DatePresetsOptions.filter((c) =>
-      props.presetDate?.find((d) => d === c.value),
-    ).map((c) => {
-      return { label: c.label, value: c.getValue() };
-    });
-  }, [props.presetDate]);
+  }, [defaultValue, format, isRangePicker]);
 
   useEffect(() => {
-    !Array.isArray(defaultValueMemo) && setValue(defaultValueMemo as any);
-    setRangeValue(defaultValueMemo as any);
+    !Array.isArray(defaultValueMemo) && setValue(defaultValueMemo);
+    setRangeValue(defaultValueMemo);
   }, [defaultValueMemo]);
 
   useEffect(() => {
-    let transValue: typeof value | typeof rangeValue;
-    if (!selectedValue) return setValue((selectedValue as any) || undefined);
+    if (!selectedValue) return setValue(undefined);
+
+    let transValue;
     if (isRangePicker) {
-      if (Array.isArray(selectedValue)) {
-        transValue = selectedValue.map((c: any) =>
-          c ? dayjs(c, format) : undefined,
-        ) as any;
-      } else {
-        transValue = [dayjs(selectedValue, format), undefined as any];
-      }
-      setRangeValue(transValue as any);
+      transValue = Array.isArray(selectedValue)
+        ? selectedValue.map((v) => (v ? dayjs(v, format) : undefined))
+        : [dayjs(selectedValue, format), undefined];
+      setRangeValue(transValue as RangePickerProps["value"]);
     } else {
-      if (Array.isArray(selectedValue)) {
-        transValue = dayjs(selectedValue[0], format);
-      } else {
-        transValue = dayjs(selectedValue, format);
-      }
+      transValue = Array.isArray(selectedValue)
+        ? dayjs(selectedValue[0], format)
+        : dayjs(selectedValue, format);
       setValue(transValue);
     }
-  }, [selectedValue]);
+  }, [selectedValue, format, isRangePicker]);
 
-  // 校验合法性
+  return { value, setValue, rangeValue, setRangeValue, defaultValueMemo };
+}
+
+// hooks/useDateValidation.ts
+function useDateValidation({
+  disabledDateRule,
+  handleDateValid,
+  isEnabledDateValid,
+  rangeValue,
+  value,
+}: {
+  disabledDateRule?: DisabledDateRule;
+  handleDateValid?: (value: any) => void;
+  isEnabledDateValid?: boolean;
+  rangeValue?: RangePickerProps["value"];
+  value?: DatePickerProps["value"];
+}) {
   useEffect(() => {
-    if (isEnabledDateValid) {
-      if (isRangePicker) {
-        const startDate = rangeValue?.[0] as Dayjs;
-        const endDate = rangeValue?.[1] as Dayjs;
-        props?.handleDateValid?.([
-          startDate && !disabledDateFunc(startDate, disabledDateRule),
-          endDate && !disabledDateFunc(endDate, disabledDateRule),
-        ]);
-      } else {
-        props?.handleDateValid?.(
-          !disabledDateFunc(value as Dayjs, disabledDateRule),
-        );
-      }
-    }
-  }, [value, rangeValue, disabledDateFunc, disabledDateRule]);
+    if (!isEnabledDateValid) return;
 
-  const colLayoutMemo = useMemo(() => {
-    if (labelPosition === AntdLabelPosition.Left) {
-      return {
-        labelCol: { sm: { span: labelWidth } },
-        wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
-      };
+    if (rangeValue) {
+      const [startDate, endDate] = rangeValue;
+      handleDateValid?.([
+        startDate && !disabledDateFunc(startDate, disabledDateRule),
+        endDate && !disabledDateFunc(endDate, disabledDateRule),
+      ]);
+    } else if (value) {
+      handleDateValid?.(!disabledDateFunc(value, disabledDateRule));
     }
-    return {};
-  }, [labelPosition, labelWidth]);
-
-  const validateProps = useMemo(() => {
-    const data: ProFormItemProps = {
-      required,
-      validateTrigger: ["onChange", "onBlur"],
-      rules: [
-        {
-          required: required,
-          message: errorMessage,
-          validateTrigger: ["onChange", "onBlur"],
-          validator: async (_rule, value) => {
-            if (required && !value) {
-              return Promise.reject(errorMessage);
-            }
-            return Promise.resolve();
-          },
-        },
-      ],
-    };
-    if (isEnabledDateValid && isDateValid?.toString()?.includes?.("false")) {
-      data.validateStatus = "error";
-      data.help = unValidDateMessage;
-    }
-    return data;
   }, [
-    required,
-    errorMessage,
+    value,
+    rangeValue,
+    disabledDateRule,
+    handleDateValid,
     isEnabledDateValid,
-    isDateValid,
-    unValidDateMessage,
   ]);
+}
 
-  const handleOk = () => {
-    props?.onOk?.();
-  };
-  const handleChange: DatePickerProps["onChange"] = (date, dateString) => {
-    console.log("日期选择 handleChange", { date, dateString });
-    setValue(date);
-    onChange?.(date, dateString);
-  };
-  const handleRangeChange: RangePickerProps["onChange"] = (
-    dates,
-    dateStrings,
-  ) => {
-    console.log("日期选择 handleChange", dates, dateStrings);
-    setRangeValue(dates);
-    onChange?.(dates as any, dateStrings);
-  };
-
-  const disabledDate = useCallback(
-    (d) => disabledDateFunc(d, disabledDateRule),
-    [disabledDateRule],
+// hooks/usePresets.ts
+function usePresets(presetRange?: string[], presetDate?: string[]) {
+  return useMemo<DatePickerWidgetProps["presets"]>(
+    () => ({
+      range: DateRangePresetsOptions.filter((c) =>
+        presetRange?.includes(c.value),
+      ).map((c) => ({ label: c.label, value: c.getValue() })) as any[],
+      date: DatePresetsOptions.filter((c) => presetDate?.includes(c.value)).map(
+        (c) => ({ label: c.label, value: c.getValue() }),
+      ),
+    }),
+    [presetRange, presetDate],
   );
+}
 
-  const placeholderTextMemo = useMemo(() => {
-    return isRangePicker
-      ? [placeholderTextStart, placeholderTextEnd]
-      : placeholderText;
-  }, [isRangePicker, placeholderTextStart, placeholderTextEnd]);
+// 主组件
+const DatePickerWidget: React.FC<DatePickerWidgetProps> = memo(
+  function DatePickerWidget(props) {
+    const {
+      accessor,
+      allowClear = true,
+      allowEmptyEndTime = false,
+      allowEmptyStartTime = false,
+      borderRadius,
+      boxShadow,
+      colorPrimary,
+      controlSize,
+      disabled,
+      disabledDateRule,
+      errorMessage,
+      format,
+      handleDateValid,
+      isDateValid,
+      isEnabledDateValid,
+      isRangePicker,
+      labelAlignment,
+      labelPosition,
+      labelStyle,
+      labelText,
+      labelTextColor,
+      labelTextSize,
+      labelTooltip,
+      labelWidth,
+      onChange,
+      picker,
+      placeholderText,
+      placeholderTextEnd,
+      placeholderTextStart,
+      required,
+      showNow,
+      showPreset,
+      showTime,
+      unValidDateMessage,
+      widgetName,
+    } = props;
 
-  console.group("Antd 日期选择框");
-  console.log(" props", props);
-  console.groupEnd();
+    // 使用自定义 hooks 管理状态和计算值
+    const { defaultValueMemo, rangeValue, setRangeValue, setValue, value } =
+      useDatePickerValue(props);
 
-  return (
-    <AntdFormItemContainer
-      boxShadow={boxShadow}
-      className="antd-datepicker-container"
-      labelPosition={labelPosition}
-      labelStyle={labelStyle}
-    >
-      <ConfigProvider
-        locale={locale}
-        theme={{
-          components: {
-            Form: {
-              labelColor: labelTextColor,
-              labelFontSize: (labelTextSize as unknown as number) || 0,
-            },
-            DatePicker: {
-              colorPrimary,
-              borderRadius: (borderRadius as unknown as number) || 0,
-              boxShadow: boxShadow,
-            },
-            Button: {
-              colorPrimary,
-            },
-            Dropdown: {
-              colorPrimary,
+    const presets = usePresets(props.presetRange, props.presetDate);
+
+    useDateValidation({
+      disabledDateRule,
+      handleDateValid,
+      isEnabledDateValid,
+      rangeValue,
+      value,
+    });
+
+    // 缓存计算值
+    const colLayout = useMemo(
+      () =>
+        labelPosition === AntdLabelPosition.Left
+          ? {
+              labelCol: { sm: { span: labelWidth } },
+              wrapperCol: { sm: { span: 24 - +(labelWidth || 6) } },
+            }
+          : {},
+      [labelPosition, labelWidth],
+    );
+
+    const validateProps = useMemo<ProFormItemProps>(
+      () => ({
+        required,
+        validateTrigger: ["onChange", "onBlur"],
+        rules: [
+          {
+            required,
+            message: errorMessage,
+            validateTrigger: ["onChange", "onBlur"],
+            validator: async (_: any, value: any) => {
+              if (required && !value) {
+                return Promise.reject(errorMessage);
+              }
+              return Promise.resolve();
             },
           },
-        }}
-      >
-        <ProFormItem
-          label={labelText}
-          labelAlign={labelAlignment}
-          name={accessor || widgetName}
-          tooltip={labelTooltip}
-          {...validateProps}
-          {...colLayoutMemo}
-        >
-          <PickerWithType
-            allowClear={allowClear}
-            allowEmpty={[allowEmptyStartTime, allowEmptyEndTime]}
-            defaultValue={defaultValueMemo}
-            disabled={disabled}
-            disabledDate={disabledDate}
-            format={format}
-            isRangePicker={isRangePicker}
-            onChange={handleChange}
-            onOk={handleOk}
-            onRangeChange={handleRangeChange}
-            picker={picker}
-            placeholder={placeholderTextMemo}
-            presetDate={presetDate}
-            presetRange={presetRange}
-            rangeValue={rangeValue}
-            showNow={showNow}
-            showPreset={showPreset}
-            showTime={showTime}
-            size={controlSize}
-            value={value}
-          />
-        </ProFormItem>
-      </ConfigProvider>
-    </AntdFormItemContainer>
-  );
-};
-const PickerWithType = (props: {
-  value: DatePickerProps["value"];
-  rangeValue: RangePickerProps["value"];
-  picker: DatePickerProps["picker"];
-  onChange: TimePickerProps["onChange"] | DatePickerProps["onChange"];
-  onRangeChange: RangePickerProps["onChange"];
-  onOk: () => void;
-  showPreset?: boolean;
-  isRangePicker?: boolean;
-  presetRange: any;
-  presetDate: any;
-  status?: DatePickerProps["status"];
-  [key: string]: any;
-}) => {
-  const {
-    onChange,
-    onOk,
-    onRangeChange,
-    picker,
-    presetDate,
-    presetRange,
-    rangeValue,
-    showPreset,
-    value,
-  } = props;
-  console.group("Antd 日期选择框 PickerWithType");
-  console.log(" props", props);
-  console.log(" props defaultValue", props.defaultValue);
-  console.groupEnd();
-  if (props.isRangePicker) {
-    const rangeProps = omit(props, [
-      "isRangePicker",
-      "onChange",
-      "onRangeChange",
-      // "defaultValue",
-      // "type",
-    ]);
-    return (
-      <DatePicker.RangePicker
-        {...rangeProps}
-        onOk={onOk}
-        presets={showPreset ? presetRange : undefined}
-        value={rangeValue}
-        picker={picker}
-        // defaultValue={[dayjs("2024-07-13"), dayjs("2024-07-23")]}
-        onChange={onRangeChange}
-      />
+        ],
+        ...(isEnabledDateValid && isDateValid?.toString()?.includes?.("false")
+          ? {
+              validateStatus: "error",
+              help: unValidDateMessage,
+            }
+          : {}),
+      }),
+      [
+        required,
+        errorMessage,
+        isEnabledDateValid,
+        isDateValid,
+        unValidDateMessage,
+      ],
     );
-  }
 
-  const dateProps = omit(props, [
-    "isRangePicker",
-    "onRangeChange",
-    // "defaultValue",
-    // "value",
-  ]);
-  return (
-    <DatePicker
-      {...dateProps}
-      picker={picker}
-      presets={showPreset ? presetDate : undefined}
-    />
-  );
-};
-export default DatePickerWidget;
+    const placeholder = useMemo(
+      () =>
+        isRangePicker
+          ? [placeholderTextStart, placeholderTextEnd]
+          : placeholderText,
+      [
+        isRangePicker,
+        placeholderTextStart,
+        placeholderTextEnd,
+        placeholderText,
+      ],
+    );
+
+    // 缓存回调函数
+    const handleChange = useCallback(
+      (date: any, dateString: any) => {
+        setValue(date);
+        onChange?.(date, dateString);
+      },
+      [onChange],
+    );
+
+    const handleRangeChange = useCallback(
+      (dates: any, dateStrings: any) => {
+        setRangeValue(dates);
+        onChange?.(dates, dateStrings);
+      },
+      [onChange],
+    );
+
+    const handleOk = useCallback(() => {
+      props.onOk?.();
+    }, [props.onOk]);
+
+    const disabledDate = useCallback(
+      (d: Dayjs) => disabledDateFunc(d, disabledDateRule),
+      [disabledDateRule],
+    );
+
+    // 主题配置
+    const theme = useMemo(
+      () => ({
+        components: {
+          Form: {
+            labelColor: labelTextColor,
+            labelFontSize: (labelTextSize as unknown as number) || 0,
+          },
+          DatePicker: {
+            colorPrimary,
+            borderRadius: (borderRadius as unknown as number) || 0,
+            boxShadow,
+          },
+          Button: { colorPrimary },
+          Dropdown: { colorPrimary },
+        },
+      }),
+      [labelTextColor, labelTextSize, colorPrimary, borderRadius, boxShadow],
+    );
+
+    return (
+      <AntdFormItemContainer
+        boxShadow={boxShadow}
+        className="antd-datepicker-container"
+        labelPosition={labelPosition}
+        labelStyle={labelStyle}
+      >
+        <ConfigProvider locale={locale} theme={theme}>
+          <ProFormItem
+            label={labelText}
+            labelAlign={labelAlignment}
+            name={accessor || widgetName}
+            tooltip={labelTooltip}
+            {...validateProps}
+            {...colLayout}
+          >
+            <DatePickerBase
+              allowClear={allowClear}
+              allowEmptyEndTime={allowEmptyEndTime}
+              allowEmptyStartTime={allowEmptyStartTime}
+              defaultValue={defaultValueMemo}
+              disabled={disabled}
+              disabledDate={disabledDate}
+              errorMessage={errorMessage}
+              format={format}
+              isRangePicker={isRangePicker}
+              onChange={handleChange}
+              onOk={handleOk}
+              onRangeChange={handleRangeChange}
+              picker={picker}
+              placeholder={placeholder as any}
+              presets={showPreset ? presets : undefined}
+              rangeValue={rangeValue}
+              showNow={showNow}
+              showTime={showTime}
+              size={controlSize}
+              value={value}
+            />
+          </ProFormItem>
+        </ConfigProvider>
+      </AntdFormItemContainer>
+    );
+  },
+);
+
+// Props 比较函数
+function arePropsEqual(
+  prev: DatePickerWidgetProps,
+  next: DatePickerWidgetProps,
+) {
+  if (process.env.NODE_ENV === "development") {
+    const differences = diff(prev, next);
+    if (differences) {
+      console.log("DatePicker props changed:", differences);
+    }
+  }
+  return isEqual(prev, next);
+}
+
+export default memo(DatePickerWidget, arePropsEqual);

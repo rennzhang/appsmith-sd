@@ -41,9 +41,7 @@ function SwitchField({
   passedDefaultValue,
   schemaItem,
 }: SwitchFieldProps) {
-  const { executeAction, updateFormData } = useContext(FormContext);
-
-  const commonProps = useFieldPropsHandler({
+  const { callbackRef, ...commonProps } = useFieldPropsHandler({
     name,
     schemaItem,
     passedDefaultValue,
@@ -51,12 +49,12 @@ function SwitchField({
 
   const onSwitchChange = useCallback(
     (value: boolean) => {
-      updateFormData({
+      callbackRef.current.updateFormData({
         [name]: value,
       });
 
-      if (schemaItem.onSwitchChange && executeAction) {
-        executeAction({
+      if (schemaItem.onSwitchChange) {
+        callbackRef.current.executeAction({
           triggerPropertyName: "onSwitchChange",
           dynamicString: schemaItem.onSwitchChange,
           event: {
@@ -69,13 +67,13 @@ function SwitchField({
         });
       }
     },
-    [name, schemaItem.onSwitchChange, updateFormData],
+    [name, schemaItem.onSwitchChange],
   );
 
   const onSwitchClick = useCallback(
     (val: boolean, e: React.MouseEvent) => {
-      if (schemaItem.onSwitchClick && executeAction) {
-        executeAction({
+      if (schemaItem.onSwitchClick) {
+        callbackRef.current.executeAction({
           triggerPropertyName: "onSwitchClick",
           dynamicString: schemaItem.onSwitchClick,
           event: {

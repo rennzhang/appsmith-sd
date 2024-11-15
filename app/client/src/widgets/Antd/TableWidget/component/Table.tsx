@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useMemo, useContext } from "react";
 import { ConfigProvider, message, theme } from "antd";
 import {
   DragSortTable,
@@ -27,6 +27,7 @@ import {
   useTableAlertState,
 } from "./hooks";
 import useButtonRender from "./hooks/useTableButtonRender";
+import TableContext from "../widget/TableContext";
 
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
 
@@ -52,9 +53,8 @@ const ProtableRender = React.memo(function ProtableRender(
       configProviderTheme: any;
     },
 ) {
-  const { setIsJsonFormVisible, setJsonFormState } = props;
   const actionRef = useRef<ActionType>(null);
-
+  const { setJsonFormState } = useContext(TableContext);
   const isEditType = props.tableType === "edit";
   const isDragSortType = props.tableType === "dragSort";
 
@@ -73,9 +73,8 @@ const ProtableRender = React.memo(function ProtableRender(
 
   const { columnsState, tableColumns } = useColumnState(props, {
     setInitialQueryData,
-    setJsonFormState,
-    setIsJsonFormVisible,
     sortInfo,
+    setJsonFormState,
   });
 
   const { tableAlertOptionRender, tableAlertRender } =
@@ -93,12 +92,15 @@ const ProtableRender = React.memo(function ProtableRender(
         if (action.id == "addNewRow") {
           handleAddNewRow();
         } else if (action.id === "create") {
-          setIsJsonFormVisible(true);
-          setJsonFormState({
-            isJsonFormVisible: true,
-            jsonFormType: "add",
-            isSubmitting: false,
-          });
+          if (props.editableColumn?.length) {
+            setJsonFormState({
+              jsonFormData: {},
+              isJsonFormVisible: true,
+              jsonFormType: "add",
+              isSubmitting: false,
+            });
+            return;
+          }
         }
         props?.handleAlertBtnClick(action.onBtnClick);
       },
@@ -108,6 +110,7 @@ const ProtableRender = React.memo(function ProtableRender(
       },
     );
   }, [
+    props.editableColumn,
     props.toolBarActions,
     props.allowAddNewRow,
     props.tableType,
@@ -260,9 +263,6 @@ const ProtableRender = React.memo(function ProtableRender(
 });
 
 export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
-  // useEffect(() => {
-  //   setIsJsonFormVisible(props.jsonFormState.isJsonFormVisible);
-  // }, [props.jsonFormState.isJsonFormVisible]);
   const { showConnectDataOverlay } = props;
   const scrollBarRef = useRef<any>(null);
 
@@ -328,7 +328,6 @@ export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
             <ProtableRender
               {...props}
               configProviderTheme={configProviderTheme}
-              setIsJsonFormVisible={props.setIsJsonFormVisible}
             />
           </ConfigProvider>
         </div>

@@ -45,14 +45,9 @@ function AntdCascaderField({
   passedDefaultValue,
   schemaItem,
 }: CascaderFieldProps) {
-  const {
-    executeAction,
-    formControlSize,
-    formLabelAlign,
-    formLayout,
-    updateFormData,
-  } = useContext(FormContext);
-  const commonProps = useFieldPropsHandler({
+  const { formControlSize, formLabelAlign, formLayout } =
+    useContext(FormContext);
+  const { callbackRef, ...commonProps } = useFieldPropsHandler({
     name,
     schemaItem,
     passedDefaultValue,
@@ -74,8 +69,8 @@ function AntdCascaderField({
     (value: string) => {
       updateFilterText(value);
 
-      if (schemaItem.onCascaderSearch && executeAction) {
-        executeAction({
+      if (schemaItem.onCascaderSearch) {
+        callbackRef.current.executeAction({
           triggerPropertyName: "onCascaderSearch",
           dynamicString: schemaItem.onCascaderSearch,
           event: {
@@ -91,14 +86,14 @@ function AntdCascaderField({
     (value?: DefaultValueType, labelList?: ReactNode[]) => {
       console.log("onChangeHandler", { value, labelList });
 
-      updateFormData({
+      callbackRef.current.updateFormData({
         [name]: value,
       });
       updateSelectedValue(value);
       updateSelectedLabel(labelList);
 
-      if (schemaItem.onOptionChange && executeAction) {
-        executeAction({
+      if (schemaItem.onOptionChange) {
+        callbackRef.current.executeAction({
           triggerPropertyName: "onOptionChange",
           dynamicString: schemaItem.onOptionChange,
           event: {
@@ -108,7 +103,7 @@ function AntdCascaderField({
         });
       }
     },
-    [name, schemaItem.onOptionChange, updateFormData],
+    [name, schemaItem.onOptionChange],
   );
 
   const dropdownWidth = wrapperRef.current?.clientWidth;

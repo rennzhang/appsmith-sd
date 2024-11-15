@@ -44,6 +44,7 @@ type ComputedSchema = {
 };
 
 type ComputeSchemaProps = {
+  basePath?: string;
   isCreateForm?: boolean;
   isCustomField?: boolean;
   isRequired?: boolean;
@@ -256,8 +257,12 @@ export const dynamicPropertyPathListFromSchema = (
 const computeDynamicPropertyPathList = (
   schema: Schema,
   currentDynamicPropertyPathList?: PathList,
+  basePath = "schema",
 ) => {
-  const pathListFromSchema = dynamicPropertyPathListFromSchema(schema);
+  const pathListFromSchema = dynamicPropertyPathListFromSchema(
+    schema,
+    basePath,
+  );
   const pathListFromProps = (currentDynamicPropertyPathList || []).map(
     ({ key }) => key,
   );
@@ -271,6 +276,7 @@ const computeDynamicPropertyPathList = (
  * Compute schema parses the currSourceData and returns the schema.
  */
 export const computeSchema = ({
+  basePath = "schema",
   currentDynamicPropertyPathList,
   currSourceData,
   fieldThemeStylesheets,
@@ -288,7 +294,6 @@ export const computeSchema = ({
     prevSourceData,
     widgetName,
   });
-
   // Hot path - early exit
   if (isEmpty(currSourceData) || equal(prevSourceData, currSourceData)) {
     return {
@@ -340,7 +345,10 @@ export const computeSchema = ({
   const dynamicPropertyPathList = computeDynamicPropertyPathList(
     schema,
     currentDynamicPropertyPathList,
+    basePath,
   );
+
+  console.log("computeSchema dynamicPropertyPathList", dynamicPropertyPathList);
 
   return {
     status: ComputedSchemaStatus.UPDATED,

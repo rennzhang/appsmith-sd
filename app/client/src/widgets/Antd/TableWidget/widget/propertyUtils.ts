@@ -658,6 +658,11 @@ export const updateCustomColumnAliasOnLabelChange = (
       propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.labelText`,
       propertyValue: propertyValue,
     });
+  } else if (targetPropName === "isEditable") {
+    propertiesToUpdate.push({
+      propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.isVisible`,
+      propertyValue: propertyValue,
+    });
   }
 
   console.log("updateCustomColumnAliasOnLabelChange", {

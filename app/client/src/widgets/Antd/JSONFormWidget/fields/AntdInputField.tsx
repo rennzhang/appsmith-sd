@@ -179,9 +179,9 @@ function InputField({
   propertyPath,
   schemaItem,
 }: InputFieldProps) {
-  const { executeAction, formRef, updateFormData } = useContext(FormContext);
+  const { executeAction, formRef } = useContext(FormContext);
 
-  const commonProps = useFieldPropsHandler({
+  const { callbackRef, ...commonProps } = useFieldPropsHandler({
     name,
     schemaItem,
     passedDefaultValue,
@@ -222,7 +222,7 @@ function InputField({
           dynamicString: onSubmit,
           event: {
             type: EventType.ON_ENTER_KEY_PRESS,
-            callback: () => onTextChangeHandler("", "onSubmit"),
+            // callback: () => onTextChangeHandler("", "onSubmit"),
           },
         });
       }
@@ -233,12 +233,12 @@ function InputField({
   // 使用防抖包装 onTextChangeHandler
   const debouncedTextChangeHandler = useCallback(
     debounce((inputValue: string) => {
-      updateFormData({
+      callbackRef.current.updateFormData({
         [name]: inputValue,
       });
       const { onTextChanged } = schemaItem;
-      if (onTextChanged && executeAction) {
-        executeAction({
+      if (onTextChanged) {
+        callbackRef.current.executeAction({
           triggerPropertyName: "onTextChange",
           dynamicString: onTextChanged,
           event: {
@@ -247,7 +247,7 @@ function InputField({
           updateDependencyType: ActionUpdateDependency.FORM_DATA,
         });
       }
-    }, 120),
+    }, 300),
     [name, schemaItem.onTextChanged],
   );
   // 包装更新函数

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import styled from "styled-components";
 import type { ControllerRenderProps } from "react-hook-form";
 import { sortBy } from "lodash";
@@ -52,6 +52,20 @@ const StyledFieldsWrapper = styled.div`
   width: 100%;
 `;
 
+const getObjectDefaultValue = (
+  passedDefaultValue: unknown,
+  schemaDefaultValue: unknown,
+) => {
+  let defaultValue: Record<string, unknown> = {};
+  if (passedDefaultValue && typeof passedDefaultValue === "object") {
+    defaultValue = passedDefaultValue as Record<string, unknown>;
+  }
+  if (schemaDefaultValue && typeof schemaDefaultValue === "object") {
+    defaultValue = schemaDefaultValue as Record<string, unknown>;
+  }
+  return defaultValue;
+};
+
 function ObjectField({
   fieldClassName,
   hideAccordion = false,
@@ -70,24 +84,14 @@ function ObjectField({
     isVisible = true,
     label,
     tooltip,
-  } = schemaItem;
+  } = schemaItem || {};
 
   useUpdateAccessor({ accessor });
 
-  const objectPassedDefaultValue = useMemo(() => {
-    let defaultValue: Record<string, unknown> = {};
-    if (passedDefaultValue && typeof passedDefaultValue === "object") {
-      defaultValue = passedDefaultValue as Record<string, unknown>;
-    }
-    if (
-      schemaItem.defaultValue &&
-      typeof schemaItem.defaultValue === "object"
-    ) {
-      defaultValue = schemaItem.defaultValue as Record<string, unknown>;
-    }
-
-    return defaultValue;
-  }, [passedDefaultValue, schemaItem.defaultValue]);
+  const objectPassedDefaultValue = useMemo(
+    () => getObjectDefaultValue(passedDefaultValue, schemaItem.defaultValue),
+    [passedDefaultValue, schemaItem.defaultValue],
+  );
 
   const fields = useMemo(() => {
     const children = Object.values(schemaItem.children);
@@ -111,32 +115,15 @@ function ObjectField({
         />
       );
     });
-  }, [
-    schemaItem,
-    name,
-    schemaItem.identifier,
-    propertyPath,
-    objectPassedDefaultValue,
-  ]);
+  }, [schemaItem, name, propertyPath, objectPassedDefaultValue]);
 
   if (!isVisible) {
     return null;
   }
 
-  const field = <StyledFieldsWrapper>{fields}</StyledFieldsWrapper>;
-
-  console.log("ObjectField", {
-    field,
-    fieldClassName,
-    hideAccordion,
-    isRootField,
-    name,
-    propertyPath,
-    passedDefaultValue,
-    objectPassedDefaultValue,
-    schemaItem,
-    tooltip,
-  });
+  const accordionClassName = `antd-jsonform-accordion-object${
+    isRootField ? "" : " antd-jsonform-object-container"
+  }`;
 
   return (
     <NestedFormWrapper
@@ -155,7 +142,7 @@ function ObjectField({
       withoutPadding={isRootField}
     >
       {(isRootField || hideAccordion ? (
-        field
+        <StyledFieldsWrapper>{fields}</StyledFieldsWrapper>
       ) : (
         <FieldLabel
           hideLabel={hideLabel}
@@ -164,24 +151,17 @@ function ObjectField({
           isRootField={isRootField}
           tooltip={tooltip}
         >
-          {isRootField || hideAccordion ? (
-            field
-          ) : (
-            <Accordion
-              backgroundColor={schemaItem.cellBackgroundColor}
-              borderColor={schemaItem.cellBorderColor}
-              borderRadius={schemaItem.cellBorderRadius}
-              borderWidth={schemaItem.cellBorderWidth}
-              boxShadow={schemaItem.cellBoxShadow}
-              className={
-                "antd-jsonform-accordion-object" +
-                (isRootField ? "" : " antd-jsonform-object-container")
-              }
-              isCollapsible={false}
-            >
-              {field}
-            </Accordion>
-          )}
+          <Accordion
+            backgroundColor={schemaItem.cellBackgroundColor}
+            borderColor={schemaItem.cellBorderColor}
+            borderRadius={schemaItem.cellBorderRadius}
+            borderWidth={schemaItem.cellBorderWidth}
+            boxShadow={schemaItem.cellBoxShadow}
+            className={accordionClassName}
+            isCollapsible={false}
+          >
+            <StyledFieldsWrapper>{fields}</StyledFieldsWrapper>
+          </Accordion>
         </FieldLabel>
       )) || null}
     </NestedFormWrapper>

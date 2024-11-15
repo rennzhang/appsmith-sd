@@ -16,8 +16,27 @@ export const useFieldPropsHandler = ({
   schemaItem,
 }: UseFieldPropsHandlerProps) => {
   const formContext = useContext(FormContext);
-  const { formRef, initialValues, updateDefaultFormData, updateFormData } =
-    formContext;
+
+  const {
+    executeAction,
+    formLayout,
+    formRef,
+    initialValues,
+    updateDefaultFormData,
+    updateFormData,
+  } = formContext;
+
+  const callbackRef = useRef({
+    updateFormData,
+    executeAction,
+  });
+
+  useEffect(() => {
+    callbackRef.current = {
+      updateFormData,
+      executeAction,
+    };
+  });
   const prevSchemaItemRef = useRef(schemaItem);
   const prevFormContextRef = useRef(formContext);
   const [defaultValue, setDefaultValue] = useState<any>(
@@ -25,7 +44,7 @@ export const useFieldPropsHandler = ({
   );
   const inputDefaultValue = (() => {
     if (passedDefaultValue === undefined) {
-      return schemaItem.defaultValue || initialValues[name];
+      return schemaItem?.defaultValue || initialValues?.[name];
     }
 
     return passedDefaultValue;
@@ -107,6 +126,7 @@ export const useFieldPropsHandler = ({
     );
 
     return {
+      callbackRef,
       colorPrimary,
       required: isRequired,
       disabled: isDisabled,
@@ -120,6 +140,7 @@ export const useFieldPropsHandler = ({
       defaultValue: inputDefaultValue,
       value: inputDefaultValue,
       accessor: name.split("."),
+      formLayout,
     };
   }, [schemaItem, formContext, inputDefaultValue]);
 

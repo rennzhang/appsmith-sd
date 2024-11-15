@@ -14,6 +14,7 @@ import type { WidgetStyleContainerProps } from "components/designSystems/appsmit
 import type { MouseEventHandler, ReactNode } from "react";
 import {
   forwardRef,
+  memo,
   useContext,
   useEffect,
   useImperativeHandle,
@@ -24,7 +25,7 @@ import {
 import type { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { isNumber } from "lodash";
+import { isEqual, isNumber, omit } from "lodash";
 import type { FieldError } from "rc-field-form/lib/interface";
 import useTableButtonRender from "widgets/Antd/TableWidget/component/hooks/useTableButtonRender";
 import {
@@ -35,6 +36,7 @@ import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleCon
 import type { Color } from "constants/Colors";
 import { useFormContext } from "react-hook-form";
 import FormContext from "../FormContext";
+import { diff } from "deep-diff";
 
 export interface ProformContainerComponentProps {
   fieldErrors?: FieldError[];
@@ -106,7 +108,7 @@ export interface ProformContainerComponentProps {
   buttonAlignment?: CheckboxGroupAlignment;
 }
 
-const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
+const AntdProForm = (props: ProformContainerComponentProps, ref: any) => {
   const {
     allowScrollContents,
     backgroundColor,
@@ -384,7 +386,7 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
     props.buttonAlignment,
   ]);
 
-  console.group("表单组件 AntdForm");
+  console.group("表单组件 AntdJSONForm");
   console.log("表单组件 props", props);
   console.log(" formItemLayoutMemo", formItemLayoutMemo);
   console.groupEnd();
@@ -453,6 +455,29 @@ const AntdProForm = forwardRef((props: ProformContainerComponentProps, ref) => {
       </ConfigProvider>
     </AntdProformContainer>
   );
-});
+};
+const arePropsEqual = (
+  prevProps: ProformContainerComponentProps,
+  nextProps: ProformContainerComponentProps,
+) => {
+  const _prevProps = omit(prevProps, ["formRef", "children"]);
+  const _nextProps = omit(nextProps, ["formRef", "children"]);
+  // 开发环境打印diff
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = diff(_prevProps, _nextProps);
+    if (diffProps) {
+      console.log("AntdJSONForm memo diff", {
+        p: prevProps,
+        n: nextProps,
+        diff: diffProps,
+      });
+    }
+  }
+  return isEqual(_prevProps, _nextProps);
+};
 
-export default AntdProForm;
+// 先用 memo 包装组件,然后再用 forwardRef
+const MemoizedAntdJSONForm = memo(forwardRef(AntdProForm), arePropsEqual);
+
+// export default MemoizedAntdJSONForm;
+export default forwardRef(AntdProForm);

@@ -26,9 +26,7 @@ function FieldRenderer({
   schemaItem,
 }: FieldRendererProps) {
   const firstRender = useRef(true);
-  const { fieldType, isVisible = true } = schemaItem;
-  // const { getValues } = useFormContext();
-  const { updateFormData } = useContext(FormContext);
+  const { fieldType, isVisible = true } = schemaItem || {};
 
   const FieldComponent = FIELD_MAP[fieldType];
 
@@ -49,13 +47,6 @@ function FieldRenderer({
       // updateFormData(values);
     }
   }, [isVisible]);
-
-  if (!isVisible) {
-    return null;
-  }
-
-  if (!FieldComponent) return null;
-
   console.log("FieldRenderer", {
     fieldName,
     options,
@@ -63,6 +54,11 @@ function FieldRenderer({
     propertyPath,
     schemaItem,
   });
+  if (!isVisible) {
+    return null;
+  }
+
+  if (!FieldComponent) return null;
 
   return (
     <FieldComponent

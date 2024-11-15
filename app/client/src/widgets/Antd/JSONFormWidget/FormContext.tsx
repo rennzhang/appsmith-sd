@@ -16,6 +16,7 @@ import type { FieldError } from "rc-field-form/lib/interface";
 import { debounce } from "lodash";
 
 type FormContextProps<TValues = any> = React.PropsWithChildren<{
+  formMode?: "edit" | "add" | "view";
   initialValues: TValues;
   updateDefaultFormData?: (values: any) => void;
   formColorPrimary?: string;
@@ -38,12 +39,13 @@ type FormContextProps<TValues = any> = React.PropsWithChildren<{
     cb?: (values: TValues) => void,
   ) => void;
   setFieldErrors: React.Dispatch<React.SetStateAction<FieldError[]>>;
-  updateFormData: (values: any, cb?: (values: any) => void) => void;
 }>;
 
 type FormContextValueProps = Omit<FormContextProps, "children">;
 
-type FormContextReturnProps = FormContextValueProps;
+type FormContextReturnProps = FormContextValueProps & {
+  updateFormData: (values: any, cb?: (values: any) => void) => void;
+};
 
 const FormContext = createContext<FormContextReturnProps>(
   {} as FormContextReturnProps,
@@ -58,19 +60,78 @@ export function FormContextProvider({
   formIsRequird,
   formLabelAlign,
   formLayout,
+  formMode,
   formRef,
   initialValues,
   renderMode,
   setFieldErrors,
   setMetaInternalFieldState,
   updateDefaultFormData,
-  updateFormData,
   updateWidgetFormData,
   updateWidgetMetaProperty,
   updateWidgetProperty,
 }: FormContextProps) {
+  const formDataRef = useRef(initialValues);
+
+  // 将 debounced 函数移到组件外部或使用 useCallback 来缓存
+  const debouncedUpdate = useCallback(
+    debounce(async (values: any, cb?: (values: any) => void) => {
+      const isAdd = formMode === "add";
+      const newFormData = isAdd
+        ? {}
+        : { ...formRef?.current?.getFieldsValue(), ...values };
+
+      let hasChanges = isAdd ? true : false;
+      if (!hasChanges) {
+        for (const key of Object.keys(values)) {
+          const oldValue = get(formDataRef.current, key);
+          const newValue = values[key];
+
+          if (!isEqual(oldValue, newValue)) {
+            hasChanges = true;
+            set(newFormData, key, newValue);
+            formRef?.current?.setFieldValue(key.split("."), newValue);
+          }
+        }
+      }
+
+      console.log("updateFormData result", {
+        values,
+        formDataRef: formDataRef.current,
+        newFormData,
+        initialValues,
+        hasChanges,
+      });
+
+      formDataRef.current = newFormData;
+
+      hasChanges && updateWidgetFormData(newFormData);
+      hasChanges &&
+        formRef?.current
+          ?.validateFields(Object.keys(values))
+          .then(() => {
+            setFieldErrors([]);
+          })
+          .catch((error: any) => {
+            console.log("updateFormData validateFields error:", error);
+            setFieldErrors(error?.errorFields as FieldError[]);
+          });
+
+      cb?.(newFormData);
+    }, 100),
+    [formRef, initialValues, updateWidgetFormData, setFieldErrors],
+  );
+
+  // 包装更新函数
+  const updateFormData = useCallback(
+    (values: any, cb?: (values: any) => void) => {
+      debouncedUpdate(values, cb);
+    },
+    [debouncedUpdate],
+  );
   const value = useMemo(
     () => ({
+      formMode,
       initialValues,
       setFieldErrors,
       updateDefaultFormData,
@@ -90,6 +151,7 @@ export function FormContextProvider({
       updateWidgetProperty,
     }),
     [
+      formMode,
       initialValues,
       formRef,
       formIsRequird,

@@ -516,7 +516,7 @@ export const AUTO_JS_ENABLED_FIELDS: Record<
   FieldType,
   (keyof SchemaItem)[] | null
 > = {
-  [FieldType.TREESELECT]: ["defaultValue"],
+  [FieldType.TREESELECT]: ["defaultValue", "isVisible"],
   [FieldType.TEXT]: ["defaultValue"],
   [FieldType.DATEPICKER]: ["defaultValue"],
   [FieldType.SWITCH]: ["defaultValue"],

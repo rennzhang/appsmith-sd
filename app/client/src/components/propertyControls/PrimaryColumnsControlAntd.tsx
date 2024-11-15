@@ -175,8 +175,7 @@ class PrimaryColumnsControlAntd extends BaseControl<ControlProps, State> {
           id: column.id,
           isVisible: column.isVisible,
           isVisibleCellSearch: column.isVisibleCellSearch,
-          isDerived:
-            column.isDerived && column.columnType !== ColumnTypes.EDIT_ACTIONS,
+          isDerived: column.isDerived,
           index: column.index,
           isDuplicateLabel: _.includes(
             this.state.duplicateColumnIds,

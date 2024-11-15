@@ -33,20 +33,19 @@ function AntdTimePickerField({
   passedDefaultValue,
   schemaItem,
 }: TimePickerFieldProps) {
-  const { executeAction, updateFormData } = useContext(FormContext);
-  const commonProps = useFieldPropsHandler({
+  const { callbackRef, ...commonProps } = useFieldPropsHandler({
     name,
     schemaItem,
     passedDefaultValue,
   });
   const onTimeChange = useCallback(
     (value: any, valueString: any) => {
-      updateFormData({
+      callbackRef.current.updateFormData({
         [name]: valueString,
       });
 
-      if (schemaItem.onTimeChange && executeAction) {
-        executeAction({
+      if (schemaItem.onTimeChange) {
+        callbackRef.current.executeAction({
           triggerPropertyName: "onTimeChange",
           dynamicString: schemaItem.onTimeChange,
           event: {
@@ -55,7 +54,7 @@ function AntdTimePickerField({
         });
       }
     },
-    [name, schemaItem.onTimeChange, updateFormData],
+    [name, schemaItem.onTimeChange],
   );
   return (
     <TimePickerComponent

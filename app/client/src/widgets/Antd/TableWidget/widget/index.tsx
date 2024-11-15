@@ -1,4 +1,4 @@
-import type { Key } from "react";
+import type { ComponentType, Key } from "react";
 import { lazy, Suspense } from "react";
 import log from "loglevel";
 import memoizeOne from "memoize-one";
@@ -20,6 +20,7 @@ import _, {
   debounce,
   cloneDeep,
   set,
+  difference,
 } from "lodash";
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -36,6 +37,7 @@ import type { ReactTableFilter } from "../component/Constants";
 import { AddNewRowActions, DEFAULT_FILTER } from "../component/Constants";
 import type {
   Action,
+  AntdTableProps,
   EditableCell,
   JSONFormState,
   OnColumnEventArgs,
@@ -111,6 +113,7 @@ import type {
 import {
   ComputedSchemaStatus,
   computeSchema,
+  dynamicPropertyPathListFromSchema,
   generateFieldState,
 } from "widgets/Antd/JSONFormWidget/widget/helper";
 import type { AppState } from "ce/reducers";
@@ -128,7 +131,7 @@ import { APP_MODE } from "entities/App";
 import { message } from "antd";
 import { schema } from "normalizr";
 
-const ReactTableComponent = lazy(() =>
+const ReactTableComponent = lazy<ComponentType<AntdTableProps>>(() =>
   retryPromise(() => import("../component")),
 );
 
@@ -256,12 +259,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
   jsonFormRef = React.createRef<ProFormInstance<any>>();
   state = {
-    jsonFormState: {
-      isJsonFormVisible: false,
-      editFormData: {},
-      jsonFormType: "edit",
-      isSubmitting: false,
-    } as JSONFormState,
     resetObserverCallback: noop,
     metaInternalFieldState: {},
   };
@@ -293,59 +290,27 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
-  setJsonFormState = (jsonFormState: typeof this.state.jsonFormState) => {
-    const state = {
-      isJsonFormVisible:
-        jsonFormState.isJsonFormVisible ??
-        this.state.jsonFormState?.isJsonFormVisible,
-      editFormData:
-        jsonFormState.editFormData ?? this.state.jsonFormState?.editFormData,
-      jsonFormType:
-        jsonFormState.jsonFormType ?? this.state.jsonFormState?.jsonFormType,
-      isSubmitting:
-        jsonFormState.isSubmitting ?? this.state.jsonFormState?.isSubmitting,
-    };
-    this.setState({
-      jsonFormState: state,
-    });
-    if (!state.isJsonFormVisible) return;
-    // 过滤掉主键列
-    const editableColumnCount = this.props.editableColumn.filter(
-      (item: any) => this.props.primaryColumnId !== item.id,
-    ).length;
-    if (!editableColumnCount && state.jsonFormType !== "view") {
-      message.warning("请至少设置一个可编辑列");
-      return;
-    }
-
-    const newSourceDataWithDefaultValues = merge(
-      {},
-      this.resetToDefaultValues(last(this.props.tableData) || {}),
-      this.props.defaultFormData,
+  computeDynamicPropertyPathList = (schema: Schema) => {
+    const pathListFromSchema = dynamicPropertyPathListFromSchema(
+      schema,
+      "autoFormConfig.config.schema",
+    );
+    const pathListFromProps = (this.props.dynamicPropertyPathList || []).map(
+      ({ key }) => key,
     );
 
-    const targetData =
-      state.jsonFormType === "add"
-        ? newSourceDataWithDefaultValues
-        : state.editFormData;
-    console.log("generateJSONFormSchema111", {
-      state,
-      targetData,
-      defaultFormData: this.props.defaultFormData,
-      newSourceDataWithDefaultValues,
-      resetToDefaultValues: this.resetToDefaultValues(
-        last(this.props.tableData) || {},
-      ),
-    });
-    const formData = this.cleanObject(targetData);
+    const newPaths = difference(pathListFromSchema, pathListFromProps);
 
-    this.batchUpdateWidgetProperty(
-      {
-        modify: { "autoFormConfig.config.sourceData": formData },
-      },
-      false,
+    return [...pathListFromProps, ...newPaths].map((path) => ({ key: path }));
+  };
+
+  updateDynamicPropertyPathList = () => {
+    const dynamicPropertyPathList = this.computeDynamicPropertyPathList(
+      this.props.autoFormConfig.config.schema,
     );
-    this.updateWidgetFormData(formData);
+    this.batchUpdateWidgetProperty({
+      modify: { dynamicPropertyPathList },
+    });
   };
 
   static getMetaPropertiesMap(): Record<string, any> {
@@ -419,6 +384,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         updatedRowKey: generateTypeDef(widget.updatedRowKey),
         expandedRows: generateTypeDef(widget.expandedRows),
         formData: generateTypeDef(widget.formData),
+        fieldState: generateTypeDef(widget.fieldState),
         sourceData: generateTypeDef(widget.sourceData),
       };
 
@@ -871,11 +837,12 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     const initialSourceData = this.cleanObject(this.props.tableData?.[0] || {});
-    this.updateWidgetProperty("sourceData", initialSourceData);
-    this.updateWidgetProperty(
-      "defaultFormData",
-      this.resetToDefaultValues(initialSourceData || {}),
-    );
+    this.batchUpdateWidgetProperty({
+      modify: {
+        sourceData: initialSourceData,
+        defaultFormData: this.resetToDefaultValues(initialSourceData || {}),
+      },
+    });
   }
   getPreviousSourceData = (prevProps?: JSONFormWidgetProps) => {
     const JSONFormProps = this.props.autoFormConfig.config;
@@ -939,7 +906,8 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     // auto
     const computedSchema = computeSchema({
-      currentDynamicPropertyPathList: JSONFormProps.dynamicPropertyPathList,
+      basePath: "autoFormConfig.config.schema",
+      currentDynamicPropertyPathList: this.props.dynamicPropertyPathList,
       currSourceData,
       prevSchema: prevSchema,
       prevSourceData,
@@ -987,7 +955,13 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       if (isEmpty(JSONFormProps?.schema)) {
         payload.modify = {
           ...payload.modify,
-          schema,
+          autoFormConfig: {
+            ...this.props.autoFormConfig,
+            config: {
+              ...JSONFormProps,
+              schema,
+            },
+          },
         };
       } else {
         payload.modify = {
@@ -998,17 +972,19 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         payload.remove = removedSchemaItems;
       }
 
+      console.log("generateJSONFormSchema UPDATED", payload);
+
       this.batchUpdateWidgetProperty(payload);
     }
 
-    this.updateWidgetProperty("autoFormConfig", {
-      ...this.props.autoFormConfig,
-      config: {
-        ...JSONFormProps,
-        sourceData: currSourceData,
-        schema,
-      },
-    });
+    // this.updateWidgetProperty("autoFormConfig", {
+    //   ...this.props.autoFormConfig,
+    //   config: {
+    //     ...JSONFormProps,
+    //     sourceData: currSourceData,
+    //     schema,
+    //   },
+    // });
     this.debouncedParseAndSaveFieldState(
       this.state.metaInternalFieldState,
       schema,
@@ -1039,6 +1015,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.defaultUpdatedKeys,
       );
     }
+
     // editableColumn
     if (
       !equal(prevProps.tableData, this.props.tableData) &&
@@ -1046,8 +1023,13 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     ) {
       this.generateJSONFormSchema({
         ...this.props.autoFormConfig.config,
-        sourceData: this.cleanObject(this.props.tableData[0]),
+        sourceData: this.cleanObject(
+          this.props.formData || this.props.tableData[0],
+        ),
       });
+    }
+    if (!equal(prevProps.autoFormConfig, this.props.autoFormConfig)) {
+      this.updateDynamicPropertyPathList();
     }
     // defaultExpandedRowKeys
     if (
@@ -1639,39 +1621,60 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.getPaddingAdjustedDimensions();
     const tableColumns = this.getTableColumns() || emptyArr;
     const finalTableData = this.getFinalTableData();
-    const jsonFormState = this.state.jsonFormState;
     const isEditingMode =
       this.props.appMode === APP_MODE.EDIT && !this.props.isPreviewMode;
     console.group("Antd 表格 Table Widget 111");
     console.log(" this.props", this.props, this);
     console.log("tableColumns", tableColumns);
-    console.log("this.state.jsonFormState", jsonFormState);
 
     console.groupEnd();
 
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
-          {...this.props}
           accentColor={this.props.accentColor}
+          actionWidth={this.props.actionWidth}
+          addNewRowPosition={this.props.addNewRowPosition}
+          addNewRowText={this.props.addNewRowText}
           allowAddNewRow={this.props.allowAddNewRow}
-          allowSorting={!this.props.isAddRowInProgress}
+          allowRowSelection={this.props.allowRowSelection}
           applyFilter={this.updateFilters}
+          autoFormConfig={this.props.autoFormConfig}
+          autoGenerateTableForm={this.props.autoGenerateTableForm}
+          batchUpdateWidgetProperty={this.onBatchUpdateWidgetProperty}
           borderColor={this.props.borderColor}
           borderRadius={this.props.borderRadius}
           borderWidth={this.props.borderWidth}
           boxShadow={this.props.boxShadow}
           canFreezeColumn={this.props.canFreezeColumn}
+          cardBorderedSearch={this.props.cardBorderedSearch}
+          cardBorderedTable={this.props.cardBorderedTable}
+          childrenColumnName={this.props.childrenColumnName}
           columnActions={this.props.columnActions}
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
-          compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
+          compactMode={this.props.compactMode || "middle"}
+          creatorButtonText={this.props.creatorButtonText}
+          data={this.props.data}
+          defaultExpandAllRows={this.props.defaultExpandAllRows}
+          defaultExpandedRowKeys={this.props.defaultExpandedRowKeys}
+          defaultNewRow={this.props.defaultNewRow}
           defaultPageSize={this.props.defaultPageSize}
           delimiter={delimiter}
           disableDrag={this.toggleDrag}
+          disabledAddNewRowSave={this.props.disabledAddNewRowSave}
           editMode={this.props.renderMode === RenderModes.CANVAS}
+          editType={this.props.editType}
           editableCell={this.props.editableCell}
+          editableColumn={this.props.editableColumn}
+          editableKeys={this.props.editableKeys}
+          editableRecords={this.props.editableRecords}
+          editingActions={this.props.editingActions}
+          enableSearchFormValidation={this.props.enableSearchFormValidation}
           executeAction={this.onExecuteAction}
+          expandRowByClick={this.props.expandRowByClick}
+          expandedKeys={this.props.expandedKeys}
+          filteredTableData={this.props.filteredTableData}
           filters={this.props.filters}
           handleAddNewRow={this.handleAddNewRow}
           handleAlertBtnClick={this.handleAlertBtnClick}
@@ -1690,10 +1693,16 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           handleRowSelectionChange={this.handleRowSelectionChange}
           handleSwitchValueChange={this.handleSwitchValueChange}
           handleUrlOrImgClick={this.handleUrlOrImgClick}
+          headerBorderRadius={this.props.headerBorderRadius}
+          headerTitle={this.props.headerTitle}
           height={componentHeight}
+          hideOnSinglePage={this.props.hideOnSinglePage}
+          hideSelectAll={this.props.hideSelectAll}
           isAddRowInProgress={this.props.isAddRowInProgress}
           isEditingMode={isEditingMode}
           isLoading={this.props.isLoading}
+          isRemoteSort={this.props.isRemoteSort}
+          isVirtual={this.props.isVirtual}
           isVisibleCellSetting={this.props.isVisibleCellSetting}
           isVisibleDensity={this.props.isVisibleDensity}
           isVisibleDownload={isVisibleDownload}
@@ -1702,7 +1711,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           isVisibleRefresh={this.props.isVisibleRefresh}
           isVisibleSearch={isVisibleSearch}
           jsonFormRef={this.jsonFormRef}
-          jsonFormState={jsonFormState}
           multiRowSelection={
             this.props.multiRowSelection && !this.props.isAddRowInProgress
           }
@@ -1714,20 +1722,42 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           onJsonFormSubmit={this.onJsonFormSubmit}
           pageNo={this.props.pageNo}
           pageSize={this.props.pageSize}
+          paginationDisabled={this.props.paginationDisabled}
+          paginationSize={this.props.paginationSize}
           prevPageClick={this.handlePrevPageClick}
           primaryColumnId={this.props.primaryColumnId}
+          primaryColumns={this.props.primaryColumns}
           queryData={this.props.queryData}
+          renderMode={this.props.renderMode}
+          rowSelectionActions={this.props.rowSelectionActions}
+          rowSelectionColumnAlign={this.props.rowSelectionColumnAlign}
+          rowSelectionColumnRender={this.props.rowSelectionColumnRender}
+          rowSelectionColumnTitle={this.props.rowSelectionColumnTitle}
+          rowSelectionColumnWidth={this.props.rowSelectionColumnWidth}
+          rowSelectionFixed={this.props.rowSelectionFixed}
+          rowSelectionType={this.props.rowSelectionType}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
+          selectedRowKeys={this.props.selectedRowKeys}
+          selectedRows={this.props.selectedRows}
+          selectionColumnWidth={this.props.selectionColumnWidth}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
-          setJsonFormState={this.setJsonFormState}
           setMetaInternalFieldState={this.setMetaInternalFieldState}
           showConnectDataOverlay={
             primaryColumns &&
             !Object.keys(primaryColumns).length &&
             this.props.renderMode === RenderModes.CANVAS
           }
+          showQuickJumper={this.props.showQuickJumper}
+          showSizeChanger={this.props.showSizeChanger}
+          simplePagination={this.props.simplePagination}
+          tableBackground={this.props.tableBackground}
           tableData={finalTableData}
+          tableInlineEditType={this.props.tableInlineEditType}
+          tablePrimaryColor={this.props.tablePrimaryColor}
+          tableType={this.props.tableType}
+          textSize={this.props.textSize}
+          toolBarActions={this.props.toolBarActions}
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
           updateDefaultFormData={this.updateDefaultFormData}
@@ -1745,6 +1775,12 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       </Suspense>
     );
   }
+  onBatchUpdateWidgetProperty = (
+    updates: BatchPropertyUpdatePayload,
+    shouldReplay?: boolean,
+  ) => {
+    this.batchUpdateWidgetProperty(updates, shouldReplay);
+  };
   onUpdateWidgetProperty = (propertyName: string, propertyValue: any) => {
     this.updateWidgetProperty(propertyName, propertyValue);
   };
@@ -2292,8 +2328,16 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       sourceData,
       formData,
     });
-    // this.updateWidgetProperty("formData", values);
-    this.props.updateWidgetMetaProperty("formData", values);
+    this.props.updateWidgetMetaProperty("formData", formData);
+    // this.batchUpdateWidgetProperty(
+    //   {
+    //     modify: {
+    //       // "autoFormConfig.config.sourceData": formData,
+    //       formData: values,
+    //     },
+    //   },
+    //   false,
+    // );
 
     if (this.actionQueue.length) {
       this.actionQueue.forEach(({ updateDependencyType, ...actionPayload }) => {
@@ -2337,7 +2381,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     afterUpdateAction?: ExecuteTriggerPayload,
   ) => {
     this.setState((prevState) => {
-      const newState = updateCallback(prevState);
+      const newState = updateCallback(prevState as JSONFormWidgetState);
 
       this.parseAndSaveFieldState(
         newState.metaInternalFieldState,
@@ -2349,20 +2393,13 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
-  onJsonFormSubmit = (values: any, cb?: () => void) => {
-    console.log("onJsonFormSubmit", { values });
+  onJsonFormSubmit = (
+    values: any,
+    targetActionName: "onSubmit" | "onSubmitWithEdit",
+    cb?: () => void,
+  ) => {
+    const targetAction = this.props.autoFormConfig.config[targetActionName];
 
-    this.setJsonFormState({
-      isSubmitting: true,
-    });
-    const targetAction =
-      this.state.jsonFormState?.jsonFormType === "edit"
-        ? this.props.autoFormConfig.config.onSubmitWithEdit
-        : this.props.autoFormConfig.config.onSubmit;
-    const targetActionName =
-      this.state.jsonFormState?.jsonFormType === "edit"
-        ? "onSubmitWithEdit"
-        : "onSubmit";
     if (targetAction) {
       super.executeAction({
         triggerPropertyName: "autoFormConfig.config." + targetActionName,
@@ -2371,24 +2408,11 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           type: EventType.ON_SUBMIT,
           callback: () => {
             cb && cb();
-            this.setJsonFormState({
-              isSubmitting: false,
-              isJsonFormVisible: false,
-              editFormData: undefined,
-              jsonFormType: undefined,
-            });
           },
         },
         globalContext: {
           formData: values,
         },
-      });
-    } else {
-      this.setJsonFormState({
-        isSubmitting: false,
-        isJsonFormVisible: false,
-        editFormData: undefined,
-        jsonFormType: undefined,
       });
     }
   };

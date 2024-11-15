@@ -1,4 +1,12 @@
-import { useCallback, memo, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  memo,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useContext,
+} from "react";
 import AntdProTable from "./Table";
 import equal from "fast-deep-equal/es6";
 import type { AntdTableProps, JSONFormProps } from "../constants";
@@ -8,12 +16,41 @@ import WidgetFactory from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import { CONFIG } from "widgets/Antd/JSONFormWidget";
 import { ConfigProvider, Drawer, Modal } from "antd";
-import { omit } from "lodash";
+import { omit, pick, difference } from "lodash";
 import React from "react";
+import { diff } from "deep-diff";
+import TableContext, { TableContextProvider } from "../widget/TableContext";
 
 interface ReactTableComponentProps extends AntdTableProps, JSONFormProps {
   allowRowSelection: boolean;
 }
+const compareProps = (
+  prevProps: ReactTableComponentProps,
+  nextProps: ReactTableComponentProps,
+  keyProps: (keyof ReactTableComponentProps)[],
+  source: "table" | "jsonform" | "tableWidget",
+) => {
+  for (const _key of keyProps) {
+    if (typeof prevProps[_key] === "object") {
+      if (!equal(prevProps[_key], nextProps[_key])) {
+        console.log(
+          "AntdTableWidget compareProps diff",
+          source,
+          _key,
+          source == "jsonform" && diff(prevProps[_key], nextProps[_key]),
+        );
+        return false;
+      }
+    } else {
+      if (prevProps[_key] !== nextProps[_key]) {
+        console.log("AntdTableWidget compareProps diff", source, _key);
+        return false;
+      }
+    }
+  }
+
+  return true;
+};
 // 使用React.lazy动态导入JSONFormComponent
 const JSONFormComponent = React.lazy(
   () => import("widgets/Antd/JSONFormWidget/component/index"),
@@ -23,33 +60,20 @@ const JSONFormRender = React.memo(
   function JSONFormRender(props: AntdTableProps & JSONFormProps) {
     const {
       autoFormConfig,
-      formData,
       isEditingMode,
-      isJsonFormVisible,
       jsonFormRef,
-      jsonFormState,
       onJsonFormSubmit,
-      setIsJsonFormVisible,
-      setJsonFormState,
       widgetId,
       widgetName,
       ...restProps
     } = props;
+    const { formModalTitle, jsonFormState, setJsonFormState } =
+      useContext(TableContext);
 
     // 1. 优化 processedFormProps 的计算和缓存
     const processedFormProps = useMemo(() => {
       return omit(autoFormConfig.config, ["editTitle", "title"]);
     }, [autoFormConfig]);
-
-    // 2. 优化 modalTitle 的依赖
-    const modalTitle = useMemo(() => {
-      if (jsonFormState.jsonFormType === "view") {
-        return "查看详情";
-      }
-      return jsonFormState.jsonFormType === "edit"
-        ? autoFormConfig.config.editTitle
-        : autoFormConfig.config.title;
-    }, [jsonFormState.jsonFormType, autoFormConfig.config]);
 
     // 3. 优化 modalContainer 的依赖和更新逻辑
     const modalContainer = useRef<any>(null);
@@ -63,61 +87,75 @@ const JSONFormRender = React.memo(
       modalContainer.current = container || document.body;
     }, [isEditingMode, processedFormProps.jsonFormPopType]);
 
-    // 4. 优化 handleCancel 函数,使用 useCallback 避免重复创建
-    const handleCancel = useCallback(() => {
-      setIsJsonFormVisible(false);
-      setJsonFormState({ isJsonFormVisible: false });
-    }, [setIsJsonFormVisible, setJsonFormState]);
-
     // 5. 优化 Modal/Drawer 的关闭处理函数
     const handleClose = useCallback(() => {
-      setIsJsonFormVisible(false);
       setJsonFormState({
         isJsonFormVisible: false,
         isSubmitting: false,
       });
-    }, [setIsJsonFormVisible, setJsonFormState]);
+    }, [setJsonFormState]);
 
+    const onSubmit = useCallback(
+      (values) => {
+        setJsonFormState({
+          isSubmitting: true,
+        });
+
+        const targetActionName =
+          jsonFormState.jsonFormType === "edit"
+            ? "onSubmitWithEdit"
+            : "onSubmit";
+        props.onJsonFormSubmit(values, targetActionName, () => {
+          setJsonFormState({
+            isSubmitting: false,
+          });
+        });
+      },
+      [
+        props.onJsonFormSubmit,
+        jsonFormState.jsonFormType,
+        autoFormConfig.config,
+      ],
+    );
     // 6. 优化 renderJSONForm 的依赖
     const renderJSONForm = useMemo(
-      () => (
-        <JSONFormComponent
-          {...processedFormProps}
-          className={`proTable-auto-jsonform ${
-            processedFormProps.jsonFormPopType === "drawer"
-              ? "pop-drawer"
-              : "pop-modal"
-          }
+      () =>
+        jsonFormState.isJsonFormVisible && (
+          <JSONFormComponent
+            {...processedFormProps}
+            className={`proTable-auto-jsonform ${
+              processedFormProps.jsonFormPopType === "drawer"
+                ? "pop-drawer"
+                : "pop-modal"
+            }
             ${jsonFormState.jsonFormType === "view" ? "view-mode" : ""}
           `}
-          disabled={jsonFormState.jsonFormType === "view"}
-          hideSubmit={jsonFormState.jsonFormType === "view"}
-          initialValues={formData}
-          isSubmitting={!!jsonFormState.isSubmitting}
-          maxHeight={processedFormProps.modalHeight}
-          onCancel={handleCancel}
-          onSubmit={(values) => {
-            props.onJsonFormSubmit(values);
-          }}
-          ref={props.jsonFormRef}
-          renderMode={props.renderMode}
-          setMetaInternalFieldState={props.setMetaInternalFieldState}
-          title={undefined}
-          updateDefaultFormData={props.updateDefaultFormData}
-          updateWidgetFormData={props.updateWidgetFormData}
-          updateWidgetMetaProperty={props.updateWidgetMetaProperty}
-          updateWidgetProperty={props.updateWidgetProperty}
-          widgetId={props.widgetId + "-jsonform"}
-          widgetName={props.widgetName + "_JSONFORM"}
-        />
-      ),
+            disabled={jsonFormState.jsonFormType === "view"}
+            formMode={jsonFormState.jsonFormType}
+            hideSubmit={jsonFormState.jsonFormType === "view"}
+            initialValues={jsonFormState.jsonFormData}
+            isSubmitting={!!jsonFormState.isSubmitting}
+            maxHeight={processedFormProps.modalHeight}
+            onCancel={handleClose}
+            onSubmit={onSubmit}
+            ref={props.jsonFormRef}
+            renderMode={props.renderMode}
+            setMetaInternalFieldState={props.setMetaInternalFieldState}
+            title={undefined}
+            updateDefaultFormData={props.updateDefaultFormData}
+            updateWidgetFormData={props.updateWidgetFormData}
+            updateWidgetMetaProperty={props.updateWidgetMetaProperty}
+            updateWidgetProperty={props.updateWidgetProperty}
+            widgetId={props.widgetId + "-jsonform"}
+            widgetName={props.widgetName + "_JSONFORM"}
+          />
+        ),
       [
+        jsonFormState,
         jsonFormRef,
         processedFormProps,
         jsonFormState.jsonFormType,
         jsonFormState.isSubmitting,
-        formData,
-        handleCancel,
         onJsonFormSubmit,
         widgetId,
         widgetName,
@@ -153,8 +191,8 @@ const JSONFormRender = React.memo(
             footer={null}
             getContainer={() => modalContainer.current}
             onCancel={handleClose}
-            open={isJsonFormVisible}
-            title={modalTitle}
+            open={jsonFormState.isJsonFormVisible}
+            title={formModalTitle}
             width={processedFormProps.modalWidth}
           >
             <React.Suspense fallback={<LoadingFallback />}>
@@ -165,7 +203,7 @@ const JSONFormRender = React.memo(
           <Drawer
             getContainer={() => modalContainer.current}
             onClose={handleClose}
-            open={isJsonFormVisible}
+            open={jsonFormState.isJsonFormVisible}
             placement="right"
             rootStyle={{
               position: "absolute",
@@ -176,7 +214,7 @@ const JSONFormRender = React.memo(
                 paddingTop: 0,
               },
             }}
-            title={modalTitle}
+            title={formModalTitle}
             width={processedFormProps.modalWidth}
           >
             <React.Suspense fallback={<LoadingFallback />}>
@@ -190,37 +228,55 @@ const JSONFormRender = React.memo(
   (prevProps, nextProps) => {
     const keysToCompare = [
       "jsonFormRef",
-      "jsonFormState",
-      "formData",
       "autoFormConfig",
       "isJsonFormVisible",
-    ] as const;
-
-    return keysToCompare.every((key) => equal(prevProps[key], nextProps[key]));
+    ] as any[];
+    return compareProps(prevProps, nextProps, keysToCompare, "jsonform");
   },
 );
+
+const AntdProTableRender = React.memo(AntdProTable, (prevProps, nextProps) => {
+  const keysToCompare = difference(Object.keys(prevProps), [
+    "autoFormConfig",
+    "formData",
+    "jsonFormRef",
+    "autoFormConfig",
+    "isJsonFormVisible",
+  ]) as (keyof AntdTableProps & keyof JSONFormProps)[];
+  console.log(keysToCompare, "keysToCompare");
+
+  // 开发环境打印diff
+  // if (process.env.NODE_ENV === "development") {
+  //   const diffProps = diff(
+  //     pick(prevProps, keysToCompare),
+  //     pick(nextProps, keysToCompare),
+  //   );
+  //   if (diffProps) {
+  //     console.log("AntdTableWidget AntdProTableRender memo diff", {
+  //       p: prevProps,
+  //       n: nextProps,
+  //       diff: diffProps,
+  //     });
+  //   }
+  // }
+  return compareProps(prevProps, nextProps, keysToCompare, "table");
+});
 
 // 8. 抽离 loading fallback 组件
 const LoadingFallback = () => <div>加载中...</div>;
 
 function ReactTableComponent(props: ReactTableComponentProps) {
-  const [isJsonFormVisible, setIsJsonFormVisible] = useState(
-    props.jsonFormState.isJsonFormVisible,
-  );
-
   return (
-    <>
-      <JSONFormRender
-        {...props}
-        isJsonFormVisible={isJsonFormVisible}
-        setIsJsonFormVisible={setIsJsonFormVisible}
-      />
-      <AntdProTable
-        {...props}
-        isJsonFormVisible={isJsonFormVisible}
-        setIsJsonFormVisible={setIsJsonFormVisible}
-      />
-    </>
+    <TableContextProvider
+      autoFormConfig={props.autoFormConfig}
+      batchUpdateWidgetProperty={props.batchUpdateWidgetProperty}
+      jsonFormRef={props.jsonFormRef}
+      primaryColumnId={props.primaryColumnId}
+      updateWidgetMetaProperty={props.updateWidgetMetaProperty}
+    >
+      <JSONFormRender {...props} />
+      <AntdProTableRender {...props} />
+    </TableContextProvider>
   );
 }
 
@@ -232,10 +288,9 @@ function arePropsEqual(
   const keyProps: (keyof ReactTableComponentProps)[] = [
     "jsonFormRef",
     "isEditingMode",
-    "jsonFormState",
-    "setJsonFormState",
     "autoGenerateTableForm",
     "autoFormConfig",
+    "tableInlineEditType",
     "tablePrimaryColor",
     "toolBarActions",
     "isVisibleDensity",
@@ -328,17 +383,9 @@ function arePropsEqual(
     "handleUrlOrImgClick",
     "handleAlertBtnClick",
     "handleColumnSorting",
+    "batchUpdateWidgetProperty",
   ];
-
-  for (const prop of keyProps) {
-    if (typeof prevProps[prop] === "object") {
-      if (!equal(prevProps[prop], nextProps[prop])) return false;
-    } else {
-      if (prevProps[prop] !== nextProps[prop]) return false;
-    }
-  }
-
-  return true;
+  return compareProps(prevProps, nextProps, keyProps, "tableWidget");
 }
 
 export default memo(ReactTableComponent, arePropsEqual);

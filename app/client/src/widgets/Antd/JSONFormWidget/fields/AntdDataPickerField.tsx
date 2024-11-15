@@ -10,7 +10,7 @@ import type {
 import { DatePickerWidgetConfig } from "../constants";
 import type { FieldComponentBaseProps, FieldEventProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { omit } from "lodash";
+import { isEqual, omit } from "lodash";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
 
 import { DateFormatOptions } from "widgets/Antd/Form/DatePickerWidget/widget/data";
@@ -85,19 +85,19 @@ function AntdTimePickerField({
   schemaItem,
 }: DatePickerFieldProps) {
   const { executeAction, updateFormData } = useContext(FormContext);
-  const commonProps = useFieldPropsHandler({
+  const { callbackRef, ...commonProps } = useFieldPropsHandler({
     name,
     schemaItem,
     passedDefaultValue,
   });
   const onDateChange = useCallback(
     (value: any, dateString: string | string[]) => {
-      updateFormData({
+      callbackRef.current.updateFormData({
         [name]: dateString,
       });
 
-      if (schemaItem.onDateSelected && executeAction) {
-        executeAction({
+      if (schemaItem.onDateSelected) {
+        callbackRef.current.executeAction({
           triggerPropertyName: "onDateSelected",
           dynamicString: schemaItem.onDateSelected,
           event: {
@@ -106,7 +106,7 @@ function AntdTimePickerField({
         });
       }
     },
-    [name, schemaItem.onDateSelected, updateFormData],
+    [name, schemaItem.onDateSelected],
   );
   console.log("AntdTimePickerField", {
     schemaItem,
@@ -131,15 +131,13 @@ const arePropsEqual = (
   // 开发环境打印diff
   if (process.env.NODE_ENV === "development") {
     const diffProps = diff(prevProps, nextProps);
-    if (diffProps) {
-      console.log("AntdTimePickerField memo diff", {
-        p: prevProps,
-        n: nextProps,
-        diff: diffProps,
-      });
-    }
+    console.log("AntdDatePickerField memo diff", {
+      p: prevProps,
+      n: nextProps,
+      diff: diffProps,
+    });
   }
-  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+  return isEqual(prevProps, nextProps);
 };
 const MemoizedTimePickerField: FieldComponent<DatePickerComponentProps> = memo(
   AntdTimePickerField,

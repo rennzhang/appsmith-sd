@@ -47,16 +47,7 @@ function AntdSelectField({
   passedDefaultValue,
   schemaItem,
 }: SelectFieldProps) {
-  const {
-    executeAction,
-    formControlSize,
-    formIsDisabled,
-    formIsRequird,
-    formLabelAlign,
-    formLayout,
-    updateFormData,
-  } = useContext(FormContext);
-  const commonProps = useFieldPropsHandler({
+  const { callbackRef, ...commonProps } = useFieldPropsHandler({
     name,
     schemaItem,
     passedDefaultValue,
@@ -73,8 +64,8 @@ function AntdSelectField({
     (value: string) => {
       updateFilterText(value);
 
-      if (schemaItem.onOptionSearch && executeAction) {
-        executeAction({
+      if (schemaItem.onOptionSearch) {
+        callbackRef.current.executeAction({
           triggerPropertyName: "onOptionSearch",
           dynamicString: schemaItem.onOptionSearch,
           event: {
@@ -88,12 +79,12 @@ function AntdSelectField({
 
   const onChangeHandler = useCallback(
     (values: DraftValueType) => {
-      updateFormData({
+      callbackRef.current.updateFormData({
         [name]: values,
       });
 
-      if (schemaItem.onValueChange && executeAction) {
-        executeAction({
+      if (schemaItem.onValueChange) {
+        callbackRef.current.executeAction({
           triggerPropertyName: "onValueChange",
           dynamicString: schemaItem.onValueChange,
           event: {
@@ -103,17 +94,13 @@ function AntdSelectField({
         });
       }
     },
-    [name, schemaItem.onValueChange, updateFormData],
+    [name, schemaItem.onValueChange],
   );
 
   const dropdownWidth = wrapperRef.current?.clientWidth;
 
   console.log("JSONFormWidget 选择器", {
     schemaItem,
-    formControlSize,
-    formLayout,
-    formIsRequird,
-    formLabelAlign,
     commonProps,
   });
 
@@ -129,15 +116,10 @@ function AntdSelectField({
     );
   }, [
     schemaItem,
-    formIsDisabled,
     dropdownWidth,
     onChangeHandler,
     options,
     fieldClassName,
-    formControlSize,
-    formLayout,
-    formIsRequird,
-    formLabelAlign,
     commonProps,
   ]);
 

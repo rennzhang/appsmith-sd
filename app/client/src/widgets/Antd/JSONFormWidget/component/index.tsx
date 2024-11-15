@@ -35,7 +35,7 @@ export interface JSONFormComponentProps<TValues = any>
   > {
   isCreateMode?: boolean;
   jsonFormPopType?: "modal" | "drawer";
-
+  formMode?: "view" | "edit" | "add";
   updateDefaultFormData?: (values: any) => void;
   modalWidth?: number;
   modalHeight?: number;
@@ -54,6 +54,8 @@ export interface JSONFormComponentProps<TValues = any>
   isWidgetMounting: boolean;
   onFormValidityUpdate: (isValid: boolean) => void;
   onSubmit: (values: TValues) => void;
+  onSubmitWithEdit: (values: TValues) => void;
+
   registerResetObserver: (callback: () => void) => void;
   renderMode: RenderMode;
   schema: Schema;
@@ -118,6 +120,7 @@ function JSONFormComponent<TValues>(
     executeAction,
     fieldLimitExceeded,
     fixMessageHeight,
+    formMode,
     getFormData,
     initialValues,
     isKeyPressSubmit,
@@ -202,75 +205,6 @@ function JSONFormComponent<TValues>(
     );
   }, [schema]);
 
-  const [formData, setFormData] = useState<any>(initialValues || {});
-
-  // 将 debounced 函数移到组件外部或使用 useCallback 来缓存
-  const debouncedUpdate = useCallback(
-    debounce(async (values: any, cb?: (values: any) => void) => {
-      const newFormData = { ...formRef?.current?.getFieldsValue() };
-
-      let hasChanges = false;
-      for (const key of Object.keys(values)) {
-        const oldValue = get(formData, key);
-        const newValue = values[key];
-
-        if (!isEqual(oldValue, newValue)) {
-          hasChanges = true;
-          set(newFormData, key, newValue);
-          await formRef?.current?.setFieldValue(key.split("."), newValue);
-        }
-      }
-
-      console.log("updateFormData result", {
-        values,
-        formData,
-        newFormData,
-        initialValues,
-        hasChanges,
-      });
-
-      // 修正比较逻辑
-      if (!hasChanges || isEqual(formData, newFormData)) {
-        return;
-      }
-
-      // 使用 Promise.all 等待所有更新完成
-      Promise.all([
-        updateWidgetFormData(newFormData),
-        setFormData(newFormData),
-        async () => {
-          // 使用 Promise 替代 setTimeout
-
-          try {
-            await formRef?.current?.validateFields(Object.keys(values));
-            setFieldErrors([]);
-          } catch (error: any) {
-            console.log("updateFormData validateFields error:", error);
-            setFieldErrors(error?.errorFields as FieldError[]);
-          }
-        },
-      ]);
-
-      cb?.(newFormData);
-    }),
-    [
-      formData,
-      formRef,
-      initialValues,
-      updateWidgetFormData,
-      setFormData,
-      setFieldErrors,
-    ],
-  );
-
-  // 包装更新函数
-  const updateFormData = useCallback(
-    (values: any, cb?: (values: any) => void) => {
-      debouncedUpdate(values, cb);
-    },
-    [debouncedUpdate],
-  );
-
   console.log("JSONFormWidget ", schema[ROOT_SCHEMA_KEY], {
     schema,
     formItems,
@@ -286,13 +220,13 @@ function JSONFormComponent<TValues>(
       formIsRequird={rest.isRequired}
       formLabelAlign={rest.labelAlignment}
       formLayout={rest.formLayout}
+      formMode={formMode}
       formRef={formRef}
       initialValues={props.initialValues}
       renderMode={renderMode}
       setFieldErrors={setFieldErrors}
       setMetaInternalFieldState={setMetaInternalFieldState}
       updateDefaultFormData={updateDefaultFormData}
-      updateFormData={updateFormData}
       updateWidgetFormData={updateWidgetFormData}
       updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}
@@ -318,4 +252,4 @@ function JSONFormComponent<TValues>(
   );
 }
 
-export default React.memo(React.forwardRef(JSONFormComponent as any));
+export default React.memo(React.forwardRef(JSONFormComponent));

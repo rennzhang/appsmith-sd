@@ -396,5 +396,5 @@ const arePropsEqual = (
   return isEqual(_prevProps, _nextProps);
 };
 
-// export default memo(AntdInput, arePropsEqual);
-export default AntdInput;
+export default memo(AntdInput, arePropsEqual);
+// export default AntdInput;

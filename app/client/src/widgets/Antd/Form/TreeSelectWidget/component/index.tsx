@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState, useCallback } from "react";
 import "rc-tree-select/assets/index.less";
 import type { DefaultValueType } from "rc-tree-select/lib/interface";
 import type { RenderMode, TextSize } from "constants/WidgetConstants";
@@ -214,38 +214,33 @@ function TreeSelectComponent(props: TreeSelectComponentProps): JSX.Element {
     updateSelectInfo?.(changeExtraInfo);
   };
 
-  const onChange: TreeSelectProps["onChange"] = async (
-    selectedKeysValue,
-    labelList,
-    ChangeEventExtra,
-  ) => {
-    const { isMultiple } = props;
-    const value = isMultiple
-      ? selectedKeysValue.map(({ value }: any) => value)
-      : selectedKeysValue?.value;
+  const onChange: TreeSelectProps["onChange"] = useCallback(
+    async (selectedKeysValue, labelList, ChangeEventExtra) => {
+      const { isMultiple } = props;
+      const value = isMultiple
+        ? selectedKeysValue.map(({ value }: any) => value)
+        : selectedKeysValue?.value;
 
-    const label = isMultiple
-      ? selectedKeysValue.map(({ label }: any) => label)
-      : selectedKeysValue?.label;
+      const label = isMultiple
+        ? selectedKeysValue.map(({ label }: any) => label)
+        : selectedKeysValue?.label;
 
-    console.group("Antd 树选择组件 onChange");
-    console.log("onChange", selectedKeysValue);
-    console.log(" value", value);
-    console.log(" label", label);
-    console.log(" ChangeEventExtra", ChangeEventExtra);
-    console.groupEnd();
-    setValue(value);
+      setValue(value);
 
-    changeExtraInfo = {
-      ...changeExtraInfo,
-      ...ChangeEventExtra,
-    };
-    if (!ChangeEventExtra.selected) {
-      onSelect(null, null as any);
-    }
+      const newChangeExtraInfo = {
+        ...changeExtraInfo,
+        ...ChangeEventExtra,
+      };
 
-    props.onChange?.(value, label);
-  };
+      if (!ChangeEventExtra.selected) {
+        onSelect(null, null as any);
+      }
+
+      updateSelectInfo?.(newChangeExtraInfo);
+      props.onChange?.(value, label);
+    },
+    [props.isMultiple, props.onChange, updateSelectInfo],
+  );
 
   const onSearch: TreeSelectProps["onSearch"] = (value) => {
     console.log("onSearch", value);
@@ -335,17 +330,19 @@ const arePropsEqual = (
   nextProps: TreeSelectComponentProps,
 ) => {
   // 开发环境打印diff
-  if (process.env.NODE_ENV === "development") {
-    const diffProps = diff(prevProps, nextProps);
-    diffProps &&
-      console.log("TreeSelectComponent memo diff", {
-        p: prevProps,
-        n: nextProps,
-        diff: diffProps,
-        isSame: JSON.stringify(prevProps) === JSON.stringify(nextProps),
-      });
-  }
-  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+  // if (process.env.NODE_ENV === "development") {
+  //   const diffProps = diff(prevProps, nextProps);
+  //   diffProps &&
+  //     console.log("TreeSelectComponent memo diff", {
+  //       p: prevProps,
+  //       n: nextProps,
+  //       diff: diffProps,
+  //       isSame: JSON.stringify(prevProps) === JSON.stringify(nextProps),
+  //     });
+  // }
+  return isEqual(prevProps, nextProps);
 };
 
 export default memo(TreeSelectComponent, arePropsEqual);
+
+// export default TreeSelectComponent;

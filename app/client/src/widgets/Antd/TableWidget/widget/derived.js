@@ -5,7 +5,7 @@ export default {
     const editableColumn = [];
     Object.values(props.primaryColumns).map((column) => {
       if (column.isCellEditable) {
-        editableColumn.push(column);
+        editableColumn.push(column.id);
       }
     });
     return editableColumn;

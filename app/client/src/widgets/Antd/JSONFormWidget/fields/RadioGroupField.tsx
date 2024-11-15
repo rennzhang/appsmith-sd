@@ -41,9 +41,7 @@ function RadioGroupField({
   passedDefaultValue,
   schemaItem,
 }: RadioGroupFieldProps) {
-  const { executeAction, updateFormData } = useContext(FormContext);
-
-  const commonProps = useFieldPropsHandler({
+  const { callbackRef, ...commonProps } = useFieldPropsHandler({
     name,
     schemaItem,
     passedDefaultValue,
@@ -60,14 +58,14 @@ function RadioGroupField({
       const value = selectedValue;
       console.log("onSelectionChange", value);
 
-      updateFormData({
+      callbackRef.current.updateFormData({
         [name]: value,
       });
 
       updateSelectedValue(value);
 
-      if (schemaItem.onSelectionChange && executeAction) {
-        executeAction({
+      if (schemaItem.onSelectionChange) {
+        callbackRef.current.executeAction({
           triggerPropertyName: "onSelectionChange",
           dynamicString: schemaItem.onSelectionChange,
           event: {
@@ -82,7 +80,6 @@ function RadioGroupField({
       schemaItem.onSelectionChange,
       isOptionsValueNumeric,
       updateSelectedValue,
-      updateFormData,
     ],
   );
 

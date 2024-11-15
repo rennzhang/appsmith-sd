@@ -31,37 +31,40 @@ export type Action = ExecuteTriggerPayload & {
 
 export type JSONFormState = {
   isJsonFormVisible?: boolean;
-  editFormData?: Record<string, unknown>;
+  jsonFormData?: Record<string, unknown>;
   jsonFormType?: "edit" | "add" | "view";
   isSubmitting?: boolean;
 };
 export type JSONFormProps = {
-  isJsonFormVisible?: boolean;
-  setIsJsonFormVisible: (isJsonFormVisible?: boolean) => void;
-  jsonFormState: JSONFormState;
-  setJsonFormState: (jsonFormState: JSONFormState) => void;
   updateDefaultFormData: (values: any) => void;
   setMetaInternalFieldState: (
     updateCallback: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
     afterUpdateAction?: ExecuteTriggerPayload,
   ) => void;
-  onJsonFormSubmit: (values: any, cb?: () => void) => void;
+  onJsonFormSubmit: (
+    values: any,
+    targetActionName: "onSubmit" | "onSubmitWithEdit",
+    cb?: () => void,
+  ) => void;
   jsonFormRef: React.RefObject<ProFormInstance<any>>;
   updateWidgetFormData: (values: any, skipConversion?: boolean) => void;
   executeAction: (action: Action) => void;
 };
-export interface AntdTableProps extends ProTableProps<any, any> {
-  formData: Record<string, unknown>;
+export interface AntdTableProps extends ProTableProps<any, any>, JSONFormProps {
   isEditingMode: boolean;
   autoGenerateTableForm: boolean;
-  renderMode: RenderModes;
+  renderMode: RenderMode;
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
+  batchUpdateWidgetProperty: (
+    updates: BatchPropertyUpdatePayload,
+    shouldReplay?: boolean,
+  ) => void;
   autoFormConfig: {
     config: JSONFormComponentProps;
   };
   updateNewTableData: (value: any[]) => void;
-  configProviderTheme: any;
+  // configProviderTheme: any;
   tablePrimaryColor: string;
   toolBarActions: Record<string, ButtonAction>;
   creatorButtonText: string;
@@ -94,11 +97,10 @@ export interface AntdTableProps extends ProTableProps<any, any> {
     selectedRowKeys: React.Key[],
     selectedRows: any[],
   ) => void;
-  defaultSelectedRowKeys: number[];
-
   allowRowSelection: boolean;
   rowSelectionType: "checkbox" | "radio";
-  preserveSelectedRowKeys: boolean;
+  // TODO: 暂未适配改属性
+  preserveSelectedRowKeys?: boolean;
   hideSelectAll: boolean;
   rowSelectionFixed: boolean;
   rowSelectionColumnWidth: number;
@@ -129,18 +131,9 @@ export interface AntdTableProps extends ProTableProps<any, any> {
     editableKeys: React.Key[];
     editableRecords: Record<string, unknown>[];
   }) => void;
-  handleEditableValuesChange: (data: {
-    record: Record<string, unknown>;
-    rowIndex?: number;
-  }) => void;
-  handleSwitchValueChange: (
-    column: any,
-    row: Record<string, unknown>,
-    value: boolean,
-    alias: string,
-    rowIndex: number,
-  ) => void;
-  handleRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
+  handleEditableValuesChange: TableWidgetProps["handleEditableValuesChange"];
+  handleSwitchValueChange: TableWidgetProps["handleSwitchValueChange"];
+  handleRowClick: TableWidgetProps["handleRowClick"];
   isVirtual: boolean;
   hideOnSinglePage: boolean;
   paginationSize: "default" | "small";
@@ -162,15 +155,12 @@ export interface AntdTableProps extends ProTableProps<any, any> {
   childrenColumnName: string;
   isActionFixed?: boolean;
   actionWidth?: number;
-  editableCell: EditableCell;
+  editableCell?: EditableCell;
   variant?: TableVariant;
-  handleRowBtnClick: (
-    onClick: string | undefined,
-    record: Record<string, any>,
-  ) => void;
+  handleRowBtnClick: TableWidgetProps["handleRowBtnClick"];
   columnActions: Record<string, ButtonAction>;
   editingActions: Record<string, ButtonAction>;
-  textSize?: number;
+  textSize?: string;
   compactMode?: SizeType;
   queryData: Record<string, any>;
   tableData: Record<string, unknown>[];
@@ -193,33 +183,18 @@ export interface AntdTableProps extends ProTableProps<any, any> {
   filters?: ReactTableFilter[];
   totalRecordsCount?: number;
   editMode: boolean;
-  onAddNewRowAction: (
-    type: AddNewRowActions,
-    onActionComplete: () => void,
-  ) => void;
   // editableCell: EditableCell;
   applyFilter: (filters: ReactTableFilter[]) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
-  selectTableRow: (row: {
-    original: Record<string, unknown>;
-    index: number;
-  }) => void;
   pageNo: number;
-  virtual: boolean;
   updatePageSize: (pageSize: number) => void;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   multiRowSelection?: boolean;
   nextPageClick: () => void;
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
-  selectedRowIndex: number;
   disableDrag: (disable: boolean) => void;
-  enableDrag: () => void;
-  toggleAllRowSelect: (
-    isSelect: boolean,
-    pageData: Row<Record<string, unknown>>[],
-  ) => void;
   triggerRowSelection: boolean;
   searchTableData: (searchKey: any) => void;
   // filters?: ReactTableFilter[];
@@ -235,7 +210,7 @@ export interface AntdTableProps extends ProTableProps<any, any> {
   delimiter: string;
   accentColor: string;
   borderRadius: string;
-  boxShadow: BoxShadow;
+  boxShadow?: BoxShadow;
   borderWidth?: number;
   borderColor?: string;
   onBulkEditDiscard: () => void;
@@ -244,7 +219,6 @@ export interface AntdTableProps extends ProTableProps<any, any> {
   primaryColumnId: string;
   isAddRowInProgress: boolean;
   allowAddNewRow: boolean;
-  onAddNewRow: () => void;
   // onAddNewRowAction: (
   //   type: AddNewRowActions,
   //   onActionComplete: () => void,
@@ -258,7 +232,6 @@ export interface AntdTableProps extends ProTableProps<any, any> {
     queryData: Record<string, unknown>,
     isInit?: boolean,
   ) => void;
-  disableAddNewRow: boolean;
 }
 
 export type MenuItemAction = {
@@ -360,7 +333,6 @@ export interface TableWidgetProps
   onRowSelected?: string;
   onSearchTextChanged: string;
   onSort: string;
-  selectedRowIndex?: number;
   selectedRowKeys: Key[];
   serverSidePaginationEnabled?: boolean;
   multiRowSelection?: boolean;
@@ -376,7 +348,7 @@ export interface TableWidgetProps
   };
   columnWidthMap?: { [key: string]: number };
   filters?: ReactTableFilter[];
-  compactMode?: CompactMode;
+  compactMode?: SizeType;
   primaryColumnId: string;
   primaryColumns: Record<string, ColumnProperties>;
   derivedColumns: Record<string, ColumnProperties>;
@@ -391,7 +363,7 @@ export interface TableWidgetProps
   editableCell?: EditableCell;
   primaryColor: string;
   borderRadius: string;
-  boxShadow?: string;
+  boxShadow?: BoxShadow;
   tableInlineEditType?: TableInlineEditTypes;
   variant?: TableVariant;
   selectColumnFilterText?: Record<string, string>;
@@ -533,10 +505,11 @@ export const defaultEditableCell = {
 import { Colors } from "constants/Colors";
 import type { SortOrder } from "antd/es/table/interface";
 import type { ActionUpdateDependency } from "widgets/JSONFormWidget/constants";
-import type { RenderModes } from "constants/WidgetConstants";
+import type { RenderMode, RenderModes } from "constants/WidgetConstants";
 import type { JSONFormWidgetState } from "widgets/JSONFormWidget/widget";
 import type { JSONFormComponentProps } from "widgets/Antd/JSONFormWidget/component";
 import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 
 export const DEFAULT_COLUMN_NAME = "Table Column";
 

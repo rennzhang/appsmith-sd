@@ -44,7 +44,7 @@ function useBlurAndFocusEvents<TElement extends BaseEvents>({
         },
       });
     }
-  }, [executeAction, onBlurDynamicString]);
+  }, [onBlurDynamicString]);
 
   const onFocusHandler = useCallback(() => {
     if (onFocusDynamicString) {
@@ -56,7 +56,7 @@ function useBlurAndFocusEvents<TElement extends BaseEvents>({
         },
       });
     }
-  }, [executeAction, onFocusDynamicString]);
+  }, [onFocusDynamicString]);
 
   useEffect(() => {
     const inputElm = ((inputRef.current as InputRef)?.input ||

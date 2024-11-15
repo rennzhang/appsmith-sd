@@ -24,7 +24,7 @@ import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 // class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState>
 
-class AntdInputWidget<
+class AntdTextWidget<
   T extends AntdTextDisplayWidgetProps,
   K extends WidgetState,
 > extends BaseWidget<T, K> {
@@ -250,55 +250,6 @@ class AntdInputWidget<
       this.resetWidgetText();
     }
   };
-  handleKeyDown(
-    e:
-      | React.KeyboardEvent<HTMLTextAreaElement>
-      | React.KeyboardEvent<HTMLInputElement>,
-  ) {
-    const { isValid, onSubmit } = this.props;
-    const isEnterKey = e.key === "Enter" || e.keyCode === 13;
-
-    if (this.props.inputType === InputTypes.MULTI_LINE_TEXT) {
-      if (
-        isEnterKey &&
-        (e.metaKey || e.ctrlKey) &&
-        typeof onSubmit === "string" &&
-        onSubmit
-      ) {
-        this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
-          triggerPropertyName: "onSubmit",
-          dynamicString: onSubmit,
-          event: {
-            type: EventType.ON_SUBMIT,
-            callback: this.onSubmitSuccess,
-          },
-        });
-      }
-    } else {
-      if (isEnterKey && typeof onSubmit === "string" && onSubmit && isValid) {
-        /**
-         * Originally super.executeAction was used to trigger the ON_SUBMIT action and
-         * updateMetaProperty to update the text.
-         * Since executeAction is not queued and updateMetaProperty is,
-         * the user would observe that the data tree only gets partially updated with text
-         * before the ON_SUBMIT would get triggered,
-         * if they type {enter} really fast after typing some input text.
-         * So we're using updateMetaProperty to trigger the ON_SUBMIT to let the data tree update
-         * before we actually execute the action.
-         * Since updateMetaProperty expects a meta property to be updated,
-         * we are redundantly updating the common meta property, isDirty which is common on its child widgets here. But the main part is the action execution payload.
-         */
-        this.props.updateWidgetMetaProperty("isDirty", this.props.isDirty, {
-          triggerPropertyName: "onSubmit",
-          dynamicString: onSubmit,
-          event: {
-            type: EventType.ON_SUBMIT,
-            callback: this.onSubmitSuccess,
-          },
-        });
-      }
-    }
-  }
 
   componentDidUpdate = (prevProps: AntdTextDisplayWidgetProps) => {
     // If defaultValue property has changed, reset isDirty to false
@@ -345,7 +296,7 @@ class AntdInputWidget<
       isInvalid = false;
     }
 
-    console.group("Antd 输入框组件");
+    console.group("Antd 文本显示组件");
     console.log(" props", this.props);
     console.groupEnd();
 
@@ -362,7 +313,6 @@ class AntdInputWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.props.labelWidth}
-        onKeyDown={this.handleKeyDown}
         placeholder={this.props.placeholderText}
         required={this.props.isRequired}
         tooltip={this.props.tooltip}
@@ -379,4 +329,4 @@ class AntdInputWidget<
   }
 }
 
-export default AntdInputWidget;
+export default AntdTextWidget;

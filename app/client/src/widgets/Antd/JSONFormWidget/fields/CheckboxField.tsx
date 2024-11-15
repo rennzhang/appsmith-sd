@@ -39,9 +39,7 @@ function CheckboxField({
   passedDefaultValue,
   schemaItem,
 }: CheckboxFieldProps) {
-  const { executeAction, updateFormData } = useContext(FormContext);
-
-  const commonProps = useFieldPropsHandler({
+  const { callbackRef, ...commonProps } = useFieldPropsHandler({
     name,
     schemaItem,
     passedDefaultValue,
@@ -49,12 +47,12 @@ function CheckboxField({
 
   const onCheckChange = useCallback(
     (value: CheckboxValueType[]) => {
-      updateFormData({
+      callbackRef.current.updateFormData({
         [name]: value,
       });
 
-      if (schemaItem.onValueChange && executeAction) {
-        executeAction({
+      if (schemaItem.onValueChange) {
+        callbackRef.current.executeAction({
           triggerPropertyName: "onValueChange",
           dynamicString: schemaItem.onValueChange,
           event: {
@@ -64,7 +62,7 @@ function CheckboxField({
         });
       }
     },
-    [name, schemaItem.onValueChange, updateFormData],
+    [name, schemaItem.onValueChange],
   );
 
   const fieldComponent = useMemo(() => {
