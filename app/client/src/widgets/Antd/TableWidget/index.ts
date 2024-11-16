@@ -57,11 +57,10 @@ export const CONFIG = {
         label: "表单配置",
         modalWidth: 520,
         modalHeight: 520,
-        schema: {
-          __root_schema__: {
-            children: {},
-          },
-        },
+        schema: {},
+        closeModalOnSubmit: true,
+        onSubmitWithEdit: "showAlert('请先配置提交按钮的动作', 'warning');",
+        onSubmit: "showAlert('请先配置提交按钮的动作', 'warning');",
       },
     },
     tablePrimaryColor: theme.defaultSeed.colorPrimary,
