@@ -112,8 +112,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           ? this.props.evaluatedValue
           : this.props.propertyValue;
 
-      console.log("DropDownControl render computedValue", computedValue);
-
       selected = options.find(
         (option) => option.value === computedValue,
       )?.value;

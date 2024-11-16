@@ -64,7 +64,6 @@ interface ButtonComponentProps extends ComponentProps {
   tooltip?: string;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   isDisabled?: boolean;
-  isLoading?: boolean;
   rightIcon?: IconName | MaybeElement;
   type?: ButtonType;
   buttonColor?: string;
