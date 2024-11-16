@@ -7,7 +7,20 @@ import type { AntdTableProps, ButtonAction } from "../../constants";
 import { ButtonTypes, ColumnTypes } from "../../constants";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
 import ButtonComponent from "widgets/Antd/ButtonWidget/component";
-
+type RenderMenuButtonProps = {
+  button: ButtonAction;
+  onClick: (button: ButtonAction) => void;
+  configToken: any;
+  isHide?: (button: ButtonAction) => boolean;
+  isLoading?: (button: ButtonAction) => boolean;
+};
+type RenderButtonProps = {
+  button: ButtonAction;
+  onClick: (button: ButtonAction) => void;
+  configToken: any;
+  isHide?: (button: ButtonAction) => boolean;
+  isLoading?: (button: ButtonAction) => boolean;
+};
 export const useButtonRender = () => {
   const renderMenuItemContent = (
     menuItem: any,
@@ -45,16 +58,12 @@ export const useButtonRender = () => {
       )}
     </div>
   );
-  type RenderMenuButtonProps = {
-    button: ButtonAction;
-    onClick: (button: ButtonAction) => void;
-    configToken: any;
-    isHide?: (button: ButtonAction) => boolean;
-  };
+
   const renderMenuButton = ({
     button,
     configToken,
     isHide,
+    isLoading,
     onClick,
   }: RenderMenuButtonProps) => {
     const isHidden = isHide ? isHide(button) : false;
@@ -84,6 +93,7 @@ export const useButtonRender = () => {
             iconSize={14}
             isDisabled={button.isDisabled}
             key={button.id}
+            loading={isLoading ? isLoading(button) : false}
             placement="CENTER"
             text={button.menuButtonLabel}
             tooltip={button.menuTooltip}
@@ -94,16 +104,11 @@ export const useButtonRender = () => {
     );
   };
 
-  type RenderButtonProps = {
-    button: ButtonAction;
-    onClick: (button: ButtonAction) => void;
-    configToken: any;
-    isHide?: (button: ButtonAction) => boolean;
-  };
   const renderActionButton = ({
     button,
     configToken,
     isHide,
+    isLoading,
     onClick,
   }: RenderButtonProps) => {
     const isHidden = isHide ? isHide(button) : false;
@@ -121,6 +126,7 @@ export const useButtonRender = () => {
               : button.btnIconName
           }
           key={button.id}
+          loading={isLoading ? isLoading(button) : false}
           onClick={() => {
             onClick?.(button);
           }}
@@ -137,9 +143,17 @@ export const useButtonRender = () => {
 
   const getTableButtonRender = (
     buttonActions: Record<string, ButtonAction>,
-    onClick: (button: ButtonAction) => void,
-    configToken?: any,
-    isHide?: (button: ButtonAction) => boolean,
+    {
+      configToken,
+      isHide,
+      isLoading,
+      onClick,
+    }: {
+      onClick: (button: ButtonAction) => void;
+      configToken?: any;
+      isHide?: (button: ButtonAction) => boolean;
+      isLoading?: (button: ButtonAction) => boolean;
+    },
   ) => {
     const sortedButtons = Object.values(buttonActions)
       .sort((a, b) => a.index - b.index)
@@ -149,8 +163,14 @@ export const useButtonRender = () => {
 
     return sortedButtons.map((button) =>
       button.buttonType === ButtonTypes.MENU_BUTTON
-        ? renderMenuButton({ button, onClick, configToken, isHide })
-        : renderActionButton({ button, onClick, configToken, isHide }),
+        ? renderMenuButton({ button, onClick, configToken, isHide, isLoading })
+        : renderActionButton({
+            button,
+            onClick,
+            configToken,
+            isHide,
+            isLoading,
+          }),
     );
   };
   return {

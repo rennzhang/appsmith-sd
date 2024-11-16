@@ -33,6 +33,7 @@ export interface JSONFormComponentProps<TValues = any>
     ProformContainerComponentProps,
     "formItems" | "formRef" | "updateWidgetProps" | "children"
   > {
+  closeModalOnSubmit?: boolean;
   isCreateMode?: boolean;
   jsonFormPopType?: "modal" | "drawer";
   formMode?: "view" | "edit" | "add";
@@ -54,7 +55,6 @@ export interface JSONFormComponentProps<TValues = any>
   isWidgetMounting: boolean;
   onFormValidityUpdate: (isValid: boolean) => void;
   onSubmit: (values: TValues) => void;
-  onSubmitWithEdit: (values: TValues) => void;
 
   registerResetObserver: (callback: () => void) => void;
   renderMode: RenderMode;

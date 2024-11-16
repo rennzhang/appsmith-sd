@@ -102,7 +102,8 @@ export function TableContextProvider({
       state,
       primaryColumnId,
     });
-    const jsonFormData = cleanObject(state.jsonFormData);
+    const jsonFormData =
+      cleanObject(state.jsonFormData) || jsonFormState.jsonFormData;
 
     setFormState((prevState) => ({
       ...prevState,

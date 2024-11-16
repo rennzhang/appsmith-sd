@@ -84,9 +84,8 @@ const ProtableRender = React.memo(function ProtableRender(
   const { rowSelection } = useSelectionState(props);
 
   const toolBarRender = useMemo<any[]>(() => {
-    return getTableButtonRender(
-      props.toolBarActions,
-      (action) => {
+    return getTableButtonRender(props.toolBarActions, {
+      onClick: (action) => {
         console.log("antd table toolBarRender onClick", action);
 
         if (action.id == "addNewRow") {
@@ -104,12 +103,15 @@ const ProtableRender = React.memo(function ProtableRender(
         }
         props?.handleAlertBtnClick(action.onBtnClick);
       },
-      {},
-      (button) => {
+      isHide: (button) => {
         return button.isHiddenItem ?? false;
       },
-    );
+      isLoading: (button) => {
+        return props.isTableLoading || button.loading || false;
+      },
+    });
   }, [
+    props.isTableLoading,
     props.editableColumn,
     props.toolBarActions,
     props.allowAddNewRow,
@@ -119,7 +121,7 @@ const ProtableRender = React.memo(function ProtableRender(
     props.primaryColumnId,
   ]);
 
-  const commonProps: Omit<ProTableProps<any, any>, "onChange"> = useMemo(
+  const commonProps = useMemo<Omit<ProTableProps<any, any>, "onChange">>(
     () => ({
       scroll: { y: "auto" },
       dataSource,
@@ -168,6 +170,7 @@ const ProtableRender = React.memo(function ProtableRender(
       autoGenerateTableForm: props.autoGenerateTableForm,
     }),
     [
+      props.isTableLoading,
       props.autoGenerateTableForm,
       props.isVisibleSearch,
       props.isVisibleRefresh,
@@ -297,42 +300,37 @@ export function ProTableComponent(props: AntdTableProps & JSONFormProps) {
   );
 
   return (
-    <>
-      {showConnectDataOverlay && (
-        <ConnectDataOverlay onConnectData={props.onConnectData} />
-      )}
-      <TableWrapper
-        accentColor={props.accentColor}
-        backgroundColor={Colors.ATHENS_GRAY_DARKER}
-        borderColor={props.borderColor}
+    <TableWrapper
+      accentColor={props.accentColor}
+      backgroundColor={Colors.ATHENS_GRAY_DARKER}
+      borderColor={props.borderColor}
+      borderRadius={props.borderRadius}
+      borderWidth={props.borderWidth}
+      boxShadow={props.boxShadow}
+      className={showConnectDataOverlay ? "blur" : ""}
+      height={props.height}
+      id={`table${props.widgetId}`}
+      isAddRowInProgress={props.isAddRowInProgress}
+      isHeaderVisible={isHeaderVisible}
+      multiRowSelection={props.multiRowSelection}
+      ref={scrollBarRef}
+      triggerRowSelection={props.triggerRowSelection}
+      variant={props.variant}
+      width={props.width}
+    >
+      <PopoverStyles
         borderRadius={props.borderRadius}
-        borderWidth={props.borderWidth}
-        boxShadow={props.boxShadow}
-        className={showConnectDataOverlay ? "blur" : ""}
-        height={props.height}
-        id={`table${props.widgetId}`}
-        isAddRowInProgress={props.isAddRowInProgress}
-        isHeaderVisible={isHeaderVisible}
-        multiRowSelection={props.multiRowSelection}
-        ref={scrollBarRef}
-        triggerRowSelection={props.triggerRowSelection}
-        variant={props.variant}
-        width={props.width}
-      >
-        <PopoverStyles
-          borderRadius={props.borderRadius}
-          widgetId={props.widgetId}
-        />
-        <div className="overflow-auto">
-          <ConfigProvider theme={configProviderTheme}>
-            <ProtableRender
-              {...props}
-              configProviderTheme={configProviderTheme}
-            />
-          </ConfigProvider>
-        </div>
-      </TableWrapper>
-    </>
+        widgetId={props.widgetId}
+      />
+      <div className="overflow-auto">
+        <ConfigProvider theme={configProviderTheme}>
+          <ProtableRender
+            {...props}
+            configProviderTheme={configProviderTheme}
+          />
+        </ConfigProvider>
+      </div>
+    </TableWrapper>
   );
 }
 

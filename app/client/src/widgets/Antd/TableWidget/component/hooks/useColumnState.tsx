@@ -242,16 +242,17 @@ const getActionColumn = (props: AntdTableProps, extra: Extra): ProColumns => {
       //   rest,
       // });
 
-      return getTableButtonRender(props.columnActions, (menuItem) =>
-        handleButtonClick({
-          button: menuItem,
-          props,
-          record,
-          recordIndex,
-          action: tableAction,
-          extra,
-        }),
-      );
+      return getTableButtonRender(props.columnActions, {
+        onClick: (menuItem) =>
+          handleButtonClick({
+            button: menuItem,
+            props,
+            record,
+            recordIndex,
+            action: tableAction,
+            extra,
+          }),
+      });
     },
   };
 };

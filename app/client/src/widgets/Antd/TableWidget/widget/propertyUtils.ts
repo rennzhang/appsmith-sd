@@ -257,6 +257,8 @@ export const updateColumnOrderHook = (
     propertyPath: string;
     propertyValue: any;
   }> = [];
+  // const [, columnId, targetPropName] = propertyPath.split(".");
+  // if (!targetPropName) return;
 
   if (props && propertyValue && /^primaryColumns\.\w+$/.test(propertyPath)) {
     const newColumnOrder = [...(props.columnOrder || [])];
@@ -637,6 +639,8 @@ export const updateCustomColumnAliasOnLabelChange = (
   propertyValue: unknown,
 ): Array<PropertyUpdates> | undefined => {
   const propertiesToUpdate: Array<PropertyUpdates> = [];
+  const [, columnId, targetPropName] = propertyPath.split(".");
+  // if (!targetPropName) return;
 
   // 原有的alias更新逻辑
   const regex = /^primaryColumns\.(customColumn\d+)\.label$/;
@@ -648,7 +652,6 @@ export const updateCustomColumnAliasOnLabelChange = (
   }
 
   // 新增schema更新逻辑
-  const [, columnId, targetPropName] = propertyPath.split(".");
 
   const column = props.primaryColumns[columnId];
   const prevSchema = props.autoFormConfig?.config?.schema;
@@ -666,6 +669,7 @@ export const updateCustomColumnAliasOnLabelChange = (
   }
 
   console.log("updateCustomColumnAliasOnLabelChange", {
+    targetPropName,
     props,
     column,
     prevSchema,

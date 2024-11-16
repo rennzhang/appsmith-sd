@@ -813,6 +813,8 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // editableColumn
     if (this.props.tableData?.length) {
       setTimeout(() => {
+        console.log("componentDidMount generateJSONFormSchema");
+
         this.generateJSONFormSchema({
           ...this.props.autoFormConfig.config,
           sourceData: this.cleanObject(this.props.tableData[0]),
@@ -844,154 +846,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       },
     });
   }
-  getPreviousSourceData = (prevProps?: JSONFormWidgetProps) => {
-    const JSONFormProps = this.props.autoFormConfig.config;
-
-    // The autoGenerate flag was switched on.
-    if (!prevProps?.autoGenerateForm && JSONFormProps.autoGenerateForm) {
-      const rootSchemaItem =
-        JSONFormProps.schema && JSONFormProps.schema[ROOT_SCHEMA_KEY];
-
-      return rootSchemaItem?.sourceData || {};
-    }
-
-    return prevProps?.sourceData;
-  };
-  cleanObject = (obj?: Record<string, unknown>) => {
-    // 如果不是对象或者是null,直接返回
-    if (typeof obj !== "object" || !obj) {
-      return obj;
-    }
-
-    // 创建新对象
-    const cleanedObj: Record<string, unknown> = {};
-
-    // 遍历原对象的所有键
-    for (const key in obj) {
-      const value = obj[key];
-
-      // 跳过包含双下划线的键名
-      if (key.includes("__")) {
-        continue;
-      }
-
-      // 跳过数组类型的值
-      if (Array.isArray(value)) {
-        continue;
-      }
-
-      // 如果值是对象,递归处理
-      if (typeof value === "object" && value !== null) {
-        cleanedObj[key] = this.cleanObject(value as Record<string, unknown>);
-      } else {
-        // 保留其他正常的键值对
-        cleanedObj[key] = value;
-      }
-    }
-
-    return cleanedObj;
-  };
-  generateJSONFormSchema = (nextProps?: JSONFormWidgetProps) => {
-    const JSONFormProps = this.props.autoFormConfig.config;
-    if (!JSONFormProps.autoGenerateForm)
-      return {
-        status: ComputedSchemaStatus.UNCHANGED,
-        schema: JSONFormProps?.schema || {},
-      };
-
-    const prevSourceData = JSONFormProps?.sourceData;
-    const currSourceData = this.getPreviousSourceData(nextProps);
-
-    const prevSchema = JSONFormProps?.schema;
-
-    // auto
-    const computedSchema = computeSchema({
-      basePath: "autoFormConfig.config.schema",
-      currentDynamicPropertyPathList: this.props.dynamicPropertyPathList,
-      currSourceData,
-      prevSchema: prevSchema,
-      prevSourceData,
-      widgetName: this.props.widgetName,
-      fieldThemeStylesheets: JSONFormProps.childStylesheet,
-      isCreateForm: nextProps?.isCreateForm,
-    });
-    // if (!editableColumnCount) {
-    //   message.warning("请至少设置一个可编辑列");
-    // }
-    console.log("表格 generateJSONFormSchema", {
-      computedSchema,
-      prevSourceData,
-      currSourceData,
-      nextProps,
-      prevSchema,
-      primaryColumns: this.props.primaryColumns,
-    });
-
-    const {
-      dynamicPropertyPathList,
-      modifiedSchemaItems,
-      removedSchemaItems,
-      schema,
-      status,
-    } = computedSchema;
-
-    if (
-      status === ComputedSchemaStatus.LIMIT_EXCEEDED &&
-      !JSONFormProps.fieldLimitExceeded
-    ) {
-      this.updateWidgetProperty("fieldLimitExceeded", true);
-    } else if (status === ComputedSchemaStatus.UPDATED) {
-      const payload: BatchPropertyUpdatePayload = {
-        modify: {
-          dynamicPropertyPathList,
-          fieldLimitExceeded: false,
-        },
-      };
-
-      /**
-       * This means there was no schema before and the computeSchema returns a
-       * fresh schema than can be directly updated.
-       */
-      if (isEmpty(JSONFormProps?.schema)) {
-        payload.modify = {
-          ...payload.modify,
-          autoFormConfig: {
-            ...this.props.autoFormConfig,
-            config: {
-              ...JSONFormProps,
-              schema,
-            },
-          },
-        };
-      } else {
-        payload.modify = {
-          ...payload.modify,
-          ...modifiedSchemaItems,
-        };
-
-        payload.remove = removedSchemaItems;
-      }
-
-      console.log("generateJSONFormSchema UPDATED", payload);
-
-      this.batchUpdateWidgetProperty(payload);
-    }
-
-    // this.updateWidgetProperty("autoFormConfig", {
-    //   ...this.props.autoFormConfig,
-    //   config: {
-    //     ...JSONFormProps,
-    //     sourceData: currSourceData,
-    //     schema,
-    //   },
-    // });
-    this.debouncedParseAndSaveFieldState(
-      this.state.metaInternalFieldState,
-      schema,
-    );
-
-    return computedSchema;
-  };
   componentDidUpdate(prevProps: TableWidgetProps) {
     const {
       defaultPageSize,
@@ -1016,18 +870,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       );
     }
 
-    // editableColumn
-    if (
-      !equal(prevProps.tableData, this.props.tableData) &&
-      this.props.tableType !== "edit"
-    ) {
-      this.generateJSONFormSchema({
-        ...this.props.autoFormConfig.config,
-        sourceData: this.cleanObject(
-          this.props.formData || this.props.tableData[0],
-        ),
-      });
-    }
     if (!equal(prevProps.autoFormConfig, this.props.autoFormConfig)) {
       this.updateDynamicPropertyPathList();
     }
@@ -1135,10 +977,168 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pushBatchMetaUpdates("selectedRowKeys", defaultSelectedRowKeys);
     }
 
+    // editableColumn
+    if (
+      !equal(prevProps.tableData, this.props.tableData) &&
+      this.props.tableType !== "edit"
+    ) {
+      console.log("componentDidUpdate generateJSONFormSchema", this.props);
+
+      const sourceData = isEmpty(this.props.formData)
+        ? this.cleanObject(this.props.tableData?.[0]) || {}
+        : this.props.formData;
+      this.generateJSONFormSchema({
+        ...this.props.autoFormConfig.config,
+        sourceData: sourceData,
+      });
+    }
+
     this.pushResetPageNoUpdates(prevProps);
 
     commitBatchMetaUpdates();
   }
+  getPreviousSourceData = (prevProps?: JSONFormWidgetProps) => {
+    const JSONFormProps = this.props.autoFormConfig.config;
+
+    // The autoGenerate flag was switched on.
+    if (!prevProps?.autoGenerateForm && JSONFormProps.autoGenerateForm) {
+      const rootSchemaItem =
+        JSONFormProps.schema && JSONFormProps.schema[ROOT_SCHEMA_KEY];
+
+      return rootSchemaItem?.sourceData || {};
+    }
+
+    return prevProps?.sourceData;
+  };
+  cleanObject = (obj?: Record<string, unknown>) => {
+    // 如果不是对象或者是null,直接返回
+    if (typeof obj !== "object" || !obj) {
+      return obj;
+    }
+
+    // 创建新对象
+    const cleanedObj: Record<string, unknown> = {};
+
+    // 遍历原对象的所有键
+    for (const key in obj) {
+      const value = obj[key];
+
+      // 跳过包含双下划线的键名
+      if (key.includes("__")) {
+        continue;
+      }
+
+      // 跳过数组类型的值
+      if (Array.isArray(value)) {
+        continue;
+      }
+
+      // 如果值是对象,递归处理
+      if (typeof value === "object" && value !== null) {
+        cleanedObj[key] = this.cleanObject(value as Record<string, unknown>);
+      } else {
+        // 保留其他正常的键值对
+        cleanedObj[key] = value;
+      }
+    }
+
+    return cleanedObj;
+  };
+  generateJSONFormSchema = (nextProps?: JSONFormWidgetProps) => {
+    const JSONFormProps = this.props.autoFormConfig.config;
+    if (!JSONFormProps.autoGenerateForm)
+      return {
+        status: ComputedSchemaStatus.UNCHANGED,
+        schema: JSONFormProps?.schema || {},
+      };
+
+    const prevSourceData = JSONFormProps?.sourceData;
+    const currSourceData = this.getPreviousSourceData(nextProps);
+
+    const prevSchema = JSONFormProps?.schema;
+
+    // auto
+    const computedSchema = computeSchema({
+      basePath: "autoFormConfig.config.schema",
+      currentDynamicPropertyPathList: this.props.dynamicPropertyPathList,
+      currSourceData,
+      prevSchema: prevSchema,
+      prevSourceData,
+      widgetName: this.props.widgetName,
+      fieldThemeStylesheets: JSONFormProps.childStylesheet,
+      isCreateForm: nextProps?.isCreateForm,
+    });
+
+    const {
+      dynamicPropertyPathList,
+      modifiedSchemaItems,
+      removedSchemaItems,
+      schema,
+      status,
+    } = computedSchema;
+    console.log("表格 generateJSONFormSchema", {
+      computedSchema,
+      schema,
+      prevSourceData,
+      currSourceData,
+      nextProps,
+      prevSchema,
+      primaryColumns: this.props.primaryColumns,
+    });
+
+    if (
+      status === ComputedSchemaStatus.LIMIT_EXCEEDED &&
+      !JSONFormProps.fieldLimitExceeded
+    ) {
+      this.updateWidgetProperty("fieldLimitExceeded", true);
+    } else if (status === ComputedSchemaStatus.UPDATED) {
+      const payload: BatchPropertyUpdatePayload = {
+        modify: {
+          dynamicPropertyPathList,
+          fieldLimitExceeded: false,
+        },
+      };
+
+      /**
+       * This means there was no schema before and the computeSchema returns a
+       * fresh schema than can be directly updated.
+       */
+      if (isEmpty(JSONFormProps?.schema)) {
+        payload.modify = {
+          ...payload.modify,
+          autoFormConfig: {
+            ...this.props.autoFormConfig,
+            config: {
+              ...JSONFormProps,
+              schema,
+            },
+          },
+        };
+      } else {
+        payload.modify = {
+          ...payload.modify,
+          ...modifiedSchemaItems,
+        };
+
+        payload.remove = removedSchemaItems;
+      }
+
+      console.log("generateJSONFormSchema UPDATED", payload);
+
+      this.batchUpdateWidgetProperty(payload);
+    }
+
+    this.updateWidgetProperty("autoFormConfig", {
+      ...this.props.autoFormConfig,
+      config: {
+        ...JSONFormProps,
+        sourceData: currSourceData,
+        schema,
+      },
+    });
+
+    return computedSchema;
+  };
 
   pushResetPageNoUpdates = (prevProps: TableWidgetProps) => {
     const { onPageSizeChange, pageSize, pushBatchMetaUpdates } = this.props;
@@ -1621,11 +1621,16 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.getPaddingAdjustedDimensions();
     const tableColumns = this.getTableColumns() || emptyArr;
     const finalTableData = this.getFinalTableData();
+    const showConnectDataOverlay =
+      primaryColumns &&
+      !Object.keys(primaryColumns).length &&
+      this.props.renderMode === RenderModes.CANVAS;
     const isEditingMode =
       this.props.appMode === APP_MODE.EDIT && !this.props.isPreviewMode;
     console.group("Antd 表格 Table Widget 111");
     console.log(" this.props", this.props, this);
     console.log("tableColumns", tableColumns);
+    console.log(` showConnectDataOverlay`, showConnectDataOverlay);
 
     console.groupEnd();
 
@@ -1743,11 +1748,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           selectionColumnWidth={this.props.selectionColumnWidth}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
           setMetaInternalFieldState={this.setMetaInternalFieldState}
-          showConnectDataOverlay={
-            primaryColumns &&
-            !Object.keys(primaryColumns).length &&
-            this.props.renderMode === RenderModes.CANVAS
-          }
+          showConnectDataOverlay={showConnectDataOverlay}
           showQuickJumper={this.props.showQuickJumper}
           showSizeChanger={this.props.showSizeChanger}
           simplePagination={this.props.simplePagination}
@@ -2414,6 +2415,8 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           formData: values,
         },
       });
+    } else {
+      cb?.();
     }
   };
 }

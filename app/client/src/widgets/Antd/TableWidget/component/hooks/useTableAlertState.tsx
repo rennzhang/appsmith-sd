@@ -33,8 +33,10 @@ export function useTableAlertState(props: AntdTableProps) {
   >["tableAlertOptionRender"] = () => {
     return (
       <Space size={12}>
-        {getTableButtonRender(props.rowSelectionActions, (action) => {
-          props?.handleAlertBtnClick(action.onBtnClick);
+        {getTableButtonRender(props.rowSelectionActions, {
+          onClick: (action) => {
+            props?.handleAlertBtnClick(action.onBtnClick);
+          },
         })}
       </Space>
     );

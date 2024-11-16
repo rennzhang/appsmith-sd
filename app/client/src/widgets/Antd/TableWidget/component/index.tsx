@@ -20,6 +20,7 @@ import { omit, pick, difference } from "lodash";
 import React from "react";
 import { diff } from "deep-diff";
 import TableContext, { TableContextProvider } from "../widget/TableContext";
+import { ConnectDataOverlay } from "./ConnectDataOverlay";
 
 interface ReactTableComponentProps extends AntdTableProps, JSONFormProps {
   allowRowSelection: boolean;
@@ -99,6 +100,7 @@ const JSONFormRender = React.memo(
       (values) => {
         setJsonFormState({
           isSubmitting: true,
+          jsonFormData: values,
         });
 
         const targetActionName =
@@ -108,6 +110,9 @@ const JSONFormRender = React.memo(
         props.onJsonFormSubmit(values, targetActionName, () => {
           setJsonFormState({
             isSubmitting: false,
+            isJsonFormVisible: autoFormConfig.config.closeModalOnSubmit
+              ? false
+              : jsonFormState.isJsonFormVisible,
           });
         });
       },
@@ -118,50 +123,53 @@ const JSONFormRender = React.memo(
       ],
     );
     // 6. 优化 renderJSONForm 的依赖
-    const renderJSONForm = useMemo(
-      () =>
-        jsonFormState.isJsonFormVisible && (
-          <JSONFormComponent
-            {...processedFormProps}
-            className={`proTable-auto-jsonform ${
-              processedFormProps.jsonFormPopType === "drawer"
-                ? "pop-drawer"
-                : "pop-modal"
-            }
-            ${jsonFormState.jsonFormType === "view" ? "view-mode" : ""}
-          `}
-            disabled={jsonFormState.jsonFormType === "view"}
-            formMode={jsonFormState.jsonFormType}
-            hideSubmit={jsonFormState.jsonFormType === "view"}
-            initialValues={jsonFormState.jsonFormData}
-            isSubmitting={!!jsonFormState.isSubmitting}
-            maxHeight={processedFormProps.modalHeight}
-            onCancel={handleClose}
-            onSubmit={onSubmit}
-            ref={props.jsonFormRef}
-            renderMode={props.renderMode}
-            setMetaInternalFieldState={props.setMetaInternalFieldState}
-            title={undefined}
-            updateDefaultFormData={props.updateDefaultFormData}
-            updateWidgetFormData={props.updateWidgetFormData}
-            updateWidgetMetaProperty={props.updateWidgetMetaProperty}
-            updateWidgetProperty={props.updateWidgetProperty}
-            widgetId={props.widgetId + "-jsonform"}
-            widgetName={props.widgetName + "_JSONFORM"}
-          />
-        ),
-      [
-        jsonFormState,
-        jsonFormRef,
+    const renderJSONForm = useMemo(() => {
+      console.log("renderJSONForm", {
         processedFormProps,
-        jsonFormState.jsonFormType,
-        jsonFormState.isSubmitting,
-        onJsonFormSubmit,
-        widgetId,
-        widgetName,
-        restProps,
-      ],
-    );
+        jsonFormState,
+      });
+
+      return (
+        <JSONFormComponent
+          {...processedFormProps}
+          className={`proTable-auto-jsonform ${
+            processedFormProps.jsonFormPopType === "drawer"
+              ? "pop-drawer"
+              : "pop-modal"
+          }
+          ${jsonFormState.jsonFormType === "view" ? "view-mode" : ""}
+        `}
+          disabled={jsonFormState.jsonFormType === "view"}
+          formMode={jsonFormState.jsonFormType}
+          hideSubmit={jsonFormState.jsonFormType === "view"}
+          initialValues={jsonFormState.jsonFormData}
+          isSubmitting={!!jsonFormState.isSubmitting}
+          maxHeight={processedFormProps.modalHeight}
+          onCancel={handleClose}
+          onSubmit={onSubmit}
+          ref={props.jsonFormRef}
+          renderMode={props.renderMode}
+          setMetaInternalFieldState={props.setMetaInternalFieldState}
+          title={undefined}
+          updateDefaultFormData={props.updateDefaultFormData}
+          updateWidgetFormData={props.updateWidgetFormData}
+          updateWidgetMetaProperty={props.updateWidgetMetaProperty}
+          updateWidgetProperty={props.updateWidgetProperty}
+          widgetId={props.widgetId + "-jsonform"}
+          widgetName={props.widgetName + "_JSONFORM"}
+        />
+      );
+    }, [
+      jsonFormState,
+      jsonFormRef,
+      processedFormProps,
+      jsonFormState.jsonFormType,
+      jsonFormState.isSubmitting,
+      onJsonFormSubmit,
+      widgetId,
+      widgetName,
+      restProps,
+    ]);
 
     // 7. 优化 ConfigProvider 的主题配置
     const themeConfig = useMemo(
@@ -267,16 +275,21 @@ const LoadingFallback = () => <div>加载中...</div>;
 
 function ReactTableComponent(props: ReactTableComponentProps) {
   return (
-    <TableContextProvider
-      autoFormConfig={props.autoFormConfig}
-      batchUpdateWidgetProperty={props.batchUpdateWidgetProperty}
-      jsonFormRef={props.jsonFormRef}
-      primaryColumnId={props.primaryColumnId}
-      updateWidgetMetaProperty={props.updateWidgetMetaProperty}
-    >
-      <JSONFormRender {...props} />
-      <AntdProTableRender {...props} />
-    </TableContextProvider>
+    <>
+      {props.showConnectDataOverlay && (
+        <ConnectDataOverlay onConnectData={props.onConnectData} />
+      )}
+      <TableContextProvider
+        autoFormConfig={props.autoFormConfig}
+        batchUpdateWidgetProperty={props.batchUpdateWidgetProperty}
+        jsonFormRef={props.jsonFormRef}
+        primaryColumnId={props.primaryColumnId}
+        updateWidgetMetaProperty={props.updateWidgetMetaProperty}
+      >
+        <JSONFormRender {...props} />
+        <AntdProTableRender {...props} isTableLoading={props.isLoading} />
+      </TableContextProvider>
+    </>
   );
 }
 

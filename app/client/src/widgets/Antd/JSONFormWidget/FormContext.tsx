@@ -83,9 +83,9 @@ export function FormContextProvider({
 
       let hasChanges = isAdd ? true : false;
       if (!hasChanges) {
-        for (const key of Object.keys(values)) {
+        for (const key of Object.keys(values || {})) {
           const oldValue = get(formDataRef.current, key);
-          const newValue = values[key];
+          const newValue = values?.[key];
 
           if (!isEqual(oldValue, newValue)) {
             hasChanges = true;
@@ -108,7 +108,7 @@ export function FormContextProvider({
       hasChanges && updateWidgetFormData(newFormData);
       hasChanges &&
         formRef?.current
-          ?.validateFields(Object.keys(values))
+          ?.validateFields(Object.keys(values || {}))
           .then(() => {
             setFieldErrors([]);
           })

@@ -411,6 +411,18 @@ export const contentConfig = mergeWidgetConfig(
           validation: { type: ValidationTypes.TEXT },
         },
         {
+          propertyName: "closeModalOnSubmit",
+          helpText: "提交成功后关闭弹窗",
+          label: "提交成功后关闭弹窗",
+          controlType: "SWITCH",
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.BOOLEAN },
+          hidden: (props: JSONFormWidgetProps) =>
+            props.type !== "ANTD_PRO_TABLE_WIDGET",
+        },
+
+        {
           propertyName: "resetButtonLabel",
           helpText: "修改重置按钮文案",
           label: "重置按钮文案",
