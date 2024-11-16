@@ -250,15 +250,15 @@ const AntdProForm = (props: ProformContainerComponentProps, ref: any) => {
     console.log("handleFinsh values", values);
     // console.log("getFormData", getFormData(getChildContainer?.()));
 
-    console.log(" formRef.current", formRef?.current);
-    console.log(
-      " formRef.current getFieldsError",
-      formRef?.current?.getFieldsError(),
-    );
-    const val1 = await handleValidateFields();
-    console.log("validateFields:", val1);
-    const val2 = await formRef?.current?.validateFieldsReturnFormatValue?.();
-    console.log("validateFieldsReturnFormatValue:", val2);
+    // console.log(" formRef.current", formRef?.current);
+    // console.log(
+    //   " formRef.current getFieldsError",
+    //   formRef?.current?.getFieldsError(),
+    // );
+    // const val1 = await handleValidateFields();
+    // console.log("validateFields:", val1);
+    // const val2 = await formRef?.current?.validateFieldsReturnFormatValue?.();
+    // console.log("validateFieldsReturnFormatValue:", val2);
     console.groupEnd();
 
     onSubmit?.(values);
@@ -372,6 +372,7 @@ const AntdProForm = (props: ProformContainerComponentProps, ref: any) => {
       ),
     };
   }, [
+    hideSubmit,
     isDisabled,
     hideFooter,
     isSubmitting,
