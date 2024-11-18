@@ -104,8 +104,11 @@ export default {
       },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return showByColumnType(props, propertyPath, [
+          ColumnTypes.PASSWORD,
           ColumnTypes.INDEX,
           ColumnTypes.INDEX_BORDER,
+          ColumnTypes.IMAGE,
+          ColumnTypes.VIDEO,
         ]);
       },
     },

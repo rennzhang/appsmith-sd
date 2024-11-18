@@ -180,12 +180,11 @@ const getValueEnum = (column: TableColumnProps) => {
 
   if (
     [
-      ColumnTypes.NUMBER,
-      ColumnTypes.TEXT,
-      ColumnTypes.TEXTAREA,
-      ColumnTypes.MONEY,
       ColumnTypes.PASSWORD,
+      ColumnTypes.INDEX,
+      ColumnTypes.INDEX_BORDER,
       ColumnTypes.IMAGE,
+      ColumnTypes.VIDEO,
     ].includes(columnType)
   ) {
     return undefined;
