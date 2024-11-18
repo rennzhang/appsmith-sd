@@ -756,7 +756,7 @@ export const updateSelectSource = (
   const baseProperty = getBasePropertyPath(propertyPath);
   const selectSource = get(props, `${baseProperty}.options`);
   // 新增schema更新逻辑
-  const [, columnId, targetPropName] = propertyPath.split(".");
+  const [, columnId = "", targetPropName] = propertyPath.split(".");
 
   const column = props.primaryColumns[columnId];
 
@@ -789,14 +789,11 @@ export const updateSelectSource = (
     // selecting the select column type for the first time
     const computedValue = Array.from(
       new Set(
-        (
-          (
-            props.__evaluation__?.evaluatedValues?.orderedTableColumns as any[]
-          )?.[props.editingColumnIndex] as { computedValue: any[] }
-        )?.computedValue || [],
+        (props.__evaluation__?.evaluatedValues?.primaryColumns as any)?.[
+          columnId
+        ]?.computedValue || [],
       ),
     );
-    const [, columnId] = propertyPath.split(".");
 
     const selectOptions =
       computedValue?.map((c) => ({ label: String(c), value: c })) || [];
@@ -811,6 +808,8 @@ export const updateSelectSource = (
   }
 
   console.log("updateSelectSource", {
+    props,
+    targetPropName,
     propertiesToUpdate,
     column,
     propertyPath,
