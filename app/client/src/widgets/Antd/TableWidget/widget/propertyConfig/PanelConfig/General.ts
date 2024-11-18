@@ -36,6 +36,7 @@ export default {
       },
     },
     {
+      dependencies: ["primaryColumns", "columnType"],
       propertyName: "isVisibleCellSearch",
       label: "显示搜索表单",
       helpText: "支持表格上方显示搜索表单，用于远程搜索",
@@ -60,6 +61,7 @@ export default {
     },
     // isCellCopyable
     {
+      dependencies: ["primaryColumns", "columnType"],
       propertyName: "isCellCopyable",
       label: "支持复制",
       helpText: "支持表格单元格内容复制",
@@ -84,6 +86,7 @@ export default {
     },
     // isVisibleCellFilters
     {
+      dependencies: ["primaryColumns", "columnType"],
       propertyName: "isVisibleCellFilters",
       label: "启用列筛选",
       helpText: "启用列筛选",
