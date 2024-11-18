@@ -609,8 +609,8 @@ export const useColumnState = (props: AntdTableProps, extra: Extra) => {
 
         return proColumn;
       }) || [];
-    setInitialQueryData(initialQueryData);
-    props?.handleQueryDataChange(initialQueryData, true);
+    // setInitialQueryData(initialQueryData);
+    // props?.handleQueryDataChange(initialQueryData, true);
 
     const sortColumn = {
       title: "排序",
