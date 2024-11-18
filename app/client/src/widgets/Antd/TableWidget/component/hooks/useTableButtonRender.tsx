@@ -159,8 +159,6 @@ export const useButtonRender = () => {
       .sort((a, b) => a.index - b.index)
       .filter((c) => c.showButton);
 
-    console.log("getTableButtonRender", sortedButtons);
-
     return sortedButtons.map((button) =>
       button.buttonType === ButtonTypes.MENU_BUTTON
         ? renderMenuButton({ button, onClick, configToken, isHide, isLoading })

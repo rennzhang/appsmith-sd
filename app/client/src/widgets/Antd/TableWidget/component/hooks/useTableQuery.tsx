@@ -52,9 +52,13 @@ export const useTableQuery = (props: AntdTableProps) => {
       initialQueryData,
       props,
     });
+    const resetQueryData = {
+      pageNo: props.pageNo,
+      pageSize: props.pageSize,
+    };
 
-    setQueryData(initialQueryData);
-    props?.handleQueryDataChange(initialQueryData);
+    setQueryData(resetQueryData);
+    props?.handleQueryDataChange(resetQueryData);
   };
 
   const handleRequest = async (params: any, sort: any, filter: any) => {
@@ -69,7 +73,7 @@ export const useTableQuery = (props: AntdTableProps) => {
 
     setQueryData(params);
     console.log("antd 表格 dataSource request", dataSource);
-    props.handleQueryDataChange(params);
+    props.handleQueryDataChange(params, true);
     return {
       data: dataSource || [],
       success: true,

@@ -66,6 +66,7 @@ const ProtableRender = React.memo(function ProtableRender(
     handleRequest,
     onChange,
     pagination,
+    queryData,
     setDataSource,
     setInitialQueryData,
     sortInfo,
@@ -139,6 +140,11 @@ const ProtableRender = React.memo(function ProtableRender(
       expandable,
       form,
       loading: props.isLoading,
+
+      onSubmit: (params) => {
+        console.log("antd table onSubmit", params);
+        props.handleQueryDataChange(params);
+      },
       onReset: habdleReset,
       onRow: (record, index) => ({
         onClick: (e) => {
@@ -147,7 +153,13 @@ const ProtableRender = React.memo(function ProtableRender(
         },
       }),
       options: {
-        reload: props.isVisibleRefresh,
+        reload: props.isVisibleRefresh
+          ? (e, action) => {
+              console.log("antd table options reload", { e, action });
+              // action?.reload();
+              props.handleQueryDataChange(queryData);
+            }
+          : false,
         fullScreen: props.isVisibleFullScreen,
         density: props.isVisibleDensity,
         setting: props.isVisibleCellSetting ? { listsHeight: 400 } : false,

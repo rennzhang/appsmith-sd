@@ -1323,23 +1323,27 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       });
     }
   };
-  handleQueryDataChange = (params: any, isInit?: boolean) => {
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+  handleQueryDataChange = (params: any, onlyUpdate?: boolean) => {
     console.log("Antd 表格 handleQueryDataChange", params);
-
-    if (isInit) {
-      pushBatchMetaUpdates("queryData", params);
+    let actionPayload;
+    if (onlyUpdate) {
+      actionPayload = undefined;
     } else {
-      pushBatchMetaUpdates("queryData", params, {
-        triggerPropertyName: "onPageChange",
-        dynamicString: this.props.onPageChange,
-        event: {
-          type: EventType.ON_QUERY_CHANGE,
-        },
-      });
-
-      commitBatchMetaUpdates();
+      actionPayload = this.props.onPageChange
+        ? {
+            dynamicString: this.props.onPageChange,
+            event: {
+              type: EventType.ON_QUERY_CHANGE,
+            },
+          }
+        : undefined;
+      if (!this.props.onPageChange) {
+        message.warning("请配置查询事件");
+      }
     }
+
+    // this.props.updateWidgetMetaProperty("isLoading", true);
+    this.props.updateWidgetMetaProperty("queryData", params, actionPayload);
   };
 
   handleNextPageClick = () => {
@@ -1732,7 +1736,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           prevPageClick={this.handlePrevPageClick}
           primaryColumnId={this.props.primaryColumnId}
           primaryColumns={this.props.primaryColumns}
-          queryData={this.props.queryData}
           renderMode={this.props.renderMode}
           rowSelectionActions={this.props.rowSelectionActions}
           rowSelectionColumnAlign={this.props.rowSelectionColumnAlign}
