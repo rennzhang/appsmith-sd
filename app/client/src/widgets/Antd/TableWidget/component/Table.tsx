@@ -94,7 +94,6 @@ const ProtableRender = React.memo(function ProtableRender(
         } else if (action.id === "create") {
           if (props.editableColumn?.length) {
             setJsonFormState({
-              jsonFormData: {},
               isJsonFormVisible: true,
               jsonFormType: "add",
               isSubmitting: false,
@@ -120,6 +119,9 @@ const ProtableRender = React.memo(function ProtableRender(
     props.defaultNewRow,
     props.addNewRowPosition,
     props.primaryColumnId,
+    handleAddNewRow,
+    setJsonFormState,
+    props.handleAlertBtnClick,
   ]);
 
   const commonProps = useMemo<Omit<ProTableProps<any, any>, "onChange">>(
@@ -156,7 +158,6 @@ const ProtableRender = React.memo(function ProtableRender(
         reload: props.isVisibleRefresh
           ? (e, action) => {
               console.log("antd table options reload", { e, action });
-              // action?.reload();
               props.handleQueryDataChange(queryData);
             }
           : false,
@@ -202,6 +203,8 @@ const ProtableRender = React.memo(function ProtableRender(
       tableAlertOptionRender,
       tableAlertRender,
       dataSource,
+      props.handleQueryDataChange,
+      queryData,
     ],
   );
 
