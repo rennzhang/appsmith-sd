@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import "rc-tree-select/assets/index.less";
 import type { DefaultValueType } from "rc-tree-select/lib/interface";
 import type { RenderMode, TextSize } from "constants/WidgetConstants";
@@ -9,6 +9,8 @@ import type { SelectProps } from "antd";
 import { ConfigProvider, Select } from "antd";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
+import { diff } from "deep-diff";
+import { omit, isEqual } from "lodash";
 
 export interface SelectComponentProps {
   valueKey: string;
@@ -295,5 +297,29 @@ function SelectComponent(props: SelectComponentProps): JSX.Element {
     </AntdFormItemContainer>
   );
 }
+const arePropsEqual = (
+  prevProps: SelectComponentProps,
+  nextProps: SelectComponentProps,
+) => {
+  const _prevProps = omit(prevProps, "inputRef");
+  const _nextProps = omit(nextProps, "inputRef");
+  // 开发环境打印diff;
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = diff(_prevProps, _nextProps);
+    diffProps &&
+      console.log("AntdSelect memo diff", {
+        p: prevProps,
+        pJson: JSON.stringify(_prevProps),
+        n: nextProps,
+        nJson: JSON.stringify(_nextProps),
+        diff: diffProps,
+        isSame: isEqual(_prevProps, _nextProps),
+      });
+  }
 
-export default SelectComponent;
+  return isEqual(_prevProps, _nextProps);
+};
+
+export default memo(SelectComponent, arePropsEqual);
+
+// export default SelectComponent;
