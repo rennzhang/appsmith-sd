@@ -349,6 +349,22 @@ export default [
             ""
           );
         },
+        updateHook: (
+          props: TableWidgetProps,
+          propertyPath: string,
+          propertyValue: any,
+        ) => {
+          const propertiesToUpdate = [];
+          propertiesToUpdate.push({
+            propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${props.primaryColumnId}.isVisible`,
+            propertyValue: true,
+          });
+          propertiesToUpdate.push({
+            propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${propertyValue}.isVisible`,
+            propertyValue: false,
+          });
+          return propertiesToUpdate;
+        },
         validation: {
           type: ValidationTypes.TEXT,
         },
