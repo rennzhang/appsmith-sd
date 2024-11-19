@@ -20,6 +20,7 @@ export const useFieldPropsHandler = ({
   const {
     executeAction,
     formLayout,
+    formMode,
     formRef,
     initialValues,
     updateDefaultFormData,
@@ -43,6 +44,16 @@ export const useFieldPropsHandler = ({
     schemaItem.defaultValue,
   );
   const inputDefaultValue = (() => {
+    console.log("useFieldPropsHandler initialValues", {
+      formMode,
+      initialValues,
+      schemaItem,
+    });
+
+    // 如果formMode有值，则是在 ProTable 中使用，需要使用 sourceData 作为默认值
+    if (formMode) {
+      return initialValues?.[name] ?? schemaItem?.defaultValue;
+    }
     if (passedDefaultValue === undefined) {
       return schemaItem?.defaultValue || initialValues?.[name];
     }
@@ -65,7 +76,7 @@ export const useFieldPropsHandler = ({
       });
       setDefaultValue(schemaItem.defaultValue);
     }
-  }, [schemaItem.defaultValue, inputDefaultValue]);
+  }, [schemaItem.defaultValue]);
   const fieldProps = useMemo(() => {
     const getUpdatedValue = <T>(
       schemaValue: T,
