@@ -1228,3 +1228,30 @@ export const getFormFieldTypeFromColumnType = (column: ColumnProperties) => {
     // ...selectProps,
   };
 };
+
+export const resetToDefaultValues = (
+  data: Record<string, unknown>,
+): Record<string, unknown> => {
+  return _.mapValues(data, (value) => {
+    // 根据原值类型设置默认值
+    switch (typeof value) {
+      case "string":
+        return "";
+      case "number":
+        return 0;
+      case "boolean":
+        return false;
+      case "object":
+        if (Array.isArray(value)) {
+          return [];
+        }
+        if (value === null) {
+          return null;
+        }
+        // 如果是对象则递归处理
+        return resetToDefaultValues(value as Record<string, unknown>);
+      default:
+        return undefined;
+    }
+  });
+};

@@ -5,10 +5,12 @@ import type {
   JSONFormState,
 } from "../constants";
 import { message } from "antd";
+import type { ProFormInstance } from "@ant-design/pro-components";
+import { resetToDefaultValues } from "./propertyUtils";
 
 // 定义 TableContext 的 Props 类型
 type TableContextProps = React.PropsWithChildren<{
-  jsonFormRef: React.RefObject<any>;
+  jsonFormRef: React.RefObject<ProFormInstance>;
   primaryColumnId: AntdTableProps["primaryColumnId"];
   // 从 JSONFormProps 继承的属性
   autoFormConfig: AntdTableProps["autoFormConfig"];
@@ -72,6 +74,7 @@ const cleanObject = (obj?: Record<string, unknown>) => {
 
   return cleanedObj;
 };
+
 // 创建 Context
 const TableContext = createContext<TableContextValueReturnProps>(
   {} as TableContextValueReturnProps,
@@ -98,24 +101,29 @@ export function TableContextProvider({
   }, [jsonFormState.jsonFormType, autoFormConfig.config]);
 
   const setJsonFormState = (state: Partial<typeof jsonFormState>) => {
+    jsonFormRef.current?.resetFields();
     console.log("Antd ProTable provider setJsonFormState", {
       state,
       primaryColumnId,
+      resetValue: jsonFormRef.current?.getFieldsValue(),
     });
     const jsonFormData =
       cleanObject(state.jsonFormData) || jsonFormState.jsonFormData;
-
+    const sourceData =
+      state.jsonFormType === "add"
+        ? resetToDefaultValues(jsonFormData || {})
+        : jsonFormData;
     setFormState((prevState) => ({
       ...prevState,
       ...state,
-      jsonFormData: jsonFormData,
+      jsonFormData: sourceData,
     }));
     setTimeout(() => {
       if (state.isJsonFormVisible) {
         batchUpdateWidgetProperty(
           {
             modify: {
-              "autoFormConfig.config.sourceData": jsonFormData,
+              "autoFormConfig.config.sourceData": sourceData,
             },
           },
           false,

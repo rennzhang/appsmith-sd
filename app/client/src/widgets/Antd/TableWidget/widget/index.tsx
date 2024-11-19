@@ -130,6 +130,7 @@ import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 import { message } from "antd";
 import { schema } from "normalizr";
+import { resetToDefaultValues } from "./propertyUtils";
 
 const ReactTableComponent = lazy<ComponentType<AntdTableProps>>(() =>
   retryPromise(() => import("../component")),
@@ -261,33 +262,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   state = {
     resetObserverCallback: noop,
     metaInternalFieldState: {},
-  };
-
-  resetToDefaultValues = (
-    obj: Record<string, unknown>,
-  ): Record<string, unknown> => {
-    return _.mapValues(obj, (value) => {
-      // 根据原值类型设置默认值
-      switch (typeof value) {
-        case "string":
-          return "";
-        case "number":
-          return 0;
-        case "boolean":
-          return false;
-        case "object":
-          if (Array.isArray(value)) {
-            return [];
-          }
-          if (value === null) {
-            return null;
-          }
-          // 如果是对象则递归处理
-          return this.resetToDefaultValues(value as Record<string, unknown>);
-        default:
-          return undefined;
-      }
-    });
   };
 
   computeDynamicPropertyPathList = (schema: Schema) => {
@@ -842,7 +816,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.batchUpdateWidgetProperty({
       modify: {
         sourceData: initialSourceData,
-        defaultFormData: this.resetToDefaultValues(initialSourceData || {}),
+        defaultFormData: resetToDefaultValues(initialSourceData || {}),
       },
     });
   }
