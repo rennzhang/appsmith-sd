@@ -71,6 +71,7 @@ export class DroppableComponent<
     return {
       id: item.id,
       label: item.label,
+      value: item.value,
       isVisible: item.isVisible,
       isDuplicateLabel: item.isDuplicateLabel,
       isChecked: item.isChecked,

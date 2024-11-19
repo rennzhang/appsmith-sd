@@ -107,6 +107,8 @@ class AntdSelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         sectionName: "数据",
         children: [
           {
+            isDraggable: true,
+
             helpText: "选项值唯一的数组",
             propertyName: "options",
             label: "源数据",

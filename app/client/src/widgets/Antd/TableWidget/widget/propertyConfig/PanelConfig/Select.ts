@@ -32,6 +32,7 @@ export default {
       helpText: "可供选择的选项列表",
       label: "选项数据",
       controlType: "OPTION_INPUT",
+      isDraggable: true,
       placeholderText: "请输入选项数据",
       isJSConvertible: true,
       isBindProperty: true,

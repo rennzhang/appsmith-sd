@@ -3,12 +3,21 @@ import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { DropdownOption } from "components/constants";
 import { KeyValueComponent } from "./KeyValueComponent";
+import { KeyValueComponentWithDrag } from "./KeyValueComponentWithDrag";
+
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { SegmentedControlOption } from "design-system";
 
-class OptionControl extends BaseControl<ControlProps> {
+class OptionControl extends BaseControl<
+  ControlProps & { isDraggable: boolean }
+> {
   render() {
-    return (
+    return this.props.isDraggable ? (
+      <KeyValueComponentWithDrag
+        pairs={this.props.propertyValue}
+        updatePairs={this.updateOptions}
+      />
+    ) : (
       <KeyValueComponent
         pairs={this.props.propertyValue}
         updatePairs={this.updateOptions}
