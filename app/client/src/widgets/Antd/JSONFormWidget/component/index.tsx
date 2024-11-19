@@ -209,6 +209,7 @@ function JSONFormComponent<TValues>(
     schema,
     formItems,
     props,
+    formRef,
   });
 
   return (
@@ -222,7 +223,7 @@ function JSONFormComponent<TValues>(
       formLayout={rest.formLayout}
       formMode={formMode}
       formRef={formRef}
-      initialValues={props.initialValues}
+      initialValues={initialValues}
       renderMode={renderMode}
       setFieldErrors={setFieldErrors}
       setMetaInternalFieldState={setMetaInternalFieldState}
@@ -238,6 +239,7 @@ function JSONFormComponent<TValues>(
         formItems={formItems}
         formRef={formRef}
         hideFooter={hideFooter}
+        initialValues={initialValues}
         isFixedFooter={rest.isFixedFooter}
         maxHeight={props.maxHeight}
         onCancel={onCancel}

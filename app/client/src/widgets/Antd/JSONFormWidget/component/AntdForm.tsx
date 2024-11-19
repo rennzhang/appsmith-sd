@@ -39,6 +39,7 @@ import FormContext from "../FormContext";
 import { diff } from "deep-diff";
 
 export interface ProformContainerComponentProps {
+  formMode?: "add" | "edit" | "view";
   fieldErrors?: FieldError[];
   isDisabled?: boolean;
   className?: string;
@@ -163,6 +164,12 @@ const AntdProForm = (props: ProformContainerComponentProps, ref: any) => {
     formRef?.current?.setFieldsValue(initialValues);
     updateFormData(initialValues);
   }, [initialValues]);
+
+  useEffect(() => {
+    if (props.formMode == "add") {
+      formRef?.current?.resetFields();
+    }
+  }, [props.formMode]);
 
   const updateErrorFidlds = (errorFields?: FieldError[]) => {
     // 按照formItems的顺序排序，返回格式和errorFields一致，并在每个item中增加label字段，只返回有错误的字段
