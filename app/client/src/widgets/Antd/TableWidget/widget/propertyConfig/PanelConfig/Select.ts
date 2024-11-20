@@ -7,6 +7,7 @@ import {
 } from "widgets/Antd/Form/CONST/DEFAULT_CONFIG";
 import type { TableWidgetProps } from "widgets/Antd/TableWidget/constants";
 import { ColumnTypes } from "widgets/Antd/TableWidget/constants";
+import { get } from "lodash";
 
 const dependencies = [
   "tableData",
@@ -17,8 +18,18 @@ const dependencies = [
   "orderedTableColumns",
 ];
 export default {
-  sectionName: "选项配置",
+  sectionName: "组件配置",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
+    const columnType = get(props, `${propertyPath}.columnType`, "");
+    const showSelectInSearchForm = get(
+      props,
+      `${propertyPath}.showSelectInSearchForm`,
+      "",
+    );
+
+    if (columnType == ColumnTypes.SWITCH && showSelectInSearchForm) {
+      return false;
+    }
     return hideByColumnType(
       props,
       propertyPath,

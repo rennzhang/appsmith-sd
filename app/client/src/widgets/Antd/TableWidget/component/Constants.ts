@@ -337,6 +337,7 @@ export interface ColumnProperties
     DateColumnProperties,
     ColumnEditabilityProperties,
     EditActionColumnProperties {
+  showSelectInSearchForm?: boolean;
   isRangeInSearch?: boolean;
   columnWidth?: number;
   isVisibleCellFilters: boolean;

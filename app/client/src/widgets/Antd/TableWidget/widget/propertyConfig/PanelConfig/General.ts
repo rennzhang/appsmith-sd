@@ -248,6 +248,32 @@ export default {
       ],
       updateHook: updateColumnOrderWhenFrozen,
     },
+    // 在搜索表单中显示为选择器
+    {
+      propertyName: "showSelectInSearchForm",
+      label: "在搜索表单中显示为选择器",
+      helpText:
+        "开启后在搜索表单中显示为选择器，可用于需要在查询传入空值的情况",
+      controlType: "SWITCH",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.BOOLEAN },
+      dependencies: [
+        "primaryColumnId",
+        "primaryColumns",
+        "columnOrder",
+        "columnType",
+        "childStylesheet",
+        "tableInlineEditType",
+      ],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+
+        return columnType !== ColumnTypes.SWITCH;
+      },
+    },
   ],
 };
 

@@ -2,6 +2,7 @@ import type { Key } from "react";
 import { useMemo } from "react";
 import type { ProFieldValueType, ProSchema } from "@ant-design/pro-components";
 import {
+  ProFormSelect,
   ProFormDateRangePicker,
   type ProColumns,
 } from "@ant-design/pro-components";
@@ -19,6 +20,8 @@ import styled from "styled-components";
 import useButtonRender from "./useTableButtonRender";
 import dayjs from "dayjs";
 import type { SorterResult, SortOrder } from "antd/es/table/interface";
+import AntdSelect from "widgets/Antd/Form/SelectWidget/component";
+import { CONFIG as AntdSelectConfig } from "widgets/Antd/Form/SelectWidget";
 const { RangePicker } = DatePicker;
 const getRules = (column: TableColumnProps) => {
   const { columnProperties } = column;
@@ -569,6 +572,17 @@ export const useColumnState = (props: AntdTableProps, extra: Extra) => {
                     const dataValue = date ? dateString : null;
                     form?.setFieldValue(column.id, dataValue);
                   }}
+                />
+              );
+            } else if (column.columnProperties.showSelectInSearchForm) {
+              return (
+                <AntdSelect
+                  {...AntdSelectConfig.defaults}
+                  {...(schema.fieldProps as any)}
+                  handleValueChange={(value) => {
+                    form?.setFieldValue(column.id, value);
+                  }}
+                  labelText={undefined}
                 />
               );
             }
