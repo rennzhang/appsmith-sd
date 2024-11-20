@@ -273,7 +273,7 @@ function SelectComponent(props: SelectComponentProps): JSX.Element {
         >
           <Select
             allowClear={allowClear}
-            defaultValue={defaultValue || undefined}
+            defaultValue={defaultValue ?? undefined}
             disabled={disabled}
             fieldNames={fieldNamesValue}
             filterOption={handleFilter}
@@ -288,7 +288,7 @@ function SelectComponent(props: SelectComponentProps): JSX.Element {
             showSearch={showSearch}
             size={controlSize}
             tokenSeparators={tokenSeparators}
-            value={value || undefined}
+            value={value ?? undefined}
             labelInValue
             // listHeight={height}
           />
