@@ -206,6 +206,14 @@ class AntdAntdJSONFormComputeControl extends BaseControl<JSONFormComputeControlP
       propertyValue.length - suffixTemplate.length,
     );
 
+    console.log("getInputComputedValue", {
+      value,
+      prefixTemplate,
+      suffixTemplate,
+      propertyValue,
+      widgetName,
+    });
+
     return JSToString(value);
   };
 
@@ -296,10 +304,10 @@ class AntdAntdJSONFormComputeControl extends BaseControl<JSONFormComputeControlP
     const value = (() => {
       if (propertyValue && isDynamicValue(propertyValue)) {
         const { type, widgetName } = this.props.widgetProperties;
-        let _widgetName = widgetName;
-        if (type === "ANTD_PRO_TABLE_WIDGET") {
-          _widgetName = widgetName + ".autoFormConfig.config";
-        }
+        const _widgetName = widgetName;
+        // if (type === "ANTD_PRO_TABLE_WIDGET") {
+        //   _widgetName = widgetName + ".autoFormConfig.config";
+        // }
         return AntdAntdJSONFormComputeControl.getInputComputedValue(
           propertyValue,
           _widgetName,
