@@ -334,7 +334,11 @@ export default [
           "数据主键值唯一，用于表格的 selectedRows 和 triggeredRows、行内编辑等功能，该列必须存在且不允许编辑",
         propertyName: "primaryColumnId",
         dependencies: ["tableData", "primaryColumns"],
-        evaluatedDependencies: ["tableData", "primaryColumns"],
+        evaluatedDependencies: [
+          "tableData",
+          "primaryColumns",
+          "autoFormConfig",
+        ],
         label: "主键列",
         controlType: "PRIMARY_COLUMNS_DROPDOWN",
         isBindProperty: true,
@@ -355,15 +359,33 @@ export default [
           propertyValue: any,
         ) => {
           const propertiesToUpdate = [];
-          propertiesToUpdate.push({
-            propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${props.primaryColumnId}.isVisible`,
-            propertyValue: true,
+          const prevSchemaChildren = (
+            props.__evaluation__?.evaluatedValues?.autoFormConfig as any
+          )?.config?.schema?.__root_schema__?.children;
+
+          console.log("primaryColumnId updateHook", {
+            props,
+            propertyPath,
+            propertyValue,
+            prevSchemaChildren,
           });
-          propertiesToUpdate.push({
-            propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${propertyValue}.isVisible`,
-            propertyValue: false,
-          });
-          return propertiesToUpdate;
+
+          if (
+            props?.primaryColumnId &&
+            prevSchemaChildren?.[props?.primaryColumnId]
+          ) {
+            propertiesToUpdate.push({
+              propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${props.primaryColumnId}.isVisible`,
+              propertyValue: true,
+            });
+          }
+          if (propertyValue && prevSchemaChildren?.[propertyValue]) {
+            propertiesToUpdate.push({
+              propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${propertyValue}.isVisible`,
+              propertyValue: false,
+            });
+          }
+          return propertiesToUpdate?.length ? propertiesToUpdate : undefined;
         },
         validation: {
           type: ValidationTypes.TEXT,

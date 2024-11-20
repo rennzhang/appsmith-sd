@@ -661,7 +661,10 @@ export const updateCustomColumnAliasOnLabelChange = (
       propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.labelText`,
       propertyValue: propertyValue,
     });
-  } else if (targetPropName === "isEditable") {
+  } else if (
+    targetPropName === "isEditable" &&
+    prevSchema?.__root_schema__?.children?.[columnId]
+  ) {
     propertiesToUpdate.push({
       propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.isVisible`,
       propertyValue: propertyValue,
@@ -726,10 +729,10 @@ export const updateColumnProperties = (
   }> = [];
   // isVisibleCellFilters 在置顶类型下，默认是true
   const supportFilterColumnTypes = [
+    ColumnTypes.TREE_SELECT,
     ColumnTypes.SELECT,
     ColumnTypes.RADIO,
     ColumnTypes.CHECKBOX,
-    ColumnTypes.SWITCH,
   ];
   const baseProperty = getBasePropertyPath(propertyPath);
 
@@ -779,9 +782,13 @@ export const updateSelectSource = (
   }
 
   if (
-    [ColumnTypes.SELECT, ColumnTypes.CHECKBOX, ColumnTypes.RADIO].includes(
-      propertyValue as ColumnTypes,
-    ) &&
+    [
+      ColumnTypes.SELECT,
+      ColumnTypes.TREE_SELECT,
+      ColumnTypes.CHECKBOX,
+      ColumnTypes.RADIO,
+      ColumnTypes.SWITCH,
+    ].includes(propertyValue as ColumnTypes) &&
     !selectSource?.legnth
   ) {
     console.log("selectSource", props);
@@ -1119,10 +1126,8 @@ export const tableDataValidation = (
     );
     if (arrayProperties?.length) {
       // 优先使用属性名中包含 data records 字符的数组
-      const suggestKey = arrayProperties.find(
-        (key) =>
-          key?.toLowerCase?.()?.includes("data") ||
-          key?.toLowerCase?.()?.includes("records"),
+      const suggestKey = arrayProperties.find((key) =>
+        /items|data|records/i.test(key),
       );
       if (suggestKey) {
         parsed = parsed[suggestKey as keyof typeof parsed];

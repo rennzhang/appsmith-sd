@@ -35,6 +35,7 @@ export const CONFIG = {
   needsHeightForContent: true,
 
   defaults: {
+    fieldState: {},
     formData: {},
     defaultFormData: {},
     sourceData: {},
