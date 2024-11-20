@@ -10569,7 +10569,7 @@ __metadata:
     classnames: ^2.3.1
     click-to-react-component: ^1.1.0
     clsx: ^1.2.1
-    code-inspector-plugin: ^0.17.4
+    code-inspector-plugin: ^0.18.2
     codemirror: ^5.65.13
     codemirror-graphql: ^1.2.14
     compression-webpack-plugin: ^10.0.0
@@ -13575,27 +13575,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"code-inspector-core@npm:0.17.4":
-  version: 0.17.4
-  resolution: "code-inspector-core@npm:0.17.4"
+"code-inspector-core@npm:0.18.2":
+  version: 0.18.2
+  resolution: "code-inspector-core@npm:0.18.2"
   dependencies:
     "@vue/compiler-dom": ^3.2.47
     chalk: ^4.1.1
+    dotenv: ^16.1.4
+    launch-ide: 1.0.0
     portfinder: ^1.0.28
-  checksum: 766a9aa7fe305a5d914178dc46eb8af6d7152dcc14d52fd662de1369f0508e9cd872ab99323b74d5efe5d9442ddb450c046a8e4ba9fb2a1fdd9c81b417839adf
+  checksum: 3f13d742ba06a0391413edf79b5e735938778ffa21cd357930c9c76a90c6f7657dc0973119749f9c84c56c8e8a10788cfc4ffc7a640b1b707cc009a5b0b2348e
   languageName: node
   linkType: hard
 
-"code-inspector-plugin@npm:^0.17.4":
-  version: 0.17.4
-  resolution: "code-inspector-plugin@npm:0.17.4"
+"code-inspector-plugin@npm:^0.18.2":
+  version: 0.18.2
+  resolution: "code-inspector-plugin@npm:0.18.2"
   dependencies:
     chalk: 4.1.1
-    code-inspector-core: 0.17.4
-    esbuild-code-inspector-plugin: 0.17.4
-    vite-code-inspector-plugin: 0.17.4
-    webpack-code-inspector-plugin: 0.17.4
-  checksum: dbfc47169422c74f8bf2adae3ed771f90b7cce49461bc1a33f0faef78dbb569ea421d2b049ca6f21db3161693a2141162f1ed808b33912ddfbec94a2d181a8d4
+    code-inspector-core: 0.18.2
+    dotenv: ^16.3.1
+    esbuild-code-inspector-plugin: 0.18.2
+    vite-code-inspector-plugin: 0.18.2
+    webpack-code-inspector-plugin: 0.18.2
+  checksum: 2b0005db2551245295042b3656243bd05a9b8a070c7e189b7728793e1bf3d851cf1e413896cf1080afe42858377ba861805bdf3766867c80d2436d7784e9d8c1
   languageName: node
   linkType: hard
 
@@ -15908,10 +15911,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:^16.0.0":
-  version: 16.3.1
-  resolution: "dotenv@npm:16.3.1"
-  checksum: 15d75e7279018f4bafd0ee9706593dd14455ddb71b3bcba9c52574460b7ccaf67d5cf8b2c08a5af1a9da6db36c956a04a1192b101ee102a3e0cf8817bbcf3dfd
+"dotenv@npm:^16.0.0, dotenv@npm:^16.1.4, dotenv@npm:^16.3.1":
+  version: 16.4.5
+  resolution: "dotenv@npm:16.4.5"
+  checksum: 301a12c3d44fd49888b74eb9ccf9f07a1f5df43f489e7fcb89647a2edcd84c42d6bc349dc8df099cd18f07c35c7b04685c1a4f3e6a6a9e6b30f8d48c15b7f49c
   languageName: node
   linkType: hard
 
@@ -16451,12 +16454,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild-code-inspector-plugin@npm:0.17.4":
-  version: 0.17.4
-  resolution: "esbuild-code-inspector-plugin@npm:0.17.4"
+"esbuild-code-inspector-plugin@npm:0.18.2":
+  version: 0.18.2
+  resolution: "esbuild-code-inspector-plugin@npm:0.18.2"
   dependencies:
-    code-inspector-core: 0.17.4
-  checksum: cf5c9b5d834b0076ff775d170c648aba9cf1d288abe8bc914a146358baf5a097348987f0a07486f51322a93e474168bc3f88ca72556f4e1e7b24fac16dbfbd40
+    code-inspector-core: 0.18.2
+  checksum: 0cb8229fdd7055a6a0dd1c4cbdb5244859b7003bc49da9fcbe37ca3d77579ae415ff30ebcf3d21c09a7a8220a46f5a2924cd1ec1701cc0c904f430859b6a4a82
   languageName: node
   linkType: hard
 
@@ -22323,6 +22326,16 @@ __metadata:
     picocolors: ^1.0.0
     shell-quote: ^1.8.1
   checksum: e06d193075ac09f7f8109f10cabe464a211bf7ed4cbe75f83348d6f67bf4d9f162f06e7a1ab3e1cd7fc250b5342c3b57080618aff2e646dc34248fe499227601
+  languageName: node
+  linkType: hard
+
+"launch-ide@npm:1.0.0":
+  version: 1.0.0
+  resolution: "launch-ide@npm:1.0.0"
+  dependencies:
+    chalk: ^4.1.1
+    dotenv: ^16.1.4
+  checksum: 92ab2c8dbf778c33776cbf617ec6290a2270e1e550aea82629a62b20eb2a73010a519c2793cc4f33f7302151505815c4b6b0818dd6e73e54eeefde994bca1a05
   languageName: node
   linkType: hard
 
@@ -33141,12 +33154,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-code-inspector-plugin@npm:0.17.4":
-  version: 0.17.4
-  resolution: "vite-code-inspector-plugin@npm:0.17.4"
+"vite-code-inspector-plugin@npm:0.18.2":
+  version: 0.18.2
+  resolution: "vite-code-inspector-plugin@npm:0.18.2"
   dependencies:
-    code-inspector-core: 0.17.4
-  checksum: 84855c6876ff2d57544737d854b01251eae95a60f3d334b3b347cd4f1b2e073ea9deca5be870c212f6e7a37cc0547db74057a2896906077fde9adbc1d7deb5f2
+    code-inspector-core: 0.18.2
+  checksum: 0fa7485b543128029eb7b7d8172a1cc448eaa29f35d29c27a2a7738826f79db7709b465c6b974774f477909737466cda2b08ee2f4453c107a915e9cc03237475
   languageName: node
   linkType: hard
 
@@ -33384,12 +33397,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-code-inspector-plugin@npm:0.17.4":
-  version: 0.17.4
-  resolution: "webpack-code-inspector-plugin@npm:0.17.4"
+"webpack-code-inspector-plugin@npm:0.18.2":
+  version: 0.18.2
+  resolution: "webpack-code-inspector-plugin@npm:0.18.2"
   dependencies:
-    code-inspector-core: 0.17.4
-  checksum: 1aeff691d1fe5990de04a5005a5264ec8162520be2a168d35c7ac8e17086eb74040b8b656a8dd3982f22dad1f42c06dbd78f3e979d4903ef9a4d5d262d7cbab0
+    code-inspector-core: 0.18.2
+  checksum: 7f1f6b43b086d78e8933bae76ee8fc6e915c7171bfad7f692457c06730f83082d44ad5cd8eb7fbfdd5baf0bfd8114d07eec538a7dcfd1c303d70a19e16aea0e2
   languageName: node
   linkType: hard
 
