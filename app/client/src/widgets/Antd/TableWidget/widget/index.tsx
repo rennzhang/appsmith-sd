@@ -1084,6 +1084,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             ...this.props.autoFormConfig,
             config: {
               ...JSONFormProps,
+              sourceData: currSourceData,
               schema,
             },
           },
@@ -1096,8 +1097,21 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
         payload.remove = removedSchemaItems;
       }
+      payload.modify = {
+        ...payload.modify,
+        sourceData: currSourceData,
+        formData: currSourceData,
+      };
 
-      console.log("generateJSONFormSchema UPDATED", payload);
+      console.log("generateJSONFormSchema UPDATED", {
+        payload,
+        currSourceData,
+        schema,
+        prevSchema,
+        dynamicPropertyPathList,
+        modifiedSchemaItems,
+        removedSchemaItems,
+      });
 
       this.batchUpdateWidgetProperty(payload);
     }
