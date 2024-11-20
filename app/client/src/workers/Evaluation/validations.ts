@@ -576,7 +576,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     const validate = (type: ValidationTypes) =>
       VALIDATORS[type](config, value, props, propertyPath);
 
-    const [numberResult, textResult] = [NUMBER, TEXT].map(validate);
+    const [textResult, numberResult] = [NUMBER, TEXT].map(validate);
     return numberResult.isValid ? numberResult : textResult;
   },
   // TODO(abhinav): The original validation does not make sense fix this.
