@@ -70,7 +70,10 @@ export default {
       isBindProperty: true,
       isTriggerProperty: true,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT]);
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.SELECT,
+          ColumnTypes.TREE_SELECT,
+        ]);
       },
       dependencies: ["primaryColumns"],
     },

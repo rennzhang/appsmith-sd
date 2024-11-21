@@ -286,6 +286,7 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.TEXT,
   ColumnTypes.NUMBER,
   ColumnTypes.SELECT,
+  ColumnTypes.TREE_SELECT,
   ColumnTypes.CHECKBOX,
   ColumnTypes.SWITCH,
   ColumnTypes.DATE_RANGE,

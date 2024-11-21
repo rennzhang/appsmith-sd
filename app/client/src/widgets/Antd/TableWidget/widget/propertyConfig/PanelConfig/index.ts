@@ -8,6 +8,7 @@ import General, { GeneralStyle } from "./General";
 import Icon from "./Icon";
 
 import Select from "./Select";
+import TreeSelect from "./TreeSelect";
 import TextFormatting from "./TextFormatting";
 import Validations from "./Validation";
 // import DateProperties from "./DateProperties";
@@ -23,6 +24,7 @@ export default {
     General,
     Validations,
     Select,
+    TreeSelect,
     Events /* DateProperties */,
   ],
   styleChildren: [

@@ -1214,6 +1214,9 @@ export const getFormFieldTypeFromColumnType = (column: ColumnProperties) => {
     case ColumnTypes.SELECT:
       targetProps.fieldType = FieldType.MULTISELECT;
       break;
+    case ColumnTypes.TREE_SELECT:
+      targetProps.fieldType = FieldType.TREESELECT;
+      break;
     case ColumnTypes.MONEY:
     case ColumnTypes.INDEX:
     case ColumnTypes.INDEX_BORDER:

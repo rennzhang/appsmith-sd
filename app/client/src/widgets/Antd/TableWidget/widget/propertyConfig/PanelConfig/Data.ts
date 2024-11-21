@@ -51,6 +51,10 @@ export default {
           value: ColumnTypes.SELECT,
         },
         {
+          label: "树形选择",
+          value: ColumnTypes.TREE_SELECT,
+        },
+        {
           label: "开关",
           value: ColumnTypes.SWITCH,
         },
@@ -140,10 +144,7 @@ export default {
         //   label: "级联选择",
         //   value: ColumnTypes.CASCADE,
         // },
-        // {
-        //   label: "树形选择",
-        //   value: ColumnTypes.TREE_SELECT,
-        // },
+
         // {
         //   label: "颜色选择器",
         //   value: ColumnTypes.COLOR,
@@ -272,6 +273,7 @@ export default {
           ColumnTypes.CHECKBOX,
           ColumnTypes.SWITCH,
           ColumnTypes.SELECT,
+          ColumnTypes.TREE_SELECT,
         ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],

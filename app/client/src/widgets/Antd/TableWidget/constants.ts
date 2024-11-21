@@ -418,11 +418,11 @@ export enum ColumnTypes {
   TEXTAREA = "textarea",
   INDEX = "index",
   INDEX_BORDER = "indexBorder",
+  TREE_SELECT = "treeSelect",
   // PROGRESS = "progress",
   // CODE = "code",
   // JSON_CODE = "jsonCode",
   // CASCADER = "cascader",
-  // TREE_SELECT = "treeSelect",
   // SEGMENTED = "segmented",
   // GROUP = "group",
 }
