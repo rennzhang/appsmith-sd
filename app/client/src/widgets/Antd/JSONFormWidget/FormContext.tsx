@@ -77,9 +77,7 @@ export function FormContextProvider({
   const debouncedUpdate = useCallback(
     debounce(async (values: any, cb?: (values: any) => void) => {
       const isAdd = formMode === "add";
-      const newFormData = isAdd
-        ? {}
-        : { ...formRef?.current?.getFieldsValue(), ...values };
+      const newFormData = { ...formRef?.current?.getFieldsValue(), ...values };
 
       let hasChanges = isAdd ? true : false;
       if (!hasChanges) {
