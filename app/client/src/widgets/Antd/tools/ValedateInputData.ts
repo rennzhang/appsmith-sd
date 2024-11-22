@@ -179,11 +179,15 @@ export function childrenKeyValidation(
     props,
     propsData,
   });
-  let parsedValue: any[] | undefined;
-  if (props.type === "ANTD_PRO_TABLE_WIDGET") {
-    sourceData =
-      props.orderedTableColumns?.[props.editingColumnIndex]?.options || [];
+  try {
+    if (_.isString(sourceData)) {
+      sourceData = JSON.parse(sourceData);
+    }
+  } catch (error) {
+    sourceData = [];
   }
+  let parsedValue: any[] | undefined;
+
   parsedValue = sourceData;
   if (_.isString(sourceData)) {
     try {
@@ -370,6 +374,9 @@ export function valueKeyValidation(
   __?: any,
   path?: string,
 ) {
+  //取 path 第一个点和最后一个点之间的内容
+  const targetPath = path?.split(".").slice(0, -1).join(".");
+  const propsData = _.get(props, targetPath || "") || props;
   const _value = value || _.get(props, path || "");
 
   if (!path?.includes(props.editingColumnId)) {
@@ -403,10 +410,13 @@ export function valueKeyValidation(
   let options: unknown[] = [];
 
   if (_.isString(_value)) {
-    let sourceData: any[] = _.isArray(props.options) ? props.options : [];
-    if (props.type === "ANTD_PRO_TABLE_WIDGET") {
-      sourceData =
-        props.orderedTableColumns?.[props.editingColumnIndex]?.options || [];
+    let sourceData: any[] = propsData.options;
+    try {
+      if (_.isString(sourceData)) {
+        sourceData = JSON.parse(sourceData);
+      }
+    } catch (error) {
+      sourceData = [];
     }
 
     const keys = sourceData.reduce((keys, curr) => {
