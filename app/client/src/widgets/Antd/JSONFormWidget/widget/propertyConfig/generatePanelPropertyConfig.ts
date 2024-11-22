@@ -1,6 +1,9 @@
 import { cloneDeep, get, isEmpty } from "lodash";
 
-import type { PanelConfig } from "constants/PropertyControlConstants";
+import type {
+  PanelConfig,
+  PropertyPaneControlConfig,
+} from "constants/PropertyControlConstants";
 import type { SchemaItem } from "widgets/Antd/JSONFormWidget/constants";
 import {
   FieldType,
@@ -78,7 +81,7 @@ const transConfig = (
     return [];
   }
 
-  return config.map((item) => {
+  return config.map((item: PropertyPaneControlConfig) => {
     if (item.children) {
       item.children = transConfig(item.children, types, isSkipHidden);
     }
@@ -91,7 +94,10 @@ const transConfig = (
             if (!isMatchType(args, item, types)) {
               return undefined;
             }
-            return item.helperText(...args);
+            if (typeof item?.helperText === "function") {
+              return item?.helperText?.(...args);
+            }
+            return item?.helperText;
           }
         : undefined,
       hidden: (...args: HiddenFnParams) => {
@@ -120,11 +126,13 @@ const transConfig = (
       );
     }
 
+    // if (!["options"].includes(item.propertyName)) {
     if (item.controlType == "INPUT_TEXT") {
       transItem.controlType = "ANTD_JSON_FORM_COMPUTE_VALUE";
     } else if (item.isJSConvertible) {
       transItem.customJSControl = "ANTD_JSON_FORM_COMPUTE_VALUE";
     }
+    // }
 
     if (item.propertyName === "labelText") {
       item.hidden = hiddenIfArrayItemIsObject;

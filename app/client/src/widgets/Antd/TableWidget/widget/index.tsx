@@ -822,11 +822,13 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
   componentDidUpdate(prevProps: TableWidgetProps) {
     const {
+      commitBatchMetaUpdates,
       defaultPageSize,
       defaultSelectedRowKeys,
       pageNo,
       pageSize,
       primaryColumns = {},
+      pushBatchMetaUpdates,
       serverSidePaginationEnabled,
       tableType,
       totalRecordsCount,
@@ -838,10 +840,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
     // defaultUpdatedKeys
     if (!equal(prevProps.defaultUpdatedKeys, this.props.defaultUpdatedKeys)) {
-      this.updateWidgetProperty(
-        "updatedRowKeys",
-        this.props.defaultUpdatedKeys,
-      );
+      pushBatchMetaUpdates("updatedRowKeys", this.props.defaultUpdatedKeys);
     }
 
     if (!equal(prevProps.autoFormConfig, this.props.autoFormConfig)) {
@@ -854,10 +853,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.defaultExpandedRowKeys,
       )
     ) {
-      this.updateWidgetProperty(
-        "expandedKeys",
-        this.props.defaultExpandedRowKeys,
-      );
+      pushBatchMetaUpdates("expandedKeys", this.props.defaultExpandedRowKeys);
     }
 
     // Bail out if tableData is a string. This signifies an error in evaluations
@@ -891,8 +887,28 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.tableData,
       prevProps.tableData,
     );
+    // tableData
+    if (
+      !isEmpty(primaryColumns) &&
+      !equal(primaryColumns, prevProps.primaryColumns) &&
+      this.props.tableType !== "edit"
+    ) {
+      console.log("generateJSONFormSchema before", {
+        prevProps,
+        props: this.props,
+      });
 
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+      const { schema } = this.generateJSONFormSchema({
+        ...this.props.autoFormConfig.config,
+        sourceData: this.cleanObject(this.props.tableData?.[0]),
+      });
+
+      this.debouncedParseAndSaveFieldState(
+        this.state.metaInternalFieldState,
+        schema,
+      );
+    }
+
     // If the user has changed the tableData OR
     // The binding has returned a new value
     if (isTableDataModified) {
@@ -949,22 +965,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // defaultSelectedRowKeys
     if (!equal(defaultSelectedRowKeys, prevProps.defaultSelectedRowKeys)) {
       pushBatchMetaUpdates("selectedRowKeys", defaultSelectedRowKeys);
-    }
-
-    // editableColumn
-    if (
-      !equal(prevProps.tableData, this.props.tableData) &&
-      this.props.tableType !== "edit"
-    ) {
-      console.log("componentDidUpdate generateJSONFormSchema", this.props);
-
-      const sourceData = isEmpty(this.props.formData)
-        ? this.cleanObject(this.props.tableData?.[0]) || {}
-        : this.props.formData;
-      this.generateJSONFormSchema({
-        ...this.props.autoFormConfig.config,
-        sourceData: sourceData,
-      });
     }
 
     this.pushResetPageNoUpdates(prevProps);
@@ -1040,6 +1040,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       prevSourceData,
       widgetName: this.props.widgetName,
       fieldThemeStylesheets: JSONFormProps.childStylesheet,
+    });
 
     if (isEmpty(prevSchema)) {
       Object.keys(computedSchema.schema[ROOT_SCHEMA_KEY].children).forEach(
@@ -1125,15 +1126,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
       this.batchUpdateWidgetProperty(payload);
     }
-
-    this.updateWidgetProperty("autoFormConfig", {
-      ...this.props.autoFormConfig,
-      config: {
-        ...JSONFormProps,
-        sourceData: currSourceData,
-        schema,
-      },
-    });
 
     return computedSchema;
   };
@@ -1485,6 +1477,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
     switch (columnType) {
       case ColumnTypes.SELECT:
+      case ColumnTypes.TREE_SELECT:
         eventName = "onSelectChange";
         eventType = EventType.ON_SELECT;
         break;
@@ -1734,6 +1727,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           prevPageClick={this.handlePrevPageClick}
           primaryColumnId={this.props.primaryColumnId}
           primaryColumns={this.props.primaryColumns}
+          queryData={{}}
           renderMode={this.props.renderMode}
           rowSelectionActions={this.props.rowSelectionActions}
           rowSelectionColumnAlign={this.props.rowSelectionColumnAlign}
