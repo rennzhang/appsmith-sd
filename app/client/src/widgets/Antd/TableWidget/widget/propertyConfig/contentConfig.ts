@@ -353,40 +353,6 @@ export default [
             ""
           );
         },
-        updateHook: (
-          props: TableWidgetProps,
-          propertyPath: string,
-          propertyValue: any,
-        ) => {
-          const propertiesToUpdate = [];
-          const prevSchemaChildren = (
-            props.__evaluation__?.evaluatedValues?.autoFormConfig as any
-          )?.config?.schema?.__root_schema__?.children;
-
-          console.log("primaryColumnId updateHook", {
-            props,
-            propertyPath,
-            propertyValue,
-            prevSchemaChildren,
-          });
-
-          if (
-            props?.primaryColumnId &&
-            prevSchemaChildren?.[props?.primaryColumnId]
-          ) {
-            propertiesToUpdate.push({
-              propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${props.primaryColumnId}.isVisible`,
-              propertyValue: true,
-            });
-          }
-          if (propertyValue && prevSchemaChildren?.[propertyValue]) {
-            propertiesToUpdate.push({
-              propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${propertyValue}.isVisible`,
-              propertyValue: false,
-            });
-          }
-          return propertiesToUpdate?.length ? propertiesToUpdate : undefined;
-        },
         validation: {
           type: ValidationTypes.TEXT,
         },
