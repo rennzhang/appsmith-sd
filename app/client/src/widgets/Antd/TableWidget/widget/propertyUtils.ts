@@ -633,6 +633,51 @@ export const replacePropertyName = (
   return `${path.join(".")}.${targetPropertyName}`;
 };
 
+export const updateSchemaFormOnPrimaryColumnChange = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: unknown,
+): Array<PropertyUpdates> | undefined => {
+  const { autoFormConfig, primaryColumnId } = props;
+
+  const propertiesToUpdate: Array<PropertyUpdates> = [];
+  const [, columnId, targetPropName] = propertyPath.split(".");
+  // 新增schema更新逻辑
+
+  const column = props.primaryColumns[columnId];
+  const prevSchema = props.autoFormConfig?.config?.schema;
+  const schemaChildren = prevSchema?.__root_schema__?.children;
+
+  console.log("updateSchemaFormOnPrimaryColumnChange", {
+    targetPropName,
+    props,
+    column,
+    prevSchema,
+    propertyPath,
+    propertyValue,
+    propertiesToUpdate,
+  });
+  if (targetPropName === "label") {
+    propertiesToUpdate.push({
+      propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.labelText`,
+      propertyValue: propertyValue,
+    });
+  } else if (
+    targetPropName === "isEditable" &&
+    prevSchema?.__root_schema__?.children?.[columnId]
+  ) {
+    // const isPrimaryColumnVisibleOnSchema = schemaChildren[primaryColumnId]?.isVisible;
+    if (columnId !== primaryColumnId) {
+      propertiesToUpdate.push({
+        propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.isVisible`,
+        propertyValue: propertyValue,
+      });
+    }
+  }
+
+  return propertiesToUpdate.length ? propertiesToUpdate : undefined;
+};
+
 export const updateCustomColumnAliasOnLabelChange = (
   props: TableWidgetProps,
   propertyPath: string,
@@ -651,35 +696,6 @@ export const updateCustomColumnAliasOnLabelChange = (
     });
   }
 
-  // 新增schema更新逻辑
-
-  const column = props.primaryColumns[columnId];
-  const prevSchema = props.autoFormConfig?.config?.schema;
-
-  if (targetPropName === "label") {
-    propertiesToUpdate.push({
-      propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.labelText`,
-      propertyValue: propertyValue,
-    });
-  } else if (
-    targetPropName === "isEditable" &&
-    prevSchema?.__root_schema__?.children?.[columnId]
-  ) {
-    propertiesToUpdate.push({
-      propertyPath: `autoFormConfig.config.schema.__root_schema__.children.${columnId}.isVisible`,
-      propertyValue: propertyValue,
-    });
-  }
-
-  console.log("updateCustomColumnAliasOnLabelChange", {
-    targetPropName,
-    props,
-    column,
-    prevSchema,
-    propertyPath,
-    propertyValue,
-    propertiesToUpdate,
-  });
   return propertiesToUpdate.length ? propertiesToUpdate : undefined;
 };
 

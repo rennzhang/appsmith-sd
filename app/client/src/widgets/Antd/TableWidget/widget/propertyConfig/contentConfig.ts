@@ -20,6 +20,7 @@ import {
   uniqueColumnNameValidation,
   updateColumnOrderHook,
   updateCustomColumnAliasOnLabelChange,
+  updateSchemaFormOnPrimaryColumnChange,
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
 import ActionPanelConfig from "./ActionPanelConfig";
@@ -197,6 +198,7 @@ export default [
         updateHook: composePropertyUpdateHook([
           updateColumnOrderHook,
           updateCustomColumnAliasOnLabelChange,
+          updateSchemaFormOnPrimaryColumnChange,
         ]),
         dependencies: [
           "autoFormConfig",
