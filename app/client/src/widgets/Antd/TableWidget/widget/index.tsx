@@ -1040,8 +1040,18 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       prevSourceData,
       widgetName: this.props.widgetName,
       fieldThemeStylesheets: JSONFormProps.childStylesheet,
-      isCreateForm: nextProps?.isCreateForm,
-    });
+
+    if (isEmpty(prevSchema)) {
+      Object.keys(computedSchema.schema[ROOT_SCHEMA_KEY].children).forEach(
+        (key) => {
+          const currItem = computedSchema.schema[ROOT_SCHEMA_KEY].children[key];
+          set(computedSchema.schema, `${ROOT_SCHEMA_KEY}.children.${key}`, {
+            ...currItem,
+            isVisible: false,
+          });
+        },
+      );
+    }
 
     const {
       dynamicPropertyPathList,
