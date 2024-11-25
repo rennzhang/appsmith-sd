@@ -73,6 +73,8 @@ export {
 };
 
 export const JSONFORM_WIDGET_DEPENDENCIES = [
+  "schemaFormState",
+  "formData",
   "primaryColumns",
   "tableData",
   "filteredTableData",
@@ -539,7 +541,13 @@ export const AUTO_JS_ENABLED_FIELDS: Record<
   [FieldType.TIMEPICKER]: null,
 };
 
-export const getBindingTemplate = (widgetName: string) => {
+export const getBindingTemplate = (widgetName: string, inTable?: boolean) => {
+  if (inTable) {
+    const prefixTemplate = `{{((sourceData, formData, fieldState, formState) => (`;
+    const suffixTemplate = `))(${widgetName}.sourceData, ${widgetName}.formData, ${widgetName}.fieldState, ${widgetName}.schemaFormState)}}`;
+    return { prefixTemplate, suffixTemplate };
+  }
+
   const prefixTemplate = `{{((sourceData, formData, fieldState) => (`;
   const suffixTemplate = `))(${widgetName}.sourceData, ${widgetName}.formData, ${widgetName}.fieldState)}}`;
 

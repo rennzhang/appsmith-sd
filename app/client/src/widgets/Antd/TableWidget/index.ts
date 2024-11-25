@@ -35,6 +35,15 @@ export const CONFIG = {
   needsHeightForContent: true,
 
   defaults: {
+    schemaFormState: {
+      type: "",
+      value: {},
+      isCreateForm: false,
+      isEditForm: false,
+      isViewForm: false,
+      submitting: false,
+      isFormVisible: false,
+    },
     fieldState: {},
     formData: {},
     defaultFormData: {},

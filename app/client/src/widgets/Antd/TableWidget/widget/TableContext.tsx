@@ -100,7 +100,29 @@ export function TableContextProvider({
       : autoFormConfig.config.title;
   }, [jsonFormState.jsonFormType, autoFormConfig.config]);
 
-  const setJsonFormState = (state: Partial<typeof jsonFormState>) => {
+  const updateWidgetProperty = (
+    state: Partial<typeof jsonFormState>,
+    sourceData?: Record<string, unknown>,
+  ) => {
+    batchUpdateWidgetProperty(
+      {
+        modify: {
+          "autoFormConfig.config.sourceData": sourceData,
+          schemaFormType: state.jsonFormType,
+          schemaFormState: {
+            type: state.jsonFormType,
+            value: sourceData,
+            isCreateForm: state.jsonFormType === "add",
+            isEditForm: state.jsonFormType === "edit",
+            isViewForm: state.jsonFormType === "view",
+            submitting: state.isSubmitting,
+            isFormVisible: state.isJsonFormVisible,
+          },
+        },
+      },
+      false,
+    );
+  };
     jsonFormRef.current?.resetFields();
     console.log("Antd ProTable provider setJsonFormState", {
       state,

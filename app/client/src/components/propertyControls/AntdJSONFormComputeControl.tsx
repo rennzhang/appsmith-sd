@@ -119,17 +119,20 @@ export function InputText(props: {
   dataTreePath?: string;
   additionalDynamicData: Record<string, Record<string, any>>;
   theme: EditorTheme;
+  isAntdProTableWidget?: boolean;
 }) {
   const {
     additionalDynamicData,
     dataTreePath,
     evaluatedValue,
     expected,
+    isAntdProTableWidget,
     onChange,
     placeholder,
     theme,
     value,
   } = props;
+
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
@@ -146,7 +149,14 @@ export function InputText(props: {
         placeholder={placeholder}
         promptMessage={
           <PromptMessage>
-            访问当前表单：
+            <span className="code-wrapper">访问当前表单： </span>
+            {isAntdProTableWidget && (
+              <span className="code-wrapper">
+                <CurlyBraces>{"{{"}</CurlyBraces>
+                formState
+                <CurlyBraces>{"}}"}</CurlyBraces>
+              </span>
+            )}
             <span className="code-wrapper">
               <CurlyBraces>{"{{"}</CurlyBraces>
               formData.fieldName
@@ -196,10 +206,14 @@ class AntdAntdJSONFormComputeControl extends BaseControl<JSONFormComputeControlP
   static getInputComputedValue = (
     propertyValue: string,
     widgetName: string,
+    isAntdProTableWidget?: boolean,
   ) => {
     if (!isDynamicValue(propertyValue)) return propertyValue;
 
-    const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
+    const { prefixTemplate, suffixTemplate } = getBindingTemplate(
+      widgetName,
+      isAntdProTableWidget,
+    );
 
     const value = propertyValue.substring(
       prefixTemplate.length,
@@ -225,8 +239,6 @@ class AntdAntdJSONFormComputeControl extends BaseControl<JSONFormComputeControlP
     //   _widgetName = widgetName + ".autoFormConfig.config";
     // }
 
-    console.log("getComputedValue", { props: this.props, _widgetName });
-
     /**
      * If the input value is not a binding then there is no need of adding binding template
      * to the value as it would be of no use.
@@ -243,7 +255,10 @@ class AntdAntdJSONFormComputeControl extends BaseControl<JSONFormComputeControlP
     if (!isDynamicValue(value)) return value;
 
     const stringToEvaluate = stringToJS(value);
-    const { prefixTemplate, suffixTemplate } = getBindingTemplate(_widgetName);
+    const { prefixTemplate, suffixTemplate } = getBindingTemplate(
+      _widgetName,
+      type === "ANTD_PRO_TABLE_WIDGET",
+    );
 
     if (stringToEvaluate === "") {
       return stringToEvaluate;
@@ -311,6 +326,7 @@ class AntdAntdJSONFormComputeControl extends BaseControl<JSONFormComputeControlP
         return AntdAntdJSONFormComputeControl.getInputComputedValue(
           propertyValue,
           _widgetName,
+          isAntdProTableWidget,
         );
       }
 
@@ -324,12 +340,16 @@ class AntdAntdJSONFormComputeControl extends BaseControl<JSONFormComputeControlP
     return (
       <InputText
         additionalDynamicData={{
+          formState: isAntdProTableWidget
+            ? widgetProperties.schemaFormState || {}
+            : {},
           sourceData,
           formData: baseSchemaStructure,
           fieldState: fieldStateStructure,
         }}
         dataTreePath={dataTreePath}
         expected={expected}
+        isAntdProTableWidget={isAntdProTableWidget}
         label={label}
         onChange={this.onTextChange}
         placeholder={placeholderText}
