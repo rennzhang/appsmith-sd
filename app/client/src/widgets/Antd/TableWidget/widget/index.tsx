@@ -1210,8 +1210,12 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     // commitBatchMetaUpdates();
   };
-  updataTriggeredRowKey = (triggeredRowKey: string) => {
-    this.props.updateWidgetMetaProperty("triggeredRowKey", triggeredRowKey);
+  updataTriggeredRowKey = (triggeredRowKey: string, actionPayload?: any) => {
+    this.props.updateWidgetMetaProperty(
+      "triggeredRowKey",
+      triggeredRowKey,
+      actionPayload,
+    );
   };
 
   onExpand = (expanded: boolean, record: any) => {
@@ -1416,15 +1420,14 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
   handleRowBtnClick = (onClick: string, record: Record<string, any>) => {
-    console.log(
-      "Antd 表格 handleRowBtnClick",
+    console.log("Antd 表格 handleRowBtnClick", {
       onClick,
       record,
-      this.props,
-      record.__originalIndex__,
-    );
+      props: this.props,
+      originalIndex: record.__originalIndex__,
+    });
 
-    this.updataTriggeredRowKey(record[this.props.primaryColumnId]);
+    // this.updataTriggeredRowKey(record[this.props.primaryColumnId]);
 
     this.onColumnEvent({
       action: onClick,
@@ -1453,20 +1456,15 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     });
 
     // 添加这一行
-    this.updataTriggeredRowKey(row[this.props.primaryColumnId] as string);
-
-    this.onColumnEvent({
-      action: column.columnProperties.onSwitchClick,
+    this.updataTriggeredRowKey(row[this.props.primaryColumnId] as string, {
       triggerPropertyName: "onSwitchClick",
-      eventType: EventType.ON_CHECK_CHANGE,
-      row: {
-        ...row,
-        [alias]: value,
+      dynamicString: column.columnProperties.onSwitchClick,
+      event: {
+        type: EventType.ON_CHECK_CHANGE,
       },
-      additionalData: {
-        checked: value,
-      },
+      globalContext: { currentRow: row, checked: value },
     });
+
   };
 
   // 统一处理 protable 编辑状态 onChange
