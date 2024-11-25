@@ -154,7 +154,6 @@ const AntdInput: React.FC<InputComponentProps> = (props) => {
 
     ruleRegexMemo &&
       validateData.rules?.push({
-        required: true,
         pattern: ruleRegexMemo,
         message: "无效输入",
         validateTrigger: ["onChange", "onBlur"],
