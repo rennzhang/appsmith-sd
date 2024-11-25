@@ -73,6 +73,10 @@ export function FormContextProvider({
 }: FormContextProps) {
   const formDataRef = useRef(initialValues);
 
+  useEffect(() => {
+    formDataRef.current = initialValues;
+  }, [initialValues]);
+
   // 将 debounced 函数移到组件外部或使用 useCallback 来缓存
   const debouncedUpdate = useCallback(
     debounce(async (values: any, cb?: (values: any) => void) => {
@@ -96,12 +100,14 @@ export function FormContextProvider({
           }
         }
       }
+      const isInitialValues = isEqual(formDataRef.current, initialValues);
 
       console.log("updateFormData result", {
         values,
         formDataRef: formDataRef.current,
         newFormData,
         initialValues,
+        isInitialValues,
         hasChanges,
       });
 
@@ -109,6 +115,7 @@ export function FormContextProvider({
 
       hasChanges && updateWidgetFormData(newFormData);
       hasChanges &&
+        !isInitialValues &&
         formRef?.current
           ?.validateFields(Object.keys(values || {}))
           .then(() => {
