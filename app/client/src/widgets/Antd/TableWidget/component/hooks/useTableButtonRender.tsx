@@ -126,7 +126,7 @@ export const useButtonRender = () => {
               : button.btnIconName
           }
           key={button.id}
-          loading={isLoading ? isLoading(button) : false}
+          loading={isLoading ? isLoading(button) : button.loading}
           onClick={() => {
             onClick?.(button);
           }}
