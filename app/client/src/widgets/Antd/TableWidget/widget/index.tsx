@@ -1112,6 +1112,15 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         ...payload.modify,
         sourceData: currSourceData,
         formData: currSourceData,
+        schemaFormState: {
+          type: "",
+          value: currSourceData,
+          isCreateForm: false,
+          isEditForm: false,
+          isViewForm: false,
+          submitting: false,
+          isFormVisible: false,
+        },
       };
 
       console.log("generateJSONFormSchema UPDATED", {
