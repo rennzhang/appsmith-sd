@@ -316,9 +316,9 @@ const handleButtonClick = (params: {
     });
   }
 
-  const onBtnClick = ["add", "edit"].includes(button.id)
-    ? button.onBtnClick
-    : "";
+  const onBtnClick = ["add", "edit", "view"].includes(button.id)
+    ? ""
+    : button.onBtnClick;
   props.handleRowBtnClick(onBtnClick, record);
 };
 const getDisplayText = (index: number, displayText?: string | string[]) => {
