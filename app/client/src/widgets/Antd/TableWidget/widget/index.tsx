@@ -2325,6 +2325,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       });
     }
 
+    const newFormData = { ...values, ...formData };
     console.log("updateWidgetFormData", {
       values,
       skipConversion,
@@ -2332,17 +2333,9 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       useSourceData,
       sourceData,
       formData,
+      newFormData,
     });
-    this.props.updateWidgetMetaProperty("formData", formData);
-    // this.batchUpdateWidgetProperty(
-    //   {
-    //     modify: {
-    //       // "autoFormConfig.config.sourceData": formData,
-    //       formData: values,
-    //     },
-    //   },
-    //   false,
-    // );
+    this.props.updateWidgetMetaProperty("formData", newFormData);
 
     if (this.actionQueue.length) {
       this.actionQueue.forEach(({ updateDependencyType, ...actionPayload }) => {

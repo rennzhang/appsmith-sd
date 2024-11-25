@@ -140,18 +140,14 @@ export function TableContextProvider({
       ...state,
       jsonFormData: sourceData,
     }));
-    setTimeout(() => {
-      if (state.isJsonFormVisible) {
-        batchUpdateWidgetProperty(
-          {
-            modify: {
-              "autoFormConfig.config.sourceData": sourceData,
-            },
-          },
-          false,
-        );
-      }
-    }, 200);
+
+    if (isSubmit) {
+      updateWidgetProperty(state, sourceData);
+    } else {
+      setTimeout(() => {
+        updateWidgetProperty(state, sourceData);
+      }, 200);
+    }
   };
   // 处理表单关闭
   const handleFormClose = useCallback(() => {
