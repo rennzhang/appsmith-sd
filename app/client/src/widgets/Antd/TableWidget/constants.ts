@@ -211,6 +211,7 @@ export interface AntdTableProps extends ProTableProps<any, any>, JSONFormProps {
   isVisibleCellSetting?: boolean;
   delimiter: string;
   accentColor: string;
+  defaultFormData: Record<string, unknown>;
   borderRadius: string;
   boxShadow?: BoxShadow;
   borderWidth?: number;

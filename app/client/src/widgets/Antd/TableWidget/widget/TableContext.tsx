@@ -19,6 +19,7 @@ type TableContextProps = React.PropsWithChildren<{
   batchUpdateWidgetProperty: AntdTableProps["batchUpdateWidgetProperty"];
   executeAction: AntdTableProps["executeAction"];
   onJsonFormOpen: AntdTableProps["onJsonFormOpen"];
+  defaultFormData: Record<string, unknown>;
 }>;
 
 type TableContextValueProps = Omit<
@@ -28,6 +29,7 @@ type TableContextValueProps = Omit<
   | "editableColumn"
   | "primaryColumnId"
   | "onJsonFormOpen"
+  | "defaultFormData"
 >;
 
 type TableContextValueReturnProps = TableContextValueProps & {
@@ -92,6 +94,7 @@ export function TableContextProvider({
   autoFormConfig,
   batchUpdateWidgetProperty,
   children,
+  defaultFormData,
   executeAction,
   jsonFormRef,
   onJsonFormOpen,
@@ -139,20 +142,28 @@ export function TableContextProvider({
     state: Partial<typeof jsonFormState>,
     isSubmit?: boolean,
   ) => {
-    const jsonFormData = isEmpty(state.jsonFormData)
-      ? autoFormConfig.config.sourceData
-      : cleanObject(state.jsonFormData);
-    let sourceData =
-      state.jsonFormType === "add"
-        ? resetToDefaultValues(jsonFormData || {})
-        : jsonFormData;
+    // 有可能没有传入 isJsonFormVisible 和 isSubmitting
+    const inComingVisible =
+      state.isJsonFormVisible ?? jsonFormState.isJsonFormVisible;
+    const inComingSubmitting = state.isSubmitting ?? jsonFormState.isSubmitting;
+    const isOpen = inComingVisible && !jsonFormState.isJsonFormVisible;
+    const isClose = !inComingVisible && jsonFormState.isJsonFormVisible;
+    const isSubmitFinish = !inComingSubmitting && jsonFormState.isSubmitting;
 
-    if (!state.isJsonFormVisible) {
-      sourceData = resetToDefaultValues(jsonFormData);
-      // jsonFormRef.current?.setFieldsValue(sourceData);
-      jsonFormRef.current?.resetFields();
-    } else {
+    let sourceData = state.jsonFormData;
+
+    if (isClose || isSubmitFinish) {
+      sourceData = defaultFormData;
+    }
+
+    if (isOpen) {
       onJsonFormOpen();
+      if (state.jsonFormType === "add") {
+        sourceData = defaultFormData;
+        // jsonFormRef.current?.setFieldsValue(sourceData);
+      } else {
+        sourceData = cleanObject(state.jsonFormData);
+      }
     }
 
     setFormState((prevState) => ({
@@ -162,6 +173,9 @@ export function TableContextProvider({
     }));
 
     console.log("Antd ProTable provider setJsonFormState", {
+      isOpen,
+      isClose,
+      isSubmitFinish,
       state,
       primaryColumnId,
       resetValue: jsonFormRef.current?.getFieldsValue(),

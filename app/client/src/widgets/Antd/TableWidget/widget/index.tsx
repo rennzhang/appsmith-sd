@@ -1112,6 +1112,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         ...payload.modify,
         sourceData: currSourceData,
         formData: currSourceData,
+        defaultFormData: resetToDefaultValues(currSourceData),
         schemaFormState: {
           type: "",
           value: currSourceData,
@@ -1638,6 +1639,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
+          defaultFormData={this.props.defaultFormData}
           accentColor={this.props.accentColor}
           actionWidth={this.props.actionWidth}
           addNewRowPosition={this.props.addNewRowPosition}
