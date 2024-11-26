@@ -10,6 +10,32 @@ const path = require("path");
 const env = process.env.REACT_APP_ENVIRONMENT;
 const isAirgap = process.env.REACT_APP_AIRGAP_ENABLED;
 const plugins = [];
+const { exec } = require("child_process");
+
+class BuildNotifierPlugin {
+  apply(compiler) {
+    compiler.hooks.done.tap("BuildNotifierPlugin", (stats) => {
+      const success = !stats.hasErrors();
+
+      if (success) {
+        // Mac OS 通知命令
+        exec(
+          'osascript -e \'display dialog "Appsmith 构建成功" with title "构建状态" buttons {"确定"}\'',
+        );
+
+        // 可选：也可以用 say 命令播放语音
+        // exec('say "构建完成"');
+      } else {
+        exec(
+          'osascript -e \'display dialog "Appsmith 构建失败" with title "构建状态" buttons {"确定"}\'',
+        );
+      }
+    });
+  }
+}
+
+// 在 plugins 数组开头添加
+plugins.unshift(new BuildNotifierPlugin());
 
 plugins.push(
   new WorkboxPlugin.InjectManifest({
