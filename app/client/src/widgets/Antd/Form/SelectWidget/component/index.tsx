@@ -6,13 +6,14 @@ import { AntdLabelPosition } from "components/constants";
 import type { ProFormItemProps } from "@ant-design/pro-components";
 import { ProFormItem } from "@ant-design/pro-components";
 import type { SelectProps } from "antd";
-import { ConfigProvider, Select } from "antd";
+import { ConfigProvider, Select, Spin } from "antd";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 import { diff } from "deep-diff";
 import { omit, isEqual } from "lodash";
 
 export interface SelectComponentProps {
+  animateLoading?: boolean;
   valueKey: string;
   labelKey: string;
   childrenKey: string;
@@ -64,10 +65,11 @@ function SelectComponent(props: SelectComponentProps): JSX.Element {
   const {
     accessor,
     allowClear,
+    animateLoading,
     borderRadius,
     boxShadow,
-    colorPrimary,
     // expandAll,
+    colorPrimary,
     compactMode,
     controlSize,
     defaultExpandAll,
@@ -271,27 +273,29 @@ function SelectComponent(props: SelectComponentProps): JSX.Element {
           {...validateProps}
           {...colLayoutMemo}
         >
-          <Select
-            allowClear={allowClear}
-            defaultValue={defaultValue ?? undefined}
-            disabled={disabled}
-            fieldNames={fieldNamesValue}
-            filterOption={handleFilter}
-            maxTagCount={maxTagCount}
-            maxTagTextLength={maxTagTextLength}
-            mode={props.mode}
-            onChange={onChange}
-            onSearch={handleSearch}
-            onSelect={onSelect}
-            options={options}
-            placeholder={placeholderText}
-            showSearch={showSearch}
-            size={controlSize}
-            tokenSeparators={tokenSeparators}
-            value={value ?? undefined}
-            labelInValue
-            // listHeight={height}
-          />
+          <Spin spinning={animateLoading}>
+            <Select
+              allowClear={allowClear}
+              defaultValue={defaultValue ?? undefined}
+              disabled={disabled}
+              fieldNames={fieldNamesValue}
+              filterOption={handleFilter}
+              maxTagCount={maxTagCount}
+              maxTagTextLength={maxTagTextLength}
+              mode={props.mode}
+              onChange={onChange}
+              onSearch={handleSearch}
+              onSelect={onSelect}
+              options={options}
+              placeholder={placeholderText}
+              showSearch={showSearch}
+              size={controlSize}
+              tokenSeparators={tokenSeparators}
+              value={value ?? undefined}
+              labelInValue
+              // listHeight={height}
+            />
+          </Spin>
         </ProFormItem>
       </ConfigProvider>
     </AntdFormItemContainer>
