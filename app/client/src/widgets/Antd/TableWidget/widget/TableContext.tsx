@@ -17,11 +17,17 @@ type TableContextProps = React.PropsWithChildren<{
   autoFormConfig: AntdTableProps["autoFormConfig"];
   updateWidgetMetaProperty: AntdTableProps["updateWidgetMetaProperty"];
   batchUpdateWidgetProperty: AntdTableProps["batchUpdateWidgetProperty"];
+  executeAction: AntdTableProps["executeAction"];
+  onJsonFormOpen: AntdTableProps["onJsonFormOpen"];
 }>;
 
 type TableContextValueProps = Omit<
   TableContextProps,
-  "children" | "autoFormConfig" | "editableColumn" | "primaryColumnId"
+  | "children"
+  | "autoFormConfig"
+  | "editableColumn"
+  | "primaryColumnId"
+  | "onJsonFormOpen"
 >;
 
 type TableContextValueReturnProps = TableContextValueProps & {
@@ -86,7 +92,9 @@ export function TableContextProvider({
   autoFormConfig,
   batchUpdateWidgetProperty,
   children,
+  executeAction,
   jsonFormRef,
+  onJsonFormOpen,
   primaryColumnId,
   updateWidgetMetaProperty,
 }: TableContextProps) {
@@ -143,6 +151,8 @@ export function TableContextProvider({
       sourceData = resetToDefaultValues(jsonFormData);
       // jsonFormRef.current?.setFieldsValue(sourceData);
       jsonFormRef.current?.resetFields();
+    } else {
+      onJsonFormOpen();
     }
 
     setFormState((prevState) => ({
@@ -157,6 +167,7 @@ export function TableContextProvider({
       resetValue: jsonFormRef.current?.getFieldsValue(),
       sourceData,
       jsonFormState,
+      autoFormConfig,
     });
 
     if (isSubmit) {
@@ -187,6 +198,7 @@ export function TableContextProvider({
       autoFormConfig,
       handleFormClose,
       formModalTitle,
+      executeAction,
     }),
     [
       updateWidgetMetaProperty,
@@ -197,6 +209,7 @@ export function TableContextProvider({
       autoFormConfig,
       handleFormClose,
       formModalTitle,
+      executeAction,
     ],
   );
 

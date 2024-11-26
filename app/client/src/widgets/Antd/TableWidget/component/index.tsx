@@ -274,7 +274,9 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       <TableContextProvider
         autoFormConfig={props.autoFormConfig}
         batchUpdateWidgetProperty={props.batchUpdateWidgetProperty}
+        executeAction={props.executeAction}
         jsonFormRef={props.jsonFormRef}
+        onJsonFormOpen={props.onJsonFormOpen}
         primaryColumnId={props.primaryColumnId}
         updateWidgetMetaProperty={props.updateWidgetMetaProperty}
       >

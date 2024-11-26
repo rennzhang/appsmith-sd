@@ -459,6 +459,17 @@ export const contentConfig = mergeWidgetConfig(
           hidden: (props: JSONFormWidgetProps) =>
             props.type !== "ANTD_PRO_TABLE_WIDGET",
         },
+        {
+          propertyName: "onFormOpen",
+          helpText: "表单初始化时触发，可用于加在表单数据",
+          label: "表单初始化",
+          controlType: "ACTION_SELECTOR",
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: true,
+          hidden: (props: JSONFormWidgetProps) =>
+            props.type !== "ANTD_PRO_TABLE_WIDGET",
+        },
       ],
     },
   ],

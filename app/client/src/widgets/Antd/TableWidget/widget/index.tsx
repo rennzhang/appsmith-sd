@@ -1464,7 +1464,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       },
       globalContext: { currentRow: row, checked: value },
     });
-
   };
 
   // 统一处理 protable 编辑状态 onChange
@@ -1726,6 +1725,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           onBulkEditSave={this.onBulkEditSave}
           onConnectData={this.onConnectData}
           onExpand={this.onExpand}
+          onJsonFormOpen={this.onJsonFormOpen}
           onJsonFormSubmit={this.onJsonFormSubmit}
           pageNo={this.props.pageNo}
           pageSize={this.props.pageSize}
@@ -2386,6 +2386,19 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       );
 
       return newState;
+    });
+  };
+  onJsonFormOpen = () => {
+    console.log("表格 onJsonFormOpen", {
+      props: this.props,
+      formConfig: this.props.autoFormConfig.config,
+    });
+
+    super.executeAction({
+      dynamicString: this.props.autoFormConfig.config.onFormOpen,
+      event: {
+        type: EventType.ON_SEARCH,
+      },
     });
   };
 

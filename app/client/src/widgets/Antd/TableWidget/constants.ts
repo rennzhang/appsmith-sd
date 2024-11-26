@@ -46,6 +46,7 @@ export type JSONFormProps = {
     targetActionName: "onSubmit" | "onSubmitWithEdit",
     cb?: () => void,
   ) => void;
+  onJsonFormOpen: () => void;
   jsonFormRef: React.RefObject<ProFormInstance<any>>;
   updateWidgetFormData: (values: any, skipConversion?: boolean) => void;
   executeAction: (action: Action) => void;

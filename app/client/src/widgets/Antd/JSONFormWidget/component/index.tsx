@@ -33,6 +33,7 @@ export interface JSONFormComponentProps<TValues = any>
     ProformContainerComponentProps,
     "formItems" | "formRef" | "updateWidgetProps" | "children"
   > {
+  onFormOpen?: string;
   closeModalOnSubmit?: boolean;
   isCreateMode?: boolean;
   jsonFormPopType?: "modal" | "drawer";
