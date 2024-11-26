@@ -45,6 +45,8 @@ type FormContextValueProps = Omit<FormContextProps, "children">;
 
 type FormContextReturnProps = FormContextValueProps & {
   updateFormData: (values: any, cb?: (values: any) => void) => void;
+  resetFormData: () => void;
+  formDataRef: React.MutableRefObject<any>;
 };
 
 const FormContext = createContext<FormContextReturnProps>(
@@ -138,10 +140,21 @@ export function FormContextProvider({
     },
     [debouncedUpdate],
   );
+
+  const resetFormData = useCallback(() => {
+    updateFormData({
+      ...initialValues,
+      key: Date.now(),
+    });
+    formRef?.current?.setFieldsValue(initialValues);
+    formDataRef.current = initialValues;
+  }, [updateFormData, formRef, initialValues]);
   const value = useMemo(
     () => ({
+      formDataRef,
       formMode,
       initialValues,
+      resetFormData,
       setFieldErrors,
       updateDefaultFormData,
       updateWidgetFormData,
@@ -160,6 +173,8 @@ export function FormContextProvider({
       updateWidgetProperty,
     }),
     [
+      formDataRef,
+      resetFormData,
       formMode,
       initialValues,
       formRef,

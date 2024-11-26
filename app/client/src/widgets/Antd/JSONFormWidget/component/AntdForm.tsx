@@ -153,7 +153,7 @@ const AntdProForm = (props: ProformContainerComponentProps, ref: any) => {
     widgetName,
     wrapperCol,
   } = props;
-  const { updateFormData } = useContext(FormContext);
+  const { resetFormData, updateFormData } = useContext(FormContext);
   const { renderActionButton } = useTableButtonRender();
   // 是否校验中
   const [validating, setValidating] = useState<boolean>(false);
@@ -161,13 +161,13 @@ const AntdProForm = (props: ProformContainerComponentProps, ref: any) => {
   // 自动更新initialValues
   useEffect(() => {
     console.log("表单组件 initialValues", initialValues);
-    formRef?.current?.setFieldsValue(initialValues);
+    formRef?.current?.setFieldsValue?.(initialValues);
     updateFormData(initialValues);
   }, [initialValues]);
 
   useEffect(() => {
     if (props.formMode == "add") {
-      formRef?.current?.resetFields();
+      resetFormData();
     }
   }, [props.formMode]);
 
@@ -338,8 +338,6 @@ const AntdProForm = (props: ProformContainerComponentProps, ref: any) => {
               },
               onClick: () => {
                 props.onCancel?.();
-                // onReset?.();
-                // updateFormData({});
               },
               configToken: {},
             })}
@@ -354,7 +352,7 @@ const AntdProForm = (props: ProformContainerComponentProps, ref: any) => {
                 isDisabled: isDisabled,
               },
               onClick: () => {
-                formRef?.current?.resetFields();
+                resetFormData();
               },
               configToken: {},
             })}
@@ -370,8 +368,6 @@ const AntdProForm = (props: ProformContainerComponentProps, ref: any) => {
               },
               onClick: () => {
                 formRef?.current?.submit();
-                // onSubmit?.();
-                // updateFormData({});
               },
               configToken: {},
             })}
@@ -379,6 +375,7 @@ const AntdProForm = (props: ProformContainerComponentProps, ref: any) => {
       ),
     };
   }, [
+    formRef,
     hideSubmit,
     isDisabled,
     hideFooter,
@@ -392,6 +389,7 @@ const AntdProForm = (props: ProformContainerComponentProps, ref: any) => {
     submitButtonColor,
     resetButtonColor,
     props.buttonAlignment,
+    resetFormData,
   ]);
 
   console.group("表单组件 AntdJSONForm");

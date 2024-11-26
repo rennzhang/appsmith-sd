@@ -68,7 +68,7 @@ const JSONFormRender = React.memo(
       widgetName,
       ...restProps
     } = props;
-    const { formModalTitle, jsonFormState, setJsonFormState } =
+    const { formModalTitle, handleFormClose, jsonFormState, setJsonFormState } =
       useContext(TableContext);
 
     // 1. 优化 processedFormProps 的计算和缓存
@@ -87,14 +87,6 @@ const JSONFormRender = React.memo(
 
       modalContainer.current = container || document.body;
     }, [isEditingMode, processedFormProps.jsonFormPopType]);
-
-    // 5. 优化 Modal/Drawer 的关闭处理函数
-    const handleClose = useCallback(() => {
-      setJsonFormState({
-        isJsonFormVisible: false,
-        isSubmitting: false,
-      });
-    }, [setJsonFormState]);
 
     const onSubmit = useCallback(
       (values) => {
@@ -145,7 +137,7 @@ const JSONFormRender = React.memo(
           initialValues={jsonFormState.jsonFormData}
           isSubmitting={!!jsonFormState.isSubmitting}
           maxHeight={processedFormProps.modalHeight}
-          onCancel={handleClose}
+          onCancel={handleFormClose}
           onSubmit={onSubmit}
           ref={props.jsonFormRef}
           renderMode={props.renderMode}
@@ -198,7 +190,7 @@ const JSONFormRender = React.memo(
             closable
             footer={null}
             getContainer={() => modalContainer.current}
-            onCancel={handleClose}
+            onCancel={handleFormClose}
             open={jsonFormState.isJsonFormVisible}
             title={formModalTitle}
             width={processedFormProps.modalWidth}
@@ -210,7 +202,7 @@ const JSONFormRender = React.memo(
         ) : (
           <Drawer
             getContainer={() => modalContainer.current}
-            onClose={handleClose}
+            onClose={handleFormClose}
             open={jsonFormState.isJsonFormVisible}
             placement="right"
             rootStyle={{
@@ -286,8 +278,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         primaryColumnId={props.primaryColumnId}
         updateWidgetMetaProperty={props.updateWidgetMetaProperty}
       >
-        <JSONFormRender {...props} />
         <AntdProTableRender {...props} isTableLoading={props.isLoading} />
+        <JSONFormRender {...props} />
       </TableContextProvider>
     </>
   );

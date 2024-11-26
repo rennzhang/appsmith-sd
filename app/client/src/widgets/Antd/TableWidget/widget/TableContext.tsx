@@ -7,6 +7,7 @@ import type {
 import { message } from "antd";
 import type { ProFormInstance } from "@ant-design/pro-components";
 import { resetToDefaultValues } from "./propertyUtils";
+import { isEmpty } from "lodash";
 
 // 定义 TableContext 的 Props 类型
 type TableContextProps = React.PropsWithChildren<{
@@ -107,6 +108,8 @@ export function TableContextProvider({
     batchUpdateWidgetProperty(
       {
         modify: {
+          sourceData,
+          formData: sourceData,
           "autoFormConfig.config.sourceData": sourceData,
           schemaFormType: state.jsonFormType,
           schemaFormState: {
@@ -123,23 +126,38 @@ export function TableContextProvider({
       false,
     );
   };
-    jsonFormRef.current?.resetFields();
-    console.log("Antd ProTable provider setJsonFormState", {
-      state,
-      primaryColumnId,
-      resetValue: jsonFormRef.current?.getFieldsValue(),
-    });
-    const jsonFormData =
-      cleanObject(state.jsonFormData) || jsonFormState.jsonFormData;
-    const sourceData =
+
+  const setJsonFormState = async (
+    state: Partial<typeof jsonFormState>,
+    isSubmit?: boolean,
+  ) => {
+    const jsonFormData = isEmpty(state.jsonFormData)
+      ? autoFormConfig.config.sourceData
+      : cleanObject(state.jsonFormData);
+    let sourceData =
       state.jsonFormType === "add"
         ? resetToDefaultValues(jsonFormData || {})
         : jsonFormData;
+
+    if (!state.isJsonFormVisible) {
+      sourceData = resetToDefaultValues(jsonFormData);
+      // jsonFormRef.current?.setFieldsValue(sourceData);
+      jsonFormRef.current?.resetFields();
+    }
+
     setFormState((prevState) => ({
       ...prevState,
       ...state,
       jsonFormData: sourceData,
     }));
+
+    console.log("Antd ProTable provider setJsonFormState", {
+      state,
+      primaryColumnId,
+      resetValue: jsonFormRef.current?.getFieldsValue(),
+      sourceData,
+      jsonFormState,
+    });
 
     if (isSubmit) {
       updateWidgetProperty(state, sourceData);
@@ -151,12 +169,12 @@ export function TableContextProvider({
   };
   // 处理表单关闭
   const handleFormClose = useCallback(() => {
-    setFormState({
+    setJsonFormState({
       isSubmitting: false,
       jsonFormData: undefined,
       isJsonFormVisible: false,
     });
-  }, [setFormState]);
+  }, [setJsonFormState]);
 
   // 使用 useMemo 缓存 context 值
   const value = useMemo(
