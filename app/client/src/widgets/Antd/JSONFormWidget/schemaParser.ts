@@ -36,6 +36,7 @@ import { AntdLabelPosition } from "components/constants";
 type Obj = Record<string, unknown>;
 
 type ParserOptions = {
+  isInTable?: boolean;
   isCreateForm?: boolean;
   baseSchemaPath: string | null;
   currSourceData?: unknown;
@@ -71,6 +72,7 @@ type GetKeysFromSchemaOptions = {
 };
 
 type ParseOptions = {
+  isInTable?: boolean;
   isCreateForm?: boolean;
   isCustomField?: boolean;
   isRequired?: boolean;
@@ -395,6 +397,7 @@ class SchemaParser {
       fieldThemeStylesheets,
       isCreateForm,
       isCustomField,
+      isInTable,
       schema = {},
     } = options;
     if (!currSourceData)
@@ -423,6 +426,7 @@ class SchemaParser {
       widgetName,
       isCustomField,
       isCreateForm,
+      isInTable,
     });
 
     console.log("SchemaParser.parse", {
@@ -554,6 +558,7 @@ class SchemaParser {
       identifier,
       isCreateForm,
       isCustomField = false,
+      isInTable,
       skipDefaultValueProcessing,
       sourceDataPath,
       widgetName,
@@ -562,11 +567,12 @@ class SchemaParser {
     const dataType = dataTypeFor(currSourceData);
     const fieldType = options.fieldType || fieldTypeFor(currSourceData);
     const FieldComponent = FIELD_MAP[fieldType];
-    const bindingTemplate = getBindingTemplate(widgetName);
+    const bindingTemplate = getBindingTemplate(widgetName, isInTable);
     const fieldStylesheet = getFieldStylesheet(
       widgetName,
       fieldType,
       fieldThemeStylesheets,
+      isInTable,
     );
 
     const defaultValue = (() => {

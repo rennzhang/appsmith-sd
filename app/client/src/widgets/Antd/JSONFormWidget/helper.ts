@@ -51,6 +51,7 @@ export const getFieldStylesheet = (
   widgetName: string,
   fieldType: FieldType,
   fieldThemeStylesheets?: FieldThemeStylesheet,
+  isInTable?: boolean,
 ) => {
   const computedFieldStylesheet: { [key: string]: string } = {};
   const fieldTypeKey = inverseFieldType[fieldType];
@@ -66,8 +67,10 @@ export const getFieldStylesheet = (
           fieldStylesheet[fieldPropertyKey],
         );
         const js = combineDynamicBindings(jsSnippets, stringSegments);
-        const { prefixTemplate, suffixTemplate } =
-          getBindingTemplate(widgetName);
+        const { prefixTemplate, suffixTemplate } = getBindingTemplate(
+          widgetName,
+          isInTable,
+        );
         const computedValue = `${prefixTemplate}${js}${suffixTemplate}`;
 
         computedFieldStylesheet[fieldPropertyKey] = computedValue;

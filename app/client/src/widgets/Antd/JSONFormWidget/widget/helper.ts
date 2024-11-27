@@ -44,6 +44,7 @@ type ComputedSchema = {
 };
 
 type ComputeSchemaProps = {
+  isInTable?: boolean;
   basePath?: string;
   isCreateForm?: boolean;
   isCustomField?: boolean;
@@ -285,6 +286,7 @@ export const computeSchema = ({
   prevSchema = {},
   prevSourceData,
   widgetName,
+  isInTable,
 }: ComputeSchemaProps): ComputedSchema => {
   console.log("computeSchema", {
     currentDynamicPropertyPathList,
@@ -334,6 +336,7 @@ export const computeSchema = ({
       schema: prevSchema,
       isCustomField,
       isCreateForm,
+      isInTable
     });
 
   log.debug(

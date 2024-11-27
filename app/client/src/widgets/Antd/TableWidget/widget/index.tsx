@@ -1040,6 +1040,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       prevSourceData,
       widgetName: this.props.widgetName,
       fieldThemeStylesheets: JSONFormProps.childStylesheet,
+      isInTable: true,
     });
 
     if (isEmpty(prevSchema)) {
@@ -1639,7 +1640,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
-          defaultFormData={this.props.defaultFormData}
           accentColor={this.props.accentColor}
           actionWidth={this.props.actionWidth}
           addNewRowPosition={this.props.addNewRowPosition}
@@ -1666,6 +1666,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           data={this.props.data}
           defaultExpandAllRows={this.props.defaultExpandAllRows}
           defaultExpandedRowKeys={this.props.defaultExpandedRowKeys}
+          defaultFormData={this.props.defaultFormData}
           defaultNewRow={this.props.defaultNewRow}
           defaultPageSize={this.props.defaultPageSize}
           delimiter={delimiter}
