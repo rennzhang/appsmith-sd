@@ -17,8 +17,8 @@ import { DateFormatOptions } from "widgets/Antd/Form/DatePickerWidget/widget/dat
 import dayjs from "dayjs";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import { dateFormatOptions } from "widgets/constants";
-import { diff } from "deep-diff";
 import React from "react";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 type DatePickerComponentProps = DatePickerWidgetProps &
   FieldComponentBaseProps &
@@ -130,7 +130,7 @@ const arePropsEqual = (
 ) => {
   // 开发环境打印diff
   if (process.env.NODE_ENV === "development") {
-    const diffProps = diff(prevProps, nextProps);
+    const diffProps = simpleDiff(prevProps, nextProps);
     console.log("AntdDatePickerField memo diff", {
       p: prevProps,
       n: nextProps,

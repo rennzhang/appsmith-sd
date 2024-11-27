@@ -36,7 +36,7 @@ import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleCon
 import type { Color } from "constants/Colors";
 import { useFormContext } from "react-hook-form";
 import FormContext from "../FormContext";
-import { diff } from "deep-diff";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 export interface ProformContainerComponentProps {
   formMode?: "add" | "edit" | "view";
@@ -470,7 +470,7 @@ const arePropsEqual = (
   const _nextProps = omit(nextProps, ["formRef", "children"]);
   // 开发环境打印diff
   if (process.env.NODE_ENV === "development") {
-    const diffProps = diff(_prevProps, _nextProps);
+    const diffProps = simpleDiff(_prevProps, _nextProps);
     if (diffProps) {
       console.log("AntdJSONForm memo diff", {
         p: prevProps,

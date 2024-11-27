@@ -15,7 +15,7 @@ import { ActionUpdateDependency, CheckboxWidgetConfig } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
 import type { CheckboxValueType } from "antd/es/checkbox/Group";
-import { diff } from "deep-diff";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 type CheckboxComponentProps = FieldComponentBaseProps &
   FieldEventProps &
@@ -84,7 +84,7 @@ const arePropsEqual = (
 ) => {
   // 开发环境打印diff
   if (process.env.NODE_ENV === "development") {
-    const diffProps = diff(prevProps, nextProps);
+    const diffProps = simpleDiff(prevProps, nextProps);
     if (diffProps) {
       console.log("CheckboxField memo diff", {
         p: prevProps,

@@ -34,8 +34,8 @@ type InputComponentProps = BaseInputComponentProps & {
   type: string;
 };
 import useEvents from "./useBlurAndFocusEvents";
-import { diff } from "deep-diff";
 import type { AntdInputWidgetProps } from "widgets/Antd/Form/InputWidget/types";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 export const EMAIL_REGEX = new RegExp(
   /^[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/,
@@ -300,7 +300,7 @@ const arePropsEqual = (
 ) => {
   // 开发环境打印diff
   if (process.env.NODE_ENV === "development") {
-    const diffProps = diff(prevProps, nextProps);
+    const diffProps = simpleDiff(prevProps, nextProps);
     diffProps &&
       console.log("InputField memo diff", {
         p: prevProps,

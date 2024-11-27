@@ -8,8 +8,8 @@ import type { FieldComponentBaseProps, FieldEventProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { omit } from "lodash";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
-import { diff } from "deep-diff";
 import React from "react";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 type TimePickerComponentProps = FieldComponentBaseProps &
   FieldEventProps &
@@ -71,7 +71,7 @@ const arePropsEqual = (
 ) => {
   // 开发环境打印diff
   if (process.env.NODE_ENV === "development") {
-    const diffProps = diff(prevProps, nextProps);
+    const diffProps = simpleDiff(prevProps, nextProps);
     if (diffProps) {
       console.log("AntdTimePickerField memo diff", {
         p: prevProps,

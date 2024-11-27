@@ -17,8 +17,9 @@ import type { DropdownOption } from "widgets/MultiSelectTreeWidget/widget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
-import { diff } from "deep-diff";
+
 import React from "react";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 type SelectComponentProps = FieldComponentBaseProps &
   FieldEventProps &
@@ -132,7 +133,7 @@ const arePropsEqual = (
 ) => {
   // 开发环境打印diff
   if (process.env.NODE_ENV === "development") {
-    const diffProps = diff(prevProps, nextProps);
+    const diffProps = simpleDiff(prevProps, nextProps);
     diffProps &&
       console.log("AntdSelectField memo diff", {
         p: prevProps,

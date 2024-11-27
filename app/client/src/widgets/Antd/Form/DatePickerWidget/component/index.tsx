@@ -23,7 +23,7 @@ import "dayjs/locale/zh-cn";
 import quarterOfYear from "dayjs/plugin/quarterOfYear";
 import { isEqual, omit } from "lodash";
 import { DatePresetsOptions, DateRangePresetsOptions } from "../widget/data";
-import { diff } from "deep-diff";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 // import quarterOfYear from 'dayjs/plugin/quarterOfYear' // ES 2015
 
 dayjs.extend(isoWeek);
@@ -629,7 +629,7 @@ function arePropsEqual(
   next: DatePickerWidgetProps,
 ) {
   if (process.env.NODE_ENV === "development") {
-    const differences = diff(prev, next);
+    const differences = simpleDiff(prev, next);
     if (differences) {
       console.log("DatePicker props changed:", differences);
     }

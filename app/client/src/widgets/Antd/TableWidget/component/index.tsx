@@ -18,9 +18,9 @@ import { CONFIG } from "widgets/Antd/JSONFormWidget";
 import { ConfigProvider, Drawer, Modal } from "antd";
 import { omit, pick, difference } from "lodash";
 import React from "react";
-import { diff } from "deep-diff";
 import TableContext, { TableContextProvider } from "../widget/TableContext";
 import { ConnectDataOverlay } from "./ConnectDataOverlay";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 interface ReactTableComponentProps extends AntdTableProps, JSONFormProps {
   allowRowSelection: boolean;
@@ -38,7 +38,7 @@ const compareProps = (
           "AntdTableWidget compareProps diff",
           source,
           _key,
-          source == "jsonform" && diff(prevProps[_key], nextProps[_key]),
+          source == "jsonform" && simpleDiff(prevProps[_key], nextProps[_key]),
         );
         return false;
       }

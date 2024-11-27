@@ -15,7 +15,7 @@ import { ActionUpdateDependency, SwitchWidgetConfig } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
-import { diff } from "deep-diff";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 type Merge<T, U> = Omit<T, keyof U> & U;
 
@@ -112,7 +112,7 @@ const arePropsEqual = (
 ) => {
   // 开发环境打印diff
   if (process.env.NODE_ENV === "development") {
-    const diffProps = diff(prevProps, nextProps);
+    const diffProps = simpleDiff(prevProps, nextProps);
     diffProps &&
       console.log("SwitchField memo diff", {
         p: prevProps,

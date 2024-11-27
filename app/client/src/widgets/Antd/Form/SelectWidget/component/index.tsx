@@ -9,8 +9,8 @@ import type { SelectProps } from "antd";
 import { ConfigProvider, Select, Spin } from "antd";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
-import { diff } from "deep-diff";
 import { omit, isEqual } from "lodash";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 export interface SelectComponentProps {
   animateLoading?: boolean;
@@ -309,13 +309,11 @@ const arePropsEqual = (
   const _nextProps = omit(nextProps, "inputRef");
   // 开发环境打印diff;
   if (process.env.NODE_ENV === "development") {
-    const diffProps = diff(_prevProps, _nextProps);
+    const diffProps = simpleDiff(_prevProps, _nextProps);
     diffProps &&
       console.log("AntdSelect memo diff", {
         p: prevProps,
-        pJson: JSON.stringify(_prevProps),
         n: nextProps,
-        nJson: JSON.stringify(_nextProps),
         diff: diffProps,
         isSame: isEqual(_prevProps, _nextProps),
       });

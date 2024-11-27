@@ -14,8 +14,8 @@ import {
 } from "@ant-design/pro-components";
 import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { TextSize, TextSizes } from "constants/WidgetConstants";
-import { diff } from "deep-diff";
 import { isEqual } from "lodash";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 export interface RadioGroupContainerProps {
   compactMode: boolean;
   labelPosition?: AntdLabelPosition;
@@ -211,16 +211,16 @@ const arePropsEqual = (
   nextProps: RadioGroupComponentProps,
 ) => {
   // 开发环境打印diff
-  // if (process.env.NODE_ENV === "development") {
-  //   const diffProps = diff(prevProps, nextProps);
-  //   if (diffProps) {
-  //     console.log("RadioGroupComponent memo diff", {
-  //       p: prevProps,
-  //       n: nextProps,
-  //       diff: diffProps,
-  //     });
-  //   }
-  // }
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = simpleDiff(prevProps, nextProps);
+    if (diffProps) {
+      console.log("RadioGroupComponent memo diff", {
+        p: prevProps,
+        n: nextProps,
+        diff: diffProps,
+      });
+    }
+  }
   return isEqual(prevProps, nextProps);
 };
 

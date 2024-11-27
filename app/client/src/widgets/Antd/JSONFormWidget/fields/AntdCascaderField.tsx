@@ -16,7 +16,7 @@ import { ActionUpdateDependency, CascaderWidgetConfig } from "../constants";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import type { DefaultValueType } from "rc-tree-select/lib/interface";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
-import { diff } from "deep-diff";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 type CascaderFieldComponentProps = FieldComponentBaseProps &
   FieldEventProps &
@@ -139,7 +139,7 @@ const arePropsEqual = (
 ) => {
   // 开发环境打印diff
   if (process.env.NODE_ENV === "development") {
-    const diffProps = diff(prevProps, nextProps);
+    const diffProps = simpleDiff(prevProps, nextProps);
     if (diffProps) {
       console.log("AntdCascaderField memo diff", {
         p: prevProps,

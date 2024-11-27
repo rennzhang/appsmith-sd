@@ -22,7 +22,7 @@ import type {
 import { ActionUpdateDependency, TreeSelectWidgetConfig } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
-import { diff } from "deep-diff";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 type TreeSelectComponentProps = FieldComponentBaseProps &
   FieldEventProps &
@@ -135,7 +135,7 @@ const arePropsEqual = (
 ) => {
   // 开发环境打印diff
   if (process.env.NODE_ENV === "development") {
-    const diffProps = diff(prevProps, nextProps);
+    const diffProps = simpleDiff(prevProps, nextProps);
 
     diffProps &&
       console.log("AntdTreeSelectField memo diff", {

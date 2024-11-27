@@ -18,7 +18,7 @@ import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
 import type { RadioOption } from "widgets/RadioGroupWidget/constants";
-import { diff } from "deep-diff";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 type RadioGroupComponentProps = FieldComponentBaseProps &
   FieldEventProps &
@@ -102,7 +102,7 @@ const arePropsEqual = (
 ) => {
   // 开发环境打印diff
   if (process.env.NODE_ENV === "development") {
-    const diffProps = diff(prevProps, nextProps);
+    const diffProps = simpleDiff(prevProps, nextProps);
     if (diffProps) {
       console.log("RadioGroupField memo diff", {
         p: prevProps,

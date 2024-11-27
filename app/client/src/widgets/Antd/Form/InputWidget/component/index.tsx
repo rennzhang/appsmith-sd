@@ -11,7 +11,7 @@ import { Icon } from "@blueprintjs/core";
 import * as AntIcons from "@ant-design/icons";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
 import { InputTypes } from "../constants";
-import { diff } from "deep-diff";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 const { Search, TextArea } = Input;
 
@@ -380,13 +380,11 @@ const arePropsEqual = (
   const _nextProps = omit(nextProps, "inputRef");
   // 开发环境打印diff;
   if (process.env.NODE_ENV === "development") {
-    const diffProps = diff(_prevProps, _nextProps);
+    const diffProps = simpleDiff(_prevProps, _nextProps);
     diffProps &&
       console.log("AntdInput memo diff", {
         p: prevProps,
-        pJson: JSON.stringify(_prevProps),
         n: nextProps,
-        nJson: JSON.stringify(_nextProps),
         diff: diffProps,
         isSame: isEqual(_prevProps, _nextProps),
       });
@@ -395,5 +393,5 @@ const arePropsEqual = (
   return isEqual(_prevProps, _nextProps);
 };
 
-export default memo(AntdInput, arePropsEqual);
-// export default AntdInput;
+// export default memo(AntdInput, arePropsEqual);
+export default AntdInput;

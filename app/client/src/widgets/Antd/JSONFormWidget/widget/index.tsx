@@ -34,7 +34,6 @@ import type { AutocompletionDefinitions } from "widgets/constants";
 import type { ProFormInstance, ProFormProps } from "@ant-design/pro-components";
 import { CONFIG as ANTD_BUTTON_WIDGET_CONFIG } from "widgets/Antd/ButtonWidget";
 import { ButtonVariantTypes } from "components/constants";
-import { diff } from "deep-diff";
 export interface JSONFormWidgetProps extends WidgetProps {
   controlSize: ProFormProps["size"];
 

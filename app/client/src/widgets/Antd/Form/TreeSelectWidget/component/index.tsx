@@ -11,8 +11,8 @@ import { AntdFormItemContainer } from "widgets/Antd/Style";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 import type { IconName } from "@blueprintjs/icons";
 import IconRenderer from "widgets/Antd/Components/IconRenderer";
-import { diff } from "deep-diff";
 import { isEqual } from "lodash";
+import { simpleDiff } from "widgets/Antd/tools/tool";
 
 export interface TreeSelectComponentProps {
   valueKey?: string;
@@ -330,16 +330,16 @@ const arePropsEqual = (
   nextProps: TreeSelectComponentProps,
 ) => {
   // 开发环境打印diff
-  // if (process.env.NODE_ENV === "development") {
-  //   const diffProps = diff(prevProps, nextProps);
-  //   diffProps &&
-  //     console.log("TreeSelectComponent memo diff", {
-  //       p: prevProps,
-  //       n: nextProps,
-  //       diff: diffProps,
-  //       isSame: JSON.stringify(prevProps) === JSON.stringify(nextProps),
-  //     });
-  // }
+  if (process.env.NODE_ENV === "development") {
+    const diffProps = simpleDiff(prevProps, nextProps);
+    diffProps &&
+      console.log("TreeSelectComponent memo diff", {
+        p: prevProps,
+        n: nextProps,
+        diff: diffProps,
+        isSame: JSON.stringify(prevProps) === JSON.stringify(nextProps),
+      });
+  }
   return isEqual(prevProps, nextProps);
 };
 
