@@ -10,6 +10,10 @@ export function simpleDiff(
   next: any,
   path = "",
 ): DiffResult[] | null {
+  // 在非开发环境下直接返回 NULL
+  if (process.env.NODE_ENV !== "development") {
+    return null;
+  }
   // 如果值相等，直接返回空数组
   if (prev === next) {
     return [];
@@ -77,11 +81,9 @@ export function simpleDiff(
       if (prevVal.length === nextVal.length) {
         prevVal.forEach((item, index) => {
           if (typeof item === "object" && item !== null) {
-            const nestedChanges = simpleDiff(
-              item,
-              nextVal[index],
-              `${currentPath}[${index}]`,
-            );
+            const nestedChanges =
+              simpleDiff(item, nextVal[index], `${currentPath}[${index}]`) ||
+              [];
             changes.push(...nestedChanges);
           } else if (item !== nextVal[index]) {
             changes.push({
@@ -108,7 +110,7 @@ export function simpleDiff(
       prevVal !== null &&
       nextVal !== null
     ) {
-      const nestedChanges = simpleDiff(prevVal, nextVal, currentPath);
+      const nestedChanges = simpleDiff(prevVal, nextVal, currentPath) || [];
       changes.push(...nestedChanges);
       return;
     }
