@@ -1262,7 +1262,7 @@ export const resetToDefaultValues = (
       case "string":
         return "";
       case "number":
-        return 0;
+        return undefined;
       case "boolean":
         return false;
       case "object":
