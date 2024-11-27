@@ -160,35 +160,37 @@ export function TableContextProvider({
       onJsonFormOpen();
       if (state.jsonFormType === "add") {
         sourceData = defaultFormData;
-        // jsonFormRef.current?.setFieldsValue(sourceData);
       } else {
         sourceData = cleanObject(state.jsonFormData);
       }
     }
 
-    setFormState((prevState) => ({
-      ...prevState,
+    const newState = {
+      ...jsonFormState,
       ...state,
       jsonFormData: sourceData,
-    }));
+    };
+
+    setFormState(newState);
 
     console.log("Antd ProTable provider setJsonFormState", {
+      defaultFormData,
       isOpen,
       isClose,
       isSubmitFinish,
       state,
+      newState,
       primaryColumnId,
-      resetValue: jsonFormRef.current?.getFieldsValue(),
       sourceData,
       jsonFormState,
       autoFormConfig,
     });
 
     if (isSubmit) {
-      updateWidgetProperty(state, sourceData);
+      updateWidgetProperty(newState, sourceData);
     } else {
       setTimeout(() => {
-        updateWidgetProperty(state, sourceData);
+        updateWidgetProperty(newState, sourceData);
       }, 200);
     }
   };
