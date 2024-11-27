@@ -557,11 +557,12 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           false,
           columnType,
         );
-
-        newTableColumns[columnProperties.id] = {
-          ...columnProperties,
-          ...tableStyles,
-        };
+        if (columnProperties) {
+          newTableColumns[columnProperties.id] = {
+            ...columnProperties,
+            ...tableStyles,
+          };
+        }
       }
     });
 

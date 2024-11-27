@@ -420,6 +420,8 @@ export enum ColumnTypes {
   INDEX = "index",
   INDEX_BORDER = "indexBorder",
   TREE_SELECT = "treeSelect",
+  ARRAY = "array",
+  OBJECT = "object",
   // PROGRESS = "progress",
   // CODE = "code",
   // JSON_CODE = "jsonCode",

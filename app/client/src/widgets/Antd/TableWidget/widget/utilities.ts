@@ -162,12 +162,15 @@ export function getDefaultColumnProperties(
   widgetName: string,
   isDerived?: boolean,
   columnType?: string,
-): ColumnProperties {
+): ColumnProperties | null {
   const computedValue = isDerived
     ? ""
     : (`{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
         id,
       )}"]))}}` as any);
+  if ([ColumnTypes.ARRAY, ColumnTypes.OBJECT].includes(columnType as any)) {
+    return null;
+  }
   const columnProps = {
     options: [],
     imageHeight: 60,
@@ -499,6 +502,11 @@ export const getColumnType = (
       )
         ? ColumnTypes.DATE
         : ColumnTypes.TEXT;
+    case "object":
+      if (_.isArray(columnValue)) {
+        return ColumnTypes.ARRAY;
+      }
+      return ColumnTypes.OBJECT;
     default:
       return ColumnTypes.TEXT;
   }
