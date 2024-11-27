@@ -64,6 +64,19 @@ class FieldNameDropDownControl extends BaseControl<DropDownControlProps> {
   }
 
   getRecommendValue(options: any[]) {
+    const defaultFidldNames = {
+      valueKey: "value",
+      labelKey: "label",
+      childrenKey: "children",
+    };
+    // 如果当前的 propertyValue 是不是默认的，已经被修改过了，则不更新推荐值
+    if (
+      defaultFidldNames[
+        this.props.propertyName as keyof typeof defaultFidldNames
+      ] !== this.props.propertyValue
+    ) {
+      return;
+    }
     let recommendValue = this.props.defaultValue;
 
     const propertyName = this.props.propertyName;
@@ -188,14 +201,14 @@ class FieldNameDropDownControl extends BaseControl<DropDownControlProps> {
 
     const errorMessage = errors?.[errors.length - 1]?.errorMessage?.message;
 
-    console.log(
-      "DropDownControl render",
-      this.props.defaultValue,
+    console.log("DropDownControl render", {
+      defaultValue: this.props.defaultValue,
       options,
       selected,
       defaultSelected,
-      this.props,
-    );
+      props: this.props,
+      errorMessage,
+    });
 
     return (
       <div className="w-full h-full" ref={this.containerRef}>
