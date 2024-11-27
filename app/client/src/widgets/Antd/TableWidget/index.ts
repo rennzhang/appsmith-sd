@@ -35,6 +35,7 @@ export const CONFIG = {
   needsHeightForContent: true,
 
   defaults: {
+    triggeredRowKey: "",
     schemaFormState: {
       type: "",
       value: {},
@@ -149,6 +150,7 @@ export const CONFIG = {
         buttonLabel: "批量删除",
         btnIconName: "ant-design:DeleteOutlined",
         onBtnClick: "{{showAlert('请先配置批量删除按钮的动作', 'warning');}}",
+        popconfirmMessage: "确认删除所选数据吗？",
       },
       // 导出数据
       export: {
@@ -190,6 +192,7 @@ export const CONFIG = {
         btnIconName: "ant-design:DeleteOutlined",
         onBtnClick: "",
         isHideDelete: true,
+        popconfirmMessage: "确认删除吗？",
       },
       cancel: {
         ...BUTTON_DEFAULT_CONFIG,

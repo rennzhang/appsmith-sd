@@ -143,7 +143,6 @@ const JSONFormRender = React.memo(
           renderMode={props.renderMode}
           setMetaInternalFieldState={props.setMetaInternalFieldState}
           title={undefined}
-          updateDefaultFormData={props.updateDefaultFormData}
           updateWidgetFormData={props.updateWidgetFormData}
           updateWidgetMetaProperty={props.updateWidgetMetaProperty}
           updateWidgetProperty={props.updateWidgetProperty}

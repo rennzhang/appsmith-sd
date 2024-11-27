@@ -36,7 +36,6 @@ export type JSONFormState = {
   isSubmitting?: boolean;
 };
 export type JSONFormProps = {
-  updateDefaultFormData: (values: any) => void;
   setMetaInternalFieldState: (
     updateCallback: (prevState: JSONFormWidgetState) => JSONFormWidgetState,
     afterUpdateAction?: ExecuteTriggerPayload,

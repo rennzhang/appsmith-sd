@@ -1766,7 +1766,6 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           toolBarActions={this.props.toolBarActions}
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
-          updateDefaultFormData={this.updateDefaultFormData}
           updateNewTableData={this.updateNewTableData}
           updatePageNo={this.updatePageNumber}
           updatePageSize={this.updatePageSize}
@@ -2300,17 +2299,7 @@ class AntdProTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.actionQueue.push(action);
     }
   };
-  updateDefaultFormData = (values: any) => {
-    const defaultFormData = this.props.defaultFormData || {};
-    const newFormData = merge(defaultFormData, values);
-    console.log("updateDefaultFormData", {
-      defaultFormData: this.props.defaultFormData,
-      values,
-      newFormData,
-    });
 
-    this.props.updateWidgetMetaProperty("defaultFormData", newFormData);
-  };
   updateWidgetFormData = (values: any, skipConversion = false) => {
     const rootSchemaItem =
       this.props.autoFormConfig.config.schema[ROOT_SCHEMA_KEY];

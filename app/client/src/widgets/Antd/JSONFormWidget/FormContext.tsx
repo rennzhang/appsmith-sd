@@ -18,7 +18,6 @@ import { debounce } from "lodash";
 type FormContextProps<TValues = any> = React.PropsWithChildren<{
   formMode?: "edit" | "add" | "view";
   initialValues: TValues;
-  updateDefaultFormData?: (values: any) => void;
   formColorPrimary?: string;
   formControlSize: ProFormProps["size"];
   formIsDisabled?: boolean;
@@ -68,7 +67,6 @@ export function FormContextProvider({
   renderMode,
   setFieldErrors,
   setMetaInternalFieldState,
-  updateDefaultFormData,
   updateWidgetFormData,
   updateWidgetMetaProperty,
   updateWidgetProperty,
@@ -156,7 +154,6 @@ export function FormContextProvider({
       initialValues,
       resetFormData,
       setFieldErrors,
-      updateDefaultFormData,
       updateWidgetFormData,
       formColorPrimary,
       formLayout,
@@ -184,7 +181,6 @@ export function FormContextProvider({
       formLayout,
       formLabelAlign,
       updateFormData,
-      updateDefaultFormData,
       setFieldErrors,
       executeAction,
       updateWidgetFormData,

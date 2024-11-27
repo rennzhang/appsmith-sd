@@ -23,7 +23,6 @@ export const useFieldPropsHandler = ({
     formMode,
     formRef,
     initialValues,
-    updateDefaultFormData,
     updateFormData,
   } = formContext;
 
@@ -71,9 +70,7 @@ export const useFieldPropsHandler = ({
       [name]: inputDefaultValue,
     });
     if (schemaItem.defaultValue !== defaultValue) {
-      updateDefaultFormData?.({
-        [name]: schemaItem.defaultValue,
-      });
+
       setDefaultValue(schemaItem.defaultValue);
     }
   }, [schemaItem.defaultValue]);

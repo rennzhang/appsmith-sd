@@ -38,7 +38,6 @@ export interface JSONFormComponentProps<TValues = any>
   isCreateMode?: boolean;
   jsonFormPopType?: "modal" | "drawer";
   formMode?: "view" | "edit" | "add";
-  updateDefaultFormData?: (values: any) => void;
   modalWidth?: number;
   modalHeight?: number;
   maxHeight?: number;
@@ -138,7 +137,6 @@ function JSONFormComponent<TValues>(
     showCancel,
     submitButtonLabel,
     unregisterResetObserver,
-    updateDefaultFormData,
     updateWidgetFormData,
     updateWidgetMetaProperty,
     updateWidgetProperty,
@@ -228,7 +226,6 @@ function JSONFormComponent<TValues>(
       renderMode={renderMode}
       setFieldErrors={setFieldErrors}
       setMetaInternalFieldState={setMetaInternalFieldState}
-      updateDefaultFormData={updateDefaultFormData}
       updateWidgetFormData={updateWidgetFormData}
       updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}
