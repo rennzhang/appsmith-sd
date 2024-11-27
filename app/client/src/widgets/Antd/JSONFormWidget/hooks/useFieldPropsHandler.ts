@@ -52,7 +52,7 @@ export const useFieldPropsHandler = ({
 
     // 如果formMode有值，则是在 ProTable 中使用，需要使用 sourceData 作为默认值
     if (formMode) {
-      return initialValues?.[name] ?? schemaItem?.defaultValue;
+      return schemaItem?.defaultValue ?? initialValues?.[name];
     }
     if (passedDefaultValue === undefined) {
       return schemaItem?.defaultValue || initialValues?.[name];
