@@ -44,11 +44,17 @@ const transDependencies = (item: any) => {
     ...item,
     ...(item.validation
       ? {
-          ...item.validation,
-          // 去重
-          dependentPaths: [
-            ...new Set([...(item.validation?.dependentPaths || []), "schema"]),
-          ],
+          validation: {
+            ...item.validation,
+            // 去重
+            dependentPaths: [
+              ...new Set([
+                ...(item.validation?.dependentPaths || []),
+                ...JSONFORM_WIDGET_DEPENDENCIES,
+                "schema",
+              ]),
+            ],
+          },
         }
       : {}),
     dependencies: [
@@ -126,13 +132,13 @@ const transConfig = (
       );
     }
 
-    // if (!["options"].includes(item.propertyName)) {
-    if (item.controlType == "INPUT_TEXT") {
-      transItem.controlType = "ANTD_JSON_FORM_COMPUTE_VALUE";
-    } else if (item.isJSConvertible) {
-      transItem.customJSControl = "ANTD_JSON_FORM_COMPUTE_VALUE";
+    if (!["options", "valueKey", "labelKey"].includes(item.propertyName)) {
+      if (item.controlType == "INPUT_TEXT") {
+        transItem.controlType = "ANTD_JSON_FORM_COMPUTE_VALUE";
+      } else if (item.isJSConvertible) {
+        transItem.customJSControl = "ANTD_JSON_FORM_COMPUTE_VALUE";
+      }
     }
-    // }
 
     if (item.propertyName === "labelText") {
       item.hidden = hiddenIfArrayItemIsObject;

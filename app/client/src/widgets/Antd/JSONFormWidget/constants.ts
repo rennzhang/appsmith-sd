@@ -73,6 +73,7 @@ export {
 };
 
 export const JSONFORM_WIDGET_DEPENDENCIES = [
+  "autoFormConfig",
   "schemaFormState",
   "formData",
   "primaryColumns",
