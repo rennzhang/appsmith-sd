@@ -1,5 +1,5 @@
 import type { ValidationResponse } from "constants/WidgetValidation";
-import { get, isString, isArray, uniq, isPlainObject } from "lodash";
+import { get, isString, isArray, uniq, isPlainObject, map } from "lodash";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { SelectWidgetProps } from "../Form/SelectWidget/widget";
@@ -70,6 +70,33 @@ export function getChildrenColumnNameOptions(widget: WidgetProps) {
     return [];
   }
 }
+export const findUniqueValueKeys = (sourceData: any[] = []) => {
+  console.log("findUniqueValueKeys sourceData", sourceData);
+
+  if (!sourceData || sourceData.length === 0 || !Array.isArray(sourceData)) {
+    return [];
+  }
+
+  // 获取第一行的所有 key
+  const keys = Object.keys(sourceData[0]);
+
+  // 过滤出值唯一且不是复杂数据类型的字段
+  return keys.filter((key) => {
+    // 获取该字段的所有值
+    const values = map(sourceData, key);
+
+    // 排除复杂数据类型
+    const isComplexType = values.some(
+      (value) => typeof value === "object" || Array.isArray(value),
+    );
+    if (isComplexType) {
+      return false;
+    }
+
+    // 检查值是否唯一
+    return uniq(values).length === sourceData.length;
+  });
+};
 
 export function getDefaultValueOptions(widget: WidgetProps) {
   const targetPath =
@@ -139,7 +166,8 @@ export function getLabelValueKeyOptions(
     sourceData = opt1;
   }
 
-  console.log("getLabelValueKeyOptions", {
+  console.log("getLabelValueKeyOptions-----" + widget.dataTreePath, {
+    dataTreePath: widget.dataTreePath,
     type,
     widget,
     sourceData,
@@ -154,16 +182,20 @@ export function getLabelValueKeyOptions(
   //     ]?.options || [];
   // }
 
-  let parsedValue: Record<string, unknown> | undefined = sourceData;
+  let parsedValue: any = sourceData || [];
 
   if (isString(sourceData)) {
     try {
       parsedValue = JSON.parse(sourceData);
     } catch (e) {}
   }
-
-  if (isArray(parsedValue)) {
-    const result = uniq(
+  let optKeys: string[] = [];
+  if (type === "value") {
+    optKeys = findUniqueValueKeys(parsedValue as any[]);
+  } else if (type === "label") {
+    optKeys = Object.keys(parsedValue?.[0] || {});
+  } else if (type === "children") {
+    optKeys = uniq(
       parsedValue.reduce((keys, obj) => {
         if (isPlainObject(obj)) {
           Object.entries(obj).forEach(([key, value]) => {
@@ -180,16 +212,14 @@ export function getLabelValueKeyOptions(
         }
         return keys;
       }, []),
-    ).map((d: unknown) => ({
-      label: d,
-      value: d,
-    }));
-    console.log("getLabelValueKeyOptions result", result);
-
-    return result;
-  } else {
-    return [];
+    );
   }
+  const result = optKeys.map((d: unknown) => ({
+    label: d,
+    value: d,
+  }));
+
+  return result;
 }
 
 export function getLabelValueAdditionalAutocompleteData(props: WidgetProps) {
