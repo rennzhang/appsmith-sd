@@ -43,7 +43,6 @@ class FieldNameDropDownControl extends BaseControl<DropDownControlProps> {
       DS_EVENT,
       this.handleAdsEvent as (arg0: Event) => void,
     );
-    this.getRecommendValue(this.getOptions());
   }
 
   componentDidUpdate(
@@ -69,14 +68,7 @@ class FieldNameDropDownControl extends BaseControl<DropDownControlProps> {
       labelKey: "label",
       childrenKey: "children",
     };
-    // 如果当前的 propertyValue 是不是默认的，已经被修改过了，则不更新推荐值
-    if (
-      defaultFidldNames[
-        this.props.propertyName as keyof typeof defaultFidldNames
-      ] !== this.props.propertyValue
-    ) {
-      return;
-    }
+
     let recommendValue = this.props.defaultValue;
 
     const propertyName = this.props.propertyName;
@@ -93,7 +85,7 @@ class FieldNameDropDownControl extends BaseControl<DropDownControlProps> {
     }
 
     if (this.props.propertyValue !== recommendValue) {
-      console.log("FieldNameDropDownControl getRecommendValue", {
+      console.log("FIELD_NAME_DROP_DOWN getRecommendValue", {
         props: this.props,
         options,
         recommendValue,
@@ -180,7 +172,7 @@ class FieldNameDropDownControl extends BaseControl<DropDownControlProps> {
           ? this.props.evaluatedValue
           : this.props.propertyValue;
 
-      console.log("DropDownControl render computedValue", computedValue);
+      console.log("FIELD_NAME_DROP_DOWN render computedValue", computedValue);
 
       selected = options.find(
         (option) => option.value === computedValue,
@@ -201,7 +193,7 @@ class FieldNameDropDownControl extends BaseControl<DropDownControlProps> {
 
     const errorMessage = errors?.[errors.length - 1]?.errorMessage?.message;
 
-    console.log("DropDownControl render", {
+    console.log("FIELD_NAME_DROP_DOWN render", {
       defaultValue: this.props.defaultValue,
       options,
       selected,
@@ -296,7 +288,7 @@ class FieldNameDropDownControl extends BaseControl<DropDownControlProps> {
       }
 
       console.log(
-        ` DropDownControl onSelect`,
+        ` FIELD_NAME_DROP_DOWN onSelect`,
         this.props.propertyName,
         selectedValue,
       );
@@ -322,6 +314,7 @@ class FieldNameDropDownControl extends BaseControl<DropDownControlProps> {
       } else {
         selectedValue = "";
       }
+
       this.updateProperty(this.props.propertyName, selectedValue);
     }
   };
