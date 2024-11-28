@@ -349,9 +349,14 @@ export default [
         filterUniqueValueKey: true,
         defaultValue: (props: TableWidgetProps) => {
           return (
-            props.options?.find((opt: any) =>
-              opt?.label?.toLowerCase()?.includes("id"),
-            )?.value ||
+            props.options?.find((opt: any) => {
+              const _label = opt?.label?.toLowerCase();
+              return (
+                _label == "id" ||
+                _label?.includes("id") ||
+                _label?.includes("key")
+              );
+            })?.value ||
             props.options?.[0]?.value ||
             ""
           );
