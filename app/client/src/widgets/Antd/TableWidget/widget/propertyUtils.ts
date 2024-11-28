@@ -745,7 +745,6 @@ export const updateColumnProperties = (
   }> = [];
   // isVisibleCellFilters 在置顶类型下，默认是true
   const supportFilterColumnTypes = [
-    ColumnTypes.TREE_SELECT,
     ColumnTypes.SELECT,
     ColumnTypes.RADIO,
     ColumnTypes.CHECKBOX,
@@ -800,7 +799,6 @@ export const updateSelectSource = (
   if (
     [
       ColumnTypes.SELECT,
-      ColumnTypes.TREE_SELECT,
       ColumnTypes.CHECKBOX,
       ColumnTypes.RADIO,
       ColumnTypes.SWITCH,

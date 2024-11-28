@@ -187,7 +187,12 @@ export function getLabelValueKeyOptions(
   if (isString(sourceData)) {
     try {
       parsedValue = JSON.parse(sourceData);
-    } catch (e) {}
+    } catch (e) {
+      return [];
+    }
+  }
+  if (!Array.isArray(parsedValue)) {
+    return [];
   }
   let optKeys: string[] = [];
   if (type === "value") {
@@ -196,7 +201,7 @@ export function getLabelValueKeyOptions(
     optKeys = Object.keys(parsedValue?.[0] || {});
   } else if (type === "children") {
     optKeys = uniq(
-      parsedValue.reduce((keys, obj) => {
+      parsedValue?.reduce((keys, obj) => {
         if (isPlainObject(obj)) {
           Object.entries(obj).forEach(([key, value]) => {
             const valueIsArray = Array.isArray(value);

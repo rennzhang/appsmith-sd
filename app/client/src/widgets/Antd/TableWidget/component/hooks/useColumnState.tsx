@@ -22,6 +22,7 @@ import dayjs from "dayjs";
 import type { SorterResult, SortOrder } from "antd/es/table/interface";
 import AntdSelect from "widgets/Antd/Form/SelectWidget/component";
 import { CONFIG as AntdSelectConfig } from "widgets/Antd/Form/SelectWidget";
+import { cloneDeep } from "lodash";
 const { RangePicker } = DatePicker;
 const getRules = (column: TableColumnProps) => {
   const { columnProperties } = column;
@@ -408,6 +409,28 @@ const getColumnRender = (
   };
 };
 
+// 递归转化 options 为树形结构，labelKey 为树形结构的 key，valueKey 为树形结构的 value，childrenKey 为树形结构的 children
+const transformOptionsToTree = (
+  options: any[],
+  labelKey: string,
+  valueKey: string,
+  childrenKey: string,
+): any[] => {
+  return options.map((option) => {
+    return {
+      ...option,
+      label: option[labelKey],
+      value: option[valueKey],
+      children: transformOptionsToTree(
+        option[childrenKey],
+        labelKey,
+        valueKey,
+        childrenKey,
+      ),
+    };
+  });
+};
+
 const getFieldProps = (propsData: {
   column: TableColumnProps;
   props: AntdTableProps;
@@ -415,7 +438,7 @@ const getFieldProps = (propsData: {
   config: ProSchema;
 }) => {
   const { column, config, form, props } = propsData;
-  let _options = column.columnProperties.options;
+  let _options = cloneDeep(column.columnProperties.options);
   try {
     if (typeof _options === "string") {
       _options = JSON.parse(_options);
