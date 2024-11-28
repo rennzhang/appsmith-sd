@@ -386,7 +386,7 @@ export function valueKeyValidation(
     };
   }
 
-  console.log("valueKeyValidation", { value, _value, props, path });
+  console.log("valueKeyValidation", { value, _value, props, path, propsData });
   /*
    * Validation rules
    *  1. Can be a string.
@@ -394,7 +394,7 @@ export function valueKeyValidation(
    *  3. should be unique.
    */
 
-  if (_value === "" || _.isNil(_value)) {
+  if (!_.isNil(_value) && !_.isString(_value) && !_.isNumber(_value)) {
     return {
       parsed: "",
       isValid: false,
@@ -409,29 +409,17 @@ export function valueKeyValidation(
 
   let options: unknown[] = [];
 
-  if (_.isString(_value)) {
-    let sourceData: any[] = propsData.options;
-    try {
-      if (_.isString(sourceData)) {
-        sourceData = JSON.parse(sourceData);
-      }
-    } catch (error) {
-      sourceData = [];
+  let sourceData: any[] = propsData.options || [];
+  try {
+    if (_.isString(sourceData)) {
+      sourceData = JSON.parse(sourceData);
     }
 
-    const keys = sourceData.reduce((keys, curr) => {
+    const keys = sourceData?.reduce((keys, curr) => {
       Object.keys(curr).forEach((d) => keys.add(d));
 
       return keys;
     }, new Set());
-
-    console.log("valueKeyValidation keys", {
-      value,
-      _value,
-      props,
-      path,
-      keys,
-    });
 
     if (!keys.has(_value)) {
       return {
@@ -446,38 +434,19 @@ export function valueKeyValidation(
       };
     }
 
-    options = sourceData.map((d: Record<string, unknown>) => d[_value]);
-  } else if (_.isArray(_value)) {
-    const errorIndex = _value.findIndex(
-      (d) =>
-        !(_.isString(d) || (_.isNumber(d) && !_.isNaN(d)) || _.isBoolean(d)),
+    options = sourceData?.map(
+      (d: Record<string, unknown>) => d[_value as string],
     );
 
-    if (errorIndex !== -1) {
-      return {
-        parsed: [],
-        isValid: false,
-        messages: [
-          {
-            name: "ValidationError",
-            message: `索引 ${errorIndex} 处的值无效。该值必须是字符串、数字或布尔类型（${path}）`,
-          },
-        ],
-      };
-    } else {
-      options = _value;
-    }
-  } else {
-    return {
-      parsed: "",
-      isValid: false,
-      messages: [
-        {
-          name: "ValidationError",
-          message: `值的类型必须是字符串或字符串、数字、布尔值的数组（${path}）`,
-        },
-      ],
-    };
+    console.log("valueKeyValidation keys", {
+      value,
+      _value,
+      props,
+      path,
+      keys,
+    });
+  } catch (error) {
+    sourceData = [];
   }
 
   const isValid = options.every(

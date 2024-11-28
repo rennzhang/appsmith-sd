@@ -31,9 +31,11 @@ const ErrorMessage = styled.div`
 `;
 const findIdField = (options: any[], patterns: string[]) => {
   const targetPatterns = patterns.map((pattern) => new RegExp(pattern, "i"));
-  return options.find((opt) =>
-    targetPatterns.some((pattern) => pattern.test(opt.label.toLowerCase())),
-  )?.value;
+  return (
+    options.find((opt) =>
+      targetPatterns.some((pattern) => pattern.test(opt.label.toLowerCase())),
+    )?.value || options?.[0]?.value
+  );
 };
 class FieldNameDropDownControl extends BaseControl<DropDownControlProps> {
   containerRef = React.createRef<HTMLDivElement>();
