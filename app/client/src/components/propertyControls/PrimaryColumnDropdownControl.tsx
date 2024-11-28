@@ -10,6 +10,7 @@ import {
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+import { map, uniq } from "lodash";
 
 class PrimaryColumnDropdownControl extends BaseControl<
   ControlProps & {
@@ -43,28 +44,32 @@ class PrimaryColumnDropdownControl extends BaseControl<
       e.stopPropagation();
     }
   };
-  findUniqueValueKeys = (ary: any[] = []) => {
-    try {
-      const valueKeys: Record<string, any> = {};
-      if (ary.length === 0 || !ary) {
-        return [];
-      }
-      (ary || [])?.forEach((obj) => {
-        for (const [key, value = ""] of Object.entries(obj)) {
-          if (typeof value === "object") return;
-          const v =
-            (typeof value === "object"
-              ? JSON.stringify(value)
-              : value
-            )?.toString() || "empty";
-          valueKeys[v] = key;
-        }
-      });
+  findUniqueValueKeys = (tableData: any[] = []) => {
+    console.log("findUniqueValueKeys tableData", tableData);
 
-      return [...new Set(Object.values(valueKeys).filter(Boolean))];
-    } catch (error) {
+    if (!tableData || tableData.length === 0 || !Array.isArray(tableData)) {
       return [];
     }
+
+    // 获取第一行的所有 key
+    const keys = Object.keys(tableData[0]);
+
+    // 过滤出值唯一且不是复杂数据类型的字段
+    return keys.filter((key) => {
+      // 获取该字段的所有值
+      const values = map(tableData, key);
+
+      // 排除复杂数据类型
+      const isComplexType = values.some(
+        (value) => typeof value === "object" || Array.isArray(value),
+      );
+      if (isComplexType) {
+        return false;
+      }
+
+      // 检查值是否唯一
+      return uniq(values).length === tableData.length;
+    });
   };
 
   setDefaultValue = (props: any, options: any[]) => {
