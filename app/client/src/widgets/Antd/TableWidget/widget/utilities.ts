@@ -171,12 +171,15 @@ export function getDefaultColumnProperties(
 
   let beforeProps = {};
 
+  // 复杂类型列，默认隐藏
   if ([ColumnTypes.ARRAY, ColumnTypes.OBJECT].includes(columnType as any)) {
     beforeProps = {
       isVisible: false,
       columnType: ColumnTypes.TEXT,
       // 隐藏该列
       isHiddenItem: true,
+      isVisibleCellSearch: false,
+      isCellVisible: false,
     };
   }
   const columnProps = {

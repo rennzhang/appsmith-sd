@@ -136,7 +136,10 @@ export const getColumnsPureFn: getColumns = (
     }
   }
 
-  return columns.filter((column: ReactTableColumnProps) => !!column.id);
+  return columns.filter(
+    (column: ReactTableColumnProps) =>
+      !!column.id && !column.columnProperties.isHiddenItem,
+  );
 };
 
 // the result of this cache function is a prop for the useTable hook, this prop needs to memoised as per their docs
