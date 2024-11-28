@@ -27,6 +27,7 @@ import ActionPanelConfig from "./ActionPanelConfig";
 import { ButtonVariantTypes } from "components/constants";
 
 import { JSONFormConfig, JSONFormDefaults } from "./JSONForm";
+import { getChildrenColumnNameOptions } from "widgets/Antd/tools";
 
 export default [
   {
@@ -970,17 +971,32 @@ export default [
   {
     sectionName: "树形数据显示配置",
     children: [
-      // childrenColumnName
+      // 是否显示树形表格
+      {
+        helpText: "是否显示树形表格",
+        propertyName: "isTreeTable",
+        label: "树形表格",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+
       {
         helpText: "树形数据的子节点字段名",
         propertyName: "childrenColumnName",
         label: "子节点字段名",
-        controlType: "INPUT_TEXT",
+        controlType: "DROP_DOWN",
         defaultValue: "children",
         placeholderText: "children",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        evaluatedDependencies: ["tableData"],
+        options: getChildrenColumnNameOptions,
+        hidden: (props: TableWidgetProps) => !props.isTreeTable,
+        dependencies: ["isTreeTable", "tableData"],
       },
       // defaultExpandAllRows
       {
@@ -992,6 +1008,8 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         defaultValue: false,
+        hidden: (props: TableWidgetProps) => !props.isTreeTable,
+        dependencies: ["isTreeTable"],
       },
       // defaultExpandedRowKeys
       {
@@ -1008,10 +1026,15 @@ export default [
         },
 
         hidden: (props: TableWidgetProps) => {
-          return props.defaultExpandAllRows;
+          return props.defaultExpandAllRows || !props.isTreeTable;
         },
-        dependencies: ["defaultExpandAllRows", "tableData", "primaryColumnId"],
-        evaluatedDependencies: ["tableData", "primaryColumnId"],
+        dependencies: [
+          "defaultExpandAllRows",
+          "tableData",
+          "primaryColumnId",
+          "isTreeTable",
+        ],
+        evaluatedDependencies: ["tableData", "primaryColumnId", "isTreeTable"],
       },
       // expandRowByClick
       {
@@ -1022,6 +1045,8 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         defaultValue: false,
+        hidden: (props: TableWidgetProps) => !props.isTreeTable,
+        dependencies: ["isTreeTable"],
       },
       // onExpand 事件
       {
@@ -1032,6 +1057,8 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+        hidden: (props: TableWidgetProps) => !props.isTreeTable,
+        dependencies: ["isTreeTable"],
       },
     ],
   },
