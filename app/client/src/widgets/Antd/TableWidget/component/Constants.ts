@@ -275,6 +275,7 @@ export interface ColumnBaseProperties {
   isAscOrder?: boolean;
   alias: string;
   allowCellWrapping: boolean;
+  isHiddenItem?: boolean;
 }
 
 export interface ColumnStyleProperties {
