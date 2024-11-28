@@ -168,8 +168,16 @@ export function getDefaultColumnProperties(
     : (`{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
         id,
       )}"]))}}` as any);
+
+  let beforeProps = {};
+
   if ([ColumnTypes.ARRAY, ColumnTypes.OBJECT].includes(columnType as any)) {
-    return null;
+    beforeProps = {
+      isVisible: false,
+      columnType: ColumnTypes.TEXT,
+      // 隐藏该列
+      isHiddenItem: true,
+    };
   }
   const columnProps = {
     options: [],
@@ -211,6 +219,7 @@ export function getDefaultColumnProperties(
     computedValue,
     sticky: StickyType.NONE,
     validation: {},
+    ...beforeProps,
   };
 
   return columnProps;
@@ -379,7 +388,8 @@ export const reorderColumns = (
 ) => {
   const newColumnsInOrder: Record<string, ColumnProperties> = {};
   uniq(columnOrder).forEach((id: string, index: number) => {
-    if (columns[id]) newColumnsInOrder[id] = { ...columns[id], index };
+    if (columns[id] && !columns[id].isHiddenItem)
+      newColumnsInOrder[id] = { ...columns[id], index };
   });
   const remaining = without(
     Object.keys(columns),
@@ -388,9 +398,13 @@ export const reorderColumns = (
   const len = Object.keys(newColumnsInOrder).length;
   if (remaining && remaining.length > 0) {
     remaining.forEach((id: string, index: number) => {
-      newColumnsInOrder[id] = { ...columns[id], index: len + index };
+      if (!columns[id].isHiddenItem) {
+        newColumnsInOrder[id] = { ...columns[id], index: len + index };
+      }
     });
   }
+  console.log("newColumnsInOrder", { newColumnsInOrder, remaining });
+
   return newColumnsInOrder;
 };
 
