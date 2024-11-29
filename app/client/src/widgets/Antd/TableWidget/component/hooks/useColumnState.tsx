@@ -634,9 +634,11 @@ export const useColumnState = (props: AntdTableProps, extra: Extra) => {
               .includes(value.toString().toLowerCase());
           },
           search: props.isVisibleSearch,
-          hideInSearch: !(
-            props.isVisibleSearch && column.columnProperties.isVisibleCellSearch
-          ),
+          hideInSearch:
+            !(
+              props.isVisibleSearch &&
+              column.columnProperties.isVisibleCellSearch
+            ) || column.columnProperties.isHiddenItem,
           sorter: getSorter(column),
           // sortOrder: "ascend",
           sortOrder:
