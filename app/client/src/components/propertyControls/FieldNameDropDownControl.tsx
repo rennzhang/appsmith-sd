@@ -47,11 +47,7 @@ class FieldNameDropDownControl extends BaseControl<DropDownControlProps> {
     );
   }
 
-  componentDidUpdate(
-    prevProps: Readonly<DropDownControlProps>,
-    prevState: Readonly<{}>,
-    snapshot?: any,
-  ): void {
+  componentDidUpdate(prevProps: Readonly<DropDownControlProps>): void {
     const options = this.getOptions();
     if (!equal(this.getOptions(prevProps), options)) {
       this.getRecommendValue(options);
@@ -95,7 +91,12 @@ class FieldNameDropDownControl extends BaseControl<DropDownControlProps> {
       this.batchUpdateProperties({
         [this.props.propertyName]: recommendValue,
       });
-      // this.updateProperty(this.props.propertyName, recommendValue);
+
+      this.props.updateHook?.(
+        this.props.widgetProperties,
+        this.props.propertyName,
+        recommendValue,
+      );
     }
 
     return recommendValue;
