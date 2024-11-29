@@ -1,3 +1,24 @@
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M23 6.00006H1V18.2222H23V6.00006ZM3.44445 8.44453V15.7779H20.5555V8.44453H3.44445ZM13.2232 11.2556L16.0342 14.0667L18.8454 11.2556L17.7209 10.1312L16.0342 11.8179L14.3477 10.1312L13.2232 11.2556Z" fill="#4C5664"/>
-</svg>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width="1em"
+    height="1em"
+    fill="#e6e8eb"
+    stroke="#4C5664"
+    strokeWidth="3"
+  >
+    <rect x="1" y="4" width="8" height="16" rx="1" strokeWidth="3"/>
+    <rect x="15" y="4" width="8" height="16" rx="1" strokeWidth="3"/>
+    <line x1="2.2" y1="6" x2="3.1" y2="6" strokeWidth="3"/>
+    <line x1="3.8" y1="6" x2="7.5" y2="6" strokeWidth="3"/>
+    <line x1="2.2" y1="8.5" x2="3.1" y2="8.5" strokeWidth="3"/>
+    <line x1="3.8" y1="8.5" x2="7.5" y2="8.5" strokeWidth="3"/>
+    <line x1="2.2" y1="11" x2="3.1" y2="11" strokeWidth="3"/>
+    <line x1="3.8" y1="11" x2="7.5" y2="11" strokeWidth="3"/>
+    <line x1="16.4" y1="6" x2="17.5" y2="6" strokeWidth="3"/>
+    <line x1="18.2" y1="6" x2="22" y2="6" strokeWidth="3"/>
+    <line x1="16.4" y1="8.5" x2="17.5" y2="8.5" strokeWidth="3"/>
+    <line x1="18.2" y1="8.5" x2="22" y2="8.5" strokeWidth="3"/>
+    <path d="M11 7l2 2-2 2" strokeWidth="3" stroke="#4C5664" fill="#4C5664"/>
+    <path d="M13 12l-2 2 2 2" strokeWidth="3" stroke="#4C5664" fill="#4C5664"/>
+  </svg>
