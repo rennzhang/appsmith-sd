@@ -414,6 +414,13 @@ export function valueKeyValidation(
     if (_.isString(sourceData)) {
       sourceData = JSON.parse(sourceData);
     }
+    if (!sourceData.length) {
+      return {
+        parsed: _value,
+        isValid: true,
+        messages: [],
+      };
+    }
 
     const keys = sourceData?.reduce((keys, curr) => {
       Object.keys(curr).forEach((d) => keys.add(d));
