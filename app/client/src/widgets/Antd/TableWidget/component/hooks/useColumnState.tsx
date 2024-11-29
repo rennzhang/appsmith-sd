@@ -500,6 +500,11 @@ const getFieldProps = (propsData: {
       fieldProps.height = column.columnProperties.imageHeight;
       fieldProps.onClick = () => props?.handleUrlOrImgClick(column);
       break;
+    case ColumnTypes.TREE_SELECT:
+    case ColumnTypes.SELECT:
+      fieldProps.treeDefaultExpandAll = true;
+      fieldProps.defaultValue = "";
+      break;
     default:
       break;
   }
@@ -581,6 +586,13 @@ export const useColumnState = (props: AntdTableProps, extra: Extra) => {
           render: getColumnRender(column, props),
 
           renderFormItem(schema, config, form, action) {
+            console.log("表格 renderFormItem", {
+              schema,
+              config,
+              form,
+              action,
+            });
+
             const { isRangeInSearch } = column.columnProperties;
 
             if (ColumnTypes.DATE === columnType && isRangeInSearch) {
@@ -600,6 +612,7 @@ export const useColumnState = (props: AntdTableProps, extra: Extra) => {
             } else if (column.columnProperties.showSelectInSearchForm) {
               return (
                 <AntdSelect
+                  value={form?.getFieldValue(column.id)}
                   {...AntdSelectConfig.defaults}
                   {...(schema.fieldProps as any)}
                   handleValueChange={(value) => {

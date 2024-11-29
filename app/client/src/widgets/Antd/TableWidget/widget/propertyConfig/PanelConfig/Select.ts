@@ -154,6 +154,7 @@ export default {
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
       dependencies: ["primaryColumns"],
+      defaultValue: "请选择",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT]);
       },
