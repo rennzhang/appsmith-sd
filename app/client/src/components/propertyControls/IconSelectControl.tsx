@@ -65,7 +65,8 @@ const StyledButton = styled(Button)`
     border: 1px solid var(--ads-v2-color-border-emphasis);
   }
   &:focus {
-    outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
+    outline: var(--ads-v2-border-width-outline) solid
+      var(--ads-v2-color-outline);
     border: 1px solid var(--ads-v2-color-border-emphasis);
   }
 `;
@@ -119,7 +120,10 @@ const antIconListCache = new Map<string, string[]>();
 
 const TypedSelect = Select.ofType<IconType>();
 
-class IconSelectControl extends BaseControl<IconSelectControlProps, IconSelectControlState> {
+class IconSelectControl extends BaseControl<
+  IconSelectControlProps,
+  IconSelectControlState
+> {
   private iconSelectTargetRef: React.RefObject<HTMLButtonElement>;
   private virtuosoRef: React.RefObject<VirtuosoGridHandle>;
   private initialItemIndex: number;
@@ -145,10 +149,13 @@ class IconSelectControl extends BaseControl<IconSelectControlProps, IconSelectCo
 
   private debouncedSetState = _.debounce(
     (obj: Partial<IconSelectControlState>, callback?: () => void) => {
-      this.setState((prevState) => ({
-        ...prevState,
-        ...obj,
-      }), callback);
+      this.setState(
+        (prevState) => ({
+          ...prevState,
+          ...obj,
+        }),
+        callback,
+      );
     },
     300,
     {
@@ -178,8 +185,8 @@ class IconSelectControl extends BaseControl<IconSelectControlProps, IconSelectCo
   }, 50);
 
   private async preloadIconList() {
-    if (antIconListCache.has('list')) {
-      this.setState({ loadedIcons: antIconListCache.get('list') || [] });
+    if (antIconListCache.has("list")) {
+      this.setState({ loadedIcons: antIconListCache.get("list") || [] });
       return;
     }
 
@@ -188,47 +195,49 @@ class IconSelectControl extends BaseControl<IconSelectControlProps, IconSelectCo
       const module = await import(
         /* webpackMode: "lazy" */
         /* webpackChunkName: "antd-icons-" */
-        '@ant-design/icons'
+        "@ant-design/icons"
       );
 
       const iconList = Object.keys(module)
-        .filter(key => typeof module[key] === 'object')
-        .filter(key => {
+        .filter((key) => typeof module[key] === "object")
+        .filter((key) => {
           if (this.props.disableAntdTwoToneIcon) {
-            return !key.endsWith('TwoTone');
+            return !key.endsWith("TwoTone");
           }
           return true;
         })
-        .map(key => `${ANT_PREFIX}${key}`);
+        .map((key) => `${ANT_PREFIX}${key}`);
 
-      antIconListCache.set('list', iconList);
+      antIconListCache.set("list", iconList);
       this.setState({ loadedIcons: iconList });
     } catch (error) {
-      console.error('Failed to load icon list:', error);
+      console.error("Failed to load icon list:", error);
       this.setState({ loadedIcons: [] });
     }
   }
 
-// 修改 preloadIcon 方法
-private preloadIcon(iconName: IconType) {
-  if (iconName === NONE || !iconName.startsWith(ANT_PREFIX)) return;
+  // 修改 preloadIcon 方法
+  private preloadIcon(iconName: IconType) {
+    if (iconName === NONE || !iconName.startsWith(ANT_PREFIX)) return;
 
-  const name = iconName.slice(ANT_PREFIX.length);
-  if (iconCache.has(name)) return;
+    const name = iconName.slice(ANT_PREFIX.length);
+    if (iconCache.has(name)) return;
 
-  // 修改动态导入方式
-  import(
-    /* webpackMode: "lazy" */
-    /* webpackChunkName: "antd-icons" */
-    '@ant-design/icons'
-  ).then(module => {
-    if (module && module[name]) {
-      iconCache.set(name, module[name]);
-    }
-  }).catch(error => {
-    console.error(`Failed to preload icon: ${name}`, error);
-  });
-}
+    // 修改动态导入方式
+    import(
+      /* webpackMode: "lazy" */
+      /* webpackChunkName: "antd-icons" */
+      "@ant-design/icons"
+    )
+      .then((module) => {
+        if (module && module[name]) {
+          iconCache.set(name, module[name]);
+        }
+      })
+      .catch((error) => {
+        console.error(`Failed to preload icon: ${name}`, error);
+      });
+  }
 
   private setActiveIcon(iconIndex: number) {
     this.setState(
@@ -389,7 +398,10 @@ private preloadIcon(iconName: IconType) {
         initialItemCount={16}
         itemContent={(index) => {
           const icon = filteredItems[index];
-          if (index < this.initialItemIndex + 20 && index > this.initialItemIndex - 20) {
+          if (
+            index < this.initialItemIndex + 20 &&
+            index > this.initialItemIndex - 20
+          ) {
             this.preloadIcon(icon);
           }
           return renderItem(icon, index);
@@ -420,9 +432,7 @@ private preloadIcon(iconName: IconType) {
     if (iconName === NONE || query === "") return true;
 
     const terms = query.toLowerCase().split(/\s+/);
-    return terms.every(term =>
-      iconName.toLowerCase().includes(term)
-    );
+    return terms.every((term) => iconName.toLowerCase().includes(term));
   };
 
   private renderIcon = (icon: IconType) => {
@@ -474,7 +484,8 @@ private preloadIcon(iconName: IconType) {
   public render() {
     const { defaultIconName, propertyValue: iconName } = this.props;
     const { activeIcon, isOpen } = this.state;
-    const containerWidth = this.iconSelectTargetRef.current?.getBoundingClientRect?.()?.width || 0;
+    const containerWidth =
+      this.iconSelectTargetRef.current?.getBoundingClientRect?.()?.width || 0;
 
     return (
       <>
@@ -503,7 +514,9 @@ private preloadIcon(iconName: IconType) {
         >
           <StyledButton
             alignText={Alignment.LEFT}
-            className={Classes.TEXT_OVERFLOW_ELLIPSIS + " " + replayHighlightClass}
+            className={
+              Classes.TEXT_OVERFLOW_ELLIPSIS + " " + replayHighlightClass
+            }
             elementRef={this.iconSelectTargetRef}
             fill
             icon={this.renderIcon(activeIcon)}
@@ -532,8 +545,8 @@ private preloadIcon(iconName: IconType) {
 }
 
 const AntIconWrapper: React.FC<{ iconName: string }> = ({ iconName }) => {
-  const [Icon, setIcon] = useState<React.ComponentType | null>(() =>
-    iconCache.get(iconName) || null
+  const [Icon, setIcon] = useState<React.ComponentType | null>(
+    () => iconCache.get(iconName) || null,
   );
 
   useEffect(() => {
@@ -549,7 +562,7 @@ const AntIconWrapper: React.FC<{ iconName: string }> = ({ iconName }) => {
         const IconComponent = await import(
           /* webpackChunkName: "antd-icon-[request]" */
           `@ant-design/icons/es/icons/${iconName}`
-        ).then(module => module.default);
+        ).then((module) => module.default);
 
         iconCache.set(iconName, IconComponent);
         setIcon(() => IconComponent);
