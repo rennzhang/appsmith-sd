@@ -385,6 +385,10 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
         validationType = `${validationType} Required`;
       }
 
+      if (config.params?.strict) {
+        validationType = `${validationType} Strict`;
+      }
+
       return validationType;
     case ValidationTypes.OBJECT:
       let objectType = "Object";
@@ -574,9 +578,15 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   ): ValidationResponse => {
     const { NUMBER, TEXT } = ValidationTypes;
     const validate = (type: ValidationTypes) =>
-      VALIDATORS[type](config, value, props, propertyPath);
+      VALIDATORS[type](
+        { ...config, params: { ...config.params, strict: true } },
+        value,
+        props,
+        propertyPath,
+      );
 
-    const [textResult, numberResult] = [NUMBER, TEXT].map(validate);
+    const [numberResult, textResult] = [NUMBER, TEXT].map(validate);
+
     return numberResult.isValid ? numberResult : textResult;
   },
   // TODO(abhinav): The original validation does not make sense fix this.
@@ -668,6 +678,20 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     // check for min and max limits
     let parsed: number = value as number;
     if (isString(value)) {
+      if (config.params?.strict) {
+        return {
+          isValid: false,
+          parsed: value || config.params?.default || 0,
+          messages: [
+            {
+              name: "TypeError",
+              message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(
+                config,
+              )}`,
+            },
+          ],
+        };
+      }
       if (/^-?\d+\.?\d*$/.test(value)) {
         parsed = Number(value);
       } else {
