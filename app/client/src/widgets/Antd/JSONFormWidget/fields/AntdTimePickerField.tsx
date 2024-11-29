@@ -6,7 +6,7 @@ import type { BaseFieldComponentProps, FieldComponent } from "../constants";
 import { TimePickerWidgetConfig } from "../constants";
 import type { FieldComponentBaseProps, FieldEventProps } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { omit } from "lodash";
+import { isEqual, omit } from "lodash";
 import { useFieldPropsHandler } from "../hooks/useFieldPropsHandler";
 import React from "react";
 import { simpleDiff } from "widgets/Antd/tools/tool";
@@ -80,7 +80,7 @@ const arePropsEqual = (
       });
     }
   }
-  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+  return isEqual(prevProps, nextProps);
 };
 const MemoizedTimePickerField: FieldComponent<TimePickerComponentProps> = memo(
   AntdTimePickerField,

@@ -142,7 +142,7 @@ const arePropsEqual = (
         p: prevProps,
         n: nextProps,
         diff: diffProps,
-        isSame: JSON.stringify(prevProps) === JSON.stringify(nextProps),
+        isSame: isEqual(prevProps, nextProps),
       });
   }
   return (

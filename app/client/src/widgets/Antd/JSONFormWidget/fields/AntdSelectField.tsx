@@ -1,6 +1,6 @@
 import { memo, useCallback, useContext, useMemo, useRef } from "react";
 import type { DraftValueType } from "rc-select/lib/Select";
-import { omit } from "lodash";
+import { isEqual, omit } from "lodash";
 
 import FormContext from "../FormContext";
 import type { SelectComponentProps as AntdSelectComponentProps } from "widgets/Antd/Form/SelectWidget/component";
@@ -141,7 +141,7 @@ const arePropsEqual = (
         diff: diffProps,
       });
   }
-  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+  return isEqual(prevProps, nextProps);
 };
 const MemoizedSelectField: FieldComponent<SelectComponentProps> = memo(
   AntdSelectField,

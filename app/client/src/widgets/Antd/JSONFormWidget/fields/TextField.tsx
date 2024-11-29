@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from "react";
-import { omit } from "lodash";
+import { isEqual, omit } from "lodash";
 
 import FormContext from "../FormContext";
 import type { TextDisplayComponentProps } from "widgets/Antd/Form/TextWidget/component";
@@ -53,7 +53,7 @@ const arePropsEqual = (
   prevProps: TextFieldProps,
   nextProps: TextFieldProps,
 ) => {
-  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+  return isEqual(prevProps, nextProps);
 };
 const MemoizedTextField: FieldComponent<TextComponentProps> = memo(
   TextField,

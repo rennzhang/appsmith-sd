@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { memo, useCallback, useContext, useMemo, useRef } from "react";
-import { omit } from "lodash";
+import { isEqual, omit } from "lodash";
 import React from "react";
 
 import FormContext from "../FormContext";
@@ -148,7 +148,7 @@ const arePropsEqual = (
       });
     }
   }
-  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+  return isEqual(prevProps, nextProps);
 };
 
 const MemoizedCascaderField: FieldComponent<CascaderFieldComponentProps> = memo(

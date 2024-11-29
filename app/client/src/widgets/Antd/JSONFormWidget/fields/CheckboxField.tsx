@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useMemo } from "react";
-import { omit } from "lodash";
+import { isEqual, omit } from "lodash";
 
 import FormContext from "../FormContext";
 import type { CheckboxComponentProps as AntdCheckboxComponentProps } from "widgets/Antd/Form/CheckboxWidget/component";
@@ -93,7 +93,7 @@ const arePropsEqual = (
       });
     }
   }
-  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+  return isEqual(prevProps, nextProps);
 };
 const MemoizedCheckboxField: FieldComponent<CheckboxComponentProps> = memo(
   CheckboxField,

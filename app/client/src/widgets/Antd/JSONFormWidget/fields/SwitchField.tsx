@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useMemo } from "react";
-import { omit } from "lodash";
+import { isEqual, omit } from "lodash";
 
 import FormContext from "../FormContext";
 import Field from "widgets/Antd/JSONFormWidget/component/Field";
@@ -118,7 +118,7 @@ const arePropsEqual = (
         p: prevProps,
         n: nextProps,
         diff: diffProps,
-        isSame: JSON.stringify(prevProps) === JSON.stringify(nextProps),
+        isSame: isEqual(prevProps, nextProps),
       });
   }
   return (

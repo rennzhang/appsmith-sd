@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useContext, useMemo } from "react";
 import { Alignment } from "@blueprintjs/core";
-import { isNumber, omit } from "lodash";
+import { isEqual, isNumber, omit } from "lodash";
 
 import FormContext from "../FormContext";
 import type { RadioGroupComponentProps as AntdRadioGroupComponentProps } from "widgets/Antd/Form/RadioWidget/component";
@@ -111,7 +111,7 @@ const arePropsEqual = (
       });
     }
   }
-  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
+  return isEqual(prevProps, nextProps);
 };
 
 const MemoizedRadioGroupField: FieldComponent<RadioGroupComponentProps> = memo(
