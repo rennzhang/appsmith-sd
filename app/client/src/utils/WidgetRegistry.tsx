@@ -78,6 +78,10 @@ import AntdRateWidget, {
   CONFIG as ANTD_RATE_CONFIG,
 } from "widgets/Antd/Form/RateWidget";
 
+import IconSelectWidget, {
+  CONFIG as ICON_SELECT_WIDGET_CONFIG,
+} from "widgets/Antd/Form/IconSelectWidget";
+
 // Switch
 import AntdSwitchWidget, {
   CONFIG as ANTD_SWITCH_CONFIG,
@@ -345,6 +349,7 @@ export const ALL_WIDGETS_AND_CONFIG: [any, WidgetConfiguration][] = [
   [AntdCheckboxWidget, ANTD_CHECKBOX_CONFIG],
   [AntdRateWidget, ANTD_RATE_CONFIG],
   [AntdSwitchWidget, ANTD_SWITCH_CONFIG],
+  [IconSelectWidget, ICON_SELECT_WIDGET_CONFIG],
   [AntdSliderWidget, ANTD_SLIDER_CONFIG],
   [AntdTextWidget, ANTD_TEXT_CONFIG],
   [AntdInputWidget, ANTD_INPUT_CONFIG],
