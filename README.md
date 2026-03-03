@@ -1,3 +1,5 @@
+> 前两年基于开源项目 AppSmith 做了大量定制化二开（引入大量的 Antd 组件,更适合国内使用），由于并未真实落地，且纯低代码在 AI 时代逐渐已经成为过时产物了，因此决定把所有代码开放出来
+
 <p align="center">
   <img src="static/pageplug/new-banner.svg" width="360" height="160" alt="PagePlug">
 </p>
